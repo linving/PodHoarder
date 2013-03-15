@@ -1,5 +1,8 @@
 package com.podhoarderproject.podhoarder;
-
+/**
+ * @author Emil Almrot
+ * 2013-03-15
+ */
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,7 +20,8 @@ import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class FeedImage {
+public class FeedImage 
+{
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.FeedImage";
 	
 	private int		feedId;
