@@ -17,7 +17,6 @@ public class Feed
 	private String title;
 	private String author;
 	private String description;
-	private String[] keywords;
 	private String link;
 	private String category;
 	private FeedImage feedImage;
@@ -25,14 +24,13 @@ public class Feed
 	private Context ctx;
 
 	public Feed(int feedId, String title, String author, String description,
-			String[] keywords, String link, String category, String imageURL,
-			List<Episode> episodes, Context ctx)
+			String link, String category, String imageURL, List<Episode> episodes, 
+			Context ctx)
 	{
 		this.feedId = feedId;
 		this.title = title;
 		this.author = author;
 		this.description = description;
-		this.keywords = keywords;
 		this.link = link;
 		this.category = category;
 		this.episodes = episodes;
@@ -46,7 +44,6 @@ public class Feed
 		this.title = "";
 		this.author = "";
 		this.description = "";
-		this.keywords = null;
 		this.link = "";
 		this.category = "";
 		this.episodes = null;
@@ -87,16 +84,6 @@ public class Feed
 	public void setDescription(String description)
 	{
 		this.description = description;
-	}
-
-	public String[] getKeywords()
-	{
-		return keywords;
-	}
-
-	public void setKeywords(String[] keywords)
-	{
-		this.keywords = keywords;
 	}
 
 	public String getLink()

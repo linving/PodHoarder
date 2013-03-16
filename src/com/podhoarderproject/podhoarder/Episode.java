@@ -14,9 +14,10 @@ public class Episode
 	private String 	pubDate;
 	private String 	description;
 	private String 	fileURL;
+	private int		feedId;
 	
 	
-	public Episode (int episodeId, String title, String link, String pubDate, String description, String fileURL)
+	public Episode (int episodeId, String title, String link, String pubDate, String description, String fileURL, int feedId)
 	{
 		this.episodeId = episodeId;
 		this.title = title;
@@ -24,6 +25,7 @@ public class Episode
 		this.pubDate = pubDate;
 		this.description = description;
 		this.fileURL = fileURL;
+		this.feedId = feedId;
 	}
 
 	public Episode()
@@ -34,6 +36,7 @@ public class Episode
 		this.pubDate = "";
 		this.description = "";
 		this.fileURL = "";
+		this.feedId = 0;
 	}
 	
 	public int getEpisodeId() 
@@ -85,5 +88,10 @@ public class Episode
 	public void setFileURL(String fileURL) 
 	{
 		this.fileURL = fileURL;
+	}
+
+	public int getFeedId()
+	{
+		return this.feedId;
 	}
 }

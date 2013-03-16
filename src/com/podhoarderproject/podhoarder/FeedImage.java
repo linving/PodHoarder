@@ -25,6 +25,7 @@ public class FeedImage
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.FeedImage";
 	
 	private int		feedId;
+	private String 	imageURL;
 	private Bitmap 	imageObject;
 	
 	private Context	ctx;
@@ -38,6 +39,7 @@ public class FeedImage
 	public FeedImage(int feedId, String onlineURL, Context ctx)
 	{
 		this.feedId = feedId;
+		this.imageURL = onlineURL;
 		this.imageObject = null;
 		this.ctx = ctx;
 		
@@ -186,5 +188,10 @@ public class FeedImage
             }
         }
         return null;
+    }
+
+    public String getImageURL()
+    {
+    	return this.imageURL;
     }
 }
