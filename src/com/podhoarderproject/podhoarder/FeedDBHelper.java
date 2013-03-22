@@ -10,6 +10,7 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -45,7 +46,6 @@ public class FeedDBHelper
 		this.db = this.dbHelper.getWritableDatabase();
 		Cursor cursor = this.db.query(TABLE_NAME, columns, null, null,
 				null, null, null);
-		this.db.close();
 		if (cursor.moveToFirst())
 		{
 			do
@@ -53,6 +53,7 @@ public class FeedDBHelper
 				feeds.add(cursorToFeed(cursor));
 			} while (cursor.moveToNext());
 		}
+		this.db.close();
 		return feeds;
 	}
 
@@ -67,8 +68,8 @@ public class FeedDBHelper
 		Feed feed = new Feed();
 		this.db = this.dbHelper.getWritableDatabase();
 		Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + id, null, null, null, null);
-		this.db.close();
 		cursor.moveToFirst();
+		this.db.close();
 		feed = cursorToFeed(cursor);
 		return feed;
 	}
@@ -77,9 +78,10 @@ public class FeedDBHelper
 	 * 
 	 * Stores a Feed in the database.
 	 * @param feed Feed object to insert.
+	 * @throws SQLiteConstraintException Throws an SQLiteConstrainException if the Feed added already exists in the database (duplicate entries not allowed)
 	 * @return A Feed object with updated Id relative to the table.
 	 */
-	public Feed insertFeed(Feed feed)
+	public Feed insertFeed(Feed feed) throws SQLiteConstraintException
 	{
 		ContentValues values = new ContentValues();
 	    values.put(columns[1], feed.getTitle());
@@ -90,18 +92,29 @@ public class FeedDBHelper
 	    values.put(columns[6], feed.getFeedImage().getImageURL());
 	    
 	    this.db = this.dbHelper.getWritableDatabase();
-	    long insertId = this.db.insert(TABLE_NAME, null, values);
-	    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
-	    this.db.close();
-	    Log.w(LOG_TAG,"Added Feed with id: " + insertId);
-	    cursor.moveToFirst();
-	    Feed insertedFeed = cursorToFeed(cursor);
-	    return insertedFeed;
+	    try
+	    {
+	    	long insertId = this.db.insert(TABLE_NAME, null, values);
+	    	Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
+		    Log.w(LOG_TAG,"Added Feed with id: " + insertId);
+		    cursor.moveToFirst();
+		    Feed insertedFeed = cursorToFeed(cursor);
+		    this.db.close();
+		    this.eph.insertEpisodes(feed.getEpisodes(), insertedFeed.getFeedId());
+		    insertedFeed.setEpisodes(this.eph.getAllEpisodes(insertedFeed.getFeedId()));
+		    return insertedFeed;
+	    }
+	    catch(SQLiteConstraintException e) 
+	    { 
+	    	throw e;
+	    }
+	    
+	    
 	}
 	
 	/**
 	 * 
-	 * Deletes an Feed from the database.
+	 * Deletes a Feed from the database.
 	 * @param ep Feed object to delete.
 	 * @return True if something was deleted. False otherwise.
 	 */

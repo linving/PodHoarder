@@ -30,7 +30,7 @@ public class DBHelper extends SQLiteOpenHelper
 	static final String colEpisodeLink = "link";
 	static final String colEpisodePubDate = "pubDate";
 	static final String colEpisodeDescription = "description";
-	static final String colEpisodeFileURL = "fileURL";
+	static final String colEpisodepercentListened = "percentListened";
 	static final String colParentFeedId = "feedId";
 
 	public DBHelper(Context context)
@@ -47,9 +47,9 @@ public class DBHelper extends SQLiteOpenHelper
 					+ colFeedTitle + " TEXT NOT NULL, " 
 					+ colFeedAuthor + " TEXT NOT NULL, "
 					+ colFeedDescription + " TEXT NOT NULL, "
-					+ colFeedLink + " TEXT NOT NULL, "
+					+ colFeedLink + " TEXT NOT NULL UNIQUE, "
 					+ colFeedCategory + " TEXT NOT NULL, "
-					+ colFeedImage + " TEXT NOT NULL, "
+					+ colFeedImage + " TEXT NOT NULL "
 			    	+	")");
 			  
 		//Create EPISODES table
@@ -59,8 +59,8 @@ public class DBHelper extends SQLiteOpenHelper
 				+ colEpisodeLink + " TEXT NOT NULL, "
 				+ colEpisodePubDate + " TEXT NOT NULL, "
 				+ colEpisodeDescription + " TEXT NOT NULL, "
-				+ colEpisodeFileURL + " TEXT NOT NULL, "
-				+ colParentFeedId + " INTEGER NOT NULL, "
+				+ colEpisodepercentListened + " TEXT NOT NULL, "
+				+ colParentFeedId + " INTEGER NOT NULL "
 		    	+	")");
 			  
 	}

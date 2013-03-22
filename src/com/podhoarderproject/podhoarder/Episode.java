@@ -13,18 +13,18 @@ public class Episode
 	private String 	link;
 	private String 	pubDate;
 	private String 	description;
-	private String 	fileURL;
+	private int 	percentListened;
 	private int		feedId;
 	
 	
-	public Episode (int episodeId, String title, String link, String pubDate, String description, String fileURL, int feedId)
+	public Episode (int episodeId, String title, String link, String pubDate, String description, int percentListened, int feedId)
 	{
 		this.episodeId = episodeId;
 		this.title = title;
 		this.link = link;
 		this.pubDate = pubDate;
 		this.description = description;
-		this.fileURL = fileURL;
+		this.percentListened = percentListened;
 		this.feedId = feedId;
 	}
 
@@ -35,7 +35,7 @@ public class Episode
 		this.link = "";
 		this.pubDate = "";
 		this.description = "";
-		this.fileURL = "";
+		this.percentListened = 0;
 		this.feedId = 0;
 	}
 	
@@ -81,13 +81,13 @@ public class Episode
 		this.description = description;
 	}
 
-	public String getFileURL() 
+	public int getPercentListened() 
 	{
-		return fileURL;
+		return this.percentListened;
 	}
-	public void setFileURL(String fileURL) 
+	public void setPercentListened(int percentListened) 
 	{
-		this.fileURL = fileURL;
+		this.percentListened = percentListened;
 	}
 
 	public int getFeedId()

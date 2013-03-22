@@ -37,6 +37,20 @@ public class Feed
 		this.ctx = ctx;
 		this.feedImage = new FeedImage(this.feedId, imageURL, this.ctx);
 	}
+	
+	public Feed(String title, String author, String description,
+			String link, String category, String imageURL, List<Episode> episodes, 
+			Context ctx)
+	{
+		this.title = title;
+		this.author = author;
+		this.description = description;
+		this.link = link;
+		this.category = category;
+		this.episodes = episodes;
+		this.ctx = ctx;
+		this.feedImage = new FeedImage(this.feedId, imageURL, this.ctx);
+	}
 
 	public Feed()
 	{

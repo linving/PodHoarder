@@ -23,7 +23,7 @@ public class EpisodeDBHelper
 	private final String[] columns = { DBHelper.colEpisodeId,
 			DBHelper.colEpisodeTitle, DBHelper.colEpisodeLink,
 			DBHelper.colEpisodePubDate, DBHelper.colEpisodeDescription,
-			DBHelper.colEpisodeFileURL, DBHelper.colParentFeedId };
+			DBHelper.colEpisodepercentListened, DBHelper.colParentFeedId };
 
 	public EpisodeDBHelper(Context ctx)
 	{
@@ -63,7 +63,7 @@ public class EpisodeDBHelper
 		List<Episode> episodes = new ArrayList<Episode>();
 		this.db = this.dbHelper.getWritableDatabase();
 		Cursor cursor = this.db.query(TABLE_NAME, columns,  columns[6] + "=" + feedId, null, null, null, null);
-		this.db.close();
+		
 		if (cursor.moveToFirst())
 		{
 			do
@@ -71,6 +71,7 @@ public class EpisodeDBHelper
 				episodes.add(cursorToEpisode(cursor));
 			} while (cursor.moveToNext());
 		}
+		this.db.close();
 		return episodes;
 	}
 
@@ -97,7 +98,7 @@ public class EpisodeDBHelper
 	 * @param ep Episode object to insert.
 	 * @return An Episode object with updated Id relative to the table.
 	 */
-	public Episode insertEpisode(Episode ep)
+	public Episode insertEpisode(Episode ep, int feedId)
 	{
 		
 		ContentValues values = new ContentValues();
@@ -105,17 +106,48 @@ public class EpisodeDBHelper
 	    values.put(columns[2], ep.getLink());
 	    values.put(columns[3], ep.getPubDate());
 	    values.put(columns[4], ep.getDescription());
-	    values.put(columns[5], ep.getFileURL());
-	    values.put(columns[6], ep.getFeedId());
+	    values.put(columns[5], ep.getPercentListened());
+	    values.put(columns[6], feedId);
 	    
 	    this.db = this.dbHelper.getWritableDatabase();
 	    long insertId = this.db.insert(TABLE_NAME, null, values);
 	    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
-	    this.db.close();
 	    Log.w(LOG_TAG,"Added Episode with id: " + insertId);
 	    cursor.moveToFirst();
 	    Episode insertedEpisode = cursorToEpisode(cursor);
+	    this.db.close();
 	    return insertedEpisode;
+	}
+	
+	/**
+	 * 
+	 * Stores a collection of Episode objects in the database.
+	 * @param eps Episode objects to insert.
+	 * @return A List<Episode> object with updated Id's relative to the table.
+	 */
+	public List<Episode> insertEpisodes(List<Episode> eps, int feedId)
+	{
+		List<Episode> episodes = new ArrayList<Episode>();
+		for (int i=0; i<eps.size(); i++)
+		{
+			ContentValues values = new ContentValues();
+		    values.put(columns[1], eps.get(i).getTitle());
+		    values.put(columns[2], eps.get(i).getLink());
+		    values.put(columns[3], eps.get(i).getPubDate());
+		    values.put(columns[4], eps.get(i).getDescription());
+		    values.put(columns[5], eps.get(i).getPercentListened());
+		    values.put(columns[6], feedId);
+		    
+		    this.db = this.dbHelper.getWritableDatabase();
+		    long insertId = this.db.insert(TABLE_NAME, null, values);
+		    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
+		    Log.w(LOG_TAG,"Added Episode with id: " + insertId);
+		    cursor.moveToFirst();
+		    Episode insertedEpisode = cursorToEpisode(cursor);
+		    this.db.close();
+		    episodes.add(insertedEpisode);
+		}
+		return episodes;
 	}
 	
 	/**
@@ -152,7 +184,7 @@ public class EpisodeDBHelper
 	{
 		Episode ep = new Episode(Integer.parseInt(c.getString(0)),
 				c.getString(1), c.getString(2), c.getString(3), c.getString(4),
-				c.getString(5), Integer.parseInt(c.getString(6)));
+				Integer.parseInt(c.getString(5)), Integer.parseInt(c.getString(6)));
 		return ep;
 	}
 }

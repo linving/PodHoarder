@@ -42,8 +42,10 @@ public class FeedImage
 		this.imageURL = onlineURL;
 		this.imageObject = null;
 		this.ctx = ctx;
-		
-		this.loadImage(onlineURL);
+		if (this.feedId>0)
+		{
+			this.loadImage(onlineURL);
+		}
 	}
 	
 	/**
