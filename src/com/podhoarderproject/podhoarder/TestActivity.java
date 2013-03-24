@@ -14,7 +14,8 @@ public class TestActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_test);
 		this.helper = new PodcastHelper(this);
-		this.helper.addFeed("http://feeds.feedburner.com/avpodcast?format=xml");
+		//this.helper.addFeed("http://feeds.feedburner.com/avpodcast?format=xml");
+		this.helper.deleteFeed(2);
 		ExpandableListView list = (ExpandableListView)findViewById(R.id.mainListView);
 		list.setAdapter(helper.listAdapter);
 	}

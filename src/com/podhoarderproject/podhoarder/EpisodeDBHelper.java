@@ -81,7 +81,7 @@ public class EpisodeDBHelper
 	 * @param id	Id of the Episode to retrieve.
 	 * @return An Episode object.
 	 */
-	public Episode getFeed(int id)
+	public Episode getEpisode(int id)
 	{
 		Episode ep = new Episode();
 		this.db = this.dbHelper.getWritableDatabase();
@@ -174,6 +174,48 @@ public class EpisodeDBHelper
 	    }
 	    return retCheck;
 	  }
+	
+	/**
+	 * 
+	 * Deletes all episodes belonging to the supplied FeedId.
+	 * @param feedId	Id of the Feed to delete all Episodes from.
+	 * @return 			Number of Episodes that were removed.
+	 */
+	public int deleteEpisodes(int feedId)
+	{
+		int retVal=0;
+		List<Episode> episodes = new ArrayList<Episode>();
+		this.db = this.dbHelper.getWritableDatabase();
+		retVal = this.db.delete(TABLE_NAME, columns[6] + "=" + feedId, null);
+		this.db.close();
+		return retVal;
+	}	
+	
+	/**
+	 * Updated the specified Episode in the database.
+	 * @param updatedEpisode Episode to update with the new values already stored.
+	 * @return The updated Episode object.
+	 */
+	public Episode updateEpisode(Episode updatedEpisode)
+	{
+		Episode ep;
+		ContentValues values = new ContentValues();
+	    values.put(columns[1], updatedEpisode.getTitle());
+	    values.put(columns[2], updatedEpisode.getLink());
+	    values.put(columns[3], updatedEpisode.getPubDate());
+	    values.put(columns[4], updatedEpisode.getDescription());
+	    values.put(columns[5], updatedEpisode.getPercentListened());
+	    values.put(columns[6], updatedEpisode.getFeedId());
+	    
+	    this.db = this.dbHelper.getWritableDatabase();
+	    this.db.update(TABLE_NAME, values, columns[0] + " = " + updatedEpisode.getEpisodeId(), null);
+	    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + updatedEpisode.getEpisodeId(), null, null, null, null);
+	    Log.w(LOG_TAG,"Updated Episode with id: " + updatedEpisode.getEpisodeId());
+	    cursor.moveToFirst();
+	    ep = cursorToEpisode(cursor);
+	    this.db.close();
+		return ep;
+	}
 	
 	/**
 	 * Converts a Cursor object to an Episode object.

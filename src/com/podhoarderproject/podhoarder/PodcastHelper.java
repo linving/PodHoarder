@@ -4,6 +4,7 @@
  */
 package com.podhoarderproject.podhoarder;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -24,11 +25,25 @@ import org.xml.sax.SAXException;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
-
+/**
+ * Helper class that acts as an interface between GUI and SQLite etc.
+ * Recommended use is to bind listAdapter to an ExpandableListView.
+ * The class ensures that everything is updated automatically.
+ * 
+ * @author Emil Almrot
+ * @see Feed.java
+ * @see FeedListAdapter.java
+ * @see FeedDBHelper.java
+ * 
+ */
 public class PodcastHelper
 {
+	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PodcastHelper";
+	
 	private FeedDBHelper fDbH;
+	private EpisodeDBHelper eph;
 	public FeedListAdapter listAdapter;
 	private Context context;
 	
@@ -36,15 +51,73 @@ public class PodcastHelper
 	{
 		this.context = ctx;
 		this.fDbH = new FeedDBHelper(this.context);
+		this.eph = new EpisodeDBHelper(this.context);
 		this.listAdapter = new FeedListAdapter(this.fDbH.getAllFeeds(),this.context);
 	}
 	
+	/**
+	 * Adds a feed with the specified url to the database.
+	 * Automatically downloads all data(except individual episodes) & an image.
+	 * @param urlOfFeedToAdd Should point to an XML-formatted podcast feed.
+	 */
 	public void addFeed(String urlOfFeedToAdd)
 	{
 		new FeedReaderTask().execute(urlOfFeedToAdd);
 	}
 	
+	/**
+	 * Deletes a Feed and all associated Episodes from storage.
+	 * @param feedId Id of the Feed to delete.
+	 */
+	public void deleteFeed(int feedId)
+	{
+		int i=0;
+		this.fDbH.deleteFeed(feedId);
+		while (this.listAdapter.feeds.get(i).getFeedId() != feedId && i<this.listAdapter.feeds.size())
+		{
+			i++;
+		}
+		
+		//Delete Feed Image
+		String fName = this.listAdapter.feeds.get(i).getFeedId() + ".jpg";
+		File file = new File(this.context.getFilesDir(), fName);
+		boolean check = file.delete();
+		if (check)
+		{
+			Log.w(LOG_TAG, "Feed Image deleted successfully!");
+		}
+		else
+		{
+			Log.w(LOG_TAG, "Feed Image not found! No delete necessary.");
+		}
+		
+		this.listAdapter.feeds.remove(i);
+		this.listAdapter.notifyDataSetChanged();
+	}
+
+	/**
+	 * Deletes a Feed and all associated Episodes from storage.
+	 * @param feedId Id of the Feed to delete.
+	 */
+	public void updateEpisodeListened(int feedId, int episodeId, int percentListened)
+	{
+		int i=0;
+		int r=0;
+		while (this.listAdapter.feeds.get(i).getFeedId() != feedId && i<this.listAdapter.feeds.size())
+		{
+			i++;
+		}
+		while (this.listAdapter.feeds.get(i).getEpisodes().get(r).getEpisodeId() != episodeId && r<this.listAdapter.feeds.get(i).getEpisodes().size())
+		{
+			r++;
+		}
+		this.listAdapter.feeds.get(i).getEpisodes().get(r).setPercentListened(percentListened);
+		this.eph.updateEpisode(this.listAdapter.feeds.get(i).getEpisodes().get(r));
+		this.listAdapter.notifyDataSetChanged();
+	}
 	
+	//TODO: Add refreshFeeds
+		
 	
 	private void insertFeedObject(Feed feed)
 	{

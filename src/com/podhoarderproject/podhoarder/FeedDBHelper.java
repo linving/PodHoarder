@@ -115,16 +115,16 @@ public class FeedDBHelper
 	/**
 	 * 
 	 * Deletes a Feed from the database.
-	 * @param ep Feed object to delete.
+	 * @param feedId Feed ID of object to delete.
 	 * @return True if something was deleted. False otherwise.
 	 */
-	public boolean deleteFeed(Feed feed) 
+	public boolean deleteFeed(int feedId) 
 	{
 		boolean retCheck = false;
-	    int id = feed.getFeedId();
 	    this.db = this.dbHelper.getWritableDatabase();
-	    int res = this.db.delete(TABLE_NAME, columns[0] + " = " + id, null);
+	    int res = this.db.delete(TABLE_NAME, columns[0] + " = " + feedId, null);
 	    this.db.close();
+	    this.eph.deleteEpisodes(feedId);
 	    if (res == 0)
 	    {
 	    	Log.w(LOG_TAG,"No Feed deleted");
@@ -132,7 +132,7 @@ public class FeedDBHelper
 	    else
 	    {
 	    	retCheck = true;
-	    	Log.w(LOG_TAG,"Feed deleted with id: " + id);
+	    	Log.w(LOG_TAG,"Feed deleted with id: " + feedId);
 	    }
 	    return retCheck;
 	  }
