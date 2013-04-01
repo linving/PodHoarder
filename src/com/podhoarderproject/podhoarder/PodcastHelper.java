@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -24,6 +25,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
+import android.database.CursorIndexOutOfBoundsException;
+import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -96,10 +99,12 @@ public class PodcastHelper
 	}
 
 	/**
-	 * Deletes a Feed and all associated Episodes from storage.
-	 * @param feedId Id of the Feed to delete.
+	 * Sets the time listened property of a specific episode.
+	 * @param feedId Id of the Feed to update.
+	 * @param episodeId unique identifier of the Episode that is to be updated.
+	 * @param minutesListened number of minutes listened.
 	 */
-	public void updateEpisodeListened(int feedId, int episodeId, int percentListened)
+	public void updateEpisodeListened(int feedId, int episodeId, int minutesListened)
 	{
 		int i=0;
 		int r=0;
@@ -111,7 +116,7 @@ public class PodcastHelper
 		{
 			r++;
 		}
-		this.listAdapter.feeds.get(i).getEpisodes().get(r).setPercentListened(percentListened);
+		this.listAdapter.feeds.get(i).getEpisodes().get(r).setMinutesListened(minutesListened);
 		this.eph.updateEpisode(this.listAdapter.feeds.get(i).getEpisodes().get(r));
 		this.listAdapter.notifyDataSetChanged();
 	}
@@ -119,11 +124,20 @@ public class PodcastHelper
 	//TODO: Add refreshFeeds
 		
 	
-	private void insertFeedObject(Feed feed)
+	private void insertFeedObject(Feed feed) throws SQLiteConstraintException
 	{
-		feed = this.fDbH.insertFeed(feed);
-		this.listAdapter.feeds.add(feed);
-		this.listAdapter.notifyDataSetChanged();
+		try
+		{
+			feed = this.fDbH.insertFeed(feed);
+			this.listAdapter.feeds.add(feed);
+			this.listAdapter.notifyDataSetChanged();
+		}
+		catch (SQLiteConstraintException e)
+		{
+			Log.e(LOG_TAG, "NOT A UNIQUE LINK. FEED ALREADY EXISTS IN THE DATABASE?");
+			throw e;
+		}
+		
 	}
 	
 	private class FeedReaderTask extends AsyncTask<String, Integer, Feed>
@@ -258,6 +272,12 @@ public class PodcastHelper
 			{
 				e.printStackTrace();
 			}
+			catch (SQLiteConstraintException e)
+			{
+				cancel(true);
+			}
+			//Reverse list to get the correct ordering in the DB.
+			Collections.reverse(eps);
 			this.newFeed = new Feed(this.title, this.author, this.description, this.link, this.category, this.img, eps, context);
 			return newFeed;
 		}
@@ -270,9 +290,29 @@ public class PodcastHelper
 		
 		protected void onPostExecute(Feed result)
 		{
-			insertFeedObject(this.newFeed);
-			Toast notification = Toast.makeText(context, "Feed added!", Toast.LENGTH_LONG);
-			notification.show();
+			try
+			{
+				insertFeedObject(this.newFeed);
+				//TODO: Change Strings value instead of hardcoded.
+				Toast notification = Toast.makeText(context, "Feed added!", Toast.LENGTH_LONG);
+				notification.show();
+			}
+			catch (CursorIndexOutOfBoundsException e)
+			{
+				Log.e(LOG_TAG, "CursorIndexOutOfBoundsException: Insert failed. Feed link not unique?");
+				//TODO: Change Strings value instead of hardcoded.
+				Toast notification = Toast.makeText(context, "You can't add the same feed twice!", Toast.LENGTH_LONG);
+				notification.show();
+				cancel(true);
+			}
+			catch (SQLiteConstraintException e)
+			{
+				Log.e(LOG_TAG, "SQLiteConstraintException: Insert failed. Feed link not unique?");
+				//TODO: Change Strings value instead of hardcoded.
+				Toast notification = Toast.makeText(context, "You can't add the same feed twice!", Toast.LENGTH_LONG);
+				notification.show();
+				cancel(true);
+			}
 		}
 
 		@SuppressWarnings("unused")

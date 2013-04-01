@@ -10,6 +10,7 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -81,7 +82,7 @@ public class FeedDBHelper
 	 * @throws SQLiteConstraintException Throws an SQLiteConstrainException if the Feed added already exists in the database (duplicate entries not allowed)
 	 * @return A Feed object with updated Id relative to the table.
 	 */
-	public Feed insertFeed(Feed feed) throws SQLiteConstraintException
+	public Feed insertFeed(Feed feed) throws SQLiteConstraintException, CursorIndexOutOfBoundsException
 	{
 		ContentValues values = new ContentValues();
 	    values.put(columns[1], feed.getTitle());
@@ -96,20 +97,24 @@ public class FeedDBHelper
 	    {
 	    	long insertId = this.db.insert(TABLE_NAME, null, values);
 	    	Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
-		    Log.w(LOG_TAG,"Added Feed with id: " + insertId);
 		    cursor.moveToFirst();
 		    Feed insertedFeed = cursorToFeed(cursor);
 		    this.db.close();
 		    this.eph.insertEpisodes(feed.getEpisodes(), insertedFeed.getFeedId());
 		    insertedFeed.setEpisodes(this.eph.getAllEpisodes(insertedFeed.getFeedId()));
+		    Log.w(LOG_TAG,"Added Feed with id: " + insertId);
 		    return insertedFeed;
 	    }
-	    catch(SQLiteConstraintException e) 
-	    { 
-	    	throw e;
-	    }
-	    
-	    
+	    catch (CursorIndexOutOfBoundsException e)
+		{
+			Log.e(LOG_TAG, "CursorIndexOutOfBoundsException: Insert failed. Feed link not unique?");
+			throw e;
+		}
+		catch (SQLiteConstraintException e)
+		{
+			Log.e(LOG_TAG, "SQLiteConstraintException: Insert failed. Feed link not unique?");
+			throw e;
+		}
 	}
 	
 	/**

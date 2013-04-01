@@ -28,9 +28,11 @@ public class DBHelper extends SQLiteOpenHelper
 	static final String colEpisodeId = "episodeId";
 	static final String colEpisodeTitle = "title";
 	static final String colEpisodeLink = "link";
+	static final String colEpisodeLocalLink = "localLink";
 	static final String colEpisodePubDate = "pubDate";
 	static final String colEpisodeDescription = "description";
-	static final String colEpisodepercentListened = "percentListened";
+	static final String colEpisodeMinutesListened = "minutesListened";
+	static final String colEpisodeLength = "length";
 	static final String colParentFeedId = "feedId";
 
 	public DBHelper(Context context)
@@ -57,9 +59,11 @@ public class DBHelper extends SQLiteOpenHelper
 				+ colEpisodeId + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 				+ colEpisodeTitle + " TEXT NOT NULL, " 
 				+ colEpisodeLink + " TEXT NOT NULL, "
+				+ colEpisodeLocalLink + " TEXT NOT NULL, "
 				+ colEpisodePubDate + " TEXT NOT NULL, "
 				+ colEpisodeDescription + " TEXT NOT NULL, "
-				+ colEpisodepercentListened + " TEXT NOT NULL, "
+				+ colEpisodeMinutesListened + " INTEGER NOT NULL, "
+				+ colEpisodeLength + " INTEGER NOT NULL, "
 				+ colParentFeedId + " INTEGER NOT NULL "
 		    	+	")");
 			  

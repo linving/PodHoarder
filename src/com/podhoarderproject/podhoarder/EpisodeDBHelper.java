@@ -5,6 +5,7 @@ package com.podhoarderproject.podhoarder;
  * 2013-03-16
  */
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -22,8 +23,9 @@ public class EpisodeDBHelper
 	private static final String TABLE_NAME = DBHelper.episodeTable;
 	private final String[] columns = { DBHelper.colEpisodeId,
 			DBHelper.colEpisodeTitle, DBHelper.colEpisodeLink,
-			DBHelper.colEpisodePubDate, DBHelper.colEpisodeDescription,
-			DBHelper.colEpisodepercentListened, DBHelper.colParentFeedId };
+			DBHelper.colEpisodeLocalLink, DBHelper.colEpisodePubDate, 
+			DBHelper.colEpisodeDescription,DBHelper.colEpisodeMinutesListened, 
+			DBHelper.colEpisodeLength, DBHelper.colParentFeedId };
 
 	public EpisodeDBHelper(Context ctx)
 	{
@@ -62,7 +64,7 @@ public class EpisodeDBHelper
 	{
 		List<Episode> episodes = new ArrayList<Episode>();
 		this.db = this.dbHelper.getWritableDatabase();
-		Cursor cursor = this.db.query(TABLE_NAME, columns,  columns[6] + "=" + feedId, null, null, null, null);
+		Cursor cursor = this.db.query(TABLE_NAME, columns,  columns[8] + "=" + feedId, null, null, null, null);
 		
 		if (cursor.moveToFirst())
 		{
@@ -72,6 +74,8 @@ public class EpisodeDBHelper
 			} while (cursor.moveToNext());
 		}
 		this.db.close();
+		//Reverse list to get newest episodes first.
+		Collections.reverse(episodes);
 		return episodes;
 	}
 
@@ -104,10 +108,12 @@ public class EpisodeDBHelper
 		ContentValues values = new ContentValues();
 	    values.put(columns[1], ep.getTitle());
 	    values.put(columns[2], ep.getLink());
-	    values.put(columns[3], ep.getPubDate());
-	    values.put(columns[4], ep.getDescription());
-	    values.put(columns[5], ep.getPercentListened());
-	    values.put(columns[6], feedId);
+	    values.put(columns[3], ep.getLocalLink());
+	    values.put(columns[4], ep.getPubDate());
+	    values.put(columns[5], ep.getDescription());
+	    values.put(columns[6], ep.getMinutesListened());
+	    values.put(columns[7], ep.getLength());
+	    values.put(columns[8], feedId);
 	    
 	    this.db = this.dbHelper.getWritableDatabase();
 	    long insertId = this.db.insert(TABLE_NAME, null, values);
@@ -133,10 +139,12 @@ public class EpisodeDBHelper
 			ContentValues values = new ContentValues();
 		    values.put(columns[1], eps.get(i).getTitle());
 		    values.put(columns[2], eps.get(i).getLink());
-		    values.put(columns[3], eps.get(i).getPubDate());
-		    values.put(columns[4], eps.get(i).getDescription());
-		    values.put(columns[5], eps.get(i).getPercentListened());
-		    values.put(columns[6], feedId);
+		    values.put(columns[3], eps.get(i).getLocalLink());
+		    values.put(columns[4], eps.get(i).getPubDate());
+		    values.put(columns[5], eps.get(i).getDescription());
+		    values.put(columns[6], eps.get(i).getMinutesListened());
+		    values.put(columns[7], eps.get(i).getLength());
+		    values.put(columns[8], feedId);
 		    
 		    this.db = this.dbHelper.getWritableDatabase();
 		    long insertId = this.db.insert(TABLE_NAME, null, values);
@@ -184,7 +192,6 @@ public class EpisodeDBHelper
 	public int deleteEpisodes(int feedId)
 	{
 		int retVal=0;
-		List<Episode> episodes = new ArrayList<Episode>();
 		this.db = this.dbHelper.getWritableDatabase();
 		retVal = this.db.delete(TABLE_NAME, columns[6] + "=" + feedId, null);
 		this.db.close();
@@ -202,10 +209,12 @@ public class EpisodeDBHelper
 		ContentValues values = new ContentValues();
 	    values.put(columns[1], updatedEpisode.getTitle());
 	    values.put(columns[2], updatedEpisode.getLink());
-	    values.put(columns[3], updatedEpisode.getPubDate());
-	    values.put(columns[4], updatedEpisode.getDescription());
-	    values.put(columns[5], updatedEpisode.getPercentListened());
-	    values.put(columns[6], updatedEpisode.getFeedId());
+	    values.put(columns[3], updatedEpisode.getLocalLink());
+	    values.put(columns[4], updatedEpisode.getPubDate());
+	    values.put(columns[5], updatedEpisode.getDescription());
+	    values.put(columns[6], updatedEpisode.getMinutesListened());
+	    values.put(columns[7], updatedEpisode.getLength());
+	    values.put(columns[8], updatedEpisode.getFeedId());
 	    
 	    this.db = this.dbHelper.getWritableDatabase();
 	    this.db.update(TABLE_NAME, values, columns[0] + " = " + updatedEpisode.getEpisodeId(), null);
@@ -226,7 +235,7 @@ public class EpisodeDBHelper
 	{
 		Episode ep = new Episode(Integer.parseInt(c.getString(0)),
 				c.getString(1), c.getString(2), c.getString(3), c.getString(4),
-				Integer.parseInt(c.getString(5)), Integer.parseInt(c.getString(6)));
+				c.getString(5), Integer.parseInt(c.getString(6)), Integer.parseInt(c.getString(7)), Integer.parseInt(c.getString(8)));
 		return ep;
 	}
 }

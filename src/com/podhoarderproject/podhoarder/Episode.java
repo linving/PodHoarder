@@ -11,20 +11,24 @@ public class Episode
 	private int		episodeId;
 	private String 	title;
 	private String 	link;
+	private String 	localLink;
 	private String 	pubDate;
 	private String 	description;
-	private int 	percentListened;
+	private int 	minutesListened;
+	private int		length;
 	private int		feedId;
 	
 	
-	public Episode (int episodeId, String title, String link, String pubDate, String description, int percentListened, int feedId)
+	public Episode (int episodeId, String title, String link, String localLink, String pubDate, String description, int minutesListened, int length, int feedId)
 	{
 		this.episodeId = episodeId;
 		this.title = title;
 		this.link = link;
+		this.localLink = localLink;
 		this.pubDate = pubDate;
 		this.description = description;
-		this.percentListened = percentListened;
+		this.minutesListened = minutesListened;
+		this.length = length;
 		this.feedId = feedId;
 	}
 
@@ -33,9 +37,11 @@ public class Episode
 		this.episodeId = 0;
 		this.title = "";
 		this.link = "";
+		this.localLink = "";
 		this.pubDate = "";
 		this.description = "";
-		this.percentListened = 0;
+		this.minutesListened = 0;
+		this.length = 0;
 		this.feedId = 0;
 	}
 	
@@ -62,6 +68,16 @@ public class Episode
 		this.link = link;
 	}
 	
+	public String getLocalLink()
+	{
+		return localLink;
+	}
+	public void setLocalLink(String localLink)
+	{
+		this.localLink = localLink;
+	}
+
+
 	public String getPubDate() 
 	{
 		return pubDate;
@@ -81,15 +97,25 @@ public class Episode
 		this.description = description;
 	}
 
-	public int getPercentListened() 
+	public int getMinutesListened() 
 	{
-		return this.percentListened;
+		return this.minutesListened;
 	}
-	public void setPercentListened(int percentListened) 
+	public void setMinutesListened(int minutesListened) 
 	{
-		this.percentListened = percentListened;
+		this.minutesListened = minutesListened;
 	}
 
+	public int getLength()
+	{
+		return length;
+	}
+
+	public void setLength(int length)
+	{
+		this.length = length;
+	}
+	
 	public int getFeedId()
 	{
 		return this.feedId;
