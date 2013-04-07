@@ -1,9 +1,5 @@
 package com.podhoarderproject.podhoarder;
 
-/**
- * @author Emil Almrot
- * 2013-03-16
- */
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -35,6 +31,7 @@ public class DBHelper extends SQLiteOpenHelper
 	static final String colEpisodeLength = "length";
 	static final String colParentFeedId = "feedId";
 
+	
 	public DBHelper(Context context)
 	{
 		super(context, dbName, null, 1);
@@ -66,7 +63,6 @@ public class DBHelper extends SQLiteOpenHelper
 				+ colEpisodeLength + " INTEGER NOT NULL, "
 				+ colParentFeedId + " INTEGER NOT NULL "
 		    	+	")");
-			  
 	}
 
 	@Override
