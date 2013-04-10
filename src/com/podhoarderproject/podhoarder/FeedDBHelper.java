@@ -77,6 +77,24 @@ public class FeedDBHelper
 	
 	/**
 	 * 
+	 * Retrieves a Feed from the SQLite database using the URL as an identifier.
+	 * @param url	URL of the Feed to retrieve.
+	 * @return A Feed object.
+	 */
+	public Feed getFeedByURL(String url)
+	{
+		Feed feed = new Feed();
+		this.db = this.dbHelper.getWritableDatabase();
+		url = "\'" + url + "\'";
+		Cursor cursor = this.db.query(TABLE_NAME, columns, columns[4] + " = " + url, null, null, null, null);
+		cursor.moveToFirst();
+		this.db.close();
+		feed = cursorToFeed(cursor);
+		return feed;
+	}
+	
+	/**
+	 * 
 	 * Stores a Feed in the database.
 	 * @param feed Feed object to insert.
 	 * @throws SQLiteConstraintException Throws an SQLiteConstrainException if the Feed added already exists in the database (duplicate entries not allowed)
@@ -141,6 +159,35 @@ public class FeedDBHelper
 	    }
 	    return retCheck;
 	  }
+	
+	/**
+	 * 
+	 * Updates a stored Feed in the database.
+	 * @param newfeed Feed object to update (should have the new values assigned already).
+	 * @return The updated Feed object.
+	 */
+	public Feed updateFeed(Feed newFeed)
+	{
+		Feed f;
+		ContentValues values = new ContentValues();
+	    values.put(columns[1], newFeed.getTitle());
+	    values.put(columns[2], newFeed.getAuthor());
+	    values.put(columns[3], newFeed.getDescription());
+	    values.put(columns[4], newFeed.getLink());
+	    values.put(columns[5], newFeed.getCategory());
+	    values.put(columns[6], newFeed.getFeedImage().getImageURL());
+	    
+	    this.db = this.dbHelper.getWritableDatabase();
+	    this.db.update(TABLE_NAME, values, columns[0] + " = " + newFeed.getFeedId(), null);
+	    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + newFeed.getFeedId(), null, null, null, null);
+	    Log.w(LOG_TAG,"Updated Feed with id: " + newFeed.getFeedId());
+	    cursor.moveToFirst();
+	    f = cursorToFeed(cursor);
+	    this.db.close();
+		this.eph.insertEpisodes(newFeed.getEpisodes().subList(0, (newFeed.getEpisodes().size()-f.getEpisodes().size())), f.getFeedId());	
+	    f.setEpisodes(this.eph.getAllEpisodes(f.getFeedId()));
+		return f;
+	}
 	
 	/**
 	 * Converts a Cursor object to a Feed object.

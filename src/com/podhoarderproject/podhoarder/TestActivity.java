@@ -14,10 +14,11 @@ public class TestActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_test);
 		this.helper = new PodcastHelper(this);
-		//this.helper.addFeed("http://smodcast.com/channels/fatman-on-batman/feed/");
+		//this.helper.addFeed("http://smodcast.com/channels/plus-one/feed/");
 		//this.helper.updateEpisodeListened(1, 1, 45);
 		//this.helper.deleteFeed(2);
-		this.helper.downloadEpisode(1, 4);
+		//this.helper.downloadEpisode(1, 24);
+		this.helper.refreshFeeds();
 		ExpandableListView list = (ExpandableListView)findViewById(R.id.mainListView);
 		list.setAdapter(helper.listAdapter);
 	}

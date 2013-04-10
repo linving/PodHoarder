@@ -10,7 +10,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -43,7 +42,6 @@ import android.widget.Toast;
  * Recommended use is to bind listAdapter to an ExpandableListView. The class
  * ensures that everything is updated automatically.
  * 
- * @author Emil Almrot
  * @see Feed.java
  * @see FeedListAdapter.java
  * @see FeedDBHelper.java
@@ -57,14 +55,19 @@ public class PodcastHelper
 	private EpisodeDBHelper eph;
 	public FeedListAdapter listAdapter;
 	private Context context;
+	private String storagePath;
+	private String podcastDir;
 
 	public PodcastHelper(Context ctx)
 	{
 		this.context = ctx;
+		this.storagePath = Environment.DIRECTORY_PODCASTS;
+		this.podcastDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PODCASTS).getAbsolutePath();
 		this.fDbH = new FeedDBHelper(this.context);
 		this.eph = new EpisodeDBHelper(this.context);
 		this.listAdapter = new FeedListAdapter(this.fDbH.getAllFeeds(),
 				this.context);
+		checkLocalLinks();
 	}
 
 	/**
@@ -143,14 +146,28 @@ public class PodcastHelper
 		this.listAdapter.notifyDataSetChanged();
 	}
 
-	// TODO: Add refreshFeeds
-
-	// TODO: Add downloadEpisode
+	public void refreshFeeds()
+	{
+		List<String> urls = new ArrayList<String>();
+		for (Feed f:this.listAdapter.feeds)
+		{
+			urls.add(f.getLink());
+		}
+		new FeedRefreshTask().execute(urls);
+	}
+	
+	/**
+	 * Downloads a Podcast using the a stored URL in the db.
+	 * Podcasts are placed in the public Podcasts-directory.
+	 * @param feedId Id of the Feed that the Podcast belongs to.
+	 * @param episodeId Id of the Episode within the specified feed.
+	 * @author Emil
+	 */
 	public void downloadEpisode(int feedId, int episodeId)
 	{
 		int feedPos = getFeedPositionWithId(feedId);
 		int epPos = getEpisodePositionWithId(feedPos, episodeId);
-		if (isDownloadManagerAvailable(this.context) && this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink().equals(""))
+		if (isDownloadManagerAvailable(this.context) && !new File(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink()).exists())
 		{
 			String url = this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLink();
 			DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
@@ -162,23 +179,84 @@ public class PodcastHelper
 			    request.allowScanningByMediaScanner();
 			    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 			}
-			//request.setDestinationInExternalPublicDir(Environment.DIRECTORY_PODCASTS, this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle().trim()+".mp3");
-			//TODO: Why does it fail when specifying an "advanced" filename?
-			request.setDestinationInExternalPublicDir(Environment.DIRECTORY_PODCASTS, "test.mp3");
+			request.setDestinationInExternalPublicDir(this.storagePath, this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle().replace(":", " -")+".mp3");
 			// get download service and enqueue file
 			DownloadManager manager = (DownloadManager) this.context.getSystemService(Context.DOWNLOAD_SERVICE);
 			manager.enqueue(request);
 			//update list adapter object
-			this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).setLocalLink(Environment.DIRECTORY_PODCASTS + "/" +  this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle()+".mp3");
+			this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).setLocalLink(	this.podcastDir + "/" +
+																						this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle().replace(":", " -")+".mp3");
 			//update db entry
 			this.eph.updateEpisode(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos));
+			
+			Toast notification = Toast.makeText(context, "Downloading Podcast.",
+					Toast.LENGTH_SHORT);
+			notification.show();
 		}
 		else
 		{
 			Log.w(LOG_TAG, "Podcast already exists locally. No need to download.");
 		}
 	}
-
+	
+	/**
+	 * Deletes the physical mp3-file associated with an Episode, not the Episod eobject itself.
+	 * @param feedId Id of the Feed that the Podcast belongs to.
+	 * @param episodeId Id of the Episode within the specified feed.
+	 * @author Emil
+	 */
+	public void deleteEpisode(int feedId, int episodeId)
+	{
+		int feedPos = getFeedPositionWithId(feedId);
+		int epPos = getEpisodePositionWithId(feedPos, episodeId);
+		File file = new File(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink());
+		if (file.delete())
+		{
+			this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).setLocalLink("");
+			this.eph.updateEpisode(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos));
+			Log.i(LOG_TAG, file.getAbsolutePath() + " deleted successfully!");
+		}
+		else
+		{
+			Log.e(LOG_TAG, file.getAbsolutePath() + " not deleted. Make sure it exists.");
+		}
+	}
+	
+	/**
+	 * Checks all stored links to make sure that the references files actually exist on startup.
+	 * The function resets local links of files that can't be found, so that they may be downloaded again.
+	 * Files can be manually removed from the public external directories, thus this is necessary.
+	 * @author Emil 
+	 */
+	private void checkLocalLinks()
+	{
+		List<Feed> feeds = this.listAdapter.feeds;
+		for (int feedNo=0; feedNo<feeds.size(); feedNo++)
+		{
+			List<Episode> episodes = feeds.get(feedNo).getEpisodes();
+			for (int epNo=0; epNo<episodes.size(); epNo++)
+			{
+				if (!episodes.get(epNo).getLocalLink().equals(""))
+				{
+					//If localLink isn't empty, check that the file exists in external storage.
+					File file = new File(episodes.get(epNo).getLocalLink());
+					if (!file.exists())
+					{
+						Log.w(LOG_TAG, "Couldn't find " + file.getName() + ". Resetting local link for entry: " + episodes.get(epNo).getEpisodeId());
+						this.listAdapter.feeds.get(feedNo).getEpisodes().get(epNo).setLocalLink("");
+						Episode temp = this.listAdapter.feeds.get(feedNo).getEpisodes().get(epNo);
+						this.eph.updateEpisode(temp);
+					}
+				}
+			}
+		}
+	}
+		
+	/**
+	 * Does the actual sql operations in the insertion process.
+	 * @param feed Feed object to insert.
+	 * @throws SQLiteConstraintException Is thrown if adding duplicate feeds.
+	 */
 	private void insertFeedObject(Feed feed) throws SQLiteConstraintException
 	{
 		try
@@ -195,6 +273,42 @@ public class PodcastHelper
 
 	}
 
+	/**
+	 * Does the actual sql operations in the refresh process.
+	 * @param feed Feed object to insert.
+	 * @throws SQLiteConstraintException Is thrown if adding duplicate feeds.
+	 */
+	private void refreshFeedObjects(List<Feed> feeds) throws SQLiteConstraintException
+	{
+		//TODO: Make sure this works correctly.
+		for (Feed newFeed : feeds)
+		{
+			int i=0;
+			//Get the Feed that's stored locally with the same Id.
+			Feed oldFeed = this.fDbH.getFeedByURL(newFeed.getLink());
+			//As long as a duplicate Episode isn't encountered, insert the new Episodes at the start of the list. (Newer episodes come first.)
+			while (newFeed.getEpisodes().get(i).getLink().equals(oldFeed.getEpisodes().get(i).getLink()))
+			{
+				oldFeed.getEpisodes().add(0, newFeed.getEpisodes().get(i));
+				i++;
+			}
+			//Update the Feed with the new Episodes in the db.
+			Feed updatedFeed = this.fDbH.updateFeed(oldFeed);
+			int pos = this.getFeedPositionWithId(updatedFeed.getFeedId());
+			//Update the Feed object in the listAdapter.
+			this.listAdapter.feeds.set(pos, updatedFeed);
+		}
+		Toast notification = Toast.makeText(context, "Feeds refreshed!",
+				Toast.LENGTH_SHORT);
+		notification.show();
+		this.listAdapter.notifyDataSetChanged();
+	}	
+	
+	/**
+	 * Task used for parsing an XML file that contains podcast data.
+	 * @author Emil
+	 *
+	 */
 	private class FeedReaderTask extends AsyncTask<String, Integer, Feed>
 	{
 		private Feed newFeed;
@@ -248,8 +362,9 @@ public class PodcastHelper
 							.getAttributes().item(0).getNodeValue();
 					percentIncrement = 10.0;
 					publishProgress((int) percentIncrement);
-					percentIncrement = (itemLst.getLength() / 100);
+					
 					// Loop through the XML passing the data to the arrays
+					percentIncrement = (itemLst.getLength() / 100);
 					for (int i = 0; i < itemLst.getLength(); i++)
 					{
 						Episode ep = new Episode();
@@ -334,8 +449,6 @@ public class PodcastHelper
 			{
 				cancel(true);
 			}
-			// Reverse list to get the correct ordering in the DB.
-			Collections.reverse(eps);
 			this.newFeed = new Feed(this.title, this.author, this.description,
 					this.link, this.category, this.img, eps, context);
 			return newFeed;
@@ -356,7 +469,8 @@ public class PodcastHelper
 				Toast notification = Toast.makeText(context, "Feed added!",
 						Toast.LENGTH_LONG);
 				notification.show();
-			} catch (CursorIndexOutOfBoundsException e)
+			} 
+			catch (CursorIndexOutOfBoundsException e)
 			{
 				Log.e(LOG_TAG,
 						"CursorIndexOutOfBoundsException: Insert failed. Feed link not unique?");
@@ -367,7 +481,8 @@ public class PodcastHelper
 								Toast.LENGTH_LONG);
 				notification.show();
 				cancel(true);
-			} catch (SQLiteConstraintException e)
+			} 
+			catch (SQLiteConstraintException e)
 			{
 				Log.e(LOG_TAG,
 						"SQLiteConstraintException: Insert failed. Feed link not unique?");
@@ -393,6 +508,199 @@ public class PodcastHelper
 		}
 	}
 
+	/**
+	 * Task used for refreshing Feeds.
+	 * @param String URL of the Feed to be refreshed.
+	 * @param Integer Progress Indicator.
+	 * @return A Feed object.
+	 * @author Emil
+	 *
+	 */
+	private class FeedRefreshTask extends AsyncTask<List<String>, Integer, List<Feed>>
+	{
+		private int progressPercent;
+		private String title, link, description, category, author, img;
+		private List<Feed> feeds;
+		protected List<Feed> doInBackground(List<String>... urls)
+		{
+			this.feeds = new ArrayList<Feed>();
+			for (String feedLink:urls[0])
+			{
+				double percentIncrement;
+				List<Episode> eps = new ArrayList<Episode>();
+				try
+				{
+					// Set the url (you will need to change this to your RSS URL
+					URL url = new URL(feedLink);
+
+					// Setup the connection
+					HttpURLConnection conn = (HttpURLConnection) url
+							.openConnection();
+
+					// Connect
+					if (conn.getResponseCode() == HttpURLConnection.HTTP_OK)
+					{
+						// Retreive the XML from the URL
+						DocumentBuilderFactory dbf = DocumentBuilderFactory
+								.newInstance();
+						DocumentBuilder db = dbf.newDocumentBuilder();
+						Document doc;
+						doc = db.parse(url.openStream());
+						doc.getDocumentElement().normalize();
+
+						// This is the root node of each section you want to parse
+						NodeList itemLst = doc.getElementsByTagName("item");
+						NodeList itemLst2 = doc.getElementsByTagName("channel");
+
+						this.title = ((Element) itemLst2.item(0))
+								.getElementsByTagName("title").item(0)
+								.getChildNodes().item(0).getNodeValue();
+						this.link = feedLink;
+						this.description = ((Element) itemLst2.item(0))
+								.getElementsByTagName("description").item(0)
+								.getChildNodes().item(0).getNodeValue();
+						this.author = ((Element) itemLst2.item(0))
+								.getElementsByTagName("itunes:author").item(0)
+								.getChildNodes().item(0).getNodeValue();
+						this.category = ((Element) itemLst2.item(0))
+								.getElementsByTagName("itunes:category").item(0)
+								.getAttributes().item(0).getNodeValue();
+						this.img = ((Element) itemLst2.item(0))
+								.getElementsByTagName("itunes:image").item(0)
+								.getAttributes().item(0).getNodeValue();
+						percentIncrement = 10.0;
+						publishProgress((int) percentIncrement);
+						
+						
+						// Loop through the XML passing the data to the arrays
+						percentIncrement = ((100/urls[0].size())/itemLst.getLength());
+						for (int i = 0; i < itemLst.getLength(); i++)
+						{
+							Episode ep = new Episode();
+							Node item = itemLst.item(i);
+							if (item.getNodeType() == Node.ELEMENT_NODE)
+							{
+								Element ielem = (Element) item;
+
+								// This section gets the elements from the XML
+								// that we want to use you will need to add
+								// and remove elements that you want / don't want
+								NodeList title = ielem
+										.getElementsByTagName("title");
+								NodeList link = ielem
+										.getElementsByTagName("enclosure");
+								NodeList pubDate = ielem
+										.getElementsByTagName("pubDate");
+								NodeList content = ielem
+										.getElementsByTagName("content:encoded");
+
+								// This section adds an entry to the arrays with the
+								// data retrieved from above. I have surrounded each
+								// with try/catch just incase the element does not
+								// exist
+								try
+								{
+									ep.setTitle(title.item(0).getChildNodes()
+											.item(0).getNodeValue());
+								} catch (NullPointerException e)
+								{
+									e.printStackTrace();
+								}
+
+								try
+								{
+									ep.setLink(link.item(0).getAttributes().item(0)
+											.getNodeValue());
+								} catch (NullPointerException e)
+								{
+									e.printStackTrace();
+								}
+
+								try
+								{
+									ep.setPubDate(pubDate.item(0).getChildNodes()
+											.item(0).getNodeValue());
+								} catch (NullPointerException e)
+								{
+									e.printStackTrace();
+								}
+
+								try
+								{
+									ep.setDescription(content.item(0)
+											.getChildNodes().item(0).getNodeValue());
+								} catch (NullPointerException e)
+								{
+									e.printStackTrace();
+								}
+							}
+							publishProgress((int) percentIncrement);
+							eps.add(ep);
+						}
+					}
+
+				} catch (MalformedURLException e)
+				{
+					e.printStackTrace();
+				} catch (DOMException e)
+				{
+					e.printStackTrace();
+				} catch (IOException e)
+				{
+					e.printStackTrace();
+				} catch (ParserConfigurationException e)
+				{
+					e.printStackTrace();
+				} catch (SAXException e)
+				{
+					e.printStackTrace();
+				} catch (SQLiteConstraintException e)
+				{
+					cancel(true);
+				}
+				feeds.add(new Feed(this.title, this.author, this.description,
+						this.link, this.category, this.img, eps, context));
+			}
+			
+			return feeds;
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... progress)
+		{
+			setProgressPercent(progress[0]);
+		}
+
+		protected void onPostExecute(List<Feed> result)
+		{
+			try
+			{
+				refreshFeedObjects(this.feeds);
+			} 
+			catch (CursorIndexOutOfBoundsException e)
+			{
+				Log.e(LOG_TAG,"CursorIndexOutOfBoundsException: Refresh failed.");
+				cancel(true);
+			} 
+			catch (SQLiteConstraintException e)
+			{
+				Log.e(LOG_TAG,"SQLiteConstraintException: Refresh failed.");
+				cancel(true);
+			}
+		}
+
+		@SuppressWarnings("unused")
+		public int getProgressPercent()
+		{
+			return progressPercent;
+		}
+
+		public void setProgressPercent(int progressPercent)
+		{
+			this.progressPercent = progressPercent;
+		}
+	}
+	
 	/**
 	 *	Used to check the device version and DownloadManager information.
 	 * 

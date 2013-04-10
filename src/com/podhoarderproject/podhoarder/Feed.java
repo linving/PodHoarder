@@ -218,3 +218,5 @@ public class Feed
 		this.ctx = ctx;
 	}
 }
+
+//TODO: Implement Comparator for Feeds (order by name)

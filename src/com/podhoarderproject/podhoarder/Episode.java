@@ -121,3 +121,5 @@ public class Episode
 		return this.feedId;
 	}
 }
+
+//TODO: Implement Comparator for Episodes (compare dates)
