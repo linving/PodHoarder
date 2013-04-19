@@ -5,7 +5,12 @@ import java.util.List;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
- 
+
+/**
+ * 
+ * @author Sebastian Andersson
+ * 2013-04-17
+ */
 public class PagerAdapter extends FragmentPagerAdapter
 {
  

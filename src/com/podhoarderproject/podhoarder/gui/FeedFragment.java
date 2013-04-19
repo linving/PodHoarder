@@ -14,8 +14,8 @@ import android.widget.LinearLayout;
  * @author Sebastian Andersson
  * 2013-04-17
  */
-public class FeedFragment extends Fragment {
-
+public class FeedFragment extends Fragment
+{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         if (container == null) 

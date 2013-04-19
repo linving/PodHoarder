@@ -17,7 +17,12 @@ import android.view.View;
 import android.widget.TabHost;
 import android.widget.TabHost.TabContentFactory;
 import android.widget.TextView;
- 
+
+/**
+ * 
+ * @author Sebastian Andersson
+ * 2013-04-17
+ */
 public class MainActivity extends FragmentActivity implements TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener
 {
     private TabHost tabHost;
