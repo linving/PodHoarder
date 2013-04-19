@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- General -->
+    <color name="fragment_separator">#000000</color>
+    
+    <!-- Tabs -->
+    <color name="tab_background">#000000</color>
+    <color name="tab_text">#ff33b5e5</color>
+    
+    <!-- Player -->
+    <color name="player_background">#000000</color>
+    <color name="player_podcast_title">#FFFFFF</color>
+    <color name="player_podcast_episode">#FFFFFF</color>
+    <color name="player_elapsed_time">#FFFFFF</color>
+    <color name="player_total_time">#FFFFFF</color>
+    <color name="player_seek_bar">#FFFFFF</color>
+    <color name="player_next_button">#FFFFFF</color>
+    <color name="player_next_button_pressed">#FFFFFF</color>
+    <color name="player_play_button">#FFFFFF</color>
+    <color name="player_play_button_pressed">#FFFFFF</color>
+    <color name="player_previous_button">#FFFFFF</color>
+    <color name="player_previous_button_pressed">#FFFFFF</color>
+    
+    <!-- Player List -->
+    <color name="playerlist_background">#FFFFFF</color>
+    <color name="playerlist_title">#FFFFFF</color>
+    <color name="playerlist_episode">#FFFFFF</color>
+    <color name="playerlist_date">#FFFFFF</color>
+    
+    <!-- Feed -->
+    <color name="feed_background">#000000</color>
+    
+    <!-- Feed List -->
+    <color name="feedlist_background">#FFFFFF</color>
+    <color name="feedlist_podcast_title">#FFFFFF</color>
+    <color name="feedlist_podcast_episode">#FFFFFF</color>
+    <color name="feedlist_podcast_episode_listened">#FFFFFF</color>
+    <color name="feedlist_unlistened_episodes">#FFFFFF</color>
+    
+    <!-- Settings -->
+    <color name="settings_background">#FFFFFF</color>
+    
+</resources>

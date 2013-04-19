@@ -17,8 +17,8 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.podhoarderproject.podhoarder.TestActivity"
-            android:label="@string/title_activity_test" >
+            android:name="com.podhoarderproject.podhoarder.MainActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
