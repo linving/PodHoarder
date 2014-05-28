@@ -9,7 +9,10 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -23,18 +26,30 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.podhoarderproject.ericharlow.DragNDrop.DragNDropAdapter;
+import com.podhoarderproject.podhoarder.adapter.PlaylistListAdapter;
+import com.podhoarderproject.podhoarder.adapter.FeedListAdapter;
+import com.podhoarderproject.podhoarder.adapter.LatestEpisodesListAdapter;
+
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.ListAdapter;
 import android.widget.Toast;
 
 /**
@@ -50,10 +65,21 @@ import android.widget.Toast;
 public class PodcastHelper
 {
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PodcastHelper";
+	
+	public static final SimpleDateFormat xmlFormat = new SimpleDateFormat("EEE, d MMM yyy HH:mm:ss Z");
+	public static final SimpleDateFormat correctFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");
+	
+	private final String strPref_Download_ID = "PREF_DOWNLOAD_ID";	//Used with the DownloadManager to store request ID in SharedPreferences.
+	
+	SharedPreferences preferenceManager;
+	DownloadManager downloadManager;
 
 	private FeedDBHelper fDbH;
 	private EpisodeDBHelper eph;
+	public PlaylistDBHelper plDbH;
 	public FeedListAdapter listAdapter;
+	public ListAdapter latestEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
+	public DragNDropAdapter playlistAdapter;	//A list containing all the downloaded episodes.
 	private Context context;
 	private String storagePath;
 	private String podcastDir;
@@ -65,8 +91,13 @@ public class PodcastHelper
 		this.podcastDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PODCASTS).getAbsolutePath();
 		this.fDbH = new FeedDBHelper(this.context);
 		this.eph = new EpisodeDBHelper(this.context);
-		this.listAdapter = new FeedListAdapter(this.fDbH.getAllFeeds(),
-				this.context);
+		this.plDbH = new PlaylistDBHelper(this.context);
+		this.listAdapter = new FeedListAdapter(this.fDbH.getAllFeeds(), this.context);
+		this.latestEpisodesListAdapter = new LatestEpisodesListAdapter(this.eph.getLatestEpisodes(100), this.context);
+		this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
+		preferenceManager = PreferenceManager.getDefaultSharedPreferences(this.context);
+		// get download service and enqueue file
+		this.downloadManager = (DownloadManager) this.context.getSystemService(Context.DOWNLOAD_SERVICE);
 		checkLocalLinks();
 	}
 
@@ -112,6 +143,7 @@ public class PodcastHelper
 
 		this.listAdapter.feeds.remove(i);
 		this.listAdapter.notifyDataSetChanged();
+		this.refreshLists();
 	}
 
 	/**
@@ -144,6 +176,7 @@ public class PodcastHelper
 		this.eph.updateEpisode(this.listAdapter.feeds.get(i).getEpisodes()
 				.get(r));
 		this.listAdapter.notifyDataSetChanged();
+		this.refreshLists();
 	}
 
 	public void refreshFeeds()
@@ -165,8 +198,8 @@ public class PodcastHelper
 	 */
 	public void downloadEpisode(int feedId, int episodeId)
 	{
-		int feedPos = getFeedPositionWithId(feedId);
-		int epPos = getEpisodePositionWithId(feedPos, episodeId);
+		final int feedPos = getFeedPositionWithId(feedId);
+		final int epPos = getEpisodePositionWithId(feedPos, episodeId);
 		if (isDownloadManagerAvailable(this.context) && !new File(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink()).exists())
 		{
 			String url = this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLink();
@@ -179,15 +212,22 @@ public class PodcastHelper
 			    request.allowScanningByMediaScanner();
 			    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 			}
+			//TODO: If there is no sdcard, DownloadManager will throw an exception because it cannot save to a non-existing directory. Make sure the directory is valid or something.
 			request.setDestinationInExternalPublicDir(this.storagePath, this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle().replace(":", " -")+".mp3");
-			// get download service and enqueue file
-			DownloadManager manager = (DownloadManager) this.context.getSystemService(Context.DOWNLOAD_SERVICE);
-			manager.enqueue(request);
-			//update list adapter object
-			this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).setLocalLink(	this.podcastDir + "/" +
-																						this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle().replace(":", " -")+".mp3");
-			//update db entry
-			this.eph.updateEpisode(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos));
+			
+			// register broadcast receiver for when the download is done.
+			BroadcastReceiver onComplete=new BroadcastReceiver() {
+			    public void onReceive(Context ctxt, Intent intent) {
+			        // .mp3 files was successfully downloaded. We should update db and list objects to reflect this.
+			    	checkDownloadStatus(feedPos, epPos);
+			    }
+			};
+			this.context.registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+			long id = this.downloadManager.enqueue(request);
+			//Save the request id
+			Editor PrefEdit = preferenceManager.edit();
+			PrefEdit.putLong(strPref_Download_ID, id);
+			PrefEdit.commit();
 			
 			Toast notification = Toast.makeText(context, "Downloading Podcast.",
 					Toast.LENGTH_SHORT);
@@ -200,7 +240,24 @@ public class PodcastHelper
 	}
 	
 	/**
-	 * Deletes the physical mp3-file associated with an Episode, not the Episod eobject itself.
+	 * A function that is called when a Podcast download is completed.
+	 * @param feedId Id of the Feed that the Podcast belongs to.
+	 * @param episodeId Id of the Episode within the specified feed.
+	 * @author Emil
+	 */
+	private void downloadCompleted(int feedPos, int epPos)
+	{
+		//update list adapter object
+		this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).setLocalLink(	this.podcastDir + "/" +
+																					this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle().replace(":", " -")+".mp3");
+		//update db entry
+		this.eph.updateEpisode(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos));
+		
+		this.refreshLists();
+	}
+	
+	/**
+	 * Deletes the physical mp3-file associated with an Episode, not the Episode object itself.
 	 * @param feedId Id of the Feed that the Podcast belongs to.
 	 * @param episodeId Id of the Episode within the specified feed.
 	 * @author Emil
@@ -223,7 +280,7 @@ public class PodcastHelper
 	}
 	
 	/**
-	 * Checks all stored links to make sure that the references files actually exist on startup.
+	 * Checks all stored links to make sure that the referenced files actually exist on startup.
 	 * The function resets local links of files that can't be found, so that they may be downloaded again.
 	 * Files can be manually removed from the public external directories, thus this is necessary.
 	 * @author Emil 
@@ -250,6 +307,7 @@ public class PodcastHelper
 				}
 			}
 		}
+		this.refreshLists();
 	}
 		
 	/**
@@ -264,6 +322,7 @@ public class PodcastHelper
 			feed = this.fDbH.insertFeed(feed);
 			this.listAdapter.feeds.add(feed);
 			this.listAdapter.notifyDataSetChanged();
+			this.refreshLists();
 		} catch (SQLiteConstraintException e)
 		{
 			Log.e(LOG_TAG,
@@ -302,6 +361,7 @@ public class PodcastHelper
 				Toast.LENGTH_SHORT);
 		notification.show();
 		this.listAdapter.notifyDataSetChanged();
+		this.refreshLists();
 	}	
 	
 	/**
@@ -373,22 +433,20 @@ public class PodcastHelper
 						{
 							Element ielem = (Element) item;
 
-							// This section gets the elements from the XML
-							// that we want to use you will need to add
-							// and remove elements that you want / don't want
+							// This section gets the elements from the XML.
 							NodeList title = ielem
 									.getElementsByTagName("title");
 							NodeList link = ielem
 									.getElementsByTagName("enclosure");
 							NodeList pubDate = ielem
 									.getElementsByTagName("pubDate");
+							NodeList description = ielem
+									.getElementsByTagName("description");	//Try to get the description tag first. 
 							NodeList content = ielem
-									.getElementsByTagName("content:encoded");
+									.getElementsByTagName("content:encoded");	//If the description tag doesn't contain anything, get the content:encoded tag data instead.
+							
 
-							// This section adds an entry to the arrays with the
-							// data retrieved from above. I have surrounded each
-							// with try/catch just incase the element does not
-							// exist
+							// Extract relevant data from the NodeList objects.
 							try
 							{
 								ep.setTitle(title.item(0).getChildNodes()
@@ -409,8 +467,16 @@ public class PodcastHelper
 
 							try
 							{
-								ep.setPubDate(pubDate.item(0).getChildNodes()
-										.item(0).getNodeValue());
+								String val = pubDate.item(0).getChildNodes().item(0).getNodeValue();
+								try
+								{
+									Date date = xmlFormat.parse(val);
+									ep.setPubDate(correctFormat.format(date));
+								} catch (ParseException e)
+								{
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 							} catch (NullPointerException e)
 							{
 								e.printStackTrace();
@@ -418,8 +484,13 @@ public class PodcastHelper
 
 							try
 							{
-								ep.setDescription(content.item(0)
+								ep.setDescription(description.item(0)
 										.getChildNodes().item(0).getNodeValue());
+								if (ep.getDescription().isEmpty()){
+									ep.setDescription(content.item(0)
+											.getChildNodes().item(0).getNodeValue());
+								}
+								
 							} catch (NullPointerException e)
 							{
 								e.printStackTrace();
@@ -591,8 +662,10 @@ public class PodcastHelper
 										.getElementsByTagName("enclosure");
 								NodeList pubDate = ielem
 										.getElementsByTagName("pubDate");
+								NodeList description = ielem
+										.getElementsByTagName("description");	//Try to get the description tag first. 
 								NodeList content = ielem
-										.getElementsByTagName("content:encoded");
+										.getElementsByTagName("content:encoded");	//If the description tag doesn't contain anything, get the content:encoded tag data instead.
 
 								// This section adds an entry to the arrays with the
 								// data retrieved from above. I have surrounded each
@@ -618,8 +691,16 @@ public class PodcastHelper
 
 								try
 								{
-									ep.setPubDate(pubDate.item(0).getChildNodes()
-											.item(0).getNodeValue());
+									String val = pubDate.item(0).getChildNodes().item(0).getNodeValue();
+									try
+									{
+										Date date = xmlFormat.parse(val);
+										ep.setPubDate(correctFormat.format(date));
+									} catch (ParseException e)
+									{
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
 								} catch (NullPointerException e)
 								{
 									e.printStackTrace();
@@ -627,8 +708,13 @@ public class PodcastHelper
 
 								try
 								{
-									ep.setDescription(content.item(0)
+									ep.setDescription(description.item(0)
 											.getChildNodes().item(0).getNodeValue());
+									if (ep.getDescription().isEmpty()){
+										ep.setDescription(content.item(0)
+												.getChildNodes().item(0).getNodeValue());
+									}
+									
 								} catch (NullPointerException e)
 								{
 									e.printStackTrace();
@@ -764,5 +850,122 @@ public class PodcastHelper
 			}
 		}
 		return retVal;
+	}
+	
+	/**
+	 * Checks the status of the latest download.
+	 * @param feedId Id of the Feed that the Podcast belongs to.
+	 * @param episodeId Id of the Episode within the specified feed.
+	 * @author Emil
+	 */
+	private void checkDownloadStatus(int feedPos, int epPos)
+	{
+		
+		 // TODO Auto-generated method stub
+		 DownloadManager.Query query = new DownloadManager.Query();
+		 long id = preferenceManager.getLong(strPref_Download_ID, 0);
+		 query.setFilterById(id);
+		 Cursor cursor = downloadManager.query(query);
+		 if(cursor.moveToFirst())
+		 {
+			  int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
+			  int status = cursor.getInt(columnIndex);
+			  int columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
+			  int reason = cursor.getInt(columnReason);
+			 
+			  switch(status)
+			  {
+				  case DownloadManager.STATUS_FAILED:
+					   String failedReason = "";
+					   switch(reason){
+						   case DownloadManager.ERROR_CANNOT_RESUME:
+							 //TODO: Replace with String resource
+							    failedReason = "ERROR_CANNOT_RESUME";
+							    break;
+						   case DownloadManager.ERROR_DEVICE_NOT_FOUND:
+							 //TODO: Replace with String resource
+							    failedReason = "ERROR_DEVICE_NOT_FOUND";
+							    break;
+						   case DownloadManager.ERROR_FILE_ALREADY_EXISTS:
+							 //TODO: Replace with String resource
+							    failedReason = "ERROR_FILE_ALREADY_EXISTS";
+							    break;
+						   case DownloadManager.ERROR_FILE_ERROR:
+							 //TODO: Replace with String resource
+							    failedReason = "ERROR_FILE_ERROR";
+							    break;
+						   case DownloadManager.ERROR_HTTP_DATA_ERROR:
+							 //TODO: Replace with String resource
+							    failedReason = "ERROR_HTTP_DATA_ERROR";
+							    break;
+						   case DownloadManager.ERROR_INSUFFICIENT_SPACE:
+							 //TODO: Replace with String resource
+							    failedReason = "ERROR_INSUFFICIENT_SPACE";
+							    break;
+						   case DownloadManager.ERROR_TOO_MANY_REDIRECTS:
+							 //TODO: Replace with String resource
+							    failedReason = "ERROR_TOO_MANY_REDIRECTS";
+							    break;
+						   case DownloadManager.ERROR_UNHANDLED_HTTP_CODE:
+							 //TODO: Replace with String resource
+							    failedReason = "ERROR_UNHANDLED_HTTP_CODE";
+							    break;
+						   case DownloadManager.ERROR_UNKNOWN:
+							 //TODO: Replace with String resource
+							    failedReason = "ERROR_UNKNOWN";
+							    break;
+					   }
+					 //TODO: Replace with String resource
+					   Toast.makeText(this.context,"FAILED: " + failedReason, Toast.LENGTH_LONG).show();
+					   break;
+					   
+				  case DownloadManager.STATUS_PAUSED:
+					   String pausedReason = "";
+					   switch(reason){
+						   case DownloadManager.PAUSED_QUEUED_FOR_WIFI:
+							 //TODO: Replace with String resource
+							    pausedReason = "PAUSED_QUEUED_FOR_WIFI";
+							    break;
+						   case DownloadManager.PAUSED_UNKNOWN:
+							 //TODO: Replace with String resource
+							    pausedReason = "PAUSED_UNKNOWN";
+							    break;
+						   case DownloadManager.PAUSED_WAITING_FOR_NETWORK:
+							 //TODO: Replace with String resource
+							    pausedReason = "PAUSED_WAITING_FOR_NETWORK";
+							    break;
+						   case DownloadManager.PAUSED_WAITING_TO_RETRY:
+							 //TODO: Replace with String resource
+							    pausedReason = "PAUSED_WAITING_TO_RETRY";
+							    break;
+					   }
+					 //TODO: Replace with String resource
+					   Toast.makeText(this.context,"PAUSED: " + pausedReason, Toast.LENGTH_LONG).show();
+					   break;
+				  case DownloadManager.STATUS_PENDING:
+					//TODO: Replace with String resource
+					   Toast.makeText(this.context, "PENDING", Toast.LENGTH_LONG).show();
+					   break;
+				  case DownloadManager.STATUS_RUNNING:
+					  //TODO: Replace with String resource
+					   Toast.makeText(this.context, "RUNNING", Toast.LENGTH_LONG).show();
+					   break;
+				  case DownloadManager.STATUS_SUCCESSFUL:
+					  //Download was successful. We should update db etc.
+					   downloadCompleted(feedPos, epPos);
+					   break;
+			 }
+		 }
+	}
+
+	/**
+	 * Refreshes the lists on each of the fragments simultaneously. This operation is pretty intense because of sorting and selection etc.
+	 */
+	public void refreshLists()
+	{
+		//Update the list adapters to reflect changes.
+		((LatestEpisodesListAdapter)this.latestEpisodesListAdapter).replaceItems(this.eph.getLatestEpisodes(100));
+		((DragNDropAdapter)this.playlistAdapter).replaceItems(this.plDbH.sort(this.eph.getDownloadedEpisodes()));
+		this.listAdapter.replaceItems(this.fDbH.getAllFeeds());	
 	}
 }

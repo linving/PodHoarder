@@ -2,16 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/player_background"
-    android:orientation="vertical" >
+    android:background="@color/fragment_player_background"
+    android:orientation="vertical" 
+    android:id="@+id/playerFragment_container">
 
     <TextView
         android:id="@+id/playerTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/title"
-        android:textColor="@color/player_podcast_title"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="@string/player_title"
+        android:textColor="@color/fragment_player_podcast_title"
+        android:textSize="@dimen/fragment_player_podcast_title"/>
 
     <TextView
         android:id="@+id/playerEpisode"
@@ -19,8 +20,8 @@
         android:layout_height="wrap_content"
         android:paddingTop="5dp"
         android:text="@string/episode"
-        android:textColor="@color/player_podcast_episode"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textColor="@color/fragment_player_podcast_episode"
+        android:textSize="@dimen/fragment_player_podcast_episode"/>
 
     <MediaController
         android:id="@+id/mediaController"
@@ -47,8 +48,8 @@
         		android:layout_alignParentLeft="true"
         		android:paddingLeft="5dp"
         		android:text="@string/elapsed_time"
-        		android:textColor="@color/player_elapsed_time"
-        		android:textAppearance="?android:attr/textAppearanceSmall" />
+        		android:textColor="@color/fragment_player_elapsed_time"
+        		android:textSize="@dimen/fragment_player_elapsed_time" />
 
             <TextView
                 android:id="@+id/playerTotalTime"
@@ -57,8 +58,8 @@
                 android:layout_alignParentRight="true"
                 android:paddingRight="5dp"
                 android:text="@string/total_time"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/player_total_time" />
+                android:textColor="@color/fragment_player_total_time"
+                android:textSize="@dimen/fragment_player_total_time" />
             
         </RelativeLayout>
 
@@ -91,18 +92,19 @@
             android:src="@drawable/next" />
 
     </RelativeLayout>
-
+    
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
-        <ExpandableListView
+        <com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView
             android:id="@+id/playerList"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-        </ExpandableListView>
-
+            android:layout_height="fill_parent"
+			android:background="@color/fragment_player_playerlist_background">
+        </com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView>
+        
     </LinearLayout>
 
 </LinearLayout>

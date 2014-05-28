@@ -30,7 +30,9 @@ public class DBHelper extends SQLiteOpenHelper
 	static final String colEpisodeMinutesListened = "minutesListened";
 	static final String colEpisodeLength = "length";
 	static final String colParentFeedId = "feedId";
-
+	
+	static final String playlistTable = "PLAYLIST";
+	static final String colId = "id";
 	
 	public DBHelper(Context context)
 	{
@@ -63,6 +65,13 @@ public class DBHelper extends SQLiteOpenHelper
 				+ colEpisodeLength + " INTEGER NOT NULL, "
 				+ colParentFeedId + " INTEGER NOT NULL "
 		    	+	")");
+		
+		//Create PLAYLIST table
+		db.execSQL("CREATE TABLE " + playlistTable + " (" 
+				+ colId + " INTEGER PRIMARY KEY, "
+				+ colEpisodeId + " INTEGER NOT NULL " 
+		    	+	")");
+		
 	}
 
 	@Override
@@ -70,6 +79,7 @@ public class DBHelper extends SQLiteOpenHelper
 	{
 		db.execSQL("DROP TABLE IF EXISTS "+feedTable);
 		db.execSQL("DROP TABLE IF EXISTS "+episodeTable);
+		db.execSQL("DROP TABLE IF EXISTS "+playlistTable);
 		
 		onCreate(db);
 	}

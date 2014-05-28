@@ -16,6 +16,7 @@ import org.apache.http.client.methods.HttpGet;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -52,9 +53,9 @@ public class FeedImage
 	 * Getter for the imageObject
 	 * @return
 	 */
-	public Bitmap imageObject()
+	public BitmapDrawable imageObject()
 	{
-		return this.imageObject;
+		return new BitmapDrawable(this.ctx.getResources(),this.imageObject);
 	}
 	
 	/**

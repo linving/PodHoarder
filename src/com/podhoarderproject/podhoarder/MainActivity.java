@@ -1,144 +1,156 @@
 package com.podhoarderproject.podhoarder;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
-
-import com.podhoarderproject.podhoarder.gui.FeedFragment;
-import com.podhoarderproject.podhoarder.gui.PagerAdapter;
-import com.podhoarderproject.podhoarder.gui.PlayerFragment;
  
-import android.content.Context;
+import java.util.Collections;
+
+import com.podhoarderproject.podhoarder.adapter.TabsPagerAdapter;
+import com.podhoarderproject.podhoarder.adapter.PlaylistListAdapter;
+import com.podhoarderproject.podhoarder.gui.*;
+
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.view.View;
-import android.widget.TabHost;
-import android.widget.TabHost.TabContentFactory;
-import android.widget.TextView;
+
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.FragmentTransaction;
 
 /**
  * 
  * @author Sebastian Andersson
  * 2013-04-17
  */
-public class MainActivity extends FragmentActivity implements TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener
+public class MainActivity extends FragmentActivity implements ActionBar.TabListener
 {
-    private TabHost tabHost;
+	//UI Elements
     private ViewPager viewPager;
-    private HashMap<String, TabInfo> mapTabInfo = new HashMap<String, MainActivity.TabInfo>();
-    private PagerAdapter pagerAdapter;
+    private TabsPagerAdapter mAdapter;
+    private ActionBar actionBar;
     
-    protected void onCreate(Bundle savedInstanceState)
+    //Fragment Objects
+    private FeedFragment feedFragment;
+    private LatestEpisodesFragment episodesFragment;
+    private PlayerFragment playerFragment;
+    
+    //Podcast Helper
+    public PodcastHelper helper;
+    
+    // Tab titles
+    private String[] tabs;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.viewpager_layout);
-        this.initialiseTabHost(savedInstanceState);
-        if (savedInstanceState != null)
-        {
-            tabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
-        }
-        this.intialiseViewPager();
-    }
-
-    protected void onSaveInstanceState(Bundle outState)
-    {
-        outState.putString("tab", tabHost.getCurrentTabTag());
-        super.onSaveInstanceState(outState);
-    }
- 
-    private void intialiseViewPager()
-    {
-        List<Fragment> fragments = new Vector<Fragment>();
-        fragments.add(Fragment.instantiate(this, PlayerFragment.class.getName()));
-        fragments.add(Fragment.instantiate(this, FeedFragment.class.getName()));
-        this.pagerAdapter  = new PagerAdapter(super.getSupportFragmentManager(), fragments);
-
-        this.viewPager = (ViewPager)super.findViewById(R.id.viewpager);
-        this.viewPager.setAdapter(this.pagerAdapter);
-        this.viewPager.setOnPageChangeListener(this);
-    }
- 
-    private void initialiseTabHost(Bundle args)
-    {
-        tabHost = (TabHost)findViewById(android.R.id.tabhost);
-        tabHost.setup();
-
-        TabInfo tabInfo = null;
-        this.addTab(this, this.tabHost, this.tabHost.newTabSpec(getResources().getString(R.string.player_tab)).setIndicator(getResources().getString(R.string.player_tab)), ( tabInfo = new TabInfo(getResources().getString(R.string.player_tab), PlayerFragment.class, args)));
-        this.mapTabInfo.put(tabInfo.tag, tabInfo);
-        this.addTab(this, this.tabHost, this.tabHost.newTabSpec(getResources().getString(R.string.feed_tab)).setIndicator(getResources().getString(R.string.feed_tab)), ( tabInfo = new TabInfo(getResources().getString(R.string.feed_tab), FeedFragment.class, args)));
-        this.mapTabInfo.put(tabInfo.tag, tabInfo);
+	    
+        setContentView(R.layout.activity_main);
+	    
+        // Initialisation
+        doFragmentSetup(savedInstanceState);
         
-        for(int i=0; i<tabHost.getTabWidget().getChildCount(); i++) 
-        {
-            TextView tv = (TextView) tabHost.getTabWidget().getChildAt(i).findViewById(android.R.id.title);
-            tv.setTextColor(getResources().getColor(R.color.tab_text));
-        } 
-
-        tabHost.setOnTabChangedListener(this);
-    }
- 
-    private void addTab(MainActivity activity, TabHost tabHost, TabHost.TabSpec tabSpec, TabInfo tabInfo)
-    {
-        tabSpec.setContent(activity.new TabFactory(activity));
-        tabHost.addTab(tabSpec);
-    }
- 
-    public void onTabChanged(String tag)
-    {
-        int pos = this.tabHost.getCurrentTab();
-        this.viewPager.setCurrentItem(pos);
-    }
- 
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
-    {
-    }
- 
-    @Override
-    public void onPageSelected(int position)
-    {
-        this.tabHost.setCurrentTab(position);
-    }
- 
-    @Override
-    public void onPageScrollStateChanged(int state)
-    {
+        doTabSetup();
+        
+        this.helper = new PodcastHelper(this);     
     }
     
-    @SuppressWarnings("unused")
-    private class TabInfo
+    @Override
+    protected void onStart()
     {
-    	private String tag;
-        private Class<?> c;
-        private Bundle args;
-        private Fragment fragment;
-         
-        TabInfo(String tag, Class<?> c, Bundle args)
-        {
-        	this.tag = tag;
-            this.c = c;
-            this.args = args;
-        }
+    	super.onStart();
+    	//Collections.reverse(((PlaylistListAdapter)this.helper.playlistAdapter).playList);
+    	//this.helper.plDbH.savePlaylist(((PlaylistListAdapter)this.helper.playlistAdapter).playList);
+    	//this.helper.addFeed("http://smodcast.com/channels/plus-one/feed/");
+    	//this.helper.addFeed("http://feeds.feedburner.com/filipochfredrik/podcast?format=xml");
     }
     
-    private class TabFactory implements TabContentFactory
+    @Override
+    protected void onResume()
     {
-        private final Context context;
-
-        public TabFactory(Context context)
-        {
-            this.context = context;
-        }
-
-        public View createTabContent(String tag)
-        {
-            View view = new View(this.context);
-            view.setMinimumWidth(0);
-            view.setMinimumHeight(0);
-            return view;
-        }
+    	super.onResume();    	
     }
+  
+    private void doFragmentSetup(Bundle savedInstanceState)
+    {
+    	// If we're being restored from a previous state,
+        // then we don't need to do anything and should return or else
+        // we could end up with overlapping fragments.
+        if (savedInstanceState != null) {
+            return;
+        }
+        
+    	this.feedFragment = new FeedFragment();
+    	this.episodesFragment = new LatestEpisodesFragment();
+    	this.playerFragment = new PlayerFragment();
+    	
+    	getSupportFragmentManager().beginTransaction().add(R.id.pager, this.feedFragment, ""+R.id.feedFragment_container).commit();
+    	getSupportFragmentManager().beginTransaction().add(R.id.pager, this.episodesFragment, ""+R.id.episodesFragment_container).commit();
+    	getSupportFragmentManager().beginTransaction().add(R.id.pager, this.playerFragment, ""+R.id.playerFragment_container).commit();
+    }
+    
+    private void doTabSetup()
+    {
+    	viewPager = (ViewPager) findViewById(R.id.pager);
+        actionBar = getActionBar();
+        mAdapter = new TabsPagerAdapter(getSupportFragmentManager());
+
+        viewPager.setAdapter(mAdapter);
+        //actionBar.setHomeButtonEnabled(false);
+        //actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        tabs = new String[] {this.getString(R.string.feed_tab),this.getString(R.string.episodes_tab),this.getString(R.string.player_tab)};
+        // Adding Tabs
+        for (String tab_name : tabs) 
+        {
+            actionBar.addTab(actionBar.newTab().setText(tab_name).setTabListener(this));        
+        }
+        
+    	 /**
+         * on swiping the viewpager make respective tab selected
+         * */
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            @Override
+            public void onPageSelected(int position) {
+                // on changing the page
+                // make respected tab selected
+                actionBar.setSelectedNavigationItem(position);
+            }
+
+            @Override
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int arg0) {
+            }
+        });
+    }
+
+    
+    public void downloadEpisode(int feedId, int episodeId)
+    {
+    	this.helper.downloadEpisode(feedId, episodeId);
+    }
+    
+	@Override
+	public void onTabReselected(Tab tab, FragmentTransaction ft)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onTabSelected(Tab tab, FragmentTransaction ft)
+	{
+		// on tab selected
+        // show respected fragment view
+        viewPager.setCurrentItem(tab.getPosition());
+	}
+
+	@Override
+	public void onTabUnselected(Tab tab, FragmentTransaction ft)
+	{
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -42,8 +42,7 @@ public class EpisodeDBHelper
 		List<Episode> episodes = new ArrayList<Episode>();
 		this.db = this.dbHelper.getWritableDatabase();
 		Cursor cursor = this.db.query(TABLE_NAME, columns, null, null,
-				null, null, null);
-		this.db.close();
+				null, null, DBHelper.colEpisodePubDate + " DESC");
 		if (cursor.moveToFirst())
 		{
 			do
@@ -51,6 +50,7 @@ public class EpisodeDBHelper
 				episodes.add(cursorToEpisode(cursor));
 			} while (cursor.moveToNext());
 		}
+		this.db.close();
 		return episodes;
 	}
 	
@@ -64,7 +64,7 @@ public class EpisodeDBHelper
 	{
 		List<Episode> episodes = new ArrayList<Episode>();
 		this.db = this.dbHelper.getWritableDatabase();
-		Cursor cursor = this.db.query(TABLE_NAME, columns,  columns[8] + "=" + feedId, null, null, null, null);
+		Cursor cursor = this.db.query(TABLE_NAME, columns,  columns[8] + "=" + feedId, null, null, null, DBHelper.colEpisodePubDate + " DESC");
 		
 		if (cursor.moveToFirst())
 		{
@@ -74,9 +74,50 @@ public class EpisodeDBHelper
 			} while (cursor.moveToNext());
 		}
 		this.db.close();
-		//Reverse list to get newest episodes first.
-		Collections.reverse(episodes);
 		return episodes;
+	}
+	
+	/**
+	 * 
+	 * Retrieves a list of the latest Episodes across all Feeds.
+	 * @param nrOfEpisodes	The amount of Episodes to return.
+	 * @return 			A list containing the latest Episode objects.
+	 */
+	public List<Episode> getLatestEpisodes(int nrOfEpisodes)
+	{
+		this.db = this.dbHelper.getWritableDatabase();
+		Cursor cursor = this.db.query(TABLE_NAME, columns, null, null, null, null, DBHelper.colEpisodePubDate + " DESC", ""+nrOfEpisodes);
+		List<Episode> episodes = new ArrayList<Episode>();
+		if (cursor.moveToFirst())
+		{
+			do
+			{
+				episodes.add(cursorToEpisode(cursor));
+			} while (cursor.moveToNext());
+		}
+		this.db.close();
+		return episodes;	
+	}
+	
+	/**
+	 * 
+	 * Retrieves a list of all the downloaded Episodes.
+	 * @return 			A list containing the downloaded Episode objects.
+	 */
+	public List<Episode> getDownloadedEpisodes()
+	{
+		this.db = this.dbHelper.getWritableDatabase();
+		Cursor cursor = this.db.query(TABLE_NAME, columns, DBHelper.colEpisodeLocalLink +" IS NOT NULL AND "+ DBHelper.colEpisodeLocalLink + " != ''", null, null, null, DBHelper.colEpisodePubDate + " DESC");
+		List<Episode> episodes = new ArrayList<Episode>();
+		if (cursor.moveToFirst())
+		{
+			do
+			{
+				episodes.add(cursorToEpisode(cursor));
+			} while (cursor.moveToNext());
+		}
+		this.db.close();
+		return episodes;	
 	}
 
 	/**

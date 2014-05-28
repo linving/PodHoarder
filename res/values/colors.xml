@@ -3,40 +3,57 @@
     
     <!-- General -->
     <color name="fragment_separator">#000000</color>
+    <color name="list_separator">#323232</color>
     
     <!-- Tabs -->
     <color name="tab_background">#000000</color>
     <color name="tab_text">#ff33b5e5</color>
     
-    <!-- Player -->
-    <color name="player_background">#000000</color>
-    <color name="player_podcast_title">#FFFFFF</color>
-    <color name="player_podcast_episode">#FFFFFF</color>
-    <color name="player_elapsed_time">#FFFFFF</color>
-    <color name="player_total_time">#FFFFFF</color>
-    <color name="player_seek_bar">#FFFFFF</color>
-    <color name="player_next_button">#FFFFFF</color>
-    <color name="player_next_button_pressed">#FFFFFF</color>
-    <color name="player_play_button">#FFFFFF</color>
-    <color name="player_play_button_pressed">#FFFFFF</color>
-    <color name="player_previous_button">#FFFFFF</color>
-    <color name="player_previous_button_pressed">#FFFFFF</color>
+    <!-- Player Fragment -->
+    <color name="fragment_player_background">#000000</color>
+    <color name="fragment_player_podcast_title">#FFFFFF</color>
+    <color name="fragment_player_podcast_episode">#FFFFFF</color>
+    <color name="fragment_player_elapsed_time">#FFFFFF</color>
+    <color name="fragment_player_total_time">#FFFFFF</color>
+    <color name="fragment_player_seek_bar">#FFFFFF</color>
+    <color name="fragment_player_next_button">#FFFFFF</color>
+    <color name="fragment_player_next_button_pressed">#FFFFFF</color>
+    <color name="fragment_player_play_button">#FFFFFF</color>
+    <color name="fragment_player_play_button_pressed">#FFFFFF</color>
+    <color name="fragment_player_previous_button">#FFFFFF</color>
+    <color name="fragment_player_previous_button_pressed">#FFFFFF</color>
     
-    <!-- Player List -->
-    <color name="playerlist_background">#FFFFFF</color>
-    <color name="playerlist_title">#FFFFFF</color>
-    <color name="playerlist_episode">#FFFFFF</color>
-    <color name="playerlist_date">#FFFFFF</color>
+    <!-- Player Fragment List -->
+    <color name="fragment_player_playerlist_row_title">#FFFFFF</color>
+    <color name="fragment_player_playerlist_row_listened">#FFFFFF</color>
+    <color name="fragment_player_playerlist_background">#000000</color>
     
-    <!-- Feed -->
-    <color name="feed_background">#000000</color>
+    <!-- Feeds Fragment -->
+    <color name="fragment_feeds_background">#000000</color>
+    <color name="fragment_feeds_title">#FFFFFF</color>
     
-    <!-- Feed List -->
-    <color name="feedlist_background">#FFFFFF</color>
-    <color name="feedlist_podcast_title">#FFFFFF</color>
-    <color name="feedlist_podcast_episode">#FFFFFF</color>
-    <color name="feedlist_podcast_episode_listened">#FFFFFF</color>
-    <color name="feedlist_unlistened_episodes">#FFFFFF</color>
+    <!-- Feeds Fragment List -->
+    <color name="fragment_feeds_list_background">#FFFFFF</color>
+    <color name="fragment_feeds_list_podcast_title">#FFFFFF</color>
+    <color name="fragment_feeds_list_podcast_count">#FFFFFF</color>
+    <color name="fragment_feeds_list_podcast_description">#FFFFFF</color>
+    <color name="fragment_feeds_list_episode_title">#FFFFFF</color>
+    <color name="fragment_feeds_list_episode_age">#FFFFFF</color>
+    <color name="fragment_feeds_list_episode_description">#FFFFFF</color>
+    <color name="fragment_feeds_list_episode_unlistened">#FFFFFF</color>
+    <color name="fragment_feeds_list_episode_listened">#FFFFFF</color>
+    
+    <!-- Latest Episodes Fragment-->
+    <color name="fragment_latest_background">#000000</color>
+    <color name="fragment_latest_title">#FFFFFF</color>
+    
+    <!-- Latest Episodes Fragment List -->
+    <color name="fragment_latest_list_background">#FFFFFF</color>
+    <color name="fragment_latest_list_episode_title">#FFFFFF</color>
+    <color name="fragment_latest_list_episode_age">#FFFFFF</color>
+    <color name="fragment_latest_list_episode_description">#FFFFFF</color>
+    <color name="fragment_latest_list_episode_episode_unlistened">#FFFFFF</color>
+    <color name="fragment_latest_list_episode_episode_listened">#FFFFFF</color>
     
     <!-- Settings -->
     <color name="settings_background">#FFFFFF</color>

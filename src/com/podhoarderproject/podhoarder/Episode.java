@@ -1,4 +1,5 @@
 package com.podhoarderproject.podhoarder;
+
 /**
  * @author Emil Almrot
  * 2013-03-15
@@ -7,6 +8,8 @@ public class Episode
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.Episode";
+	
+	
 	
 	private int		episodeId;
 	private String 	title;
@@ -26,6 +29,7 @@ public class Episode
 		this.link = link;
 		this.localLink = localLink;
 		this.pubDate = pubDate;
+		
 		this.description = description;
 		this.minutesListened = minutesListened;
 		this.length = length;

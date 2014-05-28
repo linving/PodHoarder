@@ -118,6 +118,7 @@ public class FeedDBHelper
 		    cursor.moveToFirst();
 		    Feed insertedFeed = cursorToFeed(cursor);
 		    this.db.close();
+		    //TODO: Might not need to make a new selection here since insertEpisodes returns a list. Is that list usable?
 		    this.eph.insertEpisodes(feed.getEpisodes(), insertedFeed.getFeedId());
 		    insertedFeed.setEpisodes(this.eph.getAllEpisodes(insertedFeed.getFeedId()));
 		    Log.w(LOG_TAG,"Added Feed with id: " + insertId);
