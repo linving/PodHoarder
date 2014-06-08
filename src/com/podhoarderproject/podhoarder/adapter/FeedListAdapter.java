@@ -48,6 +48,7 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 		this.notifyDataSetChanged();
 	}
 
+
 	@Override
 	public Object getChild(int groupPos, int childPos)
 	{
@@ -57,8 +58,7 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 	@Override
 	public long getChildId(int groupPos, int childPos)
 	{
-		return this.feeds.get(groupPos).getEpisodes().get(childPos)
-				.getEpisodeId();
+		return ((Integer)childPos).longValue();
 	}
 
 	@Override
@@ -78,11 +78,21 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 	{
 		return this.feeds.size();
 	}
+	
+	@Override
+	public long getCombinedChildId(long groupId, long childId) {
+        return groupId * 10000L + childId;
+    }
+
+	@Override
+    public long getCombinedGroupId(long groupId) {
+        return groupId * 10000L;
+    }
 
 	@Override
 	public long getGroupId(int groupPos)
 	{
-		return this.feeds.get(groupPos).getFeedId();
+		return ((Integer)groupPos).longValue();
 	}
 
 	@Override
@@ -141,6 +151,7 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 	        viewHolder.episodeDescription = (TextView) convertView.findViewById(R.id.list_episode_row_expandableTextView);
 	        viewHolder.downloadButton = (ImageButton) convertView.findViewById(R.id.list_episode_row_downloadBtn);
 	        
+	        
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
 		}
@@ -172,6 +183,7 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 			
 			if(!currentEpisode.getLocalLink().isEmpty()) viewHolder.downloadButton.setVisibility(View.GONE); //Hide Download Button if applicable.
 			else {
+				viewHolder.downloadButton.setVisibility(View.VISIBLE);
 				final int feedId = currentEpisode.getFeedId();
 				final int episodeId = currentEpisode.getEpisodeId();
 				viewHolder.downloadButton.setOnClickListener(new OnClickListener() 

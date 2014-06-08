@@ -5,14 +5,21 @@ import java.util.Collections;
 import com.podhoarderproject.podhoarder.adapter.TabsPagerAdapter;
 import com.podhoarderproject.podhoarder.adapter.PlaylistListAdapter;
 import com.podhoarderproject.podhoarder.gui.*;
+import com.podhoarderproject.podhoarder.service.PodHoarderService;
+import com.podhoarderproject.podhoarder.service.PodHoarderService.PodHoarderBinder;
 
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 
 /**
  * 
@@ -34,6 +41,32 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     //Podcast Helper
     public PodcastHelper helper;
     
+    //Playback service
+    private PodHoarderService podService;
+	
+	private Intent playIntent;
+	private boolean musicBound = false;
+    
+	private ServiceConnection podConnection = new ServiceConnection()	//connect to the service
+    { 
+	    @Override
+	    public void onServiceConnected(ComponentName name, IBinder service) 
+	    {
+		    PodHoarderBinder binder = (PodHoarderBinder)service;
+		    //get service
+		    podService = binder.getService();
+		    //pass list
+		    podService.setList(helper.playlistAdapter.playList);
+		    musicBound = true;
+	    }
+	    
+	    @Override
+	    public void onServiceDisconnected(ComponentName name) 
+	    {
+	    	musicBound = false;
+	    }
+    };   
+    
     // Tab titles
     private String[] tabs;
 
@@ -52,20 +85,40 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         this.helper = new PodcastHelper(this);     
     }
     
+    
     @Override
     protected void onStart()
     {
     	super.onStart();
+    	if(playIntent==null)
+		{
+			playIntent = new Intent(this, PodHoarderService.class);
+			boolean ret = this.bindService(playIntent, podConnection, Context.BIND_AUTO_CREATE);
+			this.startService(playIntent);
+			
+		}
+    
+    	
+    	
     	//Collections.reverse(((PlaylistListAdapter)this.helper.playlistAdapter).playList);
     	//this.helper.plDbH.savePlaylist(((PlaylistListAdapter)this.helper.playlistAdapter).playList);
     	//this.helper.addFeed("http://smodcast.com/channels/plus-one/feed/");
     	//this.helper.addFeed("http://feeds.feedburner.com/filipochfredrik/podcast?format=xml");
+    	//this.helper.addFeed("http://smodcast.com/channels/fatman-on-batman/feed/");
     }
     
     @Override
     protected void onResume()
     {
     	super.onResume();    	
+    }
+    
+    @Override
+    protected void onDestroy()
+    {
+    	this.stopService(playIntent);
+	    this.podService=null;
+	    super.onDestroy();
     }
   
     private void doFragmentSetup(Bundle savedInstanceState)
@@ -153,4 +206,16 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public PodHoarderService getPodService()
+	{
+		return podService;
+	}
+
+
+	public boolean isMusicBound()
+	{
+		return musicBound;
+	}
+
 }

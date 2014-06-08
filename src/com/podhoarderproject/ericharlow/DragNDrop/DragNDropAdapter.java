@@ -125,7 +125,11 @@ public final class DragNDropAdapter extends BaseAdapter implements RemoveListene
 			holder.episodeTitle.setText(currentEpisode.getTitle());	//Set Episode Title			
 			//TODO: Insert string resource below.
 			holder.episodeListened.setText(currentEpisode.getMinutesListened() + " listened."); //Set time listened.
+			//convertView.buildDrawingCache();
+			//convertView.setDrawingCacheEnabled(true);
 		}
+		
+		
         return convertView;
     }
 

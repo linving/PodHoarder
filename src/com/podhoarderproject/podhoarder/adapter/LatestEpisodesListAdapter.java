@@ -14,6 +14,7 @@ import com.podhoarderproject.podhoarder.R;
 
 import android.content.Context;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,7 +26,7 @@ import android.widget.TextView;
 
 public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapter
 {
-
+	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.LatestEpisodesListAdapter";
 	public 	List<Episode> latestEpisodes;
 	private Context context;
 
@@ -134,6 +135,7 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 			
 			if(!currentEpisode.getLocalLink().isEmpty()) viewHolder.downloadButton.setVisibility(View.GONE); //Hide Download Button if applicable.
 			else {
+				viewHolder.downloadButton.setVisibility(View.VISIBLE);
 				final int feedId = currentEpisode.getFeedId();
 				final int episodeId = currentEpisode.getEpisodeId();
 				viewHolder.downloadButton.setOnClickListener(new OnClickListener() 
@@ -141,7 +143,6 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 				       @Override
 				       public void onClick(View v) 
 				       {
-				           // Your code that you want to execute on this button click
 				    	   ((MainActivity)context).downloadEpisode(feedId, episodeId);
 				    	   v.setEnabled(false);
 				       }

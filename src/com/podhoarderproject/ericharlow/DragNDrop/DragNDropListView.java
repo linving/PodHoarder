@@ -16,10 +16,13 @@
 
 package com.podhoarderproject.ericharlow.DragNDrop;
 
+import com.podhoarderproject.podhoarder.Episode;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -110,23 +113,26 @@ public class DragNDropListView extends ListView {
 			mWindowManager.updateViewLayout(mDragView, layoutParams);
 
 			if (mDragListener != null)
-				mDragListener.onDrag(x, y, null);// change null to "this" when ready to use
+				mDragListener.onDrag(x, y, this);// change null to "this" when ready to use
 		}
 	}
 
 	// enable the drag view for dragging
 	private void startDrag(int itemIndex, int y) {
-		stopDrag(itemIndex);
-
+		//stopDrag(itemIndex);
+		layoutChildren();	//This fixed a bug where the drawing cache would contain an outdated image (another list row in this case.)
 		View item = getChildAt(itemIndex);
 		if (item == null) return;
 		item.setDrawingCacheEnabled(true);
+		
 		if (mDragListener != null)
 			mDragListener.onStartDrag(item);
 		
         // Create a copy of the drawing cache so that it does not get recycled
         // by the framework when the list tries to clean up memory
         Bitmap bitmap = Bitmap.createBitmap(item.getDrawingCache());
+        //Log.i(VIEW_LOG_TAG, itemIndex + ". " + item.toString());
+        //Log.i(VIEW_LOG_TAG, itemIndex + ". " + ((Episode)this.getItemAtPosition(itemIndex)).getTitle());
         
         WindowManager.LayoutParams mWindowParams = new WindowManager.LayoutParams();
         mWindowParams.gravity = Gravity.TOP;

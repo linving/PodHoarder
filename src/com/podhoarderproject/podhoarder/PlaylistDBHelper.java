@@ -60,7 +60,7 @@ public class PlaylistDBHelper
 			{
 				if (playlist.get(i).getEpisodeId() == pointer.getEpisodeId()) 
 				{
-					Log.i(LOG_TAG,"LOADED " + playlist.get(i).getTitle() + "(ID: " + pointer.getId() + ")");
+					//Log.i(LOG_TAG,"LOADED " + playlist.get(i).getTitle() + "(ID: " + pointer.getId() + ")");
 					ret.add(playlist.get(i));
 					break;
 				}
@@ -69,7 +69,7 @@ public class PlaylistDBHelper
 		
 		if (ret.size() != playlist.size())	//This means that there are playlist entries that have not been stored in the database. They should be added to the end and then we should save the playlist.
 		{
-			Log.w(LOG_TAG, "Playlist size doesn't match number of stored pointers. Mismatch!");
+			//Log.w(LOG_TAG, "Playlist size doesn't match number of stored pointers. Mismatch!");
 			for (Episode ep:playlist)	//Go through playlist and look for the entries that haven't been added to ret yet.
 			{
 				if (!ret.contains(ep)) ret.add(ep);	//Add the missing entry at the last index.
@@ -99,7 +99,7 @@ public class PlaylistDBHelper
 		    values.put(columns[1], playlist.get(i).getEpisodeId());
 		    this.db = this.dbHelper.getWritableDatabase();
 		    long insertId = this.db.insert(TABLE_NAME, null, values);	
-		    Log.i(LOG_TAG,"SAVED " + playlist.get(i).getTitle() + "(ID: " + insertId + ")");
+		    //Log.i(LOG_TAG,"SAVED " + playlist.get(i).getTitle() + "(ID: " + insertId + ")");
 		    this.db.close();
 		}
 	}
