@@ -51,7 +51,7 @@ public class FeedDBHelper
 		{
 			do
 			{
-				feeds.add(cursorToFeed(cursor));
+				feeds.add(cursorToFeed(cursor, true));
 			} while (cursor.moveToNext());
 		}
 		this.db.close();
@@ -71,7 +71,7 @@ public class FeedDBHelper
 		Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + id, null, null, null, null);
 		cursor.moveToFirst();
 		this.db.close();
-		feed = cursorToFeed(cursor);
+		feed = cursorToFeed(cursor, true);
 		return feed;
 	}
 	
@@ -89,7 +89,7 @@ public class FeedDBHelper
 		Cursor cursor = this.db.query(TABLE_NAME, columns, columns[4] + " = " + url, null, null, null, null);
 		cursor.moveToFirst();
 		this.db.close();
-		feed = cursorToFeed(cursor);
+		feed = cursorToFeed(cursor, true);
 		return feed;
 	}
 	
@@ -116,7 +116,7 @@ public class FeedDBHelper
 	    	long insertId = this.db.insert(TABLE_NAME, null, values);
 	    	Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
 		    cursor.moveToFirst();
-		    Feed insertedFeed = cursorToFeed(cursor);
+		    Feed insertedFeed = cursorToFeed(cursor, false);
 		    this.db.close();
 		    //TODO: Might not need to make a new selection here since insertEpisodes returns a list. Is that list usable?
 		    this.eph.insertEpisodes(feed.getEpisodes(), insertedFeed.getFeedId());
@@ -183,7 +183,7 @@ public class FeedDBHelper
 	    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + newFeed.getFeedId(), null, null, null, null);
 	    Log.w(LOG_TAG,"Updated Feed with id: " + newFeed.getFeedId());
 	    cursor.moveToFirst();
-	    f = cursorToFeed(cursor);
+	    f = cursorToFeed(cursor, false);
 	    this.db.close();
 		this.eph.insertEpisodes(newFeed.getEpisodes().subList(0, (newFeed.getEpisodes().size()-f.getEpisodes().size())), f.getFeedId());	
 	    f.setEpisodes(this.eph.getAllEpisodes(f.getFeedId()));
@@ -193,9 +193,10 @@ public class FeedDBHelper
 	/**
 	 * Converts a Cursor object to a Feed object.
 	 * @param c	Cursor containing the data.
+	 * @param shouldCreateImage Indicates whether to create FeedImage Bitmaps or not. (Memory management!)
 	 * @return	A new Feed object.
 	 */
-	private Feed cursorToFeed(Cursor c)
+	private Feed cursorToFeed(Cursor c, boolean shouldCreateImage)
 	{
 		Feed feed = new Feed(	Integer.parseInt(c.getString(0)),
 							c.getString(1), 
@@ -203,7 +204,7 @@ public class FeedDBHelper
 							c.getString(3), 
 							c.getString(4),
 							c.getString(5), 
-							c.getString(6), 
+							c.getString(6), shouldCreateImage,
 							this.eph.getAllEpisodes(Integer.parseInt(c.getString(0))), 
 							this.ctx);
 		return feed;

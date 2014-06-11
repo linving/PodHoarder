@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <RelativeLayout android:id="@+id/player_controls_tools_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true">
+        <ToggleButton android:id="@+id/player_controls_button_2x"
+	        android:layout_width="15dp"
+	        android:layout_height="15dp"
+	        android:layout_marginTop="10dp"
+	        android:layout_marginRight="10dp"
+	        android:background="@drawable/white_player_2x"
+	        android:alpha=".9"/>
+    </RelativeLayout>
+    <LinearLayout android:id="@+id/player_controls_text_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/player_controls_tools_container"
+        android:orientation="vertical">
+        <TextView android:id="@+id/player_controls_episode_title"
+	        android:layout_width="wrap_content" 
+	        android:layout_height="wrap_content"
+	        android:textSize="@dimen/fragment_player_podcast_episode"
+	        android:textColor="@color/fragment_player_podcast_episode"
+	        android:scrollHorizontally="true"
+	        android:singleLine="true" 
+        	android:ellipsize="marquee"
+        	android:marqueeRepeatLimit ="marquee_forever"
+	        android:text="EPISODE TITLE"/>"
+	    <TextView android:id="@+id/player_controls_podcast_title"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:textSize="@dimen/fragment_player_podcast_title"
+	        android:textColor="@color/fragment_player_podcast_title"
+	        android:text="PODCAST TITLE"/> 
+    </LinearLayout>
+	<LinearLayout android:id="@+id/player_controls_button_container"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@id/player_controls_text_container"
+	    android:orientation="horizontal"
+	    android:layout_centerHorizontal="true">
+	    <ImageButton android:id="@+id/player_controls_button_skip_backwards"
+	        android:layout_width="30dp"
+	        android:layout_height="20dp"
+	        android:layout_marginTop="15dp"
+	        android:layout_marginRight="20dp"
+	        android:background="@drawable/white_player_backward"
+	        android:alpha=".9"/>
+	    <ToggleButton android:id="@+id/player_controls_button_playpause"
+	        android:layout_width="50dp"
+	        android:layout_height="50dp"
+	        android:background="@drawable/player_button_playpause"
+	        android:textOff=""
+			android:textOn="" 
+	        android:alpha=".9"/>
+	    <ImageButton android:id="@+id/player_controls_button_skip_forward"
+	        android:layout_width="30dp"
+	        android:layout_height="20dp"
+	        android:layout_marginTop="15dp"
+	        android:layout_marginLeft="20dp"
+	        android:background="@drawable/white_player_forward"
+	        android:alpha=".9"/>
+	</LinearLayout>
+	
+	<RelativeLayout android:id="@+id/player_controls_seekbar_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/player_controls_button_container">
+	    <RelativeLayout android:id="@+id/player_controls_seekbar_text_container"
+	        android:layout_width="fill_parent"
+        	android:layout_height="wrap_content"
+        	android:layout_marginLeft="10dp"
+        	android:layout_marginRight="10dp">
+	        <TextView android:id="@+id/player_controls_elapsed_time"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentLeft="true"
+		        android:textSize="@dimen/fragment_player_elapsed_time"
+		        android:text="00:00"/>
+		    <TextView android:id="@+id/player_controls_total_time"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentRight="true"
+		        android:textSize="@dimen/fragment_player_total_time"
+		        android:text="59:59"/>
+	    </RelativeLayout>
+	    <SeekBar android:id="@+id/player_controls_seekbar"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/player_controls_seekbar_text_container"/>
+    </RelativeLayout>
+</RelativeLayout>

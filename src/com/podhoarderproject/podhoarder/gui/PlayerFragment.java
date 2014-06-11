@@ -19,13 +19,19 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 import android.os.IBinder;
 import android.content.ComponentName;
 import android.content.Context;
@@ -37,7 +43,7 @@ import android.content.ServiceConnection;
  * @author Emil Almrot
  * 2014-05-25
  */
-public class PlayerFragment extends Fragment implements MediaPlayerControl
+public class PlayerFragment extends Fragment
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PlayFragment";
@@ -50,9 +56,16 @@ public class PlayerFragment extends Fragment implements MediaPlayerControl
 	private PodHoarderService podService;
 	private boolean musicBound = false;
 	
-	private PlaybackController controller;
-	
-	private boolean paused=false, playbackPaused=false;
+	//UI Elements
+	public ToggleButton playPauseButton;
+	public ToggleButton doubleSpeedButton;
+	public ImageButton forwardButton;
+	public ImageButton backwardButton;
+	public TextView episodeTitle;
+	public TextView podcastTitle;
+	public TextView elapsedTime;
+	public TextView totalTime;
+	public SeekBar seekBar;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -60,9 +73,9 @@ public class PlayerFragment extends Fragment implements MediaPlayerControl
     	
     	setupHelper();
     	setupListView();
-    	//setupMediaControls();
-    	setController();
+    	setupMediaControls();
     	setServiceVars();
+    	
     	return this.view;
     }
     
@@ -72,13 +85,28 @@ public class PlayerFragment extends Fragment implements MediaPlayerControl
     	this.musicBound = ((com.podhoarderproject.podhoarder.MainActivity)this.getActivity()).isMusicBound();
     }
     
+    private void setupMediaControls()
+    {
+    	this.playPauseButton = (ToggleButton)view.findViewById(R.id.player_controls_button_playpause);
+    	this.playPauseButton.setOnClickListener(mPlayPauseClickListener);
+    	this.doubleSpeedButton = (ToggleButton)view.findViewById(R.id.player_controls_button_2x);
+    	this.forwardButton = (ImageButton)view.findViewById(R.id.player_controls_button_skip_forward);
+    	this.forwardButton.setOnClickListener(mForwardClickListener);
+    	this.backwardButton = (ImageButton)view.findViewById(R.id.player_controls_button_skip_backwards);
+    	this.backwardButton.setOnClickListener(mBackwardClickListener);
+    	this.episodeTitle = (TextView)view.findViewById(R.id.player_controls_episode_title);
+    	this.podcastTitle = (TextView)view.findViewById(R.id.player_controls_podcast_title);
+    	this.elapsedTime = (TextView)view.findViewById(R.id.player_controls_elapsed_time);
+    	this.totalTime = (TextView)view.findViewById(R.id.player_controls_total_time);
+    	this.seekBar = (SeekBar)view.findViewById(R.id.player_controls_seekbar);
+    	this.seekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
+    }
+    
 	@Override
 	public void onStart()
 	{
 		super.onStart();
 	}
-    
-	 
     
     private void setupListView()
     {
@@ -97,77 +125,7 @@ public class PlayerFragment extends Fragment implements MediaPlayerControl
     		//TODO: Show some kind of "list is empty" text instead of the mainlistview here.
     	}
     }
-   
-    
-    private OnItemClickListener mOnClickListener = new OnItemClickListener() {
-
-		@Override
-		public void onItemClick(AdapterView<?> arg0, View view, int position,
-				long id)
-		{
-			
-			if(playbackPaused)
-			{
-			    setController();
-			    playbackPaused=false;
-			}
-			podService.setEpisode(position);
-			podService.startEpisode();
-			controller.show(0);
-			
-		}
-    	
-    };
-    
-    private DropListener mDropListener = 
-    		new DropListener() {
-            public void onDrop(int from, int to) {
-            	ListAdapter adapter = mainListView.getAdapter();
-            	if (adapter instanceof DragNDropAdapter) {
-            		((DragNDropAdapter)adapter).onDrop(from, to);
-            		mainListView.invalidateViews();
-            	}
-            }
-        };
-        
-        private RemoveListener mRemoveListener =
-            new RemoveListener() {
-            public void onRemove(int which) {
-            	ListAdapter adapter = mainListView.getAdapter();
-            	if (adapter instanceof DragNDropAdapter) {
-            		((DragNDropAdapter)adapter).onRemove(which);
-            		mainListView.invalidateViews();
-            	}
-            }
-        };
-        
-        private DragListener mDragListener =
-        	new DragListener() {
-
-        	int backgroundColor = 0xe0103010;
-        	int defaultBackgroundColor;
-        	
-    			public void onDrag(int x, int y, ListView listView) {
-    				// TODO Auto-generated method stub
-    			}
-
-    			public void onStartDrag(View itemView) {
-    				itemView.setVisibility(View.INVISIBLE);
-    				defaultBackgroundColor = itemView.getDrawingCacheBackgroundColor();
-    				itemView.setBackgroundColor(backgroundColor);
-    				ImageView iv = (ImageView)itemView.findViewById(R.id.player_list_row_grabber);
-    				if (iv != null) iv.setVisibility(View.INVISIBLE);
-    			}
-
-    			public void onStopDrag(View itemView) {
-    				itemView.setVisibility(View.VISIBLE);
-    				itemView.setBackgroundColor(defaultBackgroundColor);
-    				ImageView iv = (ImageView)itemView.findViewById(R.id.player_list_row_grabber);
-    				if (iv != null) iv.setVisibility(View.VISIBLE);
-    			}
-        	
-        };
-    
+       
     private void setupHelper()
     {
     	this.helper = ((com.podhoarderproject.podhoarder.MainActivity)this.getActivity()).helper;
@@ -184,67 +142,7 @@ public class PlayerFragment extends Fragment implements MediaPlayerControl
     {
 	    super.onDestroy();
     }
-    
-    private void setController()
-    {
-    	if (this.controller == null)
-    	{
-    		this.controller = new PlaybackController(getActivity());
-        	this.controller.setPrevNextListeners(new View.OnClickListener() {
-        		  @Override
-        		  public void onClick(View v) {
-        		    playNext();
-        		  }
-        		}, new View.OnClickListener() {
-        		  @Override
-        		  public void onClick(View v) {
-        		    playPrev();
-        		  }
-        		});
-        	this.controller.setMediaPlayer(this);
-        	this.controller.setAnchorView(view.findViewById(R.id.player_controls_container));
-        	this.controller.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-        	this.controller.setEnabled(true);
-    	}
-    }
-    
-    //MediaController interface methods.
-	@Override
-	public boolean canPause()
-	{
-		// Pausing playback is enabled.
-		return true;
-	}
 
-	@Override
-	public boolean canSeekBackward()
-	{
-		// Seeking should be enabled.
-		return true;
-	}
-
-	@Override
-	public boolean canSeekForward()
-	{
-		// Seeking should be enabled.
-		return true;
-	}
-
-	@Override
-	public int getAudioSessionId()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getBufferPercentage()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public int getCurrentPosition()
 	{
 		if(this.podService != null && musicBound && this.podService.isPng())
@@ -252,7 +150,6 @@ public class PlayerFragment extends Fragment implements MediaPlayerControl
 		else return 0;
 	}
 
-	@Override
 	public int getDuration()
 	{
 		if(this.podService != null && musicBound && this.podService.isPng())
@@ -260,7 +157,6 @@ public class PlayerFragment extends Fragment implements MediaPlayerControl
 		else return 0;
 	}
 
-	@Override
 	public boolean isPlaying()
 	{
 		if(this.podService != null && musicBound)
@@ -268,71 +164,180 @@ public class PlayerFragment extends Fragment implements MediaPlayerControl
 		return false;
 	}
 
-	@Override
 	public void pause()
 	{
-		this.playbackPaused=true;
-		this.podService.pausePlayer();
+		playPauseButton.setChecked(false);
+		this.podService.pause();
+	}
+	
+	public void resume()
+	{
+		playPauseButton.setChecked(true);
+		this.podService.resume();
 	}
 
-	@Override
 	public void seekTo(int pos)
 	{
 		this.podService.seek(pos);
 	}
 
-	@Override
-	public void start()
+	public void start(int epPos)
 	{
-		this.podService.go();
+		//First, we make sure the Service can update the totalTime variables once the track is loaded.
+		this.podService.setUIElements(episodeTitle, elapsedTime, totalTime, seekBar);
+		//Toggle the play button to a pause button, since the track has started.
+		this.playPauseButton.setChecked(true);
+		//Set episode object in the Service object.
+		this.podService.setEpisode(epPos);
+		//The service should start the episode.
+		this.podService.startEpisode();
+		//TODO: Seek to the saved value minutesListened in the current Episode object.
+		//this.totalTime.setText(""+this.podService.getDur());
+		//this.elapsedTime.setText(""+this.podService.getPosn());
 	}
 	
 	//play next
 	private void playNext()
 	{
 		this.podService.playNext();
-		if(this.playbackPaused)
-		{
-		    setController();
-		    this.playbackPaused=false;
-		}
-		this.controller.show(0);
 	}
 	 
 	//play previous
 	private void playPrev()
 	{
 		this.podService.playPrev();
-		if(this.playbackPaused)
+	}	
+	
+	//UI Logic
+	//List Listeners
+	private DropListener mDropListener = new DropListener() 
+    {
+        public void onDrop(int from, int to) 
+        {
+        	ListAdapter adapter = mainListView.getAdapter();
+        	if (adapter instanceof DragNDropAdapter) 
+        	{
+        		((DragNDropAdapter)adapter).onDrop(from, to);
+        		mainListView.invalidateViews();
+        	}
+        }
+    };
+        
+    private RemoveListener mRemoveListener = new RemoveListener() 
+    {
+        public void onRemove(int which) 
+        {
+        	ListAdapter adapter = mainListView.getAdapter();
+        	if (adapter instanceof DragNDropAdapter) 
+        	{
+        		((DragNDropAdapter)adapter).onRemove(which);
+        		mainListView.invalidateViews();
+        	}
+        }
+    };
+        
+    private DragListener mDragListener = new DragListener() 
+    {
+    	int backgroundColor = 0xe0103010;
+    	int defaultBackgroundColor;
+    	
+		public void onDrag(int x, int y, ListView listView) 
 		{
-		    setController();
-		    this.playbackPaused=false;
+			// TODO Auto-generated method stub
 		}
-		this.controller.show(0);
-	}
-	
-	@Override
-	public void onPause()
-	{
-		super.onPause();
-		this.paused=true;
-	}
-	
-	@Override
-	public void onResume()
-	{
-		super.onResume();
-		if(this.paused)
+
+		public void onStartDrag(View itemView) 
 		{
-			setController();
-			this.paused=false;
+			itemView.setVisibility(View.INVISIBLE);
+			defaultBackgroundColor = itemView.getDrawingCacheBackgroundColor();
+			itemView.setBackgroundColor(backgroundColor);
+			ImageView iv = (ImageView)itemView.findViewById(R.id.player_list_row_grabber);
+			if (iv != null) iv.setVisibility(View.INVISIBLE);
 		}
-	}
-	
-	@Override
-	public void onStop() {
-		this.controller.hide();
-		super.onStop();
-	}
+
+		public void onStopDrag(View itemView) 
+		{
+			itemView.setVisibility(View.VISIBLE);
+			itemView.setBackgroundColor(defaultBackgroundColor);
+			ImageView iv = (ImageView)itemView.findViewById(R.id.player_list_row_grabber);
+			if (iv != null) iv.setVisibility(View.VISIBLE);
+		}
+    };
     
+    private OnItemClickListener mOnClickListener = new OnItemClickListener()
+    {
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View view, int position, long id)
+		{
+			start(position);
+		}
+    };
+    
+    //Button Listeners
+    private OnClickListener mPlayPauseClickListener = new OnClickListener() {
+
+        @Override
+        public void onClick(View view) {
+            if(((ToggleButton)view).isChecked())
+            {
+                //Button is ON
+                // Do Something 
+            	resume();
+            }
+            else
+            {
+            	//Button is OFF
+                // Do Something
+            	pause();
+            }
+            
+        }
+    };
+
+    private OnClickListener mForwardClickListener = new OnClickListener() {
+
+        @Override
+        public void onClick(View view) {
+        	if (podService.isPng())
+        	{
+        		podService.skipForward();
+        	}
+        }
+    };
+       
+    private OnClickListener mBackwardClickListener = new OnClickListener() {
+
+        @Override
+        public void onClick(View view) {
+        	if (podService.isPng())
+        	{
+        		podService.skipBackward();
+        	}
+        }
+    };
+
+    //Seekbar Listener
+    private OnSeekBarChangeListener mSeekBarChangeListener = new OnSeekBarChangeListener() {       
+
+        @Override       
+        public void onStopTrackingTouch(SeekBar seekBar) {
+        	//Let the service go back to updating the seekBar position.
+        	podService.setUpdateBlocked(false);
+        }       
+
+        @Override       
+        public void onStartTrackingTouch(SeekBar seekBar) {  
+        	//This prevents the PodService tasks to update and set the seekBar position while the user has "grabbed" it.
+            podService.setUpdateBlocked(true);    
+        }       
+
+        @Override       
+        public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+        	//fromUser makes sure that it's user input that triggers the seekBar position change.
+        	if (fromUser)
+        	{
+        		podService.seek(progress);
+        	}
+        }       
+    };           
 }

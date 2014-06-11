@@ -77,7 +77,7 @@ public class PodcastHelper
 	private FeedDBHelper fDbH;
 	private EpisodeDBHelper eph;
 	public PlaylistDBHelper plDbH;
-	public FeedListAdapter listAdapter;
+	public FeedListAdapter listAdapter;	
 	public ListAdapter latestEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
 	public DragNDropAdapter playlistAdapter;	//A list containing all the downloaded episodes.
 	private Context context;
@@ -140,8 +140,6 @@ public class PodcastHelper
 		{
 			Log.w(LOG_TAG, "Feed Image not found! No delete necessary.");
 		}
-
-		this.listAdapter.feeds.remove(i);
 		this.listAdapter.notifyDataSetChanged();
 		this.refreshLists();
 	}
@@ -345,17 +343,22 @@ public class PodcastHelper
 			int i=0;
 			//Get the Feed that's stored locally with the same Id.
 			Feed oldFeed = this.fDbH.getFeedByURL(newFeed.getLink());
-			//As long as a duplicate Episode isn't encountered, insert the new Episodes at the start of the list. (Newer episodes come first.)
-			while (newFeed.getEpisodes().get(i).getLink().equals(oldFeed.getEpisodes().get(i).getLink()))
+			//If the new Episode list has more Episodes, we need to add the new Episodes to the db.
+			if (newFeed.getEpisodes().size() > oldFeed.getEpisodes().size())
 			{
-				oldFeed.getEpisodes().add(0, newFeed.getEpisodes().get(i));
-				i++;
+				//i becomes the index of where the new Episodes start differing from the old ones.
+				i = (newFeed.getEpisodes().size() - oldFeed.getEpisodes().size()) - 1;
+				//We should keep looping until we have added newFeed.Episodes[0].
+				while (i >= 0)
+				{
+					//Add the new Episode at index 0 (first)
+					oldFeed.getEpisodes().add(0, newFeed.getEpisodes().get(i));
+					i--;
+				}
+				oldFeed.getFeedImage().imageObject().getBitmap().recycle();
+				//Update the Feed with the new Episodes in the db.
+				this.fDbH.updateFeed(oldFeed);
 			}
-			//Update the Feed with the new Episodes in the db.
-			Feed updatedFeed = this.fDbH.updateFeed(oldFeed);
-			int pos = this.getFeedPositionWithId(updatedFeed.getFeedId());
-			//Update the Feed object in the listAdapter.
-			this.listAdapter.feeds.set(pos, updatedFeed);
 		}
 		Toast notification = Toast.makeText(context, "Feeds refreshed!",
 				Toast.LENGTH_SHORT);
@@ -521,7 +524,7 @@ public class PodcastHelper
 				cancel(true);
 			}
 			this.newFeed = new Feed(this.title, this.author, this.description,
-					this.link, this.category, this.img, eps, context);
+					this.link, this.category, this.img, false, eps, context);
 			return newFeed;
 		}
 
@@ -540,6 +543,7 @@ public class PodcastHelper
 				Toast notification = Toast.makeText(context, "Feed added!",
 						Toast.LENGTH_LONG);
 				notification.show();
+				
 			} 
 			catch (CursorIndexOutOfBoundsException e)
 			{
@@ -745,7 +749,7 @@ public class PodcastHelper
 					cancel(true);
 				}
 				feeds.add(new Feed(this.title, this.author, this.description,
-						this.link, this.category, this.img, eps, context));
+						this.link, this.category, this.img, false, eps, context));
 			}
 			
 			return feeds;

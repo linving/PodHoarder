@@ -99,7 +99,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		}
     
     	
-    	
+    	//this.helper.refreshFeeds();
     	//Collections.reverse(((PlaylistListAdapter)this.helper.playlistAdapter).playList);
     	//this.helper.plDbH.savePlaylist(((PlaylistListAdapter)this.helper.playlistAdapter).playList);
     	//this.helper.addFeed("http://smodcast.com/channels/plus-one/feed/");

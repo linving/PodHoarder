@@ -18,9 +18,9 @@
     <dimen name="fragment_latest_list_episode_description">12sp</dimen>
     
     <!-- Player -->
-    <dimen name="fragment_player_podcast_title">16sp</dimen>
-    <dimen name="fragment_player_podcast_episode">12sp</dimen>
-    <dimen name="fragment_player_elapsed_time">16sp</dimen>
+    <dimen name="fragment_player_podcast_title">12sp</dimen>
+    <dimen name="fragment_player_podcast_episode">22sp</dimen>
+    <dimen name="fragment_player_elapsed_time">12sp</dimen>
     <dimen name="fragment_player_total_time">12sp</dimen>
     
     <!-- Player List -->

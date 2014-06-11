@@ -35,15 +35,16 @@ public class FeedImage
      * Creates a new FeedImage object. Image will be downloaded and stored locally upon creation using the supplied URL.
      * @param feedId	Locally unique feed identifier to associate the image with the correct feed in the file system.
      * @param onlineURL	URL to the online image.
+     * @param shouldCreateImage Indicates whether to actually create the Bitmap object or not.
      * @param ctx		App Context.
      */
-	public FeedImage(int feedId, String onlineURL, Context ctx)
+	public FeedImage(int feedId, String onlineURL, boolean shouldCreateImage, Context ctx)
 	{
 		this.feedId = feedId;
 		this.imageURL = onlineURL;
 		this.imageObject = null;
 		this.ctx = ctx;
-		if (this.feedId>0)
+		if (this.feedId>0 && shouldCreateImage)
 		{
 			this.loadImage(onlineURL);
 		}

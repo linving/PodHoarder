@@ -24,7 +24,7 @@ public class Feed
 	private Context ctx;
 
 	public Feed(int feedId, String title, String author, String description,
-			String link, String category, String imageURL, List<Episode> episodes, 
+			String link, String category, String imageURL, boolean shouldCreateImage, List<Episode> episodes, 
 			Context ctx)
 	{
 		this.feedId = feedId;
@@ -35,11 +35,11 @@ public class Feed
 		this.category = category;
 		this.episodes = episodes;
 		this.ctx = ctx;
-		this.feedImage = new FeedImage(this.feedId, imageURL, this.ctx);
+		this.feedImage = new FeedImage(this.feedId, imageURL, shouldCreateImage, this.ctx);
 	}
 	
 	public Feed(String title, String author, String description,
-			String link, String category, String imageURL, List<Episode> episodes, 
+			String link, String category, String imageURL, boolean shouldCreateImage, List<Episode> episodes, 
 			Context ctx)
 	{
 		this.title = title;
@@ -49,7 +49,7 @@ public class Feed
 		this.category = category;
 		this.episodes = episodes;
 		this.ctx = ctx;
-		this.feedImage = new FeedImage(this.feedId, imageURL, this.ctx);
+		this.feedImage = new FeedImage(this.feedId, imageURL, shouldCreateImage, this.ctx);
 	}
 
 	public Feed()
