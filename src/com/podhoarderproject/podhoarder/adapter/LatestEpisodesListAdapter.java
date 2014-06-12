@@ -14,7 +14,6 @@ import com.podhoarderproject.podhoarder.R;
 
 import android.content.Context;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -26,6 +25,7 @@ import android.widget.TextView;
 
 public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapter
 {
+	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.LatestEpisodesListAdapter";
 	public 	List<Episode> latestEpisodes;
 	private Context context;

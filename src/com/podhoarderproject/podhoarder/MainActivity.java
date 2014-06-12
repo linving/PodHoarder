@@ -1,9 +1,6 @@
 package com.podhoarderproject.podhoarder;
  
-import java.util.Collections;
-
 import com.podhoarderproject.podhoarder.adapter.TabsPagerAdapter;
-import com.podhoarderproject.podhoarder.adapter.PlaylistListAdapter;
 import com.podhoarderproject.podhoarder.gui.*;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
 import com.podhoarderproject.podhoarder.service.PodHoarderService.PodHoarderBinder;

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import java.util.List;
 
-import java.util.Random;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.media.AudioManager;
@@ -15,7 +14,6 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -23,7 +21,6 @@ import com.podhoarderproject.podhoarder.*;
 
 public class PodHoarderService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener  
 {
-	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PodHoarderService";
 	
 	private static final int NOTIFY_ID=1;
@@ -32,10 +29,14 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	private MediaPlayer player;
 	//song list
 	private List<Episode> playList;
-	//current position
+	//current position in the playList.
 	private int epPos;
 	//Binder object
 	private final IBinder musicBind = new PodHoarderBinder();
+	//Podcast helper.
+	private PodcastHelper helper;
+	//Integer for keeping track of when to save elapsedTime to db.
+	private int timeTracker = 0;
 	
 	//Handler object (for threading)
 	Handler handler;
@@ -82,6 +83,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	{
 		if(player.getCurrentPosition()>0){
 			this.player.reset();
+			//TODO: Add an option that let's the user decide if the player should proceed to the next track, or stop once an Episode is finished.
 		    playNext();
 		}
 	}
@@ -97,6 +99,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void onPrepared(MediaPlayer player)
 	{
 		Episode currentEpisode = playList.get(epPos);
+		player.seekTo(currentEpisode.getElapsedTime());
 		player.start();
 		
 		Intent notIntent = new Intent(this, MainActivity.class);
@@ -118,8 +121,8 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		
 		//Update the UI Elements in the Player Fragment.
 		this.episodeTitle.setText(currentEpisode.getTitle());
-		this.totalTime.setText(millisToTime(player.getDuration()));
-		this.seekBar.setMax(player.getDuration());
+		this.totalTime.setText(millisToTime(currentEpisode.getTotalTime()));
+		this.seekBar.setMax(currentEpisode.getTotalTime());
 		
 		this.handler.post(UpdateRunnable);
 	}
@@ -149,12 +152,13 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		this.player.prepareAsync();
 	}
 	
-	public void setUIElements(TextView episodeTitle, TextView elapsedTime, TextView totalTime, SeekBar seekBar)
+	public void setUIElements(TextView episodeTitle, TextView elapsedTime, TextView totalTime, SeekBar seekBar, PodcastHelper helper)
 	{
 		this.episodeTitle = episodeTitle;
 		this.totalTime = totalTime;
 		this.elapsedTime = elapsedTime;
 		this.seekBar = seekBar;
+		this.helper = helper;
 	}
 	
 	/**
@@ -165,6 +169,13 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
         public void run() {
             // update progress bar using getCurrentPosition()
         	elapsedTime.setText(millisToTime(getPosn()));
+        	if (shouldSaveElapsedTime())
+        	{
+        		//Update the db.
+        		helper.updateEpisodeListened(playList.get(epPos).getFeedId(), playList.get(epPos).getEpisodeId(), getPosn());
+        		//Update the object in the list manually instead of reloading the entire list.
+        		playList.get(epPos).setElapsedTime(getPosn());
+        	}
         	if (!updateBlocked) seekBar.setProgress(getPosn());
             if (isPng())
                 handler.postDelayed(UpdateRunnable, 500);
@@ -179,6 +190,13 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
         public void run() {
             // update progress bar using getCurrentPosition()
         	elapsedTime.setText(millisToTime(getPosn()));
+        	if (shouldSaveElapsedTime())
+        	{
+        		//Update the db.
+        		helper.updateEpisodeListened(playList.get(epPos).getFeedId(), playList.get(epPos).getEpisodeId(), getPosn());
+        		//Update the object in the list manually instead of reloading the entire list.
+        		playList.get(epPos).setElapsedTime(getPosn());
+        	}
         	if (!updateBlocked) seekBar.setProgress(getPosn());
         }
     };
@@ -237,6 +255,22 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		startEpisode();
 	}
 	
+	public boolean shouldSaveElapsedTime()
+	{
+		//A limit of 20 is set because the Runnable generally runs twice per second and we want to save the elapsed time roughly every 10 seconds.
+		if (this.timeTracker >= 20)
+		{
+			//Reset the tracker if we are about to save.
+			this.timeTracker = 0;
+			return true;
+		}
+		else
+		{
+			this.timeTracker++;
+			return false;
+		}
+	}
+	
 	//skip to next
 	public void playNext()
 	{
@@ -277,7 +311,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	}
 
 	
-	private String millisToTime(int time)
+	public static String millisToTime(int time)
 	{
 		String retString = "";
 		int seconds = (int) (time / 1000) % 60;

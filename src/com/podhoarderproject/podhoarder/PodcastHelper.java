@@ -27,7 +27,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.podhoarderproject.ericharlow.DragNDrop.DragNDropAdapter;
-import com.podhoarderproject.podhoarder.adapter.PlaylistListAdapter;
 import com.podhoarderproject.podhoarder.adapter.FeedListAdapter;
 import com.podhoarderproject.podhoarder.adapter.LatestEpisodesListAdapter;
 
@@ -43,6 +42,7 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteConstraintException;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -78,7 +78,7 @@ public class PodcastHelper
 	private EpisodeDBHelper eph;
 	public PlaylistDBHelper plDbH;
 	public FeedListAdapter listAdapter;	
-	public ListAdapter latestEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
+	public LatestEpisodesListAdapter latestEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
 	public DragNDropAdapter playlistAdapter;	//A list containing all the downloaded episodes.
 	private Context context;
 	private String storagePath;
@@ -140,7 +140,6 @@ public class PodcastHelper
 		{
 			Log.w(LOG_TAG, "Feed Image not found! No delete necessary.");
 		}
-		this.listAdapter.notifyDataSetChanged();
 		this.refreshLists();
 	}
 
@@ -151,10 +150,10 @@ public class PodcastHelper
 	 *            Id of the Feed to update.
 	 * @param episodeId
 	 *            unique identifier of the Episode that is to be updated.
-	 * @param minutesListened
-	 *            number of minutes listened.
+	 * @param elapsedTime
+	 *            number of milliseconds listened.
 	 */
-	public void updateEpisodeListened(int feedId, int episodeId, int minutesListened)
+	public void updateEpisodeListened(int feedId, int episodeId, int elapsedTime)
 	{
 		int i = 0;
 		int r = 0;
@@ -170,10 +169,9 @@ public class PodcastHelper
 			r++;
 		}
 		this.listAdapter.feeds.get(i).getEpisodes().get(r)
-				.setMinutesListened(minutesListened);
+				.setElapsedTime(elapsedTime);
 		this.eph.updateEpisode(this.listAdapter.feeds.get(i).getEpisodes()
 				.get(r));
-		this.listAdapter.notifyDataSetChanged();
 		this.refreshLists();
 	}
 
@@ -246,10 +244,25 @@ public class PodcastHelper
 	private void downloadCompleted(int feedPos, int epPos)
 	{
 		//update list adapter object
-		this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).setLocalLink(	this.podcastDir + "/" +
-																					this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle().replace(":", " -")+".mp3");
+		Episode currentEpisode = this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos);
+		
+		currentEpisode.setLocalLink(this.podcastDir + "/" + this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle().replace(":", " -")+".mp3");
+		
+		//If the total duration of the .mp3 file isn't already stored, we need to access the file to retrieve it.
+		if (currentEpisode.getTotalTime() == 0)
+		{
+			//A MediaMetadataRetriever is used to extract the duration of an Episode from the downloaded .mp3 file.
+			MediaMetadataRetriever r = new MediaMetadataRetriever();
+			//Point the MediaMetadataRetriever to our recently downloaded file.
+			r.setDataSource(currentEpisode.getLocalLink());
+			//Extract the duration in milliseconds.
+			currentEpisode.setTotalTime(Integer.parseInt(r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)));
+			//Release MediaMetadataRetriever to free up system resources.
+			r.release();
+		}
+		
 		//update db entry
-		this.eph.updateEpisode(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos));
+		this.eph.updateEpisode(currentEpisode);
 		
 		this.refreshLists();
 	}
@@ -275,6 +288,8 @@ public class PodcastHelper
 		{
 			Log.e(LOG_TAG, file.getAbsolutePath() + " not deleted. Make sure it exists.");
 		}
+		
+		this.refreshLists();
 	}
 	
 	/**
@@ -319,7 +334,6 @@ public class PodcastHelper
 		{
 			feed = this.fDbH.insertFeed(feed);
 			this.listAdapter.feeds.add(feed);
-			this.listAdapter.notifyDataSetChanged();
 			this.refreshLists();
 		} catch (SQLiteConstraintException e)
 		{
@@ -363,7 +377,6 @@ public class PodcastHelper
 		Toast notification = Toast.makeText(context, "Feeds refreshed!",
 				Toast.LENGTH_SHORT);
 		notification.show();
-		this.listAdapter.notifyDataSetChanged();
 		this.refreshLists();
 	}	
 	
@@ -437,19 +450,14 @@ public class PodcastHelper
 							Element ielem = (Element) item;
 
 							// This section gets the elements from the XML.
-							NodeList title = ielem
-									.getElementsByTagName("title");
-							NodeList link = ielem
-									.getElementsByTagName("enclosure");
-							NodeList pubDate = ielem
-									.getElementsByTagName("pubDate");
-							NodeList description = ielem
-									.getElementsByTagName("description");	//Try to get the description tag first. 
-							NodeList content = ielem
-									.getElementsByTagName("content:encoded");	//If the description tag doesn't contain anything, get the content:encoded tag data instead.
-							
+							NodeList title = ielem.getElementsByTagName("title");
+							NodeList link = ielem.getElementsByTagName("enclosure");
+							NodeList pubDate = ielem.getElementsByTagName("pubDate");
+							NodeList description = ielem.getElementsByTagName("description");	//Try to get the description tag first. 
+							NodeList content = ielem.getElementsByTagName("content:encoded");	//If the description tag doesn't contain anything, get the content:encoded tag data instead.
 
 							// Extract relevant data from the NodeList objects.
+							//EPISODE TITLE
 							try
 							{
 								ep.setTitle(title.item(0).getChildNodes()
@@ -458,7 +466,7 @@ public class PodcastHelper
 							{
 								e.printStackTrace();
 							}
-
+							//URL LINK
 							try
 							{
 								ep.setLink(link.item(0).getAttributes().item(0)
@@ -467,7 +475,7 @@ public class PodcastHelper
 							{
 								e.printStackTrace();
 							}
-
+							//PUBLISH DATE
 							try
 							{
 								String val = pubDate.item(0).getChildNodes().item(0).getNodeValue();
@@ -480,11 +488,12 @@ public class PodcastHelper
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
-							} catch (NullPointerException e)
+							}
+							catch (NullPointerException e)
 							{
 								e.printStackTrace();
 							}
-
+							//DESCRIPTION
 							try
 							{
 								ep.setDescription(description.item(0)
@@ -494,7 +503,8 @@ public class PodcastHelper
 											.getChildNodes().item(0).getNodeValue());
 								}
 								
-							} catch (NullPointerException e)
+							}
+							catch (NullPointerException e)
 							{
 								e.printStackTrace();
 							}
@@ -543,7 +553,7 @@ public class PodcastHelper
 				Toast notification = Toast.makeText(context, "Feed added!",
 						Toast.LENGTH_LONG);
 				notification.show();
-				
+				refreshLists();
 			} 
 			catch (CursorIndexOutOfBoundsException e)
 			{
@@ -970,6 +980,11 @@ public class PodcastHelper
 		//Update the list adapters to reflect changes.
 		((LatestEpisodesListAdapter)this.latestEpisodesListAdapter).replaceItems(this.eph.getLatestEpisodes(100));
 		((DragNDropAdapter)this.playlistAdapter).replaceItems(this.plDbH.sort(this.eph.getDownloadedEpisodes()));
-		this.listAdapter.replaceItems(this.fDbH.getAllFeeds());	
+		this.listAdapter.replaceItems(this.fDbH.getAllFeeds());
+		
+		//Notify for UI updates.
+		this.listAdapter.notifyDataSetChanged();
+		this.playlistAdapter.notifyDataSetChanged();
+		this.latestEpisodesListAdapter.notifyDataSetChanged();
 	}
 }

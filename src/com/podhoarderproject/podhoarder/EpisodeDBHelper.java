@@ -5,7 +5,6 @@ package com.podhoarderproject.podhoarder;
  * 2013-03-16
  */
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -24,8 +23,8 @@ public class EpisodeDBHelper
 	private final String[] columns = { DBHelper.colEpisodeId,
 			DBHelper.colEpisodeTitle, DBHelper.colEpisodeLink,
 			DBHelper.colEpisodeLocalLink, DBHelper.colEpisodePubDate, 
-			DBHelper.colEpisodeDescription,DBHelper.colEpisodeMinutesListened, 
-			DBHelper.colEpisodeLength, DBHelper.colParentFeedId };
+			DBHelper.colEpisodeDescription,DBHelper.colEpisodeElapsedTime, 
+			DBHelper.colEpisodeTotalTime, DBHelper.colParentFeedId };
 
 	public EpisodeDBHelper(Context ctx)
 	{
@@ -152,8 +151,8 @@ public class EpisodeDBHelper
 	    values.put(columns[3], ep.getLocalLink());
 	    values.put(columns[4], ep.getPubDate());
 	    values.put(columns[5], ep.getDescription());
-	    values.put(columns[6], ep.getMinutesListened());
-	    values.put(columns[7], ep.getLength());
+	    values.put(columns[6], ep.getElapsedTime());
+	    values.put(columns[7], ep.getTotalTime());
 	    values.put(columns[8], feedId);
 	    
 	    this.db = this.dbHelper.getWritableDatabase();
@@ -183,8 +182,8 @@ public class EpisodeDBHelper
 		    values.put(columns[3], eps.get(i).getLocalLink());
 		    values.put(columns[4], eps.get(i).getPubDate());
 		    values.put(columns[5], eps.get(i).getDescription());
-		    values.put(columns[6], eps.get(i).getMinutesListened());
-		    values.put(columns[7], eps.get(i).getLength());
+		    values.put(columns[6], eps.get(i).getElapsedTime());
+		    values.put(columns[7], eps.get(i).getTotalTime());
 		    values.put(columns[8], feedId);
 		    
 		    this.db = this.dbHelper.getWritableDatabase();
@@ -253,8 +252,8 @@ public class EpisodeDBHelper
 	    values.put(columns[3], updatedEpisode.getLocalLink());
 	    values.put(columns[4], updatedEpisode.getPubDate());
 	    values.put(columns[5], updatedEpisode.getDescription());
-	    values.put(columns[6], updatedEpisode.getMinutesListened());
-	    values.put(columns[7], updatedEpisode.getLength());
+	    values.put(columns[6], updatedEpisode.getElapsedTime());
+	    values.put(columns[7], updatedEpisode.getTotalTime());
 	    values.put(columns[8], updatedEpisode.getFeedId());
 	    
 	    this.db = this.dbHelper.getWritableDatabase();

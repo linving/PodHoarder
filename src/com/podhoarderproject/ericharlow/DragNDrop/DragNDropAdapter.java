@@ -16,15 +16,14 @@
 
 package com.podhoarderproject.ericharlow.DragNDrop;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.podhoarderproject.podhoarder.Episode;
 import com.podhoarderproject.podhoarder.MainActivity;
 import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.service.PodHoarderService;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -124,7 +123,7 @@ public final class DragNDropAdapter extends BaseAdapter implements RemoveListene
 		if(currentEpisode != null) { 	
 			holder.episodeTitle.setText(currentEpisode.getTitle());	//Set Episode Title			
 			//TODO: Insert string resource below.
-			holder.episodeListened.setText(currentEpisode.getMinutesListened() + " listened."); //Set time listened.
+			holder.episodeListened.setText(PodHoarderService.millisToTime(currentEpisode.getElapsedTime()) + " /" + PodHoarderService.millisToTime(currentEpisode.getTotalTime())); //Set time listened.
 			//convertView.buildDrawingCache();
 			//convertView.setDrawingCacheEnabled(true);
 		}

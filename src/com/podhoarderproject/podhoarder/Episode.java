@@ -17,12 +17,12 @@ public class Episode
 	private String 	localLink;
 	private String 	pubDate;
 	private String 	description;
-	private int 	minutesListened;
-	private int		length;
+	private int 	elapsedTime;
+	private int		totalTime;
 	private int		feedId;
 	
 	
-	public Episode (int episodeId, String title, String link, String localLink, String pubDate, String description, int minutesListened, int length, int feedId)
+	public Episode (int episodeId, String title, String link, String localLink, String pubDate, String description, int elapsedTime, int length, int feedId)
 	{
 		this.episodeId = episodeId;
 		this.title = title;
@@ -31,8 +31,8 @@ public class Episode
 		this.pubDate = pubDate;
 		
 		this.description = description;
-		this.minutesListened = minutesListened;
-		this.length = length;
+		this.elapsedTime = elapsedTime;
+		this.totalTime = length;
 		this.feedId = feedId;
 	}
 
@@ -44,8 +44,8 @@ public class Episode
 		this.localLink = "";
 		this.pubDate = "";
 		this.description = "";
-		this.minutesListened = 0;
-		this.length = 0;
+		this.elapsedTime = 0;
+		this.totalTime = 0;
 		this.feedId = 0;
 	}
 	
@@ -101,23 +101,23 @@ public class Episode
 		this.description = description;
 	}
 
-	public int getMinutesListened() 
+	public int getElapsedTime() 
 	{
-		return this.minutesListened;
+		return this.elapsedTime;
 	}
-	public void setMinutesListened(int minutesListened) 
+	public void setElapsedTime(int elapsedTime) 
 	{
-		this.minutesListened = minutesListened;
-	}
-
-	public int getLength()
-	{
-		return length;
+		this.elapsedTime = elapsedTime;
 	}
 
-	public void setLength(int length)
+	public int getTotalTime()
 	{
-		this.length = length;
+		return totalTime;
+	}
+
+	public void setTotalTime(int totalTime)
+	{
+		this.totalTime = totalTime;
 	}
 	
 	public int getFeedId()

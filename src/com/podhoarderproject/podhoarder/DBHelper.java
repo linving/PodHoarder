@@ -27,8 +27,8 @@ public class DBHelper extends SQLiteOpenHelper
 	static final String colEpisodeLocalLink = "localLink";
 	static final String colEpisodePubDate = "pubDate";
 	static final String colEpisodeDescription = "description";
-	static final String colEpisodeMinutesListened = "minutesListened";
-	static final String colEpisodeLength = "length";
+	static final String colEpisodeElapsedTime = "elapsedTime";
+	static final String colEpisodeTotalTime = "totalTime";
 	static final String colParentFeedId = "feedId";
 	
 	static final String playlistTable = "PLAYLIST";
@@ -61,8 +61,8 @@ public class DBHelper extends SQLiteOpenHelper
 				+ colEpisodeLocalLink + " TEXT NOT NULL, "
 				+ colEpisodePubDate + " TEXT NOT NULL, "
 				+ colEpisodeDescription + " TEXT NOT NULL, "
-				+ colEpisodeMinutesListened + " INTEGER NOT NULL, "
-				+ colEpisodeLength + " INTEGER NOT NULL, "
+				+ colEpisodeElapsedTime + " INTEGER NOT NULL, "
+				+ colEpisodeTotalTime + " INTEGER NOT NULL, "
 				+ colParentFeedId + " INTEGER NOT NULL "
 		    	+	")");
 		

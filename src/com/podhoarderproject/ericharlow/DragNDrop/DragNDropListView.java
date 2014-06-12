@@ -16,13 +16,10 @@
 
 package com.podhoarderproject.ericharlow.DragNDrop;
 
-import com.podhoarderproject.podhoarder.Episode;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;

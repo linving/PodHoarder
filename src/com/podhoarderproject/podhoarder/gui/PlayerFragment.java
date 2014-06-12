@@ -1,29 +1,21 @@
 package com.podhoarderproject.podhoarder.gui;
 
-import android.widget.MediaController.MediaPlayerControl;
-
 import com.podhoarderproject.ericharlow.DragNDrop.DragListener;
 import com.podhoarderproject.ericharlow.DragNDrop.DragNDropAdapter;
 import com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView;
 import com.podhoarderproject.ericharlow.DragNDrop.DropListener;
 import com.podhoarderproject.ericharlow.DragNDrop.RemoveListener;
-import com.podhoarderproject.podhoarder.Episode;
-import com.podhoarderproject.podhoarder.PlaybackController;
 import com.podhoarderproject.podhoarder.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
-import com.podhoarderproject.podhoarder.service.PodHoarderService.PodHoarderBinder;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -32,11 +24,6 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-import android.os.IBinder;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 
 /**
  * 
@@ -143,27 +130,6 @@ public class PlayerFragment extends Fragment
 	    super.onDestroy();
     }
 
-	public int getCurrentPosition()
-	{
-		if(this.podService != null && musicBound && this.podService.isPng())
-			return this.podService.getPosn();
-		else return 0;
-	}
-
-	public int getDuration()
-	{
-		if(this.podService != null && musicBound && this.podService.isPng())
-			return this.podService.getDur();
-		else return 0;
-	}
-
-	public boolean isPlaying()
-	{
-		if(this.podService != null && musicBound)
-		    return this.podService.isPng();
-		return false;
-	}
-
 	public void pause()
 	{
 		playPauseButton.setChecked(false);
@@ -184,16 +150,13 @@ public class PlayerFragment extends Fragment
 	public void start(int epPos)
 	{
 		//First, we make sure the Service can update the totalTime variables once the track is loaded.
-		this.podService.setUIElements(episodeTitle, elapsedTime, totalTime, seekBar);
+		this.podService.setUIElements(episodeTitle, elapsedTime, totalTime, seekBar, helper);
 		//Toggle the play button to a pause button, since the track has started.
 		this.playPauseButton.setChecked(true);
 		//Set episode object in the Service object.
 		this.podService.setEpisode(epPos);
 		//The service should start the episode.
 		this.podService.startEpisode();
-		//TODO: Seek to the saved value minutesListened in the current Episode object.
-		//this.totalTime.setText(""+this.podService.getDur());
-		//this.elapsedTime.setText(""+this.podService.getPosn());
 	}
 	
 	//play next
@@ -217,6 +180,7 @@ public class PlayerFragment extends Fragment
         	ListAdapter adapter = mainListView.getAdapter();
         	if (adapter instanceof DragNDropAdapter) 
         	{
+        		podService.setEpisode(to);
         		((DragNDropAdapter)adapter).onDrop(from, to);
         		mainListView.invalidateViews();
         	}

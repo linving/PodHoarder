@@ -13,10 +13,10 @@ import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class PlaylistDBHelper
 {
+	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PlaylistDBHelper";
 	
 	private DBHelper dbHelper;
