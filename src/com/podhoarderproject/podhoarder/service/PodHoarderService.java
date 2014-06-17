@@ -14,6 +14,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.util.Log;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -46,6 +47,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	private TextView elapsedTime;
 	private TextView totalTime;
 	private SeekBar seekBar;
+	private ProgressBar elapsedTimeBar;
 	
 	private boolean updateBlocked = false;
 
@@ -81,6 +83,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	@Override
 	public void onCompletion(MediaPlayer arg0)
 	{
+		handler.post(SingleUpdateRunnable);
 		if(player.getCurrentPosition()>0){
 			this.player.reset();
 			//TODO: Add an option that let's the user decide if the player should proceed to the next track, or stop once an Episode is finished.
@@ -113,17 +116,15 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		  .setSmallIcon(R.drawable.ic_launcher)
 		  .setTicker(currentEpisode.getTitle())
 		  .setOngoing(true)
-		  .setContentTitle("Playing")	//TODO: Replace with string resource.
+		  .setContentTitle(this.getString(R.string.app_name) + " " + this.getString(R.string.notification_playback))
 		  .setContentText(currentEpisode.getTitle());
 		Notification not = builder.build();
-		 
 		startForeground(NOTIFY_ID, not);
 		
 		//Update the UI Elements in the Player Fragment.
 		this.episodeTitle.setText(currentEpisode.getTitle());
 		this.totalTime.setText(millisToTime(currentEpisode.getTotalTime()));
 		this.seekBar.setMax(currentEpisode.getTotalTime());
-		
 		this.handler.post(UpdateRunnable);
 	}
 	
@@ -152,12 +153,13 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		this.player.prepareAsync();
 	}
 	
-	public void setUIElements(TextView episodeTitle, TextView elapsedTime, TextView totalTime, SeekBar seekBar, PodcastHelper helper)
+	public void setUIElements(TextView episodeTitle, TextView elapsedTime, TextView totalTime, SeekBar seekBar, ProgressBar elapsedTimeBar, PodcastHelper helper)
 	{
 		this.episodeTitle = episodeTitle;
 		this.totalTime = totalTime;
 		this.elapsedTime = elapsedTime;
 		this.seekBar = seekBar;
+		this.elapsedTimeBar = elapsedTimeBar;
 		this.helper = helper;
 	}
 	

@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -49,10 +50,10 @@ public class PlayerFragment extends Fragment
 	public ImageButton forwardButton;
 	public ImageButton backwardButton;
 	public TextView episodeTitle;
-	public TextView podcastTitle;
 	public TextView elapsedTime;
 	public TextView totalTime;
 	public SeekBar seekBar;
+	public ProgressBar elapsedTimeBar;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -76,15 +77,23 @@ public class PlayerFragment extends Fragment
     {
     	this.playPauseButton = (ToggleButton)view.findViewById(R.id.player_controls_button_playpause);
     	this.playPauseButton.setOnClickListener(mPlayPauseClickListener);
+    	
     	this.doubleSpeedButton = (ToggleButton)view.findViewById(R.id.player_controls_button_2x);
+    	
     	this.forwardButton = (ImageButton)view.findViewById(R.id.player_controls_button_skip_forward);
     	this.forwardButton.setOnClickListener(mForwardClickListener);
+    	
     	this.backwardButton = (ImageButton)view.findViewById(R.id.player_controls_button_skip_backwards);
     	this.backwardButton.setOnClickListener(mBackwardClickListener);
+    	
     	this.episodeTitle = (TextView)view.findViewById(R.id.player_controls_episode_title);
-    	this.podcastTitle = (TextView)view.findViewById(R.id.player_controls_podcast_title);
+    	
     	this.elapsedTime = (TextView)view.findViewById(R.id.player_controls_elapsed_time);
+    	
+    	this.elapsedTimeBar = (ProgressBar)view.findViewById(R.id.player_list_row_elapsed_progressBar);
+    	
     	this.totalTime = (TextView)view.findViewById(R.id.player_controls_total_time);
+    	
     	this.seekBar = (SeekBar)view.findViewById(R.id.player_controls_seekbar);
     	this.seekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
     }
@@ -105,7 +114,6 @@ public class PlayerFragment extends Fragment
         	((DragNDropListView) this.mainListView).setRemoveListener(mRemoveListener);
         	((DragNDropListView) this.mainListView).setDragListener(mDragListener);
         	((DragNDropListView) this.mainListView).setOnItemClickListener(mOnClickListener);
-        	
     	}
     	else
     	{
@@ -150,7 +158,7 @@ public class PlayerFragment extends Fragment
 	public void start(int epPos)
 	{
 		//First, we make sure the Service can update the totalTime variables once the track is loaded.
-		this.podService.setUIElements(episodeTitle, elapsedTime, totalTime, seekBar, helper);
+		this.podService.setUIElements(episodeTitle, elapsedTime, totalTime, seekBar, elapsedTimeBar, helper);
 		//Toggle the play button to a pause button, since the track has started.
 		this.playPauseButton.setChecked(true);
 		//Set episode object in the Service object.

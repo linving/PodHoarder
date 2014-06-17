@@ -201,7 +201,7 @@ public class PodcastHelper
 			String url = this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLink();
 			DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 			request.setDescription(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle());
-			request.setTitle(this.context.getString(R.string.app_name) + " Download");
+			request.setTitle(this.context.getString(R.string.app_name) + " " + this.context.getString(R.string.notification_download));
 			// in order for this if to run, you must use the android 3.2 to compile your app
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) 
 			{
@@ -844,6 +844,17 @@ public class PodcastHelper
 			}
 		}
 		return retVal;
+	}
+	
+	/**
+	 * Retrieves a Feed object using a Feed ID as parameter.
+	 * @param feedId ID of the Feed to retrieve.
+	 * @return A feed object.
+	 */
+	public Feed getFeed(int feedId)
+	{
+		int index = this.getFeedPositionWithId(feedId);
+		return this.listAdapter.feeds.get(index);
 	}
 	
 	/**

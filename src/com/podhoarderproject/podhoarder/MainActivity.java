@@ -100,6 +100,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     	//Collections.reverse(((PlaylistListAdapter)this.helper.playlistAdapter).playList);
     	//this.helper.plDbH.savePlaylist(((PlaylistListAdapter)this.helper.playlistAdapter).playList);
     	//this.helper.addFeed("http://smodcast.com/channels/plus-one/feed/");
+    	//this.helper.addFeed("http://smodcast.com/channels/hollywood-babble-on/feed/");
     	//this.helper.addFeed("http://feeds.feedburner.com/filipochfredrik/podcast?format=xml");
     	//this.helper.addFeed("http://smodcast.com/channels/fatman-on-batman/feed/");
     }

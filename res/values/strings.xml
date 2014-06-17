@@ -22,5 +22,9 @@
     
     <!-- Settings -->
     <string name="settings_tab">Settings</string>
+    
+    <!--  Notifications -->
+    <string name="notification_download">Download</string>
+    <string name="notification_playback">Playback</string>
 
 </resources>

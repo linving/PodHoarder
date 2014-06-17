@@ -27,7 +27,10 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.BaseAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public final class DragNDropAdapter extends BaseAdapter implements RemoveListener, DropListener{
@@ -107,7 +110,8 @@ public final class DragNDropAdapter extends BaseAdapter implements RemoveListene
             // we want to bind data to.
             holder = new ViewHolderItem();
             holder.episodeTitle = (TextView) convertView.findViewById(R.id.player_list_row_episodeName);
-            holder.episodeListened = (TextView) convertView.findViewById(R.id.player_list_row_listened);
+            holder.podcastTitle = (TextView) convertView.findViewById(R.id.player_list_row_podcastName);
+            holder.elapsedTimeBar = (ProgressBar) convertView.findViewById(R.id.player_list_row_elapsed_progressBar);
 
             convertView.setTag(holder);
         } 
@@ -120,15 +124,16 @@ public final class DragNDropAdapter extends BaseAdapter implements RemoveListene
 
         Episode currentEpisode = this.playList.get(position);
         
-		if(currentEpisode != null) { 	
-			holder.episodeTitle.setText(currentEpisode.getTitle());	//Set Episode Title			
-			//TODO: Insert string resource below.
-			holder.episodeListened.setText(PodHoarderService.millisToTime(currentEpisode.getElapsedTime()) + " /" + PodHoarderService.millisToTime(currentEpisode.getTotalTime())); //Set time listened.
-			//convertView.buildDrawingCache();
-			//convertView.setDrawingCacheEnabled(true);
-		}
-		
-		
+		if(currentEpisode != null) 
+		{ 	
+			holder.episodeTitle.setText(currentEpisode.getTitle());	//Set Episode Title	
+			holder.podcastTitle.setText(((MainActivity)context).helper.getFeed(currentEpisode.getFeedId()).getTitle()); //Set Podcast title.
+			
+			//Set up Circular progress bar that shows the elapsed time of each episode.
+			holder.elapsedTimeBar.setMax(currentEpisode.getTotalTime());	//Set the max value (total runtime of each episode in milliseconds)
+			holder.elapsedTimeBar.setProgress(currentEpisode.getElapsedTime());	//Set the elapsed time of each episode (in milliseconds)
+			holder.elapsedTimeBar.setRotation(-90f);	//Rotate the progressbar -90 degrees to give a clock impression (starts at the top and goes full circle.)
+		}		
         return convertView;
     }
 
@@ -136,7 +141,8 @@ public final class DragNDropAdapter extends BaseAdapter implements RemoveListene
   	//http://developer.android.com/training/improving-layouts/smooth-scrolling.html
   	static class ViewHolderItem {	
   	    TextView episodeTitle;
-  	    TextView episodeListened;
+  	    TextView podcastTitle;
+  	    ProgressBar elapsedTimeBar;
   	}
 
 	public void onRemove(int which) {
