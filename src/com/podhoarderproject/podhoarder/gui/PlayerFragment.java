@@ -5,11 +5,16 @@ import com.podhoarderproject.ericharlow.DragNDrop.DragNDropAdapter;
 import com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView;
 import com.podhoarderproject.ericharlow.DragNDrop.DropListener;
 import com.podhoarderproject.ericharlow.DragNDrop.RemoveListener;
+import com.podhoarderproject.podhoarder.Episode;
 import com.podhoarderproject.podhoarder.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
+
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.renderscript.*;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -44,6 +50,9 @@ public class PlayerFragment extends Fragment
 	private PodHoarderService podService;
 	private boolean musicBound = false;
 	
+	//Renderscript
+	private RenderScript rs;
+	
 	//UI Elements
 	public ToggleButton playPauseButton;
 	public ToggleButton doubleSpeedButton;
@@ -58,12 +67,15 @@ public class PlayerFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
     	this.view = inflater.inflate(R.layout.fragment_player, container, false);
+    	//define this only once if blurring multiple times
+    	this.rs = RenderScript.create(getActivity());
     	
     	setupHelper();
     	setupListView();
     	setupMediaControls();
-    	setServiceVars();
     	
+    	if (this.podService != null && this.podService.isPng()) this.podService.updateUI();
+    	if (this.podService != null && this.podService.isPng())	playPauseButton.setChecked(false);
     	return this.view;
     }
     
@@ -89,9 +101,7 @@ public class PlayerFragment extends Fragment
     	this.episodeTitle = (TextView)view.findViewById(R.id.player_controls_episode_title);
     	
     	this.elapsedTime = (TextView)view.findViewById(R.id.player_controls_elapsed_time);
-    	
-    	this.elapsedTimeBar = (ProgressBar)view.findViewById(R.id.player_list_row_elapsed_progressBar);
-    	
+    	    	
     	this.totalTime = (TextView)view.findViewById(R.id.player_controls_total_time);
     	
     	this.seekBar = (SeekBar)view.findViewById(R.id.player_controls_seekbar);
@@ -102,6 +112,11 @@ public class PlayerFragment extends Fragment
 	public void onStart()
 	{
 		super.onStart();
+		setServiceVars();
+		if (this.podService != null)
+		{
+			this.podService.setUIElements(playPauseButton, episodeTitle, elapsedTime, totalTime, seekBar, helper);
+		}
 	}
     
     private void setupListView()
@@ -140,13 +155,11 @@ public class PlayerFragment extends Fragment
 
 	public void pause()
 	{
-		playPauseButton.setChecked(false);
 		this.podService.pause();
 	}
 	
 	public void resume()
 	{
-		playPauseButton.setChecked(true);
 		this.podService.resume();
 	}
 
@@ -157,14 +170,10 @@ public class PlayerFragment extends Fragment
 
 	public void start(int epPos)
 	{
-		//First, we make sure the Service can update the totalTime variables once the track is loaded.
-		this.podService.setUIElements(episodeTitle, elapsedTime, totalTime, seekBar, elapsedTimeBar, helper);
 		//Toggle the play button to a pause button, since the track has started.
 		this.playPauseButton.setChecked(true);
-		//Set episode object in the Service object.
-		this.podService.setEpisode(epPos);
 		//The service should start the episode.
-		this.podService.startEpisode();
+		this.podService.startEpisode(epPos);
 	}
 	
 	//play next
@@ -239,9 +248,22 @@ public class PlayerFragment extends Fragment
     private OnItemClickListener mOnClickListener = new OnItemClickListener()
     {
 		@Override
-		public void onItemClick(AdapterView<?> arg0, View view, int position, long id)
+		public void onItemClick(AdapterView<?> arg0, View listRow, int position, long id)
 		{
 			start(position);
+//			Episode currentEpisode = (Episode)mainListView.getAdapter().getItem(position);
+//			LinearLayout v = (LinearLayout)view.findViewById(R.id.player_controls_container);
+//			Bitmap blurredOriginal = helper.getFeedImage(currentEpisode.getFeedId()).getBitmap();
+//			//this will blur the bitmapOriginal with a radius of 8 and save it in bitmapOriginal
+//			final Allocation input = Allocation.createFromBitmap(rs, blurredOriginal); //use this constructor for best performance, because it uses USAGE_SHARED mode which reuses memory
+//			final Allocation output = Allocation.createTyped(rs, input.getType());
+//			final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+//			script.setRadius(8f);
+//			script.setInput(input);
+//			script.forEach(output);
+//			output.copyTo(blurredOriginal);
+//			
+//			v.setBackground(new BitmapDrawable(blurredOriginal));
 		}
     };
     
@@ -289,7 +311,7 @@ public class PlayerFragment extends Fragment
     };
 
     //Seekbar Listener
-    private OnSeekBarChangeListener mSeekBarChangeListener = new OnSeekBarChangeListener() {       
+    private OnSeekBarChangeListener mSeekBarChangeListener = new OnSeekBarChangeListener() {    
 
         @Override       
         public void onStopTrackingTouch(SeekBar seekBar) {

@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -149,7 +150,7 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 	        viewHolder.episodeTitle = (TextView) convertView.findViewById(R.id.list_episode_row_episodeName);
 	        viewHolder.episodeAge = (TextView) convertView.findViewById(R.id.list_episode_row_episodeAge);
 	        viewHolder.episodeDescription = (TextView) convertView.findViewById(R.id.list_episode_row_expandableTextView);
-	        viewHolder.downloadButton = (ImageButton) convertView.findViewById(R.id.list_episode_row_downloadBtn);
+	        viewHolder.downloadButton = (Button) convertView.findViewById(R.id.list_episode_row_downloadBtn);
 	        
 	        
 	        // Store the holder with the view.

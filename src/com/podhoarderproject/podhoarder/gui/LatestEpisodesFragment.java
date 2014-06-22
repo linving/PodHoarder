@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -53,7 +54,7 @@ public class LatestEpisodesFragment extends Fragment
     			public void onItemClick(AdapterView<?> parent, View view, int position,
     					long id)
     			{
-    				TextView episodeDescription = (TextView)view.findViewById(R.id.list_episode_row_expandableTextView);
+    				LinearLayout episodeDescription = (LinearLayout)view.findViewById(R.id.list_episode_row_expandable_container);
     				 
     		        // Creating the expand animation for the item
     		        ExpandAnimation expandAni = new ExpandAnimation(episodeDescription, 100);

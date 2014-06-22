@@ -42,6 +42,7 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteConstraintException;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -170,6 +171,7 @@ public class PodcastHelper
 		}
 		this.listAdapter.feeds.get(i).getEpisodes().get(r)
 				.setElapsedTime(elapsedTime);
+		this.eph.getEpisode(episodeId);
 		this.eph.updateEpisode(this.listAdapter.feeds.get(i).getEpisodes()
 				.get(r));
 		this.refreshLists();
@@ -265,6 +267,17 @@ public class PodcastHelper
 		this.eph.updateEpisode(currentEpisode);
 		
 		this.refreshLists();
+	}
+	
+	/**
+	 * Saves an updated Episode object in the db.
+	 * @param ep An already existing Episode object with new values.
+	 */
+	public Episode updateEpisode(Episode ep)
+	{
+		Episode temp = this.eph.updateEpisode(ep);
+		this.refreshLists();
+		return temp;
 	}
 	
 	/**
@@ -855,6 +868,11 @@ public class PodcastHelper
 	{
 		int index = this.getFeedPositionWithId(feedId);
 		return this.listAdapter.feeds.get(index);
+	}
+	
+	public BitmapDrawable getFeedImage(int feedId)
+	{
+		return getFeed(feedId).getFeedImage().imageObject();
 	}
 	
 	/**

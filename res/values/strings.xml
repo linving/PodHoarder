@@ -19,6 +19,9 @@
     <!-- Episodes tab -->
     <string name="episodes_tab">Episodes</string>
     <string name="episodes_title">Latest Episodes</string>
+    <string name="fragment_latest_list_episode_stream_button_text">Stream</string>
+    <string name="fragment_latest_list_episode_download_button_text">Download</string>
+    <string name="fragment_latest_list_episode_play_button_text">Play</string>
     
     <!-- Settings -->
     <string name="settings_tab">Settings</string>

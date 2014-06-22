@@ -12,6 +12,7 @@
         android:layout_centerInParent="true"  
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="5dp"
+        android:rotation="-90.0"
         android:layout_marginRight="5dp"
         android:indeterminate="false"
         android:progressDrawable="@drawable/circular_progress_bar"/>

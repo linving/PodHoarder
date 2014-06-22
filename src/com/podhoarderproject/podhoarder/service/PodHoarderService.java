@@ -14,9 +14,9 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.util.Log;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.podhoarderproject.podhoarder.*;
 
@@ -26,30 +26,25 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	
 	private static final int NOTIFY_ID=1;
 	
-	//media player
-	private MediaPlayer player;
-	//song list
-	private List<Episode> playList;
-	//current position in the playList.
-	private int epPos;
-	//Binder object
-	private final IBinder musicBind = new PodHoarderBinder();
-	//Podcast helper.
-	private PodcastHelper helper;
-	//Integer for keeping track of when to save elapsedTime to db.
-	private int timeTracker = 0;
 	
-	//Handler object (for threading)
-	Handler handler;
+	private 	MediaPlayer 	player;								//media player
+	private 	List<Episode> 	playList;							//song list
+	private 	int 			epPos;								//current position in the playList.
+	public 		Episode 		currentEpisode;						//The Episode object that's currently being played.
+	private 	final IBinder 	musicBind = new PodHoarderBinder();	//Binder object
+	private 	PodcastHelper 	helper;								//Podcast helper.
+	private 	int 			timeTracker = 0;					//Integer for keeping track of when to save elapsedTime to db.
+	private 	boolean 		streaming = false;					//Boolean to keep track of whether the player is streaming or playing a local file.
+	private 	boolean 		updateBlocked = false;				//Boolean to keep track of whether the UI should be updated or not.
+	private 	Handler 		handler;							//Handler object (for threading)
 	
 	//Fragment UI Elements
-	private TextView episodeTitle;
-	private TextView elapsedTime;
-	private TextView totalTime;
-	private SeekBar seekBar;
-	private ProgressBar elapsedTimeBar;
+	private 	ToggleButton	playPauseButton;
+	private 	TextView 		episodeTitle;
+	private 	TextView 		elapsedTime;
+	private 	TextView 		totalTime;
+	private 	SeekBar 		seekBar;
 	
-	private boolean updateBlocked = false;
 
 	@Override
 	public IBinder onBind(Intent arg0) 
@@ -86,6 +81,8 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		handler.post(SingleUpdateRunnable);
 		if(player.getCurrentPosition()>0){
 			this.player.reset();
+			this.currentEpisode.setElapsedTime(this.currentEpisode.getTotalTime());	//Set elapsed time to total time (100% of the Episode)
+			helper.updateEpisode(currentEpisode);	//Update the db object.
 			//TODO: Add an option that let's the user decide if the player should proceed to the next track, or stop once an Episode is finished.
 		    playNext();
 		}
@@ -101,10 +98,8 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	@Override
 	public void onPrepared(MediaPlayer player)
 	{
-		Episode currentEpisode = playList.get(epPos);
-		player.seekTo(currentEpisode.getElapsedTime());
+		player.seekTo(this.currentEpisode.getElapsedTime());
 		player.start();
-		
 		Intent notIntent = new Intent(this, MainActivity.class);
 		notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		PendingIntent pendInt = PendingIntent.getActivity(this, 0,
@@ -114,17 +109,38 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		 
 		builder.setContentIntent(pendInt)
 		  .setSmallIcon(R.drawable.ic_launcher)
-		  .setTicker(currentEpisode.getTitle())
+		  .setTicker(this.currentEpisode.getTitle())
 		  .setOngoing(true)
 		  .setContentTitle(this.getString(R.string.app_name) + " " + this.getString(R.string.notification_playback))
-		  .setContentText(currentEpisode.getTitle());
+		  .setContentText(this.currentEpisode.getTitle());
 		Notification not = builder.build();
 		startForeground(NOTIFY_ID, not);
 		
+		if (streaming && this.currentEpisode.getTotalTime() == 0) 
+		{
+			this.currentEpisode.setTotalTime(player.getDuration());
+			this.currentEpisode = this.helper.updateEpisode(this.currentEpisode);
+		}
+		if (this.episodeTitle != null && 
+				this.totalTime != null && 
+				this.seekBar != null &&
+				this.elapsedTime != null)
+		{
+			updateUI();
+		}
+		
+	}
+	
+	/**
+	 * Updates the UI elements in the Player Fragment (title, runtime etc)
+	 */
+	public void updateUI()
+	{
 		//Update the UI Elements in the Player Fragment.
-		this.episodeTitle.setText(currentEpisode.getTitle());
-		this.totalTime.setText(millisToTime(currentEpisode.getTotalTime()));
-		this.seekBar.setMax(currentEpisode.getTotalTime());
+		this.episodeTitle.setText(this.currentEpisode.getTitle());
+		this.totalTime.setText(millisToTime(this.currentEpisode.getTotalTime()));
+		this.seekBar.setMax(this.currentEpisode.getTotalTime());
+		if (isPng()) playPauseButton.setChecked(true);
 		this.handler.post(UpdateRunnable);
 	}
 	
@@ -134,13 +150,12 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		stopForeground(true);
 	}
 	
-	public void startEpisode()
+	public void startEpisode(int epPos)
 	{
+		this.streaming = false;
 		this.player.reset();
-		
-		//get song
-		Episode currentEpisode = playList.get(epPos);
-		
+		this.epPos = epPos;
+		this.currentEpisode = playList.get(epPos);
 		try
 		{
 			this.player.setDataSource(getApplicationContext(), Uri.parse(currentEpisode.getLocalLink()));
@@ -149,17 +164,50 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		{
 			Log.e(LOG_TAG, "Error setting data source", e);
 		}
-		
 		this.player.prepareAsync();
 	}
 	
-	public void setUIElements(TextView episodeTitle, TextView elapsedTime, TextView totalTime, SeekBar seekBar, ProgressBar elapsedTimeBar, PodcastHelper helper)
+	public void startEpisode(Episode ep)
 	{
+		this.streaming = false;
+		this.player.reset();
+		findEpisodeInPlaylist(ep);
+		try
+		{
+			this.player.setDataSource(getApplicationContext(), Uri.parse(currentEpisode.getLocalLink()));
+		}
+		catch(Exception e)
+		{
+			Log.e(LOG_TAG, "Error setting data source", e);
+		}
+		this.player.prepareAsync();
+	}
+	
+	public void streamEpisode(Episode ep)
+	{
+		this.streaming = true;
+		this.player.reset();
+		this.currentEpisode = ep;
+		this.epPos = -1;
+		try
+		{
+			this.player.setDataSource(getApplicationContext(), Uri.parse(this.currentEpisode.getLink()));
+		}
+		catch (Exception e)
+		{
+			Log.e(LOG_TAG, "Error setting data source", e);
+		}
+//		this.episodeTitle.setText("Loading...");	//TODO: Replace with string resource.
+		this.player.prepareAsync();
+	}
+	
+	public void setUIElements(ToggleButton playPauseButton, TextView episodeTitle, TextView elapsedTime, TextView totalTime, SeekBar seekBar, PodcastHelper helper)
+	{
+		this.playPauseButton = playPauseButton;
 		this.episodeTitle = episodeTitle;
 		this.totalTime = totalTime;
 		this.elapsedTime = elapsedTime;
 		this.seekBar = seekBar;
-		this.elapsedTimeBar = elapsedTimeBar;
 		this.helper = helper;
 	}
 	
@@ -168,36 +216,38 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
      */
     private Runnable UpdateRunnable = new Runnable() {
         @Override
-        public void run() {
-            // update progress bar using getCurrentPosition()
-        	elapsedTime.setText(millisToTime(getPosn()));
+        public void run() 
+        {
+        	elapsedTime.setText(millisToTime(getPosn()));	// update progress bar using getCurrentPosition()
         	if (shouldSaveElapsedTime())
         	{
-        		//Update the db.
-        		helper.updateEpisodeListened(playList.get(epPos).getFeedId(), playList.get(epPos).getEpisodeId(), getPosn());
-        		//Update the object in the list manually instead of reloading the entire list.
-        		playList.get(epPos).setElapsedTime(getPosn());
+        		currentEpisode.setElapsedTime(getPosn());
+        		helper.updateEpisode(currentEpisode); //Update the db.
+        		if (!streaming) playList.get(epPos).setElapsedTime(getPosn());	//Update the object in the list manually instead of reloading the entire list. (Only if we aren't streaming, because if we are then the object is not in the playlist)
         	}
         	if (!updateBlocked) seekBar.setProgress(getPosn());
-            if (isPng())
-                handler.postDelayed(UpdateRunnable, 500);
+            if (isPng()) handler.postDelayed(UpdateRunnable, 500);
         }
     };
     
     /**
      * Post a Runnable that updates the seekbar position in relation to player progress once.
      */
-    private Runnable SingleUpdateRunnable = new Runnable() {
+    private Runnable SingleUpdateRunnable = new Runnable() 
+    {
         @Override
-        public void run() {
-            // update progress bar using getCurrentPosition()
-        	elapsedTime.setText(millisToTime(getPosn()));
+        public void run() 
+        {
+        	elapsedTime.setText(millisToTime(getPosn()));	// update progress bar using getCurrentPosition()
         	if (shouldSaveElapsedTime())
         	{
-        		//Update the db.
-        		helper.updateEpisodeListened(playList.get(epPos).getFeedId(), playList.get(epPos).getEpisodeId(), getPosn());
-        		//Update the object in the list manually instead of reloading the entire list.
-        		playList.get(epPos).setElapsedTime(getPosn());
+        		currentEpisode.setElapsedTime(getPosn());
+        		helper.updateEpisode(currentEpisode); //Update the db.
+        		if (!streaming)
+        		{
+        			playList.get(epPos).setElapsedTime(getPosn()); 	//Update the object in the list manually instead of reloading the entire list. (Only if we aren't streaming, because if we are then the object is not in the playlist)
+        			
+        		}
         	}
         	if (!updateBlocked) seekBar.setProgress(getPosn());
         }
@@ -206,18 +256,21 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void pause()
 	{
 		player.pause();
+		playPauseButton.setChecked(false);
 		handler.post(SingleUpdateRunnable);
 	}
 	
 	public void resume()
 	{
 		player.start();
+		playPauseButton.setChecked(true);
 		handler.post(UpdateRunnable);
 	}
 	
 	public void setEpisode(int episodeIndex)
 	{
 		epPos = episodeIndex;
+		this.currentEpisode = this.playList.get(epPos);
 	}
 	
 	public void setList(List<Episode> playList){
@@ -253,13 +306,20 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void playPrev()
 	{
 		this.epPos--;
-		if(this.epPos < 0) this.epPos=this.playList.size()-1;
-		startEpisode();
+		if(this.epPos < 0) this.epPos = this.playList.size()-1;
+		startEpisode(this.epPos);
+	}
+	
+	public void playNext()
+	{
+		this.epPos++;
+		if(this.epPos >= this.playList.size()) this.epPos=0;
+		startEpisode(this.epPos);
 	}
 	
 	public boolean shouldSaveElapsedTime()
 	{
-		//A limit of 20 is set because the Runnable generally runs twice per second and we want to save the elapsed time roughly every 10 seconds.
+		//A limit of 20 is set because the Runnable generally runs twice per second and we want to save the elapsed time every ~10 seconds.
 		if (this.timeTracker >= 20)
 		{
 			//Reset the tracker if we are about to save.
@@ -271,14 +331,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			this.timeTracker++;
 			return false;
 		}
-	}
-	
-	//skip to next
-	public void playNext()
-	{
-		this.epPos++;
-		if(this.epPos >= this.playList.size()) this.epPos=0;
-		startEpisode();
 	}
 
 	public void skipForward()
@@ -312,7 +364,11 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		this.player.setOnErrorListener(this);
 	}
 
-	
+	/**
+	 * A function that converts a millisecond value to a properly formatted timestamp (HH:MM:SS)
+	 * @param time The time value in milliseconds.
+	 * @return	A string object with the millisecond value formatted accordingly.
+	 */
 	public static String millisToTime(int time)
 	{
 		String retString = "";
@@ -336,5 +392,18 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		else retString += "00";
 		
 		return retString;
+	}
+	
+	private void findEpisodeInPlaylist(Episode ep)
+	{
+		for (int i=0; i<this.playList.size(); i++)
+		{
+			if (ep.getEpisodeId() == this.playList.get(i).getEpisodeId())
+			{
+				this.currentEpisode = this.playList.get(i);
+				this.epPos = i;
+			}
+			
+		}
 	}
 }

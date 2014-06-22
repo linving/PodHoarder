@@ -28,7 +28,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	//UI Elements
     private ViewPager viewPager;
     private TabsPagerAdapter mAdapter;
-    private ActionBar actionBar;
+    public ActionBar actionBar;
     
     //Fragment Objects
     private FeedFragment feedFragment;
@@ -39,7 +39,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     public PodcastHelper helper;
     
     //Playback service
-    private PodHoarderService podService;
+    public PodHoarderService podService;
 	
 	private Intent playIntent;
 	private boolean musicBound = false;
@@ -92,7 +92,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 			playIntent = new Intent(this, PodHoarderService.class);
 			boolean ret = this.bindService(playIntent, podConnection, Context.BIND_AUTO_CREATE);
 			this.startService(playIntent);
-			
 		}
     
     	

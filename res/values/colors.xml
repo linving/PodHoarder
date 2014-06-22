@@ -58,6 +58,12 @@
     <color name="fragment_latest_list_episode_description">#FFFFFF</color>
     <color name="fragment_latest_list_episode_episode_unlistened">#FFFFFF</color>
     <color name="fragment_latest_list_episode_episode_listened">#FFFFFF</color>
+    <color name="fragment_latest_list_episode_stream_button_text">#FFFFFF</color>
+    <color name="fragment_latest_list_episode_stream_button_background">#000000</color>
+    <color name="fragment_latest_list_episode_download_button_background">#000000</color>
+    <color name="fragment_latest_list_episode_download_button_text">#FFFFFF</color>
+    <color name="fragment_latest_list_episode_play_button_background">#000000</color>
+    <color name="fragment_latest_list_episode_play_button_text">#FFFFFF</color>
     
     <!-- Settings -->
     <color name="settings_background">#FFFFFF</color>

@@ -132,7 +132,6 @@ public final class DragNDropAdapter extends BaseAdapter implements RemoveListene
 			//Set up Circular progress bar that shows the elapsed time of each episode.
 			holder.elapsedTimeBar.setMax(currentEpisode.getTotalTime());	//Set the max value (total runtime of each episode in milliseconds)
 			holder.elapsedTimeBar.setProgress(currentEpisode.getElapsedTime());	//Set the elapsed time of each episode (in milliseconds)
-			holder.elapsedTimeBar.setRotation(-90f);	//Rotate the progressbar -90 degrees to give a clock impression (starts at the top and goes full circle.)
 		}		
         return convertView;
     }

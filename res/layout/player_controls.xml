@@ -22,16 +22,15 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:layout_below="@id/player_controls_tools_container"
-        android:gravity="center_horizontal"
         android:orientation="vertical">
         <TextView android:id="@+id/player_controls_episode_title"
 	        android:layout_width="fill_parent" 
 	        android:layout_height="wrap_content"
+	        android:gravity="center_horizontal"
 	        android:textSize="@dimen/fragment_player_podcast_episode"
 	        android:textColor="@color/fragment_player_podcast_episode"
 	        android:singleLine="true" 
-        	android:ellipsize="marquee"
-	        android:text="EPISODE TITLE"/>"
+        	android:ellipsize="marquee"/>
     </LinearLayout>
 	<LinearLayout android:id="@+id/player_controls_button_container"
 	    android:layout_width="wrap_content"
@@ -77,14 +76,12 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_alignParentLeft="true"
-		        android:textSize="@dimen/fragment_player_elapsed_time"
-		        android:text="00:00"/>
+		        android:textSize="@dimen/fragment_player_elapsed_time"/>
 		    <TextView android:id="@+id/player_controls_total_time"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_alignParentRight="true"
-		        android:textSize="@dimen/fragment_player_total_time"
-		        android:text="59:59"/>
+		        android:textSize="@dimen/fragment_player_total_time"/>
 	    </RelativeLayout>
 	    <SeekBar android:id="@+id/player_controls_seekbar"
 	        android:layout_width="fill_parent"

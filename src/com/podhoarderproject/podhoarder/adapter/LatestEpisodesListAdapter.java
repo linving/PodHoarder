@@ -19,8 +19,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapter
@@ -102,7 +104,10 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 	        viewHolder.episodeTitle = (TextView) convertView.findViewById(R.id.list_episode_row_episodeName);
 	        viewHolder.episodeAge = (TextView) convertView.findViewById(R.id.list_episode_row_episodeAge);
 	        viewHolder.episodeDescription = (TextView) convertView.findViewById(R.id.list_episode_row_expandableTextView);
-	        viewHolder.downloadButton = (ImageButton) convertView.findViewById(R.id.list_episode_row_downloadBtn);
+	        viewHolder.elapsedTimeBar = (ProgressBar) convertView.findViewById(R.id.list_episode_row_elapsed_progressBar);
+	        viewHolder.downloadButton = (Button) convertView.findViewById(R.id.list_episode_row_downloadBtn);
+	        viewHolder.playButton = (Button) convertView.findViewById(R.id.list_episode_row_playBtn);
+	        viewHolder.streamButton = (Button) convertView.findViewById(R.id.list_episode_row_streamBtn);
 	        
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
@@ -116,28 +121,59 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 		Episode currentEpisode = this.latestEpisodes.get(position);
 		
 		if(currentEpisode != null) {
-			
-			viewHolder.episodeTitle.setText(currentEpisode.getTitle());	//Set Episode Title
-			viewHolder.episodeDescription.setText(currentEpisode.getDescription());	//Set Episode Description
-			
+			//Set Episode Title
+			viewHolder.episodeTitle.setText(currentEpisode.getTitle());	
+			//Set Episode Description
+			viewHolder.episodeDescription.setText(currentEpisode.getDescription());	
+			//Set Episode Timestamp.
 			try
 			{
 					viewHolder.episodeAge.setText(
 							DateUtils.getRelativeTimeSpanString(
 									PodcastHelper.correctFormat.parse(
-											currentEpisode.getPubDate()).getTime()));
+											currentEpisode.getPubDate()).getTime()));	//Set a time stamp since Episode publication.
 			} 
 			catch (ParseException e)
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			//Set Episode Elapsed Time.
+			if (currentEpisode.getTotalTime() != 0)	//We can only set the progressbar if we have downloaded the file to find out the total runtime.
+			{
+				viewHolder.elapsedTimeBar.setMax(currentEpisode.getTotalTime());
+				viewHolder.elapsedTimeBar.setProgress(currentEpisode.getElapsedTime());
+			}
+			else	//If we have never downloaded the file then we haven't listened to it so just set it to 0 progress out of a 100.
+			{
+				viewHolder.elapsedTimeBar.setMax(100);
+				viewHolder.elapsedTimeBar.setProgress(0);
+			}
 			
-			if(!currentEpisode.getLocalLink().isEmpty()) viewHolder.downloadButton.setVisibility(View.GONE); //Hide Download Button if applicable.
-			else {
-				viewHolder.downloadButton.setVisibility(View.VISIBLE);
-				final int feedId = currentEpisode.getFeedId();
-				final int episodeId = currentEpisode.getEpisodeId();
+			final int feedId = currentEpisode.getFeedId();
+			final int episodeId = currentEpisode.getEpisodeId();
+			final Episode currentEp = currentEpisode;
+			
+			if(!currentEpisode.getLocalLink().isEmpty())	//The Episode.localLink property has a value, which means that the Episode is downloaded. We should show the Play button instead of the Download button.
+			{
+				viewHolder.downloadButton.setVisibility(View.GONE); //Hide Download Button.
+				viewHolder.playButton.setVisibility(View.VISIBLE);	//Show the Play button.
+				viewHolder.playButton.setOnClickListener(new OnClickListener() 
+				   { 
+				       @Override
+				       public void onClick(View v) 
+				       {
+				    	   ((MainActivity)context).podService.startEpisode(currentEp);
+				    	   ((MainActivity)context).getActionBar().setSelectedNavigationItem(2);	//Navigate to the Player Fragment automatically.
+				    	   v.setEnabled(false);
+				       }
+
+				   });
+			}
+			else 	//The Episode has not been downloaded, so we can't show the Play button. The Download button should be there instead.
+			{
+				viewHolder.downloadButton.setVisibility(View.VISIBLE); //Show Download Button.
+				viewHolder.playButton.setVisibility(View.GONE);	//Hide the Play button.
 				viewHolder.downloadButton.setOnClickListener(new OnClickListener() 
 				   { 
 				       @Override
@@ -149,6 +185,18 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 
 				   });
 			}
+			
+			viewHolder.streamButton.setOnClickListener(new OnClickListener() 	//We always want the option to stream an Episode.
+			   { 
+			       @Override
+			       public void onClick(View v) 
+			       {
+			    	   ((MainActivity)context).podService.streamEpisode(currentEp);
+			    	   ((MainActivity)context).getActionBar().setSelectedNavigationItem(2);	//Navigate to the Player Fragment automatically.
+			    	   v.setEnabled(false);
+			       }
+
+			   });
 		}
 		return convertView;
 	}
@@ -159,6 +207,9 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 	    TextView episodeTitle;
 	    TextView episodeAge;
 	    TextView episodeDescription;
-	    ImageButton downloadButton;
+	    ProgressBar elapsedTimeBar;
+	    Button downloadButton;
+	    Button playButton;
+	    Button streamButton;
 	}
 }

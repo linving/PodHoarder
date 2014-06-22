@@ -32,7 +32,7 @@
 		        android:textColor="@color/fragment_feeds_list_episode_age"
 		        android:textSize="@dimen/fragment_feeds_list_episode_age"/>
 	    </LinearLayout>
-	    <ImageButton
+	    <Button
 	        android:id="@+id/list_episode_row_downloadBtn"
 	        android:layout_width="25dp"
 	        android:layout_height="25dp"
