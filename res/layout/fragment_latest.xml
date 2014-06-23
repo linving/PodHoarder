@@ -14,15 +14,18 @@
         android:text="@string/episodes_title"
         android:textColor="@color/fragment_latest_title"
         android:textSize="@dimen/fragment_latest_title"/>
-    
-    <ListView
-        android:id="@+id/mainListView"
-        android:paddingTop="5dp"
-        android:layout_marginLeft="15dip"
-        android:layout_marginRight="15dip"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_container"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:divider="@drawable/list_divider"
-        android:dividerHeight="1px"/>
-
+	    android:layout_height="fill_parent">
+	    <ListView
+	        android:id="@+id/mainListView"
+	        android:paddingTop="5dp"
+	        android:layout_marginLeft="15dip"
+	        android:layout_marginRight="15dip"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:divider="@drawable/list_divider"
+	        android:dividerHeight="1px"/>
+	</android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

@@ -1,7 +1,12 @@
 package com.podhoarderproject.podhoarder.gui;
 
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +14,11 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 
+import com.podhoarderproject.podhoarder.Feed;
 import com.podhoarderproject.podhoarder.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
  
@@ -18,10 +27,14 @@ import com.podhoarderproject.podhoarder.R;
  * @author Emil Almrot
  * 2014-05-21
  */
-public class LatestEpisodesFragment extends Fragment
+public class LatestEpisodesFragment extends Fragment implements OnRefreshListener
 {
+	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.LatestEpisodesFragment";
+	
 	public ListView mainListView;
 	public TextView episodesTitle;
+	
+	private SwipeRefreshLayout swipeLayout;
 	
 	private View view;
 	private PodcastHelper helper;
@@ -33,6 +46,7 @@ public class LatestEpisodesFragment extends Fragment
 		
 		setupHelper();
 		setupListView();
+		setupRefreshControls();
 		return view;
     }
     
@@ -75,5 +89,20 @@ public class LatestEpisodesFragment extends Fragment
     	this.helper = ((com.podhoarderproject.podhoarder.MainActivity)this.getActivity()).helper;
     }
     
-    
+    private void setupRefreshControls()
+    {
+    	swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(this);
+        swipeLayout.setColorScheme(android.R.color.holo_blue_bright, 
+                android.R.color.holo_green_light, 
+                android.R.color.holo_orange_light, 
+                android.R.color.holo_red_light);
+    }
+
+	@Override
+	public void onRefresh()
+	{
+		this.helper.setRefreshLayout(swipeLayout);	//Set the layout that should be updated once the Refresh task is done executing.
+		this.helper.refreshFeeds();	//Start the refresh process.
+	}
 }

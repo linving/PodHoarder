@@ -8,7 +8,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
  
 /**
@@ -42,7 +45,30 @@ public class FeedFragment extends Fragment
     private void setupListView()
     {
     	this.mainListView = (ExpandableListView) view.findViewById(R.id.mainListView);
-    	this.mainListView.setAdapter(this.helper.listAdapter);
+    	if (!this.helper.listAdapter.isEmpty())
+    	{
+    		this.mainListView.setAdapter(this.helper.listAdapter);
+    		this.mainListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {  
+     		   
+				@Override
+				public boolean onChildClick(ExpandableListView parent, View v,
+						int groupPosition, int childPosition, long id)
+				{
+					LinearLayout episodeExpandableArea = (LinearLayout)v.findViewById(R.id.list_episode_row_expandable_container);
+   				 
+    		        // Creating the expand animation for the item
+    		        ExpandAnimation expandAni = new ExpandAnimation(episodeExpandableArea, 100);
+    		 
+    		        // Start the animation on the toolbar
+    		        episodeExpandableArea.startAnimation(expandAni);
+					return true;
+				}
+        	});
+    	}
+    	else
+    	{
+    		//TODO: Show some kind of "list is empty" text instead of the mainlistview here.
+    	}
     }
     
     private void setupHelper()

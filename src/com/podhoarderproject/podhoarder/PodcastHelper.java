@@ -49,6 +49,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.widget.ListAdapter;
 import android.widget.Toast;
@@ -65,25 +66,27 @@ import android.widget.Toast;
  */
 public class PodcastHelper
 {
-	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PodcastHelper";
+	private static final 	String 						LOG_TAG = "com.podhoarderproject.podhoarder.PodcastHelper";
 	
-	public static final SimpleDateFormat xmlFormat = new SimpleDateFormat("EEE, d MMM yyy HH:mm:ss Z");
-	public static final SimpleDateFormat correctFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");
+	public 	static final 	SimpleDateFormat 			xmlFormat = new SimpleDateFormat("EEE, d MMM yyy HH:mm:ss Z");	//Used when formatting timestamps in .xml's
+	public 	static final 	SimpleDateFormat 			correctFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");	//Used when formatting timestamps in .xml's
 	
-	private final String strPref_Download_ID = "PREF_DOWNLOAD_ID";	//Used with the DownloadManager to store request ID in SharedPreferences.
+	private final 			String 						strPref_Download_ID = "PREF_DOWNLOAD_ID";	//Used with the DownloadManager to store request ID in SharedPreferences.
 	
-	SharedPreferences preferenceManager;
-	DownloadManager downloadManager;
+	private 				SharedPreferences 			preferenceManager;
+	private 				DownloadManager 			downloadManager;
 
-	private FeedDBHelper fDbH;
-	private EpisodeDBHelper eph;
-	public PlaylistDBHelper plDbH;
-	public FeedListAdapter listAdapter;	
-	public LatestEpisodesListAdapter latestEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
-	public DragNDropAdapter playlistAdapter;	//A list containing all the downloaded episodes.
-	private Context context;
-	private String storagePath;
-	private String podcastDir;
+	private 				FeedDBHelper 				fDbH;	//Handles saving the Feed objects to a database for persistence.
+	private 				EpisodeDBHelper 			eph;	//Handles saving the Episode objects to a database for persistence.
+	public 					PlaylistDBHelper 			plDbH;	//Handles saving the current playlist to a database for persistence.
+	public 					FeedListAdapter 			listAdapter;	//An expandable list containing all the Feed and their respective Episodes.	
+	public 					LatestEpisodesListAdapter 	latestEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
+	public 					DragNDropAdapter 			playlistAdapter;	//A list containing all the downloaded episodes.
+	private 				Context	 					context;
+	private 				String 						storagePath;
+	private 				String 						podcastDir;
+	
+	private					SwipeRefreshLayout			refreshLayout;
 
 	public PodcastHelper(Context ctx)
 	{
@@ -176,7 +179,11 @@ public class PodcastHelper
 				.get(r));
 		this.refreshLists();
 	}
-
+	
+	/**
+	 * Calls a background thread that refreshes all the Feed objects in the db.
+	 * (Make sure that before calling this, you have called setRefreshLayout so the Task can update the UI once done.)
+	 */
 	public void refreshFeeds()
 	{
 		List<String> urls = new ArrayList<String>();
@@ -390,6 +397,8 @@ public class PodcastHelper
 		Toast notification = Toast.makeText(context, "Feeds refreshed!",
 				Toast.LENGTH_SHORT);
 		notification.show();
+		//Disable the "refreshing" animation.
+		this.refreshLayout.setRefreshing(false);
 		this.refreshLists();
 	}	
 	
@@ -608,7 +617,7 @@ public class PodcastHelper
 
 	/**
 	 * Task used for refreshing Feeds.
-	 * @param String URL of the Feed to be refreshed.
+	 * @param List of Strings containing URLs of the Feeds to be refreshed.
 	 * @param Integer Progress Indicator.
 	 * @return A Feed object.
 	 * @author Emil
@@ -646,7 +655,7 @@ public class PodcastHelper
 						doc = db.parse(url.openStream());
 						doc.getDocumentElement().normalize();
 
-						// This is the root node of each section you want to parse
+						// This is the root node.
 						NodeList itemLst = doc.getElementsByTagName("item");
 						NodeList itemLst2 = doc.getElementsByTagName("channel");
 
@@ -663,9 +672,7 @@ public class PodcastHelper
 						this.category = ((Element) itemLst2.item(0))
 								.getElementsByTagName("itunes:category").item(0)
 								.getAttributes().item(0).getNodeValue();
-						this.img = ((Element) itemLst2.item(0))
-								.getElementsByTagName("itunes:image").item(0)
-								.getAttributes().item(0).getNodeValue();
+						
 						percentIncrement = 10.0;
 						publishProgress((int) percentIncrement);
 						
@@ -702,6 +709,7 @@ public class PodcastHelper
 								{
 									ep.setTitle(title.item(0).getChildNodes()
 											.item(0).getNodeValue());
+									if (ep.getTitle().equals(getFeedWithURL(feedLink).getEpisodes().get(i).getTitle())) break;	//The newest Episode is already in our Feeds list. No need to keep updating this Feed.
 								} catch (NullPointerException e)
 								{
 									e.printStackTrace();
@@ -750,6 +758,11 @@ public class PodcastHelper
 							publishProgress((int) percentIncrement);
 							eps.add(ep);
 						}
+						
+						//We process the image last, because it can potentially take a lot of time and if we discover that we don't need to update anything, this shouldn't be done at all.
+						this.img = ((Element) itemLst2.item(0))
+								.getElementsByTagName("itunes:image").item(0)
+								.getAttributes().item(0).getNodeValue();
 					}
 
 				} catch (MalformedURLException e)
@@ -895,6 +908,29 @@ public class PodcastHelper
 		return retVal;
 	}
 	
+	private boolean FeedHasEpisode(Feed feed, String episodeTitle)
+	{
+		for (Episode ep : feed.getEpisodes())
+		{
+			if (episodeTitle.equals(ep.getTitle())) return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Get a Feed by supplying an URL. If the URL matches any of the Feeds currently in the db, said Feed is returned.
+	 * @param url URL of the Feed that should be returned.
+	 * @return The Feed with a matching URL, or null if no match is found.
+	 */
+	private Feed getFeedWithURL(String url)
+	{
+		for (Feed currentFeed : this.listAdapter.feeds)
+		{
+			if (url.equals(currentFeed.getLink())) return currentFeed;
+		}
+		return null;
+	}
+	
 	/**
 	 * Checks the status of the latest download.
 	 * @param feedId Id of the Feed that the Podcast belongs to.
@@ -999,6 +1035,15 @@ public class PodcastHelper
 					   break;
 			 }
 		 }
+	}
+	
+	/**
+	 * Use this to set the current Refresh layout. It will be updated once the FeedRefreshTask is completed.
+	 * @param layout	The view to update once the Task is finished.
+	 */
+	public void setRefreshLayout(SwipeRefreshLayout layout)
+	{
+		this.refreshLayout = layout;
 	}
 
 	/**
