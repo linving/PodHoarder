@@ -372,34 +372,43 @@ public class PodcastHelper
 	private void refreshFeedObjects(List<Feed> feeds) throws SQLiteConstraintException
 	{
 		//TODO: Make sure this works correctly.
-		for (Feed newFeed : feeds)
+		try
 		{
-			int i=0;
-			//Get the Feed that's stored locally with the same Id.
-			Feed oldFeed = this.fDbH.getFeedByURL(newFeed.getLink());
-			//If the new Episode list has more Episodes, we need to add the new Episodes to the db.
-			if (newFeed.getEpisodes().size() > oldFeed.getEpisodes().size())
+			for (Feed newFeed : feeds)
 			{
-				//i becomes the index of where the new Episodes start differing from the old ones.
-				i = (newFeed.getEpisodes().size() - oldFeed.getEpisodes().size()) - 1;
-				//We should keep looping until we have added newFeed.Episodes[0].
-				while (i >= 0)
+				int i=0;
+				//Get the Feed that's stored locally with the same Id.
+				Feed oldFeed = this.fDbH.getFeedByURL(newFeed.getLink());
+				//If the new Episode list has more Episodes, we need to add the new Episodes to the db.
+				if (newFeed.getEpisodes().size() > oldFeed.getEpisodes().size())
 				{
-					//Add the new Episode at index 0 (first)
-					oldFeed.getEpisodes().add(0, newFeed.getEpisodes().get(i));
-					i--;
+					//i becomes the index of where the new Episodes start differing from the old ones.
+					i = (newFeed.getEpisodes().size() - oldFeed.getEpisodes().size()) - 1;
+					//We should keep looping until we have added newFeed.Episodes[0].
+					while (i >= 0)
+					{
+						//Add the new Episode at index 0 (first)
+						oldFeed.getEpisodes().add(0, newFeed.getEpisodes().get(i));
+						i--;
+					}
+					oldFeed.getFeedImage().imageObject().getBitmap().recycle();
+					//Update the Feed with the new Episodes in the db.
+					this.fDbH.updateFeed(oldFeed);
 				}
-				oldFeed.getFeedImage().imageObject().getBitmap().recycle();
-				//Update the Feed with the new Episodes in the db.
-				this.fDbH.updateFeed(oldFeed);
 			}
+			//TODO: Replace with String resource.
+			Toast.makeText(context, "Feeds refreshed!", Toast.LENGTH_SHORT).show();
+			//Disable the "refreshing" animation.
+			this.refreshLayout.setRefreshing(false);
+			this.refreshLists();
 		}
-		Toast notification = Toast.makeText(context, "Feeds refreshed!",
-				Toast.LENGTH_SHORT);
-		notification.show();
-		//Disable the "refreshing" animation.
-		this.refreshLayout.setRefreshing(false);
-		this.refreshLists();
+		catch (Exception ex)
+		{
+			//TODO: Replace with String resource.
+			Toast.makeText(context, "Refresh failed!", Toast.LENGTH_SHORT).show();
+			//Disable the "refreshing" animation.
+			this.refreshLayout.setRefreshing(false);
+		}
 	}	
 	
 	/**
@@ -806,11 +815,17 @@ public class PodcastHelper
 			catch (CursorIndexOutOfBoundsException e)
 			{
 				Log.e(LOG_TAG,"CursorIndexOutOfBoundsException: Refresh failed.");
+				refreshLayout.setRefreshing(false);
+				//TODO: Replace with String resource
+				Toast.makeText(context, "Refresh failed!", Toast.LENGTH_SHORT).show();
 				cancel(true);
 			} 
 			catch (SQLiteConstraintException e)
 			{
 				Log.e(LOG_TAG,"SQLiteConstraintException: Refresh failed.");
+				refreshLayout.setRefreshing(false);
+				//TODO: Replace with String resource
+				Toast.makeText(context, "Refresh failed!", Toast.LENGTH_SHORT).show();
 				cancel(true);
 			}
 		}
