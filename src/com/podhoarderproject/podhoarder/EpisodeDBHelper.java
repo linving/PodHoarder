@@ -233,7 +233,7 @@ public class EpisodeDBHelper
 	{
 		int retVal=0;
 		this.db = this.dbHelper.getWritableDatabase();
-		retVal = this.db.delete(TABLE_NAME, columns[6] + "=" + feedId, null);
+		retVal = this.db.delete(TABLE_NAME, columns[8] + "=" + feedId, null);
 		this.db.close();
 		return retVal;
 	}	

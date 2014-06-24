@@ -43,7 +43,6 @@ public class PlayerFragment extends Fragment
 	private PodcastHelper helper;
 	
 	private PodHoarderService podService;
-	private boolean musicBound = false;
 	
 	//UI Elements
 	public ToggleButton playPauseButton;
@@ -72,7 +71,6 @@ public class PlayerFragment extends Fragment
     private void setServiceVars()
     {
     	this.podService = ((com.podhoarderproject.podhoarder.MainActivity)this.getActivity()).getPodService();
-    	this.musicBound = ((com.podhoarderproject.podhoarder.MainActivity)this.getActivity()).isMusicBound();
     }
     
     private void setupMediaControls()
@@ -165,18 +163,6 @@ public class PlayerFragment extends Fragment
 		//The service should start the episode.
 		this.podService.startEpisode(epPos);
 	}
-	
-	//play next
-	private void playNext()
-	{
-		this.podService.playNext();
-	}
-	 
-	//play previous
-	private void playPrev()
-	{
-		this.podService.playPrev();
-	}	
 	
 	//UI Logic
 	//List Listeners

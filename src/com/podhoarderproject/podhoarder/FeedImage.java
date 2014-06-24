@@ -4,10 +4,12 @@ package com.podhoarderproject.podhoarder;
  * 2013-03-15
  */
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -86,17 +88,8 @@ public class FeedImage
 	 */
 	private void loadImage(String url)
 	{
-		String fName = this.feedId + ".jpg";
-		try 
-	    {
-	    	this.imageObject = BitmapFactory.decodeStream(ctx.openFileInput(fName));
-	    	Log.d(LOG_TAG, "File loaded from local storage.");
-	    } 
-	    catch (IOException e) 
-	    {
-	    	new BitmapDownloaderTask().execute(url);
-	    	Log.d(LOG_TAG, "File downloaded from URL.");
-	    }
+		this.imageObject = decodeSampledBitmap(this.feedId + ".jpg", 75, 75);
+		Log.d(LOG_TAG, "File loaded from local storage.");
 	}
 
 	 /**
@@ -155,9 +148,18 @@ public class FeedImage
             HttpResponse response = client.execute(getRequest);
             final int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK) 
-            { 
-                Log.e(LOG_TAG, "Error " + statusCode + " while retrieving bitmap from " + url); 
-                return null;
+            {            	
+            	Header[] headers = response.getHeaders("Location");
+            	if (headers != null && headers.length != 0) {
+            		Log.e(LOG_TAG, "Error " + statusCode + " while retrieving bitmap from " + url + ". Trying to follow redirect..."); 
+                    String newUrl = headers[headers.length - 1].getValue();	//Extract the redirect URL from the HTTP Headers.
+                    return downloadBitmap(newUrl);	 // Call this method again with new URL.
+                } 
+            	else 
+            	{
+            		Log.e(LOG_TAG, "Error " + statusCode + " while retrieving bitmap from " + url); 
+                    return null;
+                }
             }
             final HttpEntity entity = response.getEntity();
             if (entity != null) 
@@ -197,5 +199,57 @@ public class FeedImage
     public String getImageURL()
     {
     	return this.imageURL;
+    }
+
+    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) 
+	{
+	    // Raw height and width of image
+	    final int height = options.outHeight;
+	    final int width = options.outWidth;
+	    int inSampleSize = 1;
+	
+	    if (height > reqHeight || width > reqWidth) {
+	
+	        final int halfHeight = height / 2;
+	        final int halfWidth = width / 2;
+	
+	        // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+	        // height and width larger than the requested height and width.
+	        while ((halfHeight / inSampleSize) > reqHeight
+	                && (halfWidth / inSampleSize) > reqWidth) {
+	            inSampleSize *= 2;
+	        }
+	    }
+	
+	    return inSampleSize;
+	}
+    
+    private Bitmap decodeSampledBitmap(String fileName, int reqWidth, int reqHeight) 
+    {
+        
+        try
+		{
+        	// First decode with inJustDecodeBounds=true to check dimensions
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            
+            options.inJustDecodeBounds = true;
+            
+			BitmapFactory.decodeStream(ctx.openFileInput(fileName), null, options);
+			
+			// Calculate inSampleSize
+	        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+	        // Decode bitmap with inSampleSize set
+	        options.inJustDecodeBounds = false;
+	        
+	        return BitmapFactory.decodeStream(ctx.openFileInput(fileName), null, options);
+		} 
+        catch (FileNotFoundException e)
+		{
+			Log.e(LOG_TAG, "File not found when trying to open " + this.feedId + ".jpg");
+			return null;
+		}
+
+        
     }
 }

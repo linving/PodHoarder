@@ -15,6 +15,7 @@
     
     <!-- Feed tab -->
     <string name="feed_tab">Podcasts</string>
+    <string name="fragment_feed_list_add_row">Add New Podcast</string>
     
     <!-- Episodes tab -->
     <string name="episodes_tab">Episodes</string>
@@ -26,8 +27,12 @@
     <!-- Settings -->
     <string name="settings_tab">Settings</string>
     
+    <!-- Add Feed Popup Window -->
+    <string name="popup_window_title">Add Feed</string>
+    <string name="popup_window_ok_button">OK</string>
+    <string name="popup_window_cancel_button">Cancel</string>
+    
     <!--  Notifications -->
     <string name="notification_download">Download</string>
     <string name="notification_playback">Playback</string>
-
 </resources>

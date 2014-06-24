@@ -90,7 +90,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     	if(playIntent==null)
 		{
 			playIntent = new Intent(this, PodHoarderService.class);
-			boolean ret = this.bindService(playIntent, podConnection, Context.BIND_AUTO_CREATE);
+			boolean isServiceBound = this.bindService(playIntent, podConnection, Context.BIND_AUTO_CREATE);
 			this.startService(playIntent);
 		}
     
@@ -102,6 +102,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     	//this.helper.addFeed("http://smodcast.com/channels/hollywood-babble-on/feed/");
     	//this.helper.addFeed("http://feeds.feedburner.com/filipochfredrik/podcast?format=xml");
     	//this.helper.addFeed("http://smodcast.com/channels/fatman-on-batman/feed/");
+    	//this.helper.deleteFeed(1);
     }
     
     @Override

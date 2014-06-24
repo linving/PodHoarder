@@ -65,6 +65,12 @@
     <color name="fragment_latest_list_episode_play_button_background">#000000</color>
     <color name="fragment_latest_list_episode_play_button_text">#FFFFFF</color>
     
+    <!-- Add Feed Popup Window -->
+    <color name="popup_add_feed_searchbar_textfield_foreground">#000000</color>
+    <color name="popup_add_feed_searchbar_textfield_background">#FFFFFF</color>
+    <color name="popup_add_feed_searchresults_list_row_title">#FFFFFF</color>
+    <color name="popup_add_feed_searchresults_list_row_description">#FFFFFF</color>
+    
     <!-- Settings -->
     <color name="settings_background">#FFFFFF</color>
     

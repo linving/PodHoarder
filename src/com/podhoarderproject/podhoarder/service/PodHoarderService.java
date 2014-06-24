@@ -98,7 +98,8 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	@Override
 	public void onPrepared(MediaPlayer player)
 	{
-		player.seekTo(this.currentEpisode.getElapsedTime());
+		if (this.currentEpisode.getElapsedTime() != this.currentEpisode.getTotalTime())	player.seekTo(this.currentEpisode.getElapsedTime());	//If we haven't listened to the compelte Episode, seek to the elapsed time stored in the db.
+		else player.seekTo(0);	//If we have listened to the entire Episode, the player should start over.
 		player.start();
 		Intent notIntent = new Intent(this, MainActivity.class);
 		notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -312,9 +313,12 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	
 	public void playNext()
 	{
-		this.epPos++;
-		if(this.epPos >= this.playList.size()) this.epPos=0;
-		startEpisode(this.epPos);
+		if(this.epPos != this.playList.size()-1 || this.playList.size() > 0)	//If we've reached the end of the playlist, or the playlist is empty, we shouldn't play the next episode.
+		{
+			this.epPos++;
+			if(this.epPos >= this.playList.size()) this.epPos=0;
+			startEpisode(this.epPos);
+		}
 	}
 	
 	public boolean shouldSaveElapsedTime()

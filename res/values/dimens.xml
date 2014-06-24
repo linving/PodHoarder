@@ -27,6 +27,11 @@
     <dimen name="fragment_player_playerlist_row_episode_title">16sp</dimen>
     <dimen name="fragment_player_playerlist_row_podcast_title">12sp</dimen>
     
+    <!-- Add Feed Popup Window -->
+    <dimen name="popup_add_feed_searchbar_textfield_textSize">12sp</dimen>
+    <dimen name="popup_add_feed_searchresults_list_row_title">16sp</dimen>
+    <dimen name="popup_add_feed_searchresults_list_row_description">12sp</dimen>
+    
     <!-- Circular Progress Bar -->
     <dimen name="circular_progress_bar_foreground">1dp</dimen>
     <dimen name="circular_progress_bar_background">1dp</dimen>

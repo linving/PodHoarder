@@ -51,7 +51,6 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
-import android.widget.ListAdapter;
 import android.widget.Toast;
 
 /**
@@ -584,7 +583,6 @@ public class PodcastHelper
 				Toast notification = Toast.makeText(context, "Feed added!",
 						Toast.LENGTH_LONG);
 				notification.show();
-				refreshLists();
 			} 
 			catch (CursorIndexOutOfBoundsException e)
 			{
@@ -718,7 +716,12 @@ public class PodcastHelper
 								{
 									ep.setTitle(title.item(0).getChildNodes()
 											.item(0).getNodeValue());
-									if (ep.getTitle().equals(getFeedWithURL(feedLink).getEpisodes().get(i).getTitle())) break;	//The newest Episode is already in our Feeds list. No need to keep updating this Feed.
+									Feed currentFeed = getFeedWithURL(feedLink);
+									if (currentFeed != null)
+									{
+										if (ep.getTitle().equals(currentFeed.getEpisodes().get(i).getTitle())) break;	//The newest Episode is already in our Feeds list. No need to keep updating this Feed.
+										if (ep.getTitle().equals(currentFeed.getEpisodes().get(((currentFeed.getEpisodes().size()-1)-i)).getTitle())) break;
+									}
 								} catch (NullPointerException e)
 								{
 									e.printStackTrace();
@@ -793,8 +796,11 @@ public class PodcastHelper
 				{
 					cancel(true);
 				}
-				feeds.add(new Feed(this.title, this.author, this.description,
-						this.link, this.category, this.img, false, eps, context));
+				if (eps.size() > 0)	//If we haven't found any new Episodes, there's no needs to add the entire Feed object and process it. 
+				{
+					feeds.add(new Feed(this.title, this.author, this.description,
+							this.link, this.category, this.img, false, eps, context));
+				}
 			}
 			
 			return feeds;

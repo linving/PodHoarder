@@ -21,14 +21,11 @@ import java.util.List;
 import com.podhoarderproject.podhoarder.Episode;
 import com.podhoarderproject.podhoarder.MainActivity;
 import com.podhoarderproject.podhoarder.R;
-import com.podhoarderproject.podhoarder.service.PodHoarderService;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
