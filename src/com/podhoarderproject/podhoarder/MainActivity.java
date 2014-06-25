@@ -102,7 +102,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     	//this.helper.addFeed("http://smodcast.com/channels/hollywood-babble-on/feed/");
     	//this.helper.addFeed("http://feeds.feedburner.com/filipochfredrik/podcast?format=xml");
     	//this.helper.addFeed("http://smodcast.com/channels/fatman-on-batman/feed/");
-    	//this.helper.deleteFeed(1);
+    	//this.helper.deleteFeed(9);
+    	//this.helper.deleteFeed(10);
     }
     
     @Override

@@ -206,6 +206,7 @@ public class EpisodeDBHelper
 	 */
 	public boolean deleteEpisode(Episode ep) 
 	{
+		//TODO: Make sure that Episodes also delete the associated files if they have been downloaded.
 		boolean retCheck = false;
 	    int id = ep.getEpisodeId();
 	    this.db = this.dbHelper.getWritableDatabase();
@@ -231,6 +232,7 @@ public class EpisodeDBHelper
 	 */
 	public int deleteEpisodes(int feedId)
 	{
+		//TODO: Make sure that all downloaded Episode files are also deleted.
 		int retVal=0;
 		this.db = this.dbHelper.getWritableDatabase();
 		retVal = this.db.delete(TABLE_NAME, columns[8] + "=" + feedId, null);

@@ -217,7 +217,7 @@ public class PodcastHelper
 			    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 			}
 			//TODO: If there is no sdcard, DownloadManager will throw an exception because it cannot save to a non-existing directory. Make sure the directory is valid or something.
-			request.setDestinationInExternalPublicDir(this.storagePath, this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle().replace(":", " -")+".mp3");
+			request.setDestinationInExternalPublicDir(this.storagePath, sanitizeFileName(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle())  + ".mp3");
 			
 			// register broadcast receiver for when the download is done.
 			BroadcastReceiver onComplete=new BroadcastReceiver() {
@@ -254,7 +254,7 @@ public class PodcastHelper
 		//update list adapter object
 		Episode currentEpisode = this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos);
 		
-		currentEpisode.setLocalLink(this.podcastDir + "/" + this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle().replace(":", " -")+".mp3");
+		currentEpisode.setLocalLink(this.podcastDir + "/" + sanitizeFileName(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle()) + ".mp3");
 		
 		//If the total duration of the .mp3 file isn't already stored, we need to access the file to retrieve it.
 		if (currentEpisode.getTotalTime() == 0)
@@ -273,6 +273,14 @@ public class PodcastHelper
 		this.eph.updateEpisode(currentEpisode);
 		
 		this.refreshLists();
+	}
+	
+	private static String sanitizeFileName(String fileName)
+	{
+		String retString = fileName;
+		retString = retString.replaceAll("[^a-zA-Z0-9_\\-\\.]", "_");
+		if (retString.length() > 30) retString = retString.substring(0, 25);
+		return retString;
 	}
 	
 	/**
@@ -564,7 +572,7 @@ public class PodcastHelper
 				cancel(true);
 			}
 			this.newFeed = new Feed(this.title, this.author, this.description,
-					this.link, this.category, this.img, false, eps, context);
+					this.link, this.category, this.img, true, eps, context);
 			return newFeed;
 		}
 

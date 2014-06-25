@@ -46,7 +46,7 @@ public class FeedImage
 		this.imageURL = onlineURL;
 		this.imageObject = null;
 		this.ctx = ctx;
-		if (this.feedId>0 && shouldCreateImage)
+		if (this.feedId > 0 && shouldCreateImage)
 		{
 			this.loadImage(onlineURL);
 		}
@@ -246,7 +246,8 @@ public class FeedImage
 		} 
         catch (FileNotFoundException e)
 		{
-			Log.e(LOG_TAG, "File not found when trying to open " + this.feedId + ".jpg");
+			new BitmapDownloaderTask().execute(this.imageURL);
+	    	Log.d(LOG_TAG, "File downloaded from URL.");
 			return null;
 		}
 
