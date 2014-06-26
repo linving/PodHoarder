@@ -41,11 +41,11 @@
     <color name="fragment_feeds_list_podcast_title">#FFFFFF</color>
     <color name="fragment_feeds_list_podcast_count">#FFFFFF</color>
     <color name="fragment_feeds_list_podcast_description">#FFFFFF</color>
+    <color name="fragment_feeds_list_feed_row_deleteBtn_foreground">#FFFFFF</color>
+    <color name="fragment_feeds_list_feed_row_deleteBtn_background">#000000</color>
     <color name="fragment_feeds_list_episode_title">#FFFFFF</color>
     <color name="fragment_feeds_list_episode_age">#FFFFFF</color>
     <color name="fragment_feeds_list_episode_description">#FFFFFF</color>
-    <color name="fragment_feeds_list_episode_unlistened">#FFFFFF</color>
-    <color name="fragment_feeds_list_episode_listened">#FFFFFF</color>
     
     <!-- Latest Episodes Fragment-->
     <color name="fragment_latest_background">#000000</color>

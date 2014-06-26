@@ -111,7 +111,9 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 	        viewHolder = new FeedViewHolderItem();
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.list_feed_row_title);
 	        viewHolder.feedNumberOfEpisodes = (TextView) convertView.findViewById(R.id.list_feed_row_numberOfEpisodes);
+	        viewHolder.feedDescription = (TextView) convertView.findViewById(R.id.list_feed_row_description);
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.list_feed_row_image);
+	        viewHolder.deleteFeedBtn = (Button) convertView.findViewById(R.id.list_feed_row_deleteBtn);
 	        
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
@@ -130,6 +132,29 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 			//TODO: Replace with String resource.
 			viewHolder.feedNumberOfEpisodes.setText(currentFeed.getEpisodes().size() + " episodes");	//Set number of Episodes
 			viewHolder.feedImage.setBackground(currentFeed.getFeedImage().imageObject());
+			
+			if (isExpanded)
+			{
+				viewHolder.feedDescription.setVisibility(View.VISIBLE);
+				viewHolder.feedDescription.setText(currentFeed.getDescription());
+				
+				final Feed curFeed = currentFeed;
+				viewHolder.deleteFeedBtn.setVisibility(View.VISIBLE);
+				viewHolder.deleteFeedBtn.setOnClickListener(new OnClickListener() 
+				   { 
+				       @Override
+				       public void onClick(View v) 
+				       {
+				    	   ((MainActivity)context).helper.deleteFeed(curFeed.getFeedId());
+				       }
+
+				   });
+			}
+			else
+			{
+				viewHolder.feedDescription.setVisibility(View.GONE);
+				viewHolder.deleteFeedBtn.setVisibility(View.GONE);
+			}
 		}
 		return convertView;
 	}
@@ -272,6 +297,8 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 	static class FeedViewHolderItem {	
 	    TextView feedTitle;
 	    TextView feedNumberOfEpisodes;
+	    TextView feedDescription;
 	    ImageView feedImage;
+	    Button deleteFeedBtn;
 	}
 }

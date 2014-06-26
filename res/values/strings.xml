@@ -16,6 +16,7 @@
     <!-- Feed tab -->
     <string name="feed_tab">Podcasts</string>
     <string name="fragment_feed_list_add_row">Add New Podcast</string>
+    <string name="fragment_feeds_list_feed_row_deleteBtn">Delete</string>
     
     <!-- Episodes tab -->
     <string name="episodes_tab">Episodes</string>
