@@ -22,6 +22,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -507,8 +508,7 @@ public class PodcastHelper
 							//URL LINK
 							try
 							{
-								ep.setLink(link.item(0).getAttributes().item(0)
-										.getNodeValue());
+								ep.setLink(link.item(0).getAttributes().getNamedItem("url").getNodeValue());	//Extract the attributes from the NodeList, and then extract value of the attribute named "url".
 							} catch (NullPointerException e)
 							{
 								e.printStackTrace();
@@ -737,8 +737,7 @@ public class PodcastHelper
 
 								try
 								{
-									ep.setLink(link.item(0).getAttributes().item(0)
-											.getNodeValue());
+									ep.setLink(link.item(0).getAttributes().getNamedItem("url").getNodeValue());	//Extract the attributes from the NodeList, and then extract value of the attribute named "url".
 								} catch (NullPointerException e)
 								{
 									e.printStackTrace();
