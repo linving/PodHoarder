@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -25,6 +26,7 @@ import android.content.ServiceConnection;
  */
 public class MainActivity extends FragmentActivity implements ActionBar.TabListener
 {
+	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.MainActivity";
 	//UI Elements
     private ViewPager viewPager;
     private TabsPagerAdapter mAdapter;
@@ -215,6 +217,24 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	public boolean isMusicBound()
 	{
 		return musicBound;
+	}
+	
+	@Override
+	public void onNewIntent(Intent intent)
+	{
+	    super.onNewIntent(intent);
+
+	    // your code here
+	    String data = (String) intent.getExtras().get("do_action");
+	    Log.i(LOG_TAG, "Received intent: " + data);
+	    if (data.equals("pause"))
+	    {
+	    	this.podService.pause();
+	    }
+	    else if (data.equals("play"))
+	    {
+	    	this.podService.resume();
+	    }
 	}
 
 }

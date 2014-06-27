@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import java.util.List;
 
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -24,19 +22,18 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 {
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PodHoarderService";
 	
-	private static final int NOTIFY_ID=1;
-	
 	
 	private 	MediaPlayer 	player;								//media player
 	private 	List<Episode> 	playList;							//song list
 	private 	int 			epPos;								//current position in the playList.
 	public 		Episode 		currentEpisode;						//The Episode object that's currently being played.
 	private 	final IBinder 	musicBind = new PodHoarderBinder();	//Binder object
-	private 	PodcastHelper 	helper;								//Podcast helper.
+	public 		PodcastHelper 	helper;								//Podcast helper.
 	private 	int 			timeTracker = 0;					//Integer for keeping track of when to save elapsedTime to db.
 	private 	boolean 		streaming = false;					//Boolean to keep track of whether the player is streaming or playing a local file.
 	private 	boolean 		updateBlocked = false;				//Boolean to keep track of whether the UI should be updated or not.
 	private 	Handler 		handler;							//Handler object (for threading)
+	private		ServiceNotification	notification;
 	
 	//Fragment UI Elements
 	private 	ToggleButton	playPauseButton;
@@ -101,22 +98,8 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		if (this.currentEpisode.getElapsedTime() != this.currentEpisode.getTotalTime())	player.seekTo(this.currentEpisode.getElapsedTime());	//If we haven't listened to the compelte Episode, seek to the elapsed time stored in the db.
 		else player.seekTo(0);	//If we have listened to the entire Episode, the player should start over.
 		player.start();
-		Intent notIntent = new Intent(this, MainActivity.class);
-		notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		PendingIntent pendInt = PendingIntent.getActivity(this, 0,
-		  notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-		 
-		Notification.Builder builder = new Notification.Builder(this);
-		 
-		builder.setContentIntent(pendInt)
-		  .setSmallIcon(R.drawable.ic_launcher)
-		  .setTicker(this.currentEpisode.getTitle())
-		  .setOngoing(true)
-		  .setContentTitle(this.getString(R.string.app_name) + " " + this.getString(R.string.notification_playback))
-		  .setContentText(this.currentEpisode.getTitle());
-		Notification not = builder.build();
-		startForeground(NOTIFY_ID, not);
-		
+		setupNotification();
+		this.notification.showNotify(this);
 		if (streaming && this.currentEpisode.getTotalTime() == 0) 
 		{
 			this.currentEpisode.setTotalTime(player.getDuration());
@@ -132,6 +115,32 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		
 	}
 	
+	private void setupNotification()
+	{
+		this.notification = new ServiceNotification(this);
+	}
+	
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId)
+	{
+		super.onStartCommand(intent, flags, startId);
+		if (intent.getAction() != null)	//Make sure the Intent contains any data.
+		{
+			if (intent.getAction().equals("play"))	//The play button has been pressed.
+			{
+				this.notification.showNotify(this);
+				this.resume();
+			}
+			else if (intent.getAction().equals("pause")) //The pause button has been pressed.
+			{
+				this.notification.pauseNotify(this);
+				this.pause();
+			}
+		}
+		return 0;
+	}
+	
+		
 	/**
 	 * Updates the UI elements in the Player Fragment (title, runtime etc)
 	 */
@@ -258,6 +267,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	{
 		player.pause();
 		playPauseButton.setChecked(false);
+		this.notification.pauseNotify(this);
 		handler.post(SingleUpdateRunnable);
 	}
 	
@@ -265,6 +275,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	{
 		player.start();
 		playPauseButton.setChecked(true);
+		this.notification.showNotify(this);
 		handler.post(UpdateRunnable);
 	}
 	
@@ -286,6 +297,11 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public int getDur()
 	{
 		return player.getDuration();
+	}
+	
+	public int getPlaylistSize()
+	{
+		return this.playList.size();
 	}
 	 
 	public boolean isPng()

@@ -71,6 +71,11 @@
     <color name="popup_add_feed_searchresults_list_row_title">#FFFFFF</color>
     <color name="popup_add_feed_searchresults_list_row_description">#FFFFFF</color>
     
+    <!-- Service Notification -->
+    <color name="service_notification_title">#FFFFFF</color>
+	<color name="service_notification_subtitle">#FFFFFF</color>
+	<color name="service_notification_apptitle">#FFFFFF</color>
+	
     <!-- Settings -->
     <color name="settings_background">#FFFFFF</color>
     

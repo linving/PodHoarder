@@ -36,5 +36,8 @@
     <dimen name="circular_progress_bar_foreground">1dp</dimen>
     <dimen name="circular_progress_bar_background">1dp</dimen>
     
-
+    <!-- Service Notification -->
+    <dimen name="service_notification_title">16sp</dimen>
+	<dimen name="service_notification_subtitle">12sp</dimen>
+	<dimen name="service_notification_apptitle">12sp</dimen>
 </resources>

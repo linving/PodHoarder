@@ -239,13 +239,23 @@ public class PlayerFragment extends Fragment
             {
                 //Button is ON
                 // Do Something 
-            	resume();
+            	if (podService.getPlaylistSize() > 0)	//First we have to make sure that there are any episodes in the list.
+            	{
+            		if (podService.currentEpisode == null)	//If there is no current episode assigned, we do it manually and set it to the first item in the playlist.
+                	{
+                		podService.startEpisode(0);
+                	}
+                	else resume();
+            	}
             }
             else
             {
             	//Button is OFF
                 // Do Something
-            	pause();
+            	if (podService.currentEpisode != null)
+            	{
+            		pause();	
+            	}
             }
             
         }
