@@ -22,7 +22,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -147,39 +146,6 @@ public class PodcastHelper
 		this.refreshLists();
 	}
 
-	/**
-	 * Sets the time listened property of a specific episode.
-	 * 
-	 * @param feedId
-	 *            Id of the Feed to update.
-	 * @param episodeId
-	 *            unique identifier of the Episode that is to be updated.
-	 * @param elapsedTime
-	 *            number of milliseconds listened.
-	 */
-	public void updateEpisodeListened(int feedId, int episodeId, int elapsedTime)
-	{
-		int i = 0;
-		int r = 0;
-		while (this.listAdapter.feeds.get(i).getFeedId() != feedId
-				&& i < this.listAdapter.feeds.size())
-		{
-			i++;
-		}
-		while (this.listAdapter.feeds.get(i).getEpisodes().get(r)
-				.getEpisodeId() != episodeId
-				&& r < this.listAdapter.feeds.get(i).getEpisodes().size())
-		{
-			r++;
-		}
-		this.listAdapter.feeds.get(i).getEpisodes().get(r)
-				.setElapsedTime(elapsedTime);
-		this.eph.getEpisode(episodeId);
-		this.eph.updateEpisode(this.listAdapter.feeds.get(i).getEpisodes()
-				.get(r));
-		this.refreshLists();
-	}
-	
 	/**
 	 * Calls a background thread that refreshes all the Feed objects in the db.
 	 * (Make sure that before calling this, you have called setRefreshLayout so the Task can update the UI once done.)
@@ -316,7 +282,6 @@ public class PodcastHelper
 		{
 			Log.e(LOG_TAG, file.getAbsolutePath() + " not deleted. Make sure it exists.");
 		}
-		
 		this.refreshLists();
 	}
 	

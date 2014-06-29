@@ -16,6 +16,7 @@
 
 package com.podhoarderproject.ericharlow.DragNDrop;
 
+import android.R;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
@@ -71,7 +72,7 @@ public class DragNDropListView extends ListView {
 
 		if (!mDragMode) 
 			return super.onTouchEvent(ev);
-
+		int separatorPos = 0;	//This is used to indicate where the dragged view will be placed by adding some bottom padding to the view
 		switch (action) {
 			case MotionEvent.ACTION_DOWN:
 				mStartPosition = pointToPosition(x,y);
