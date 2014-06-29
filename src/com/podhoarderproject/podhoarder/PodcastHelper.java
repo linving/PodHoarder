@@ -384,25 +384,17 @@ public class PodcastHelper
 		{
 			for (Feed newFeed : feeds)
 			{
-				int i=0;
 				//Get the Feed that's stored locally with the same Id.
 				Feed oldFeed = this.fDbH.getFeedByURL(newFeed.getLink());
 				//If the new Episode list has more Episodes, we need to add the new Episodes to the db.
-				if (newFeed.getEpisodes().size() > oldFeed.getEpisodes().size())
+				for (int i = 0; i<newFeed.getEpisodes().size(); i++)
 				{
-					//i becomes the index of where the new Episodes start differing from the old ones.
-					i = (newFeed.getEpisodes().size() - oldFeed.getEpisodes().size()) - 1;
-					//We should keep looping until we have added newFeed.Episodes[0].
-					while (i >= 0)
-					{
-						//Add the new Episode at index 0 (first)
-						oldFeed.getEpisodes().add(0, newFeed.getEpisodes().get(i));
-						i--;
-					}
-					oldFeed.getFeedImage().imageObject().getBitmap().recycle();
-					//Update the Feed with the new Episodes in the db.
-					this.fDbH.updateFeed(oldFeed);
+					oldFeed.getEpisodes().add(0, newFeed.getEpisodes().get(i));
 				}
+				
+				oldFeed.getFeedImage().imageObject().getBitmap().recycle();
+				//Update the Feed with the new Episodes in the db.
+				this.fDbH.updateFeed(oldFeed);
 			}
 			//TODO: Replace with String resource.
 			Toast.makeText(context, "Feeds refreshed!", Toast.LENGTH_SHORT).show();
@@ -690,94 +682,91 @@ public class PodcastHelper
 						
 						percentIncrement = 10.0;
 						publishProgress((int) percentIncrement);
+						Feed currentFeed = getFeedWithURL(feedLink);
 						
-						
-						// Loop through the XML passing the data to the arrays
-						percentIncrement = ((100/urls[0].size())/itemLst.getLength());
-						for (int i = 0; i < itemLst.getLength(); i++)
+						if (itemLst.getLength() != currentFeed.getEpisodes().size())	//Only start processing Episodes if the local number of Episodes don't match what's in the XML.
 						{
-							Episode ep = new Episode();
-							Node item = itemLst.item(i);
-							if (item.getNodeType() == Node.ELEMENT_NODE)
+							// Loop through the XML passing the data to the arrays
+							percentIncrement = ((100/urls[0].size())/itemLst.getLength());
+							for (int i = 0; i < itemLst.getLength(); i++)
 							{
-								Element ielem = (Element) item;
-
-								// This section gets the elements from the XML
-								// that we want to use you will need to add
-								// and remove elements that you want / don't want
-								NodeList title = ielem
-										.getElementsByTagName("title");
-								NodeList link = ielem
-										.getElementsByTagName("enclosure");
-								NodeList pubDate = ielem
-										.getElementsByTagName("pubDate");
-								NodeList description = ielem
-										.getElementsByTagName("description");	//Try to get the description tag first. 
-								NodeList content = ielem
-										.getElementsByTagName("content:encoded");	//If the description tag doesn't contain anything, get the content:encoded tag data instead.
-
-								// This section adds an entry to the arrays with the
-								// data retrieved from above. I have surrounded each
-								// with try/catch just incase the element does not
-								// exist
-								try
+								Episode ep = new Episode();
+								Node item = itemLst.item(i);
+								if (item.getNodeType() == Node.ELEMENT_NODE)
 								{
-									ep.setTitle(title.item(0).getChildNodes()
-											.item(0).getNodeValue());
-									Feed currentFeed = getFeedWithURL(feedLink);
-									if (currentFeed != null)
-									{
-										if (ep.getTitle().equals(currentFeed.getEpisodes().get(i).getTitle())) break;	//The newest Episode is already in our Feeds list. No need to keep updating this Feed.
-										if (ep.getTitle().equals(currentFeed.getEpisodes().get(((currentFeed.getEpisodes().size()-1)-i)).getTitle())) break;
-									}
-								} catch (NullPointerException e)
-								{
-									e.printStackTrace();
-								}
-
-								try
-								{
-									ep.setLink(link.item(0).getAttributes().getNamedItem("url").getNodeValue());	//Extract the attributes from the NodeList, and then extract value of the attribute named "url".
-								} catch (NullPointerException e)
-								{
-									e.printStackTrace();
-								}
-
-								try
-								{
-									String val = pubDate.item(0).getChildNodes().item(0).getNodeValue();
+									Element ielem = (Element) item;
+									
+									// This section adds an entry to the arrays with the
+									// data retrieved from above. I have surrounded each
+									// with try/catch just incase the element does not
+									// exist
 									try
 									{
-										Date date = xmlFormat.parse(val);
-										ep.setPubDate(correctFormat.format(date));
-									} catch (ParseException e)
+										NodeList title = ielem.getElementsByTagName("title");
+										ep.setTitle(title.item(0).getChildNodes()
+												.item(0).getNodeValue());
+										
+										if (currentFeed != null)
+										{
+											if (episodeExists(ep.getTitle(), currentFeed.getEpisodes())) continue;	//If the current Episode is already in the local list, there's no need to keep processing it.
+										}
+									} catch (NullPointerException e)
 									{
-										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
-								} catch (NullPointerException e)
-								{
-									e.printStackTrace();
-								}
 
-								try
-								{
-									ep.setDescription(description.item(0)
-											.getChildNodes().item(0).getNodeValue());
-									if (ep.getDescription().isEmpty()){
-										ep.setDescription(content.item(0)
-												.getChildNodes().item(0).getNodeValue());
+									try
+									{
+										NodeList link = ielem.getElementsByTagName("enclosure");
+										ep.setLink(link.item(0).getAttributes().getNamedItem("url").getNodeValue());	//Extract the attributes from the NodeList, and then extract value of the attribute named "url".
+									} catch (NullPointerException e)
+									{
+										e.printStackTrace();
 									}
-									
-								} catch (NullPointerException e)
-								{
-									e.printStackTrace();
+
+									try
+									{
+										NodeList pubDate = ielem.getElementsByTagName("pubDate");	//Extract pubdate data from the XML.
+										
+										String val = pubDate.item(0).getChildNodes().item(0).getNodeValue();
+										try
+										{
+											Date date = xmlFormat.parse(val);
+											ep.setPubDate(correctFormat.format(date));
+										} catch (ParseException e)
+										{
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+									} catch (NullPointerException e)
+									{
+										e.printStackTrace();
+									}
+
+									try
+									{
+										NodeList description = ielem
+												.getElementsByTagName("description");	//Try to get the description tag first. 
+										NodeList content = ielem
+												.getElementsByTagName("content:encoded");	//If the description tag doesn't contain anything, get the content:encoded tag data instead.
+
+										ep.setDescription(description.item(0)
+												.getChildNodes().item(0).getNodeValue());
+										if (ep.getDescription().isEmpty()){
+											ep.setDescription(content.item(0)
+													.getChildNodes().item(0).getNodeValue());
+										}
+										
+									} catch (NullPointerException e)
+									{
+										e.printStackTrace();
+									}
 								}
+								publishProgress((int) percentIncrement);
+								eps.add(ep);
+								
 							}
-							publishProgress((int) percentIncrement);
-							eps.add(ep);
 						}
-						
 						//We process the image last, because it can potentially take a lot of time and if we discover that we don't need to update anything, this shouldn't be done at all.
 						this.img = ((Element) itemLst2.item(0))
 								.getElementsByTagName("itunes:image").item(0)
@@ -803,8 +792,9 @@ public class PodcastHelper
 				{
 					cancel(true);
 				}
-				if (eps.size() > 0)	//If we haven't found any new Episodes, there's no needs to add the entire Feed object and process it. 
+				if (eps.size() > 0)	//If we haven't found any new Episodes, there's no need to add the entire Feed object and process it. 
 				{
+					
 					feeds.add(new Feed(this.title, this.author, this.description,
 							this.link, this.category, this.img, false, eps, context));
 				}
@@ -852,6 +842,15 @@ public class PodcastHelper
 		public void setProgressPercent(int progressPercent)
 		{
 			this.progressPercent = progressPercent;
+		}
+		
+		private boolean episodeExists(String episodeTitle, List<Episode> episodes)
+		{
+			for (int r = 0; r < episodes.size(); r++)
+			{
+				if (episodeTitle.equals(episodes.get(r).getTitle())) return true;
+			}
+			return false;
 		}
 	}
 	
