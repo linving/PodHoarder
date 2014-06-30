@@ -1,4 +1,4 @@
-package com.podhoarderproject.podhoarder;
+package com.podhoarderproject.podhoarder.db;
 
 /**
  * @author Emil Almrot
@@ -6,6 +6,8 @@ package com.podhoarderproject.podhoarder;
  */
 import java.util.ArrayList;
 import java.util.List;
+
+import com.podhoarderproject.podhoarder.util.Feed;
 
 import android.content.ContentValues;
 import android.content.Context;

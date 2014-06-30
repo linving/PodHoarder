@@ -27,7 +27,15 @@
     <string name="fragment_latest_list_episode_delete_button_text">Delete File</string>
     
     <!-- Settings -->
-    <string name="settings_tab">Settings</string>
+    <string name="settings_title">Settings</string>
+    <string name="pref_deleteListened_title">Delete Finished Episodes</string>
+    <string name="pref_deleteListened_summary">Automatically delete downloaded episodes once you have listened to their full duration.</string>
+    <string name="pref_playNextFile_title">Play Next File</string>
+    <string name="pref_playNextFile_summary">Keep playing through the playlist once an episode has ended.</string>
+    <string name="pref_autoDownloadNew_title">Automatic Download</string>
+    <string name="pref_autoDownloadNew_summary">Automatically download new episodes when found.</string>
+    <string name="pref_startTab_title">Select Start Tab</string>
+    
     
     <!-- Add Feed Popup Window -->
     <string name="popup_window_title">Add Feed</string>

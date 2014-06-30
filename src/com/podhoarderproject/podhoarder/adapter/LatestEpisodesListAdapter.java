@@ -7,10 +7,10 @@ package com.podhoarderproject.podhoarder.adapter;
 import java.text.ParseException;
 import java.util.List;
 
-import com.podhoarderproject.podhoarder.Episode;
-import com.podhoarderproject.podhoarder.MainActivity;
-import com.podhoarderproject.podhoarder.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.activity.MainActivity;
+import com.podhoarderproject.podhoarder.util.Episode;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
 import android.content.Context;
 import android.text.format.DateUtils;
@@ -176,6 +176,7 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 				       public void onClick(View v) 
 				       {
 				    	   //TODO: Make sure this isn't the file that is currently playing in Service.
+				    	   ((MainActivity)context).podService.deletingEpisode(currentEp.getEpisodeId());
 				    	   ((MainActivity)context).helper.deleteEpisode(currentEp.getFeedId(), currentEp.getEpisodeId());
 				    	   v.setEnabled(false);
 				       }

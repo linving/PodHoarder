@@ -1,7 +1,7 @@
 package com.podhoarderproject.podhoarder.service;
 
-import com.podhoarderproject.podhoarder.Feed;
 import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.util.Feed;
 
 import android.app.Notification;
 import android.app.PendingIntent;

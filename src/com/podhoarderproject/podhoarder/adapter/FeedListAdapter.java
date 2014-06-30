@@ -7,12 +7,12 @@ package com.podhoarderproject.podhoarder.adapter;
 import java.text.ParseException;
 import java.util.List;
 
-import com.podhoarderproject.podhoarder.Episode;
-import com.podhoarderproject.podhoarder.Feed;
-import com.podhoarderproject.podhoarder.MainActivity;
-import com.podhoarderproject.podhoarder.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.activity.MainActivity;
 import com.podhoarderproject.podhoarder.adapter.LatestEpisodesListAdapter.ViewHolderItem;
+import com.podhoarderproject.podhoarder.util.Episode;
+import com.podhoarderproject.podhoarder.util.Feed;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
 import android.content.Context;
 import android.text.format.DateUtils;

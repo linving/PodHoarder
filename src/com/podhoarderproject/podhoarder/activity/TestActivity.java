@@ -1,4 +1,7 @@
-package com.podhoarderproject.podhoarder;
+package com.podhoarderproject.podhoarder.activity;
+
+import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
 import android.os.Bundle;
 import android.app.Activity;

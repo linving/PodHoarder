@@ -1,4 +1,4 @@
-package com.podhoarderproject.podhoarder;
+package com.podhoarderproject.podhoarder.util;
 /**
  * @author Emil Almrot
  * 2013-03-15

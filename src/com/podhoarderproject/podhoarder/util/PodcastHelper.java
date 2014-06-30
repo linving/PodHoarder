@@ -2,7 +2,7 @@
  * @author Emil Almrot
  * 2013-03-20
  */
-package com.podhoarderproject.podhoarder;
+package com.podhoarderproject.podhoarder.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,9 +26,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.podhoarderproject.ericharlow.DragNDrop.DragNDropAdapter;
+import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
 import com.podhoarderproject.podhoarder.adapter.FeedListAdapter;
 import com.podhoarderproject.podhoarder.adapter.LatestEpisodesListAdapter;
+import com.podhoarderproject.podhoarder.db.EpisodeDBHelper;
+import com.podhoarderproject.podhoarder.db.FeedDBHelper;
+import com.podhoarderproject.podhoarder.db.PlaylistDBHelper;
 
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -276,6 +280,7 @@ public class PodcastHelper
 		{
 			this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).setLocalLink("");
 			this.eph.updateEpisode(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos));
+			this.plDbH.deleteEntry(episodeId);
 			Log.i(LOG_TAG, file.getAbsolutePath() + " deleted successfully!");
 		}
 		else
@@ -649,88 +654,84 @@ public class PodcastHelper
 						publishProgress((int) percentIncrement);
 						Feed currentFeed = getFeedWithURL(feedLink);
 						
-						if (itemLst.getLength() != currentFeed.getEpisodes().size())	//Only start processing Episodes if the local number of Episodes don't match what's in the XML.
+						// Loop through the XML passing the data to the arrays
+						percentIncrement = ((100/urls[0].size())/itemLst.getLength());
+						for (int i = 0; i < itemLst.getLength(); i++)
 						{
-							// Loop through the XML passing the data to the arrays
-							percentIncrement = ((100/urls[0].size())/itemLst.getLength());
-							for (int i = 0; i < itemLst.getLength(); i++)
+							Episode ep = new Episode();
+							Node item = itemLst.item(i);
+							if (item.getNodeType() == Node.ELEMENT_NODE)
 							{
-								Episode ep = new Episode();
-								Node item = itemLst.item(i);
-								if (item.getNodeType() == Node.ELEMENT_NODE)
-								{
-									Element ielem = (Element) item;
-									
-									// This section adds an entry to the arrays with the
-									// data retrieved from above. I have surrounded each
-									// with try/catch just incase the element does not
-									// exist
-									try
-									{
-										NodeList title = ielem.getElementsByTagName("title");
-										ep.setTitle(title.item(0).getChildNodes()
-												.item(0).getNodeValue());
-										
-										if (currentFeed != null)
-										{
-											if (episodeExists(ep.getTitle(), currentFeed.getEpisodes())) continue;	//If the current Episode is already in the local list, there's no need to keep processing it.
-										}
-									} catch (NullPointerException e)
-									{
-										e.printStackTrace();
-									}
-
-									try
-									{
-										NodeList link = ielem.getElementsByTagName("enclosure");
-										ep.setLink(link.item(0).getAttributes().getNamedItem("url").getNodeValue());	//Extract the attributes from the NodeList, and then extract value of the attribute named "url".
-									} catch (NullPointerException e)
-									{
-										e.printStackTrace();
-									}
-
-									try
-									{
-										NodeList pubDate = ielem.getElementsByTagName("pubDate");	//Extract pubdate data from the XML.
-										
-										String val = pubDate.item(0).getChildNodes().item(0).getNodeValue();
-										try
-										{
-											Date date = xmlFormat.parse(val);
-											ep.setPubDate(correctFormat.format(date));
-										} catch (ParseException e)
-										{
-											// TODO Auto-generated catch block
-											e.printStackTrace();
-										}
-									} catch (NullPointerException e)
-									{
-										e.printStackTrace();
-									}
-
-									try
-									{
-										NodeList description = ielem
-												.getElementsByTagName("description");	//Try to get the description tag first. 
-										NodeList content = ielem
-												.getElementsByTagName("content:encoded");	//If the description tag doesn't contain anything, get the content:encoded tag data instead.
-
-										ep.setDescription(description.item(0)
-												.getChildNodes().item(0).getNodeValue());
-										if (ep.getDescription().isEmpty()){
-											ep.setDescription(content.item(0)
-													.getChildNodes().item(0).getNodeValue());
-										}
-										
-									} catch (NullPointerException e)
-									{
-										e.printStackTrace();
-									}
-								}
-								publishProgress((int) percentIncrement);
-								eps.add(ep);
+								Element ielem = (Element) item;
 								
+								// This section adds an entry to the arrays with the
+								// data retrieved from above. I have surrounded each
+								// with try/catch just incase the element does not
+								// exist
+								try
+								{
+									NodeList title = ielem.getElementsByTagName("title");
+									ep.setTitle(title.item(0).getChildNodes()
+											.item(0).getNodeValue());
+									
+									if (currentFeed != null)
+									{
+										if (episodeExists(ep.getTitle(), currentFeed.getEpisodes())) continue;	//If the current Episode is already in the local list, there's no need to keep processing it.
+									}
+								} catch (NullPointerException e)
+								{
+									e.printStackTrace();
+								}
+
+								try
+								{
+									NodeList link = ielem.getElementsByTagName("enclosure");
+									ep.setLink(link.item(0).getAttributes().getNamedItem("url").getNodeValue());	//Extract the attributes from the NodeList, and then extract value of the attribute named "url".
+								} catch (NullPointerException e)
+								{
+									e.printStackTrace();
+								}
+
+								try
+								{
+									NodeList pubDate = ielem.getElementsByTagName("pubDate");	//Extract pubdate data from the XML.
+									
+									String val = pubDate.item(0).getChildNodes().item(0).getNodeValue();
+									try
+									{
+										Date date = xmlFormat.parse(val);
+										ep.setPubDate(correctFormat.format(date));
+									} catch (ParseException e)
+									{
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								} catch (NullPointerException e)
+								{
+									e.printStackTrace();
+								}
+
+								try
+								{
+									NodeList description = ielem
+											.getElementsByTagName("description");	//Try to get the description tag first. 
+									NodeList content = ielem
+											.getElementsByTagName("content:encoded");	//If the description tag doesn't contain anything, get the content:encoded tag data instead.
+
+									ep.setDescription(description.item(0)
+											.getChildNodes().item(0).getNodeValue());
+									if (ep.getDescription().isEmpty()){
+										ep.setDescription(content.item(0)
+												.getChildNodes().item(0).getNodeValue());
+									}
+									
+								} catch (NullPointerException e)
+								{
+									e.printStackTrace();
+								}
 							}
+							publishProgress((int) percentIncrement);
+							eps.add(ep);	
 						}
 						//We process the image last, because it can potentially take a lot of time and if we discover that we don't need to update anything, this shouldn't be done at all.
 						this.img = ((Element) itemLst2.item(0))

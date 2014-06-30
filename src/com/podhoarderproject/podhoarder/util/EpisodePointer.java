@@ -1,4 +1,4 @@
-package com.podhoarderproject.podhoarder;
+package com.podhoarderproject.podhoarder.util;
 
 import android.database.Cursor;
 

@@ -1,4 +1,4 @@
-package com.podhoarderproject.podhoarder;
+package com.podhoarderproject.podhoarder.db;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

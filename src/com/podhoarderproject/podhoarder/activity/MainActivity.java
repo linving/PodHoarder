@@ -1,15 +1,21 @@
-package com.podhoarderproject.podhoarder;
+package com.podhoarderproject.podhoarder.activity;
  
+import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.adapter.TabsPagerAdapter;
 import com.podhoarderproject.podhoarder.gui.*;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
 import com.podhoarderproject.podhoarder.service.PodHoarderService.PodHoarderBinder;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -57,6 +63,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		    //pass list
 		    podService.setList(helper.playlistAdapter.playList);
 		    musicBound = true;
+		    
+		    setTab();
 	    }
 	    
 	    @Override
@@ -72,6 +80,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     @Override
     protected void onCreate(Bundle savedInstanceState) 
     {
+    	if(playIntent==null)
+		{
+			playIntent = new Intent(this, PodHoarderService.class);
+			boolean isServiceBound = this.bindService(playIntent, podConnection, Context.BIND_AUTO_CREATE);
+			this.startService(playIntent);
+		}
+    	
         super.onCreate(savedInstanceState);
 	    
         setContentView(R.layout.activity_main);
@@ -89,13 +104,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     protected void onStart()
     {
     	super.onStart();
-    	if(playIntent==null)
-		{
-			playIntent = new Intent(this, PodHoarderService.class);
-			boolean isServiceBound = this.bindService(playIntent, podConnection, Context.BIND_AUTO_CREATE);
-			this.startService(playIntent);
-		}
-    
     	
     	//this.helper.refreshFeeds();
     	//Collections.reverse(((PlaylistListAdapter)this.helper.playlistAdapter).playList);
@@ -120,6 +128,25 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     	this.stopService(playIntent);
 	    this.podService=null;
 	    super.onDestroy();
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) 
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return true;
+    }
+    
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()) 
+    	{
+	        case R.id.action_settings:
+	        	startActivity(new Intent(this, SettingsActivity.class));
+	        	return true;
+	        default:
+	        	return super.onOptionsItemSelected(item);
+	    }
     }
   
     private void doFragmentSetup(Bundle savedInstanceState)
@@ -178,9 +205,10 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             public void onPageScrollStateChanged(int arg0) {
             }
         });
+        
+    	
     }
 
-    
     public void downloadEpisode(int feedId, int episodeId)
     {
     	this.helper.downloadEpisode(feedId, episodeId);
@@ -217,6 +245,22 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	public boolean isMusicBound()
 	{
 		return musicBound;
+	}
+	
+	public void setTab()
+	{
+		switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString(SettingsActivity.SETTINGS_KEY_STARTTAB, "0")))
+		{
+		case 0:
+			this.actionBar.setSelectedNavigationItem(0);
+			break;
+		case 1:
+			this.actionBar.setSelectedNavigationItem(1);
+			break;
+		case 2:
+			this.actionBar.setSelectedNavigationItem(2);
+			break;
+		}
 	}
 	
 	@Override

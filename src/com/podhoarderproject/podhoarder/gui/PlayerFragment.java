@@ -1,13 +1,13 @@
 package com.podhoarderproject.podhoarder.gui;
 
 import com.podhoarderproject.ericharlow.DragNDrop.DragListener;
-import com.podhoarderproject.ericharlow.DragNDrop.DragNDropAdapter;
 import com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView;
 import com.podhoarderproject.ericharlow.DragNDrop.DropListener;
 import com.podhoarderproject.ericharlow.DragNDrop.RemoveListener;
-import com.podhoarderproject.podhoarder.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -70,16 +70,14 @@ public class PlayerFragment extends Fragment
     
     private void setServiceVars()
     {
-    	this.podService = ((com.podhoarderproject.podhoarder.MainActivity)this.getActivity()).getPodService();
+    	this.podService = ((com.podhoarderproject.podhoarder.activity.MainActivity)this.getActivity()).getPodService();
     }
     
     private void setupMediaControls()
     {
     	this.playPauseButton = (ToggleButton)view.findViewById(R.id.player_controls_button_playpause);
     	this.playPauseButton.setOnClickListener(mPlayPauseClickListener);
-    	
-    	this.doubleSpeedButton = (ToggleButton)view.findViewById(R.id.player_controls_button_2x);
-    	
+    	    	
     	this.forwardButton = (ImageButton)view.findViewById(R.id.player_controls_button_skip_forward);
     	this.forwardButton.setOnClickListener(mForwardClickListener);
     	
@@ -105,6 +103,7 @@ public class PlayerFragment extends Fragment
 		{
 			this.podService.setUIElements(playPauseButton, episodeTitle, elapsedTime, totalTime, seekBar, helper);
 		}
+		
 	}
     
     private void setupListView()
@@ -126,7 +125,7 @@ public class PlayerFragment extends Fragment
        
     private void setupHelper()
     {
-    	this.helper = ((com.podhoarderproject.podhoarder.MainActivity)this.getActivity()).helper;
+    	this.helper = ((com.podhoarderproject.podhoarder.activity.MainActivity)this.getActivity()).helper;
     }
     
     @Override

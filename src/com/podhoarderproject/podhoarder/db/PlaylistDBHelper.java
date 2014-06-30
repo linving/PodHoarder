@@ -1,4 +1,4 @@
-package com.podhoarderproject.podhoarder;
+package com.podhoarderproject.podhoarder.db;
 
 /**
  * @author Emil Almrot
@@ -7,16 +7,19 @@ package com.podhoarderproject.podhoarder;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.podhoarderproject.podhoarder.util.Episode;
+import com.podhoarderproject.podhoarder.util.EpisodePointer;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class PlaylistDBHelper
 {
-	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PlaylistDBHelper";
 	
 	private DBHelper dbHelper;
@@ -102,6 +105,21 @@ public class PlaylistDBHelper
 		    //Log.i(LOG_TAG,"SAVED " + playlist.get(i).getTitle() + "(ID: " + insertId + ")");
 		    this.db.close();
 		}
+	}
+	
+	public void deleteEntry(int episodeId)
+	{
+		this.db = this.dbHelper.getWritableDatabase();
+	    int res = this.db.delete(TABLE_NAME, columns[1] + " = " + episodeId, null);
+	    this.db.close();
+	    if (res == 0)
+	    {
+	    	Log.w(LOG_TAG,"No Episode deleted");
+	    }
+	    else
+	    {
+	    	Log.w(LOG_TAG,"Episode deleted with id: " + episodeId + "from the playlist");
+	    }
 	}
 
 }

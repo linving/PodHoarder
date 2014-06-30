@@ -12,8 +12,8 @@ import android.widget.TextView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 
-import com.podhoarderproject.podhoarder.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
  
 /**
  * 
@@ -22,6 +22,8 @@ import com.podhoarderproject.podhoarder.R;
  */
 public class LatestEpisodesFragment extends Fragment implements OnRefreshListener
 {
+	
+	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.LatestEpisodesFragment";
 	
 	public ListView mainListView;
@@ -79,7 +81,7 @@ public class LatestEpisodesFragment extends Fragment implements OnRefreshListene
     
     private void setupHelper()
     {
-    	this.helper = ((com.podhoarderproject.podhoarder.MainActivity)this.getActivity()).helper;
+    	this.helper = ((com.podhoarderproject.podhoarder.activity.MainActivity)this.getActivity()).helper;
     }
     
     private void setupRefreshControls()

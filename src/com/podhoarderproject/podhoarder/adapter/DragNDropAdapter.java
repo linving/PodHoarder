@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.podhoarderproject.ericharlow.DragNDrop;
+package com.podhoarderproject.podhoarder.adapter;
 
 import java.util.List;
 
-import com.podhoarderproject.podhoarder.Episode;
-import com.podhoarderproject.podhoarder.MainActivity;
+import com.podhoarderproject.ericharlow.DragNDrop.DropListener;
+import com.podhoarderproject.ericharlow.DragNDrop.RemoveListener;
 import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.activity.MainActivity;
+import com.podhoarderproject.podhoarder.util.Episode;
 
 import android.content.Context;
 import android.view.LayoutInflater;

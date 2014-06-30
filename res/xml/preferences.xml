@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <CheckBoxPreference
+        android:key="pref_deleteListened"
+        android:title="@string/pref_deleteListened_title"
+        android:summary="@string/pref_deleteListened_summary"
+        android:defaultValue="true" />
+    <CheckBoxPreference
+        android:key="pref_playNextFile"
+        android:title="@string/pref_playNextFile_title"
+        android:summary="@string/pref_playNextFile_summary"
+        android:defaultValue="true" />
+    <CheckBoxPreference
+        android:key="pref_autoDownloadNew"
+        android:title="@string/pref_autoDownloadNew_title"
+        android:summary="@string/pref_autoDownloadNew_summary"
+        android:defaultValue="false" />
+    <ListPreference
+        android:key="pref_startTab"
+        android:title="@string/pref_startTab_title"
+        android:dialogTitle="@string/pref_startTab_title"
+        android:entries="@array/pref_startTab_entries"
+        android:entryValues="@array/pref_startTab_values"
+        android:defaultValue="0" />
+</PreferenceScreen>

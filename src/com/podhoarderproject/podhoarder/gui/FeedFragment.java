@@ -1,7 +1,7 @@
 package com.podhoarderproject.podhoarder.gui;
 
-import com.podhoarderproject.podhoarder.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -24,6 +24,8 @@ import android.widget.TextView;
  */
 public class FeedFragment extends Fragment
 {
+
+	@SuppressWarnings("unused")
 	private static final 	String 				LOG_TAG = "com.podhoarderproject.podhoarder.FeedFragment";
 	
 	public 					ExpandableListView 	mainListView;
@@ -51,6 +53,7 @@ public class FeedFragment extends Fragment
     public void onStart()
     {
     	super.onStart();
+    	
     }
     
     private void setupListView()
@@ -127,6 +130,6 @@ public class FeedFragment extends Fragment
     
     private void setupHelper()
     {
-    	this.helper = ((com.podhoarderproject.podhoarder.MainActivity)this.getActivity()).helper;
+    	this.helper = ((com.podhoarderproject.podhoarder.activity.MainActivity)this.getActivity()).helper;
     }
 }
