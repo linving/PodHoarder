@@ -460,9 +460,12 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	 */
 	public void deletingEpisode(int episodeId)
 	{
-		if (this.currentEpisode.getEpisodeId() == episodeId && this.playList.size() > 1) 	//If the deleted Episode is the one currently playing we set the current Episode to current - 1
+		if (this.currentEpisode != null)
 		{
-			this.stop();
+			if (this.currentEpisode.getEpisodeId() == episodeId && this.playList.size() > 1) 	//If the deleted Episode is the one currently playing we set the current Episode to current - 1
+			{
+				this.stop();
+			}
 		}
 	}
 	

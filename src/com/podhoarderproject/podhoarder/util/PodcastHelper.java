@@ -175,6 +175,7 @@ public class PodcastHelper
 	{
 		final int feedPos = getFeedPositionWithId(feedId);
 		final int epPos = getEpisodePositionWithId(feedPos, episodeId);
+		
 		if (isDownloadManagerAvailable(this.context) && !new File(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink()).exists())
 		{
 			String url = this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLink();

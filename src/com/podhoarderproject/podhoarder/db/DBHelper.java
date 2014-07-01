@@ -57,7 +57,7 @@ public class DBHelper extends SQLiteOpenHelper
 		db.execSQL("CREATE TABLE " + episodeTable + " (" 
 				+ colEpisodeId + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 				+ colEpisodeTitle + " TEXT NOT NULL, " 
-				+ colEpisodeLink + " TEXT NOT NULL, "
+				+ colEpisodeLink + " TEXT NOT NULL UNIQUE, "
 				+ colEpisodeLocalLink + " TEXT NOT NULL, "
 				+ colEpisodePubDate + " TEXT NOT NULL, "
 				+ colEpisodeDescription + " TEXT NOT NULL, "

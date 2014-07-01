@@ -80,23 +80,23 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     @Override
     protected void onCreate(Bundle savedInstanceState) 
     {
-    	if(playIntent==null)
-		{
-			playIntent = new Intent(this, PodHoarderService.class);
-			boolean isServiceBound = this.bindService(playIntent, podConnection, Context.BIND_AUTO_CREATE);
-			this.startService(playIntent);
-		}
-    	
         super.onCreate(savedInstanceState);
 	    
-        setContentView(R.layout.activity_main);
-	    
         // Initialisation
+        setContentView(R.layout.activity_main);
         doFragmentSetup(savedInstanceState);
-        
         doTabSetup();
+        this.helper = new PodcastHelper(this);  
         
-        this.helper = new PodcastHelper(this);     
+        if (!this.musicBound)
+    	{
+    		if(playIntent==null)
+    		{
+    			playIntent = new Intent(this, PodHoarderService.class);
+    			this.musicBound = this.bindService(playIntent, podConnection, Context.BIND_AUTO_CREATE);
+    			this.startService(playIntent);
+    		}
+    	}
     }
     
     
@@ -104,20 +104,10 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     protected void onStart()
     {
     	super.onStart();
-    	
-    	//this.helper.refreshFeeds();
-    	//Collections.reverse(((PlaylistListAdapter)this.helper.playlistAdapter).playList);
-    	//this.helper.plDbH.savePlaylist(((PlaylistListAdapter)this.helper.playlistAdapter).playList);
-    	//this.helper.addFeed("http://smodcast.com/channels/plus-one/feed/");
-    	//this.helper.addFeed("http://smodcast.com/channels/hollywood-babble-on/feed/");
-    	//this.helper.addFeed("http://feeds.feedburner.com/filipochfredrik/podcast?format=xml");
-    	//this.helper.addFeed("http://smodcast.com/channels/fatman-on-batman/feed/");
-    	//this.helper.deleteFeed(9);
-    	//this.helper.deleteFeed(2);
     }
     
     @Override
-    protected void onResume()
+    public void onResume()
     {
     	super.onResume();    	
     }
@@ -125,9 +115,17 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     @Override
     protected void onDestroy()
     {
+    	this.unbindService(this.podConnection);
     	this.stopService(playIntent);
 	    this.podService=null;
+	    this.musicBound = false;
 	    super.onDestroy();
+    }
+    
+    @Override
+    protected void onPause()
+    {
+    	super.onPause();
     }
     
     @Override

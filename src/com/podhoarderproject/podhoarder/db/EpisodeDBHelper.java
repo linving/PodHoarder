@@ -12,6 +12,7 @@ import com.podhoarderproject.podhoarder.util.Episode;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -144,7 +145,7 @@ public class EpisodeDBHelper
 	 * @param ep Episode object to insert.
 	 * @return An Episode object with updated Id relative to the table.
 	 */
-	public Episode insertEpisode(Episode ep, int feedId)
+	public Episode insertEpisode(Episode ep, int feedId) throws SQLiteConstraintException
 	{
 		
 		ContentValues values = new ContentValues();
@@ -157,14 +158,22 @@ public class EpisodeDBHelper
 	    values.put(columns[7], ep.getTotalTime());
 	    values.put(columns[8], feedId);
 	    
-	    this.db = this.dbHelper.getWritableDatabase();
-	    long insertId = this.db.insert(TABLE_NAME, null, values);
-	    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
-	    Log.w(LOG_TAG,"Added Episode with id: " + insertId);
-	    cursor.moveToFirst();
-	    Episode insertedEpisode = cursorToEpisode(cursor);
-	    this.db.close();
-	    return insertedEpisode;
+	    try
+	    {
+	    	this.db = this.dbHelper.getWritableDatabase();
+		    long insertId = this.db.insert(TABLE_NAME, null, values);
+		    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
+		    Log.w(LOG_TAG,"Added Episode with id: " + insertId);
+		    cursor.moveToFirst();
+		    Episode insertedEpisode = cursorToEpisode(cursor);
+		    this.db.close();
+		    return insertedEpisode;
+	    }
+	    catch (SQLiteConstraintException e)
+		{
+			Log.e(LOG_TAG, "SQLiteConstraintException: Insert failed. Episode link not unique?");
+			throw e;
+		}
 	}
 	
 	/**
