@@ -150,6 +150,15 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 				viewHolder.elapsedTimeBar.setProgress(0);
 			}
 			
+			if (currentEpisode.getElapsedTime() >= currentEpisode.getTotalTime() && currentEpisode.getTotalTime() > 0)
+			{
+				convertView.setAlpha(.5f);
+			}
+			else
+			{
+				convertView.setAlpha(1f);
+			}
+			
 			final int feedId = currentEpisode.getFeedId();
 			final int episodeId = currentEpisode.getEpisodeId();
 			final Episode currentEp = currentEpisode;

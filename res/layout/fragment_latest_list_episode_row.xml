@@ -21,7 +21,7 @@
 		        android:layout_height="match_parent"
 		        android:textColor="@color/fragment_latest_list_episode_title"
 		        android:textSize="@dimen/fragment_latest_list_episode_title"
-		        android:maxLines="2"
+		        android:maxLines="1"
     			android:ellipsize="end"/>
 		    <TextView
 		        android:id="@+id/list_episode_row_episodeAge"

@@ -177,6 +177,7 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 	        viewHolder.episodeDescription = (TextView) convertView.findViewById(R.id.list_episode_row_expandableTextView);
 	        viewHolder.elapsedTimeBar = (ProgressBar) convertView.findViewById(R.id.list_episode_row_elapsed_progressBar);
 	        viewHolder.downloadButton = (Button) convertView.findViewById(R.id.list_episode_row_downloadBtn);
+	        viewHolder.deleteButton = (Button) convertView.findViewById(R.id.list_episode_row_deleteBtn);
 	        viewHolder.playButton = (Button) convertView.findViewById(R.id.list_episode_row_playBtn);
 	        viewHolder.streamButton = (Button) convertView.findViewById(R.id.list_episode_row_streamBtn);
 	        
@@ -222,6 +223,15 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 				viewHolder.elapsedTimeBar.setProgress(0);
 			}
 			
+			if (currentEpisode.getElapsedTime() >= currentEpisode.getTotalTime() && currentEpisode.getTotalTime() > 0)
+			{
+				convertView.setAlpha(.5f);
+			}
+			else
+			{
+				convertView.setAlpha(1f);
+			}
+			
 			final int feedId = currentEpisode.getFeedId();
 			final int episodeId = currentEpisode.getEpisodeId();
 			final Episode currentEp = currentEpisode;
@@ -241,11 +251,25 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 				       }
 
 				   });
+				viewHolder.deleteButton.setVisibility(View.VISIBLE);	//Show the Delete button.
+				viewHolder.deleteButton.setOnClickListener(new OnClickListener() 
+				   { 
+				       @Override
+				       public void onClick(View v) 
+				       {
+				    	   //TODO: Make sure this isn't the file that is currently playing in Service.
+				    	   ((MainActivity)context).podService.deletingEpisode(currentEp.getEpisodeId());
+				    	   ((MainActivity)context).helper.deleteEpisode(currentEp.getFeedId(), currentEp.getEpisodeId());
+				    	   v.setEnabled(false);
+				       }
+
+				   });
 			}
 			else 	//The Episode has not been downloaded, so we can't show the Play button. The Download button should be there instead.
 			{
 				viewHolder.downloadButton.setVisibility(View.VISIBLE); //Show Download Button.
 				viewHolder.playButton.setVisibility(View.GONE);	//Hide the Play button.
+				viewHolder.deleteButton.setVisibility(View.GONE);	//Hide the Delete button.
 				viewHolder.downloadButton.setOnClickListener(new OnClickListener() 
 				   { 
 				       @Override

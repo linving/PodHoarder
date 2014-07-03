@@ -53,7 +53,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	@Override
 	public boolean onUnbind(Intent intent)
 	{
-		player.stop();
+		if (isPng()) player.stop();
 		player.release();
 		return false;
 	}
@@ -103,7 +103,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		player.start();
 		setupNotification();
 		this.notification.showNotify(this);
-		if (streaming && this.currentEpisode.getTotalTime() == 0) 
+		if (this.currentEpisode.getTotalTime() == 0) 
 		{
 			this.currentEpisode.setTotalTime(player.getDuration());
 			this.currentEpisode = this.helper.updateEpisode(this.currentEpisode);
@@ -239,17 +239,20 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
         @Override
         public void run() 
         {
-        	if (shouldSaveElapsedTime())
+        	if (currentEpisode != null)
         	{
-        		currentEpisode.setElapsedTime(getPosn());
-        		helper.updateEpisode(currentEpisode); //Update the db.
+        		if (shouldSaveElapsedTime())
+            	{
+            		currentEpisode.setElapsedTime(getPosn());
+            		helper.updateEpisode(currentEpisode); //Update the db.
+            	}
+            	if (!updateBlocked) seekBar.setProgress(getPosn());
+                if (isPng()) 
+                {
+                	elapsedTime.setText(millisToTime(getPosn()));	// update progress bar using getCurrentPosition()
+                	handler.postDelayed(UpdateRunnable, 500);
+                }
         	}
-        	if (!updateBlocked) seekBar.setProgress(getPosn());
-            if (isPng()) 
-            {
-            	elapsedTime.setText(millisToTime(getPosn()));	// update progress bar using getCurrentPosition()
-            	handler.postDelayed(UpdateRunnable, 500);
-            }
         }
     };
     
@@ -261,13 +264,16 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
         @Override
         public void run() 
         {
-        	if (shouldSaveElapsedTime())
+        	if (currentEpisode != null)
         	{
-        		currentEpisode.setElapsedTime(getPosn());
-        		helper.updateEpisode(currentEpisode); //Update the db.
+        		if (shouldSaveElapsedTime())
+            	{
+            		currentEpisode.setElapsedTime(getPosn());
+            		helper.updateEpisode(currentEpisode); //Update the db.
+            	}
+            	if (!updateBlocked) seekBar.setProgress(getPosn());
+            	if (isPng())elapsedTime.setText(millisToTime(getPosn()));	// update progress bar using getCurrentPosition()
         	}
-        	if (!updateBlocked) seekBar.setProgress(getPosn());
-        	if (isPng())elapsedTime.setText(millisToTime(getPosn()));	// update progress bar using getCurrentPosition()
         }
     };
 	
@@ -331,8 +337,11 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 
 	public void seek(int posn)
 	{
-		player.seekTo(posn);
-		handler.post(SingleUpdateRunnable);
+		if (this.currentEpisode != null)
+		{
+			player.seekTo(posn);
+			handler.post(SingleUpdateRunnable);	
+		}
 	}
 
 	public void playPrev()
@@ -395,14 +404,21 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 
 	public void skipForward()
 	{
-		player.seekTo(player.getCurrentPosition() + 10000);
-		handler.post(SingleUpdateRunnable);
+		if (this.currentEpisode != null)
+		{
+			player.seekTo(player.getCurrentPosition() + 10000);
+			handler.post(SingleUpdateRunnable);
+		}		
 	}
 	
 	public void skipBackward()
 	{
-		player.seekTo(player.getCurrentPosition() - 10000);
-		handler.post(SingleUpdateRunnable);
+		if (this.currentEpisode != null)
+		{	
+			if (player.getCurrentPosition() < 10000) player.seekTo(0);	//If we're not 10 seconds into the track, just rewind to the start.
+			else player.seekTo(player.getCurrentPosition() - 10000);	//Else just go back 10 seconds
+			handler.post(SingleUpdateRunnable);
+		}
 	}
 	
 	public class PodHoarderBinder extends Binder 

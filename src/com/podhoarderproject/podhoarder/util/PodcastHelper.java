@@ -27,6 +27,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.activity.SettingsActivity;
 import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
 import com.podhoarderproject.podhoarder.adapter.FeedListAdapter;
 import com.podhoarderproject.podhoarder.adapter.LatestEpisodesListAdapter;
@@ -78,6 +79,7 @@ public class PodcastHelper
 	
 	private 				SharedPreferences 			preferenceManager;
 	private 				DownloadManager 			downloadManager;
+	private					List<BroadcastReceiver>		broadcastReceivers;
 
 	private 				FeedDBHelper 				fDbH;	//Handles saving the Feed objects to a database for persistence.
 	private 				EpisodeDBHelper 			eph;	//Handles saving the Episode objects to a database for persistence.
@@ -105,6 +107,7 @@ public class PodcastHelper
 		preferenceManager = PreferenceManager.getDefaultSharedPreferences(this.context);
 		// get download service and enqueue file
 		this.downloadManager = (DownloadManager) this.context.getSystemService(Context.DOWNLOAD_SERVICE);
+		this.broadcastReceivers = new ArrayList<BroadcastReceiver>();
 		checkLocalLinks();
 	}
 
@@ -180,8 +183,8 @@ public class PodcastHelper
 		{
 			String url = this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLink();
 			DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-			request.setDescription(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle());
-			request.setTitle(this.context.getString(R.string.app_name) + " " + this.context.getString(R.string.notification_download));
+			request.setDescription(this.context.getString(R.string.notification_by) + " " + this.context.getString(R.string.app_name));
+			request.setTitle(this.context.getString(R.string.notification_downloading) + " " + this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle());
 			// in order for this if to run, you must use the android 3.2 to compile your app
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) 
 			{
@@ -192,22 +195,17 @@ public class PodcastHelper
 			request.setDestinationInExternalPublicDir(this.storagePath, sanitizeFileName(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle())  + ".mp3");
 			
 			// register broadcast receiver for when the download is done.
-			BroadcastReceiver onComplete=new BroadcastReceiver() {
+			this.broadcastReceivers.add(new BroadcastReceiver() {
 			    public void onReceive(Context ctxt, Intent intent) {
 			        // .mp3 files was successfully downloaded. We should update db and list objects to reflect this.
-			    	checkDownloadStatus(feedPos, epPos);
+			    	Long dwnId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
+			    	checkDownloadStatus(dwnId, feedPos, epPos, this);
 			    }
-			};
-			this.context.registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-			long id = this.downloadManager.enqueue(request);
-			//Save the request id
-			Editor PrefEdit = preferenceManager.edit();
-			PrefEdit.putLong(strPref_Download_ID, id);
-			PrefEdit.commit();
+			});
+			this.context.registerReceiver(this.broadcastReceivers.get(this.broadcastReceivers.size()-1), new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+			this.downloadManager.enqueue(request);
 			
-			Toast notification = Toast.makeText(context, "Downloading Podcast.",
-					Toast.LENGTH_SHORT);
-			notification.show();
+			Toast.makeText(context, "Downloading Podcast.",Toast.LENGTH_SHORT).show();
 		}
 		else
 		{
@@ -221,28 +219,32 @@ public class PodcastHelper
 	 * @param episodeId Id of the Episode within the specified feed.
 	 * @author Emil
 	 */
-	private void downloadCompleted(int feedPos, int epPos)
+	private void downloadCompleted(int feedPos, int epPos, BroadcastReceiver receiver)
 	{
 		//update list adapter object
 		Episode currentEpisode = this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos);
 		
 		currentEpisode.setLocalLink(this.podcastDir + "/" + sanitizeFileName(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle()) + ".mp3");
 		
-		//If the total duration of the .mp3 file isn't already stored, we need to access the file to retrieve it.
-		if (currentEpisode.getTotalTime() == 0)
-		{
-			//A MediaMetadataRetriever is used to extract the duration of an Episode from the downloaded .mp3 file.
-			MediaMetadataRetriever r = new MediaMetadataRetriever();
-			//Point the MediaMetadataRetriever to our recently downloaded file.
-			r.setDataSource(currentEpisode.getLocalLink());
-			//Extract the duration in milliseconds.
-			currentEpisode.setTotalTime(Integer.parseInt(r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)));
-			//Release MediaMetadataRetriever to free up system resources.
-			r.release();
-		}
+		//THIS IS CURRENTLY NOT WORKING CORRECTLY.
+//		//If the total duration of the .mp3 file isn't already stored, we need to access the file to retrieve it.
+//		if (currentEpisode.getTotalTime() == 0)
+//		{
+//			//A MediaMetadataRetriever is used to extract the duration of an Episode from the downloaded .mp3 file.
+//			MediaMetadataRetriever r = new MediaMetadataRetriever();
+//			//Point the MediaMetadataRetriever to our recently downloaded file.
+//			r.setDataSource(currentEpisode.getLocalLink());
+//			//Extract the duration in milliseconds.
+//			currentEpisode.setTotalTime(Integer.parseInt(r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)));
+//			//Release MediaMetadataRetriever to free up system resources.
+//			r.release();
+//		}
 		
 		//update db entry
 		this.eph.updateEpisode(currentEpisode);
+		Log.i(LOG_TAG, "download completed: " + currentEpisode.getTitle());
+		this.context.unregisterReceiver(receiver);
+		this.broadcastReceivers.remove(receiver);
 		
 		this.refreshLists();
 	}
@@ -365,18 +367,27 @@ public class PodcastHelper
 				
 				oldFeed.getFeedImage().imageObject().getBitmap().recycle();
 				//Update the Feed with the new Episodes in the db.
-				this.fDbH.updateFeed(oldFeed);
+				oldFeed = this.fDbH.updateFeed(oldFeed);
+				
+				//TODO: Make sure this works. (AUTOMATICALLY DOWNLOAD NEW EPISODES SETTING)
+				if (PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean(SettingsActivity.SETTINGS_KEY_AUTODOWNLOADNEW, false))
+				{
+					for (int i = 0; i<newFeed.getEpisodes().size(); i++)
+					{
+						this.downloadEpisode(oldFeed.getEpisodes().get(i).getFeedId(), oldFeed.getEpisodes().get(i).getEpisodeId());
+					}
+				}
+				
 			}
-			//TODO: Replace with String resource.
-			Toast.makeText(context, "Feeds refreshed!", Toast.LENGTH_SHORT).show();
 			//Disable the "refreshing" animation.
 			this.refreshLayout.setRefreshing(false);
 			this.refreshLists();
+			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_successful), Toast.LENGTH_SHORT).show();
 		}
 		catch (Exception ex)
 		{
-			//TODO: Replace with String resource.
-			Toast.makeText(context, "Refresh failed!", Toast.LENGTH_SHORT).show();
+			Log.e(LOG_TAG, ex.getMessage());
+			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
 			//Disable the "refreshing" animation.
 			this.refreshLayout.setRefreshing(false);
 		}
@@ -452,18 +463,13 @@ public class PodcastHelper
 							Element ielem = (Element) item;
 
 							// This section gets the elements from the XML.
-							NodeList title = ielem.getElementsByTagName("title");
-							NodeList link = ielem.getElementsByTagName("enclosure");
-							NodeList pubDate = ielem.getElementsByTagName("pubDate");
-							NodeList description = ielem.getElementsByTagName("description");	//Try to get the description tag first. 
-							NodeList content = ielem.getElementsByTagName("content:encoded");	//If the description tag doesn't contain anything, get the content:encoded tag data instead.
-
+							
 							// Extract relevant data from the NodeList objects.
 							//EPISODE TITLE
 							try
 							{
-								ep.setTitle(title.item(0).getChildNodes()
-										.item(0).getNodeValue());
+								NodeList title = ielem.getElementsByTagName("title");
+								ep.setTitle(title.item(0).getChildNodes().item(0).getNodeValue());
 							} catch (NullPointerException e)
 							{
 								e.printStackTrace();
@@ -471,14 +477,17 @@ public class PodcastHelper
 							//URL LINK
 							try
 							{
+								NodeList link = ielem.getElementsByTagName("enclosure");
 								ep.setLink(link.item(0).getAttributes().getNamedItem("url").getNodeValue());	//Extract the attributes from the NodeList, and then extract value of the attribute named "url".
-							} catch (NullPointerException e)
+							} 
+							catch (NullPointerException e)
 							{
 								e.printStackTrace();
 							}
 							//PUBLISH DATE
 							try
 							{
+								NodeList pubDate = ielem.getElementsByTagName("pubDate");
 								String val = pubDate.item(0).getChildNodes().item(0).getNodeValue();
 								try
 								{
@@ -497,13 +506,28 @@ public class PodcastHelper
 							//DESCRIPTION
 							try
 							{
-								ep.setDescription(description.item(0)
-										.getChildNodes().item(0).getNodeValue());
-								if (ep.getDescription().isEmpty()){
-									ep.setDescription(content.item(0)
-											.getChildNodes().item(0).getNodeValue());
-								}
-								
+								int iterator = 0;
+								NodeList description = null;
+								do
+								{
+									switch (iterator)
+									{
+										case 0:
+											description = ielem.getElementsByTagName("itunes:subtitle");	//First, try and get the itunes:subtitle tag
+											break;
+										case 1:
+											description = ielem.getElementsByTagName("itunes:summary");	//Second, try and get the description tag
+											break;
+										case 2:
+											description = ielem.getElementsByTagName("description");	//Second, try the content:encoded tag
+											break;
+										case 3:
+											description = ielem.getElementsByTagName("content:encoded");	//Third, try the itunes:summary tag
+											break;
+									}
+									iterator++;
+								} while (description.item(0).getChildNodes().item(0).getNodeValue().toString().isEmpty());
+								ep.setDescription(android.text.Html.fromHtml(description.item(0).getChildNodes().item(0).getNodeValue()).toString());
 							}
 							catch (NullPointerException e)
 							{
@@ -672,8 +696,7 @@ public class PodcastHelper
 								try
 								{
 									NodeList title = ielem.getElementsByTagName("title");
-									ep.setTitle(title.item(0).getChildNodes()
-											.item(0).getNodeValue());
+									ep.setTitle(title.item(0).getChildNodes().item(0).getNodeValue());
 									
 									if (currentFeed != null)
 									{
@@ -696,7 +719,6 @@ public class PodcastHelper
 								try
 								{
 									NodeList pubDate = ielem.getElementsByTagName("pubDate");	//Extract pubdate data from the XML.
-									
 									String val = pubDate.item(0).getChildNodes().item(0).getNodeValue();
 									try
 									{
@@ -714,17 +736,28 @@ public class PodcastHelper
 
 								try
 								{
-									NodeList description = ielem
-											.getElementsByTagName("description");	//Try to get the description tag first. 
-									NodeList content = ielem
-											.getElementsByTagName("content:encoded");	//If the description tag doesn't contain anything, get the content:encoded tag data instead.
-
-									ep.setDescription(description.item(0)
-											.getChildNodes().item(0).getNodeValue());
-									if (ep.getDescription().isEmpty()){
-										ep.setDescription(content.item(0)
-												.getChildNodes().item(0).getNodeValue());
-									}
+									int iterator = 0;
+									NodeList description = null;
+									do
+									{
+										switch (iterator)
+										{
+											case 0:
+												description = ielem.getElementsByTagName("itunes:subtitle");	//First, try and get the itunes:subtitle tag
+												break;
+											case 1:
+												description = ielem.getElementsByTagName("itunes:summary");	//Second, try and get the description tag
+												break;
+											case 2:
+												description = ielem.getElementsByTagName("description");	//Second, try the content:encoded tag
+												break;
+											case 3:
+												description = ielem.getElementsByTagName("content:encoded");	//Third, try the itunes:summary tag
+												break;
+										}
+										iterator++;
+									} while (description.item(0).getChildNodes().item(0).getNodeValue().toString().isEmpty());
+									ep.setDescription(android.text.Html.fromHtml(description.item(0).getChildNodes().item(0).getNodeValue()).toString());
 									
 								} catch (NullPointerException e)
 								{
@@ -927,17 +960,16 @@ public class PodcastHelper
 	
 	/**
 	 * Checks the status of the latest download.
-	 * @param feedId Id of the Feed that the Podcast belongs to.
-	 * @param episodeId Id of the Episode within the specified feed.
+	 * @param feedPos Id of the Feed that the Podcast belongs to.
+	 * @param epPos Id of the Episode within the specified feed.
 	 * @author Emil
 	 */
-	private void checkDownloadStatus(int feedPos, int epPos)
+	private void checkDownloadStatus(long dwnId, int feedPos, int epPos, BroadcastReceiver source)
 	{
 		
 		 // TODO Auto-generated method stub
 		 DownloadManager.Query query = new DownloadManager.Query();
-		 long id = preferenceManager.getLong(strPref_Download_ID, 0);
-		 query.setFilterById(id);
+		 query.setFilterById(dwnId);
 		 Cursor cursor = downloadManager.query(query);
 		 if(cursor.moveToFirst())
 		 {
@@ -1025,7 +1057,7 @@ public class PodcastHelper
 					   break;
 				  case DownloadManager.STATUS_SUCCESSFUL:
 					  //Download was successful. We should update db etc.
-					   downloadCompleted(feedPos, epPos);
+					   downloadCompleted(feedPos, epPos, source);
 					   break;
 			 }
 		 }

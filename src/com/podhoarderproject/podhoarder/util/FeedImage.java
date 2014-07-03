@@ -151,7 +151,7 @@ public class FeedImage
             {            	
             	Header[] headers = response.getHeaders("Location");
             	if (headers != null && headers.length != 0) {
-            		Log.e(LOG_TAG, "Error " + statusCode + " while retrieving bitmap from " + url + ". Trying to follow redirect..."); 
+            		Log.w(LOG_TAG, "Error " + statusCode + " while retrieving bitmap from " + url + ". Trying to follow redirect..."); 
                     String newUrl = headers[headers.length - 1].getValue();	//Extract the redirect URL from the HTTP Headers.
                     return downloadBitmap(newUrl);	 // Call this method again with new URL.
                 } 
