@@ -63,7 +63,7 @@ public class PlayerFragment extends Fragment
     	setupListView();
     	setupMediaControls();
     	
-    	if (this.podService != null && this.podService.isPng()) this.podService.updateUI();
+    	
     	if (this.podService != null && this.podService.isPng())	playPauseButton.setChecked(false);
     	return this.view;
     }
@@ -103,7 +103,8 @@ public class PlayerFragment extends Fragment
 		{
 			this.podService.setUIElements(playPauseButton, episodeTitle, elapsedTime, totalTime, seekBar, helper);
 		}
-		
+		if (this.podService != null && this.podService.currentEpisode != null) this.podService.updateUI();
+		else if (this.podService != null && this.podService.currentEpisode == null) this.podService.resetUI();
 	}
     
     private void setupListView()
@@ -194,7 +195,6 @@ public class PlayerFragment extends Fragment
         
     private DragListener mDragListener = new DragListener() 
     {
-    	int backgroundColor = 0xe0103010;
     	int defaultBackgroundColor;
     	
 		public void onDrag(int x, int y, ListView listView) 
@@ -206,7 +206,7 @@ public class PlayerFragment extends Fragment
 		{
 			itemView.setVisibility(View.INVISIBLE);
 			defaultBackgroundColor = itemView.getDrawingCacheBackgroundColor();
-			itemView.setBackgroundColor(backgroundColor);
+			itemView.setBackgroundColor(getResources().getColor(R.color.fragment_player_playerlist_row_background_ondrag));
 			ImageView iv = (ImageView)itemView.findViewById(R.id.player_list_row_grabber);
 			if (iv != null) iv.setVisibility(View.INVISIBLE);
 		}

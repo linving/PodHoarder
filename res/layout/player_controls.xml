@@ -31,7 +31,7 @@
 	        android:layout_height="20dp"
 	        android:layout_marginTop="15dp"
 	        android:layout_marginRight="30dp"
-	        android:background="@drawable/white_player_backward"
+	        android:background="@drawable/dark_player_backward"
 	        android:alpha=".9"/>
 	    <ToggleButton android:id="@+id/player_controls_button_playpause"
 	        android:layout_width="50dp"
@@ -45,7 +45,7 @@
 	        android:layout_height="20dp"
 	        android:layout_marginTop="15dp"
 	        android:layout_marginLeft="30dp"
-	        android:background="@drawable/white_player_forward"
+	        android:background="@drawable/dark_player_forward"
 	        android:alpha=".9"/>
 	</LinearLayout>
 	

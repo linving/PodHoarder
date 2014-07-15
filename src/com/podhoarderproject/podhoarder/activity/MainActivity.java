@@ -1,7 +1,7 @@
 package com.podhoarderproject.podhoarder.activity;
  
 import com.podhoarderproject.podhoarder.R;
-import com.podhoarderproject.podhoarder.adapter.TabsPagerAdapter;
+import com.podhoarderproject.podhoarder.adapter.TabFragmentsAdapter;
 import com.podhoarderproject.podhoarder.gui.*;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
 import com.podhoarderproject.podhoarder.service.PodHoarderService.PodHoarderBinder;
@@ -12,10 +12,14 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -32,16 +36,12 @@ import android.content.ServiceConnection;
  */
 public class MainActivity extends FragmentActivity implements ActionBar.TabListener
 {
+	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.MainActivity";
 	//UI Elements
-    private ViewPager viewPager;
-    private TabsPagerAdapter mAdapter;
+    private ViewPager mPager;
+    private TabFragmentsAdapter mAdapter;
     public ActionBar actionBar;
-    
-    //Fragment Objects
-    private FeedFragment feedFragment;
-    private LatestEpisodesFragment episodesFragment;
-    private PlayerFragment playerFragment;
     
     //Podcast Helper
     public PodcastHelper helper;
@@ -74,17 +74,17 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	    }
     };   
     
-    // Tab titles
-    private String[] tabs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) 
     {
+    	getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+        getActionBar().hide();
         super.onCreate(savedInstanceState);
-	    
+        
         // Initialisation
         setContentView(R.layout.activity_main);
-        doFragmentSetup(savedInstanceState);
+        getActionBar().show();
         doTabSetup();
         this.helper = new PodcastHelper(this);  
         
@@ -146,47 +146,66 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	        	return super.onOptionsItemSelected(item);
 	    }
     }
-  
-    private void doFragmentSetup(Bundle savedInstanceState)
-    {
-    	// If we're being restored from a previous state,
-        // then we don't need to do anything and should return or else
-        // we could end up with overlapping fragments.
-        if (savedInstanceState != null) {
-            return;
-        }
-        
-    	this.feedFragment = new FeedFragment();
-    	this.episodesFragment = new LatestEpisodesFragment();
-    	this.playerFragment = new PlayerFragment();
-    	
-    	getSupportFragmentManager().beginTransaction().add(R.id.pager, this.feedFragment, ""+R.id.feedFragment_container).commit();
-    	getSupportFragmentManager().beginTransaction().add(R.id.pager, this.episodesFragment, ""+R.id.episodesFragment_container).commit();
-    	getSupportFragmentManager().beginTransaction().add(R.id.pager, this.playerFragment, ""+R.id.playerFragment_container).commit();
-    }
     
     private void doTabSetup()
     {
-    	viewPager = (ViewPager) findViewById(R.id.pager);
+    	mPager = (ViewPager) findViewById(R.id.pager);
         actionBar = getActionBar();
-        mAdapter = new TabsPagerAdapter(getSupportFragmentManager());
+        mAdapter = new TabFragmentsAdapter(getSupportFragmentManager());
+        //mAdapter = new TabsPagerAdapter(getSupportFragmentManager());
 
-        viewPager.setAdapter(mAdapter);
-        //actionBar.setHomeButtonEnabled(false);
-        //actionBar.setDisplayShowTitleEnabled(false);
+        mPager.setAdapter(mAdapter);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        tabs = new String[] {this.getString(R.string.feed_tab),this.getString(R.string.episodes_tab),this.getString(R.string.player_tab)};
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(false);
+        
+        View view = null;
+        ImageView tabImg = null;
+        TextView tabText = null;
         // Adding Tabs
-        for (String tab_name : tabs) 
-        {
-            actionBar.addTab(actionBar.newTab().setText(tab_name).setTabListener(this));        
-        }
+        //1. Feed tab
+        Tab feedTab = actionBar.newTab();
+        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
+        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
+        tabText = (TextView) view.findViewById(R.id.tabText);
+        
+        tabText.setText(R.string.feed_tab);
+        tabImg.setBackgroundResource(R.drawable.tab_icon_feeds_dark);
+        feedTab.setCustomView(view);
+        feedTab.setTabListener(this);
+        actionBar.addTab(feedTab);
+        
+        //2. Latest Episodes tab        
+        Tab latestTab = actionBar.newTab();
+        
+        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
+        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
+        tabText = (TextView) view.findViewById(R.id.tabText);
+        
+        tabText.setText(R.string.episodes_tab);
+        tabImg.setBackgroundResource(R.drawable.tab_icon_latest_dark);
+        latestTab.setCustomView(view);
+        latestTab.setTabListener(this);
+        actionBar.addTab(latestTab);
+        
+        //3. Player tab
+        Tab playerTab = actionBar.newTab();
+        
+        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
+        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
+        tabText = (TextView) view.findViewById(R.id.tabText);
+        
+        tabText.setText(R.string.player_tab);
+        tabImg.setBackgroundResource(R.drawable.tab_icon_player_dark);
+        playerTab.setCustomView(view);
+        playerTab.setTabListener(this);
+        actionBar.addTab(playerTab);
+        
         
     	 /**
          * on swiping the viewpager make respective tab selected
          * */
-        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             @Override
             public void onPageSelected(int position) {
@@ -207,6 +226,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     	
     }
 
+
     public void downloadEpisode(int feedId, int episodeId)
     {
     	this.helper.downloadEpisode(feedId, episodeId);
@@ -224,7 +244,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	{
 		// on tab selected
         // show respected fragment view
-        viewPager.setCurrentItem(tab.getPosition());
+        mPager.setCurrentItem(tab.getPosition());
 	}
 
 	@Override
@@ -265,18 +285,37 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	public void onNewIntent(Intent intent)
 	{
 	    super.onNewIntent(intent);
-
-	    // your code here
-	    String data = (String) intent.getExtras().get("do_action");
-	    Log.i(LOG_TAG, "Received intent: " + data);
-	    if (data.equals("pause"))
-	    {
-	    	this.podService.pause();
-	    }
-	    else if (data.equals("play"))
-	    {
-	    	this.podService.resume();
-	    }
+	    if (intent.getAction() != null && this != null)	//Make sure the Intent contains any data.
+		{
+		    if (intent.getAction().equals("navigate_player"))
+		    {
+		    	this.actionBar.setSelectedNavigationItem(2);	//Navigate to the Player tab.
+		    }
+		}
 	}
 
+	public void onBackPressed() 
+	{
+        if(mPager.getCurrentItem() == 0) 
+        {
+            if (mAdapter.getItem(0) instanceof FeedDetailsFragment) 
+            {
+                ((FeedDetailsFragment) mAdapter.getItem(0)).backPressed();
+            }
+            else 
+            {
+            	Intent startMain = new Intent(Intent.ACTION_MAIN);
+            	startMain.addCategory(Intent.CATEGORY_HOME);
+            	startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            	startActivity(startMain);
+            }
+        }
+        else 
+        {
+        	Intent startMain = new Intent(Intent.ACTION_MAIN);
+        	startMain.addCategory(Intent.CATEGORY_HOME);
+        	startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        	startActivity(startMain);
+        }
+    }
 }

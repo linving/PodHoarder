@@ -15,8 +15,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.activity.SettingsActivity;
 import com.podhoarderproject.podhoarder.util.*;
 
@@ -74,18 +76,22 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	@Override
 	public void onCompletion(MediaPlayer arg0)
 	{
-		this.currentEpisode.setElapsedTime(this.currentEpisode.getTotalTime());	//Set elapsed time to total time (100% of the Episode)
-		helper.updateEpisode(currentEpisode);	//Update the db object.
-		int indexToDelete = findEpisodeInPlaylist(this.currentEpisode);
-		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SettingsActivity.SETTINGS_KEY_PLAYNEXTFILE, true))
+		if (this.currentEpisode != null)
 		{
-			playNext();	//Play
+			this.currentEpisode.setElapsedTime(this.currentEpisode.getTotalTime());	//Set elapsed time to total time (100% of the Episode)
+			helper.updateEpisode(currentEpisode);	//Update the db object.
+			int indexToDelete = findEpisodeInPlaylist(this.currentEpisode);
+			if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SettingsActivity.SETTINGS_KEY_PLAYNEXTFILE, true))
+			{
+				playNext();	//Play
+			}
+			else this.stop();
+			if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SettingsActivity.SETTINGS_KEY_DELETELISTENED, true) && !streaming)	
+			{
+				this.helper.deleteEpisode(this.playList.get(indexToDelete).getFeedId(), this.playList.get(indexToDelete).getEpisodeId());
+			}
 		}
-		else this.stop();
-		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SettingsActivity.SETTINGS_KEY_DELETELISTENED, true) && !streaming)	
-		{
-			this.helper.deleteEpisode(this.playList.get(indexToDelete).getFeedId(), this.playList.get(indexToDelete).getEpisodeId());
-		}
+		else	Toast.makeText(getApplication(), getString(R.string.toast_player_playback_failed), Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -115,7 +121,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		{
 			updateUI();
 		}
-		
 	}
 	
 	private void setupNotification()
@@ -127,7 +132,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
 		
-		if (intent.getAction() != null)	//Make sure the Intent contains any data.
+		if (intent.getAction() != null && this != null)	//Make sure the Intent contains any data.
 		{
 			if (intent.getAction().equals("play"))	//The play button has been pressed.
 			{
@@ -152,6 +157,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		//Update the UI Elements in the Player Fragment.
 		this.episodeTitle.setText(this.currentEpisode.getTitle());
 		this.totalTime.setText(millisToTime(this.currentEpisode.getTotalTime()));
+		this.elapsedTime.setText(millisToTime(this.currentEpisode.getElapsedTime()));
 		this.seekBar.setMax(this.currentEpisode.getTotalTime());
 		if (isPng()) playPauseButton.setChecked(true);
 		this.handler.post(UpdateRunnable);
@@ -218,7 +224,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		{
 			Log.e(LOG_TAG, "Error setting data source", e);
 		}
-//		this.episodeTitle.setText("Loading...");	//TODO: Replace with string resource.
 		this.player.prepareAsync();
 	}
 	

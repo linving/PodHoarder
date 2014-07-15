@@ -6,14 +6,6 @@
     android:background="@color/fragment_latest_background"
     android:id="@+id/episodesFragment_container">
 
-    <TextView
-        android:id="@+id/episodesTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="15dip"
-        android:text="@string/episodes_title"
-        android:textColor="@color/fragment_latest_title"
-        android:textSize="@dimen/fragment_latest_title"/>
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_container"
         android:layout_width="fill_parent"
@@ -26,6 +18,8 @@
 	        android:layout_width="fill_parent"
 	        android:layout_height="fill_parent"
 	        android:divider="@drawable/list_divider"
-	        android:dividerHeight="1px"/>
+	        android:dividerHeight="1px"
+	        android:clickable="true"
+	        android:longClickable="true"/>
 	</android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

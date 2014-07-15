@@ -8,22 +8,20 @@ import java.text.ParseException;
 import java.util.List;
 
 import com.podhoarderproject.podhoarder.R;
-import com.podhoarderproject.podhoarder.activity.MainActivity;
 import com.podhoarderproject.podhoarder.adapter.LatestEpisodesListAdapter.ViewHolderItem;
 import com.podhoarderproject.podhoarder.util.Episode;
 import com.podhoarderproject.podhoarder.util.Feed;
+import com.podhoarderproject.podhoarder.util.ImageUtils;
 import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class FeedListAdapter extends BaseExpandableListAdapter
@@ -105,7 +103,7 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 		{
 			//Inflate
 			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = inflater.inflate(R.layout.fragment_feeds_expandable_list_feed_row, null);
+			convertView = inflater.inflate(R.layout.fragment_feeds_list_row, null);
 			
 			// Set up the ViewHolder
 	        viewHolder = new FeedViewHolderItem();
@@ -113,7 +111,6 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 	        viewHolder.feedNumberOfEpisodes = (TextView) convertView.findViewById(R.id.list_feed_row_numberOfEpisodes);
 	        viewHolder.feedDescription = (TextView) convertView.findViewById(R.id.list_feed_row_description);
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.list_feed_row_image);
-	        viewHolder.deleteFeedBtn = (Button) convertView.findViewById(R.id.list_feed_row_deleteBtn);
 	        
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
@@ -130,30 +127,17 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 		{
 			viewHolder.feedTitle.setText(currentFeed.getTitle());	//Set Feed Title
 			//TODO: Replace with String resource.
-			viewHolder.feedNumberOfEpisodes.setText(currentFeed.getEpisodes().size() + " episodes");	//Set number of Episodes
-			viewHolder.feedImage.setBackground(currentFeed.getFeedImage().imageObject());
+			viewHolder.feedNumberOfEpisodes.setText(currentFeed.getEpisodes().size() + " " + context.getString(R.string.fragment_feeds_list_feed_row_episodes));	//Set number of Episodes
+			viewHolder.feedImage.setBackground(new BitmapDrawable(context.getResources(),ImageUtils.getCircularBitmap(currentFeed.getFeedImage().imageObject().getBitmap())));
 			
 			if (isExpanded)
 			{
 				viewHolder.feedDescription.setVisibility(View.VISIBLE);
 				viewHolder.feedDescription.setText(currentFeed.getDescription());
-				
-				final Feed curFeed = currentFeed;
-				viewHolder.deleteFeedBtn.setVisibility(View.VISIBLE);
-				viewHolder.deleteFeedBtn.setOnClickListener(new OnClickListener() 
-				   { 
-				       @Override
-				       public void onClick(View v) 
-				       {
-				    	   ((MainActivity)context).helper.deleteFeed(curFeed.getFeedId());
-				       }
-
-				   });
 			}
 			else
 			{
 				viewHolder.feedDescription.setVisibility(View.GONE);
-				viewHolder.deleteFeedBtn.setVisibility(View.GONE);
 			}
 		}
 		return convertView;
@@ -168,18 +152,13 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 		{
 			//Inflate
 			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = inflater.inflate(R.layout.fragment_latest_list_episode_row, null);
+			convertView = inflater.inflate(R.layout.list_episode_row, null);
 			
 			// Set up the ViewHolder
 	        viewHolder = new ViewHolderItem();
 	        viewHolder.episodeTitle = (TextView) convertView.findViewById(R.id.list_episode_row_episodeName);
 	        viewHolder.episodeAge = (TextView) convertView.findViewById(R.id.list_episode_row_episodeAge);
 	        viewHolder.episodeDescription = (TextView) convertView.findViewById(R.id.list_episode_row_expandableTextView);
-	        viewHolder.elapsedTimeBar = (ProgressBar) convertView.findViewById(R.id.list_episode_row_elapsed_progressBar);
-	        viewHolder.downloadButton = (Button) convertView.findViewById(R.id.list_episode_row_downloadBtn);
-	        viewHolder.deleteButton = (Button) convertView.findViewById(R.id.list_episode_row_deleteBtn);
-	        viewHolder.playButton = (Button) convertView.findViewById(R.id.list_episode_row_playBtn);
-	        viewHolder.streamButton = (Button) convertView.findViewById(R.id.list_episode_row_streamBtn);
 	        
 	        
 	        // Store the holder with the view.
@@ -211,18 +190,6 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//Set Episode Elapsed Time.
-			if (currentEpisode.getTotalTime() != 0)	//We can only set the progressbar if we have downloaded the file to find out the total runtime.
-			{
-				viewHolder.elapsedTimeBar.setMax(currentEpisode.getTotalTime());
-				viewHolder.elapsedTimeBar.setProgress(currentEpisode.getElapsedTime());
-			}
-			else	//If we have never downloaded the file then we haven't listened to it so just set it to 0 progress out of a 100.
-			{
-				viewHolder.elapsedTimeBar.setMax(100);
-				viewHolder.elapsedTimeBar.setProgress(0);
-			}
-			
 			if (currentEpisode.getElapsedTime() >= currentEpisode.getTotalTime() && currentEpisode.getTotalTime() > 0)
 			{
 				convertView.setAlpha(.5f);
@@ -232,67 +199,6 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 				convertView.setAlpha(1f);
 			}
 			
-			final int feedId = currentEpisode.getFeedId();
-			final int episodeId = currentEpisode.getEpisodeId();
-			final Episode currentEp = currentEpisode;
-			
-			if(!currentEpisode.getLocalLink().isEmpty())	//The Episode.localLink property has a value, which means that the Episode is downloaded. We should show the Play button instead of the Download button.
-			{
-				viewHolder.downloadButton.setVisibility(View.GONE); //Hide Download Button.
-				viewHolder.playButton.setVisibility(View.VISIBLE);	//Show the Play button.
-				viewHolder.playButton.setOnClickListener(new OnClickListener() 
-				   { 
-				       @Override
-				       public void onClick(View v) 
-				       {
-				    	   ((MainActivity)context).podService.startEpisode(currentEp);
-				    	   ((MainActivity)context).getActionBar().setSelectedNavigationItem(2);	//Navigate to the Player Fragment automatically.
-				    	   v.setEnabled(false);
-				       }
-
-				   });
-				viewHolder.deleteButton.setVisibility(View.VISIBLE);	//Show the Delete button.
-				viewHolder.deleteButton.setOnClickListener(new OnClickListener() 
-				   { 
-				       @Override
-				       public void onClick(View v) 
-				       {
-				    	   //TODO: Make sure this isn't the file that is currently playing in Service.
-				    	   ((MainActivity)context).podService.deletingEpisode(currentEp.getEpisodeId());
-				    	   ((MainActivity)context).helper.deleteEpisode(currentEp.getFeedId(), currentEp.getEpisodeId());
-				    	   v.setEnabled(false);
-				       }
-
-				   });
-			}
-			else 	//The Episode has not been downloaded, so we can't show the Play button. The Download button should be there instead.
-			{
-				viewHolder.downloadButton.setVisibility(View.VISIBLE); //Show Download Button.
-				viewHolder.playButton.setVisibility(View.GONE);	//Hide the Play button.
-				viewHolder.deleteButton.setVisibility(View.GONE);	//Hide the Delete button.
-				viewHolder.downloadButton.setOnClickListener(new OnClickListener() 
-				   { 
-				       @Override
-				       public void onClick(View v) 
-				       {
-				    	   ((MainActivity)context).downloadEpisode(feedId, episodeId);
-				    	   v.setEnabled(false);
-				       }
-
-				   });
-			}
-			
-			viewHolder.streamButton.setOnClickListener(new OnClickListener() 	//We always want the option to stream an Episode.
-			   { 
-			       @Override
-			       public void onClick(View v) 
-			       {
-			    	   ((MainActivity)context).podService.streamEpisode(currentEp);
-			    	   ((MainActivity)context).getActionBar().setSelectedNavigationItem(2);	//Navigate to the Player Fragment automatically.
-			    	   v.setEnabled(false);
-			       }
-
-			   });
 		}
 		return convertView;
 	}
@@ -306,14 +212,7 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 	@Override
 	public boolean isChildSelectable(int groupPos, int childPos)
 	{
-		if (groupPos < this.feeds.size())
-		{
-			if (childPos < this.feeds.get(groupPos).getEpisodes().size())
-			{
-				return true;
-			}
-		}
-		return false;
+		return true;
 	}
 
 	//This is to improve ListView performance. See link for details.
@@ -323,6 +222,8 @@ public class FeedListAdapter extends BaseExpandableListAdapter
 	    TextView feedNumberOfEpisodes;
 	    TextView feedDescription;
 	    ImageView feedImage;
-	    Button deleteFeedBtn;
+	    ImageView groupIndicator;
 	}
+	
+	
 }

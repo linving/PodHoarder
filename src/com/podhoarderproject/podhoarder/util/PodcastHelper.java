@@ -29,6 +29,7 @@ import org.xml.sax.SAXException;
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.activity.SettingsActivity;
 import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
+import com.podhoarderproject.podhoarder.adapter.FeedDetailsListAdapter;
 import com.podhoarderproject.podhoarder.adapter.FeedListAdapter;
 import com.podhoarderproject.podhoarder.adapter.LatestEpisodesListAdapter;
 import com.podhoarderproject.podhoarder.db.EpisodeDBHelper;
@@ -40,15 +41,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -74,10 +72,6 @@ public class PodcastHelper
 	
 	public 	static final 	SimpleDateFormat 			xmlFormat = new SimpleDateFormat("EEE, d MMM yyy HH:mm:ss Z");	//Used when formatting timestamps in .xml's
 	public 	static final 	SimpleDateFormat 			correctFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");	//Used when formatting timestamps in .xml's
-	
-	private final 			String 						strPref_Download_ID = "PREF_DOWNLOAD_ID";	//Used with the DownloadManager to store request ID in SharedPreferences.
-	
-	private 				SharedPreferences 			preferenceManager;
 	private 				DownloadManager 			downloadManager;
 	private					List<BroadcastReceiver>		broadcastReceivers;
 
@@ -85,6 +79,7 @@ public class PodcastHelper
 	private 				EpisodeDBHelper 			eph;	//Handles saving the Episode objects to a database for persistence.
 	public 					PlaylistDBHelper 			plDbH;	//Handles saving the current playlist to a database for persistence.
 	public 					FeedListAdapter 			listAdapter;	//An expandable list containing all the Feed and their respective Episodes.	
+	public					FeedDetailsListAdapter		feedDetailsListAdapter;
 	public 					LatestEpisodesListAdapter 	latestEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
 	public 					DragNDropAdapter 			playlistAdapter;	//A list containing all the downloaded episodes.
 	private 				Context	 					context;
@@ -102,9 +97,9 @@ public class PodcastHelper
 		this.eph = new EpisodeDBHelper(this.context);
 		this.plDbH = new PlaylistDBHelper(this.context);
 		this.listAdapter = new FeedListAdapter(this.fDbH.getAllFeeds(), this.context);
+		this.feedDetailsListAdapter = new FeedDetailsListAdapter(this.context);
 		this.latestEpisodesListAdapter = new LatestEpisodesListAdapter(this.eph.getLatestEpisodes(100), this.context);
 		this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
-		preferenceManager = PreferenceManager.getDefaultSharedPreferences(this.context);
 		// get download service and enqueue file
 		this.downloadManager = (DownloadManager) this.context.getSystemService(Context.DOWNLOAD_SERVICE);
 		this.broadcastReceivers = new ArrayList<BroadcastReceiver>();
@@ -168,6 +163,18 @@ public class PodcastHelper
 	}
 	
 	/**
+	 * Calls a background thread that refreshes a particular Feed object in the db.
+	 * (Make sure that before calling this, you have called setRefreshLayout so the Task can update the UI once done.)
+	 * @param id ID of the Feed to be refreshed.
+	 */
+	public void refreshFeed(int id)
+	{
+		List<String> urls = new ArrayList<String>();
+		urls.add(this.getFeed(id).getLink());
+		new FeedRefreshTask().execute(urls);
+	}
+	
+	/**
 	 * Downloads a Podcast using the a stored URL in the db.
 	 * Podcasts are placed in the public Podcasts-directory.
 	 * @param feedId Id of the Feed that the Podcast belongs to.
@@ -183,8 +190,8 @@ public class PodcastHelper
 		{
 			String url = this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLink();
 			DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-			request.setDescription(this.context.getString(R.string.notification_by) + " " + this.context.getString(R.string.app_name));
-			request.setTitle(this.context.getString(R.string.notification_downloading) + " " + this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle());
+			request.setDescription(this.context.getString(R.string.notification_download_in_progress));
+			request.setTitle(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle());
 			// in order for this if to run, you must use the android 3.2 to compile your app
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) 
 			{
@@ -204,7 +211,7 @@ public class PodcastHelper
 			});
 			this.context.registerReceiver(this.broadcastReceivers.get(this.broadcastReceivers.size()-1), new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 			this.downloadManager.enqueue(request);
-			
+			//TODO: Replace with string resource
 			Toast.makeText(context, "Downloading Podcast.",Toast.LENGTH_SHORT).show();
 		}
 		else
@@ -743,21 +750,36 @@ public class PodcastHelper
 										switch (iterator)
 										{
 											case 0:
-												description = ielem.getElementsByTagName("itunes:subtitle");	//First, try and get the itunes:subtitle tag
+												description = ielem.getElementsByTagName("itunes:summary");	//First, try and get the itunes:summary tag
+												if (description.item(0) != null)
+												{
+													ep.setDescription(android.text.Html.fromHtml(description.item(0).getChildNodes().item(0).getNodeValue()).toString());
+												}
 												break;
 											case 1:
-												description = ielem.getElementsByTagName("itunes:summary");	//Second, try and get the description tag
+												description = ielem.getElementsByTagName("itunes:subtitle");	//Second, try and get the itunes:subtitle tag
+												if (description.item(0) != null)
+												{
+													ep.setDescription(android.text.Html.fromHtml(description.item(0).getChildNodes().item(0).getNodeValue()).toString());
+												}
 												break;
 											case 2:
-												description = ielem.getElementsByTagName("description");	//Second, try the content:encoded tag
+												description = ielem.getElementsByTagName("description");	//Third, try the description tag
+												if (description.item(0) != null)
+												{
+													ep.setDescription(android.text.Html.fromHtml(description.item(0).getChildNodes().item(0).getNodeValue()).toString());
+												}
 												break;
 											case 3:
-												description = ielem.getElementsByTagName("content:encoded");	//Third, try the itunes:summary tag
+												description = ielem.getElementsByTagName("content:encoded");	//Fourth and finally, try the content:encoded tag
+												if (description.item(0) != null)
+												{
+													ep.setDescription(android.text.Html.fromHtml(description.item(0).getChildNodes().item(0).getNodeValue()).toString());
+												}
 												break;
 										}
 										iterator++;
-									} while (description.item(0).getChildNodes().item(0).getNodeValue().toString().isEmpty());
-									ep.setDescription(android.text.Html.fromHtml(description.item(0).getChildNodes().item(0).getNodeValue()).toString());
+									} while (ep.getDescription().isEmpty() || iterator > 3);
 									
 								} catch (NullPointerException e)
 								{
@@ -1082,9 +1104,16 @@ public class PodcastHelper
 		((DragNDropAdapter)this.playlistAdapter).replaceItems(this.plDbH.sort(this.eph.getDownloadedEpisodes()));
 		this.listAdapter.replaceItems(this.fDbH.getAllFeeds());
 		
+		if (this.feedDetailsListAdapter != null && this.feedDetailsListAdapter.feed != null)
+		{
+			this.feedDetailsListAdapter.replaceItems(this.fDbH.getFeed(this.feedDetailsListAdapter.feed.getFeedId()).getEpisodes());
+			this.feedDetailsListAdapter.notifyDataSetChanged();
+		}
+		
 		//Notify for UI updates.
 		this.listAdapter.notifyDataSetChanged();
 		this.playlistAdapter.notifyDataSetChanged();
 		this.latestEpisodesListAdapter.notifyDataSetChanged();
+		
 	}
 }

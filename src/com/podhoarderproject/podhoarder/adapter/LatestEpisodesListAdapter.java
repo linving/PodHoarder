@@ -8,7 +8,6 @@ import java.text.ParseException;
 import java.util.List;
 
 import com.podhoarderproject.podhoarder.R;
-import com.podhoarderproject.podhoarder.activity.MainActivity;
 import com.podhoarderproject.podhoarder.util.Episode;
 import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
@@ -16,12 +15,9 @@ import android.content.Context;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListAdapter;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapter
@@ -96,18 +92,13 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 		{
 			//Inflate
 			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = inflater.inflate(R.layout.fragment_latest_list_episode_row, null);
+			convertView = inflater.inflate(R.layout.list_episode_row, null);
 			
 			// Set up the ViewHolder
 	        viewHolder = new ViewHolderItem();
 	        viewHolder.episodeTitle = (TextView) convertView.findViewById(R.id.list_episode_row_episodeName);
 	        viewHolder.episodeAge = (TextView) convertView.findViewById(R.id.list_episode_row_episodeAge);
 	        viewHolder.episodeDescription = (TextView) convertView.findViewById(R.id.list_episode_row_expandableTextView);
-	        viewHolder.elapsedTimeBar = (ProgressBar) convertView.findViewById(R.id.list_episode_row_elapsed_progressBar);
-	        viewHolder.downloadButton = (Button) convertView.findViewById(R.id.list_episode_row_downloadBtn);
-	        viewHolder.deleteButton = (Button) convertView.findViewById(R.id.list_episode_row_deleteBtn);
-	        viewHolder.playButton = (Button) convertView.findViewById(R.id.list_episode_row_playBtn);
-	        viewHolder.streamButton = (Button) convertView.findViewById(R.id.list_episode_row_streamBtn);
 	        
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
@@ -138,17 +129,6 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//Set Episode Elapsed Time.
-			if (currentEpisode.getTotalTime() != 0)	//We can only set the progressbar if we have downloaded the file to find out the total runtime.
-			{
-				viewHolder.elapsedTimeBar.setMax(currentEpisode.getTotalTime());
-				viewHolder.elapsedTimeBar.setProgress(currentEpisode.getElapsedTime());
-			}
-			else	//If we have never downloaded the file then we haven't listened to it so just set it to 0 progress out of a 100.
-			{
-				viewHolder.elapsedTimeBar.setMax(100);
-				viewHolder.elapsedTimeBar.setProgress(0);
-			}
 			
 			if (currentEpisode.getElapsedTime() >= currentEpisode.getTotalTime() && currentEpisode.getTotalTime() > 0)
 			{
@@ -159,68 +139,8 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 				convertView.setAlpha(1f);
 			}
 			
-			final int feedId = currentEpisode.getFeedId();
-			final int episodeId = currentEpisode.getEpisodeId();
-			final Episode currentEp = currentEpisode;
-			
-			if(!currentEpisode.getLocalLink().isEmpty())	//The Episode.localLink property has a value, which means that the Episode is downloaded. We should show the Play button instead of the Download button.
-			{
-				viewHolder.downloadButton.setVisibility(View.GONE); //Hide Download Button.
-				viewHolder.playButton.setVisibility(View.VISIBLE);	//Show the Play button.
-				viewHolder.playButton.setOnClickListener(new OnClickListener() 
-				   { 
-				       @Override
-				       public void onClick(View v) 
-				       {
-				    	   ((MainActivity)context).podService.startEpisode(currentEp);
-				    	   ((MainActivity)context).getActionBar().setSelectedNavigationItem(2);	//Navigate to the Player Fragment automatically.
-				    	   v.setEnabled(false);
-				       }
-
-				   });
-				viewHolder.deleteButton.setVisibility(View.VISIBLE);	//Show the Delete button.
-				viewHolder.deleteButton.setOnClickListener(new OnClickListener() 
-				   { 
-				       @Override
-				       public void onClick(View v) 
-				       {
-				    	   //TODO: Make sure this isn't the file that is currently playing in Service.
-				    	   ((MainActivity)context).podService.deletingEpisode(currentEp.getEpisodeId());
-				    	   ((MainActivity)context).helper.deleteEpisode(currentEp.getFeedId(), currentEp.getEpisodeId());
-				    	   v.setEnabled(false);
-				       }
-
-				   });
-			}
-			else 	//The Episode has not been downloaded, so we can't show the Play button. The Download button should be there instead.
-			{
-				viewHolder.downloadButton.setVisibility(View.VISIBLE); //Show Download Button.
-				viewHolder.playButton.setVisibility(View.GONE);	//Hide the Play button.
-				viewHolder.deleteButton.setVisibility(View.GONE);	//Hide the Delete button.
-				viewHolder.downloadButton.setOnClickListener(new OnClickListener() 
-				   { 
-				       @Override
-				       public void onClick(View v) 
-				       {
-				    	   ((MainActivity)context).downloadEpisode(feedId, episodeId);
-				    	   v.setEnabled(false);
-				       }
-
-				   });
-			}
-			
-			viewHolder.streamButton.setOnClickListener(new OnClickListener() 	//We always want the option to stream an Episode.
-			   { 
-			       @Override
-			       public void onClick(View v) 
-			       {
-			    	   ((MainActivity)context).podService.streamEpisode(currentEp);
-			    	   ((MainActivity)context).getActionBar().setSelectedNavigationItem(2);	//Navigate to the Player Fragment automatically.
-			    	   v.setEnabled(false);
-			       }
-
-			   });
 		}
+		
 		return convertView;
 	}
 
@@ -230,10 +150,5 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 	    TextView episodeTitle;
 	    TextView episodeAge;
 	    TextView episodeDescription;
-	    ProgressBar elapsedTimeBar;
-	    Button downloadButton;
-	    Button deleteButton;
-	    Button playButton;
-	    Button streamButton;
 	}
 }

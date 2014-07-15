@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.SwipeRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipe_container"
+        android:layout_width="fill_parent"
+	    android:layout_height="fill_parent">
+	<LinearLayout 
+	    android:id="@+id/feedDetailsFragment_container"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_marginTop="10dp"
+	    android:layout_marginLeft="15dip"
+		android:layout_marginRight="15dip"
+	    android:orientation="vertical"
+	    android:background="@color/fragment_feed_details_background">
+		<LinearLayout
+		    android:id="@+id/feed_details_container"
+		    android:layout_width="match_parent"
+	    	android:layout_height="wrap_content"
+	    	android:orientation="horizontal">
+		    <ImageView android:id="@+id/feed_details_image"
+		        android:layout_width="100dp"
+		        android:layout_height="100dp"
+		        android:layout_margin="5dp"/>
+		    <LinearLayout
+			    android:id="@+id/feed_details_container"
+			    android:layout_width="wrap_content"
+		    	android:layout_height="wrap_content"
+		    	android:orientation="vertical">
+		    	<TextView android:id="@+id/feed_details_title"
+		    	    android:layout_width="match_parent"
+		    	    android:layout_height="wrap_content"
+		    	    android:textColor="@color/fragment_feed_details_title"
+		    	    android:textSize="@dimen/fragment_feed_details_title"
+		    	    android:maxLines="1"
+		    	    android:ellipsize="end"/>
+		    	<TextView android:id="@+id/feed_details_author"
+		    	    android:layout_width="match_parent"
+		    	    android:layout_height="wrap_content"
+		    	    android:textColor="@color/fragment_feed_details_author"
+		    	    android:textSize="@dimen/fragment_feed_details_author"
+		    	    android:maxLines="1"
+		    	    android:ellipsize="end"/>
+		    	<TextView android:id="@+id/feed_details_category"
+		    	    android:layout_width="match_parent"
+		    	    android:layout_height="wrap_content"
+		    	    android:textColor="@color/fragment_feed_details_category"
+		    	    android:textSize="@dimen/fragment_feed_details_category"
+		    	    android:maxLines="1"
+		    	    android:ellipsize="end"/>
+	    	</LinearLayout>
+		</LinearLayout>
+		<TextView android:id="@+id/feed_details_description"
+		    	    android:layout_width="wrap_content"
+		    	    android:layout_height="wrap_content"
+		    	    android:textColor="@color/fragment_feed_details_description"
+		    	    android:textSize="@dimen/fragment_feed_details_description"/>
+		    <ListView
+		        android:id="@+id/episodesListView"
+		        android:paddingTop="5dp"
+		        android:layout_width="fill_parent"
+		        android:layout_height="fill_parent"
+		        android:divider="@drawable/list_divider"
+		        android:dividerHeight="1px"
+		        android:clickable="true"
+		        android:longClickable="true"/>
+	</LinearLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

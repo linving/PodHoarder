@@ -16,7 +16,23 @@
             android:id="@+id/player_controls"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"/>
-    </LinearLayout>    
+        
+    </LinearLayout>
+    
+    <RelativeLayout
+        android:id="@+id/player_loading_container"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="gone">
+        <ProgressBar
+		   android:id="@+id/progress"
+		   style="?android:attr/progressBarStyleLarge"
+		   android:layout_width="wrap_content"
+		   android:layout_height="fill_parent"
+		   android:layout_gravity="center_vertical|center_horizontal"
+		   android:visibility="gone" />
+    </RelativeLayout>
+      
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

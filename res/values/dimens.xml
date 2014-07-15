@@ -9,13 +9,20 @@
     <dimen name="fragment_feeds_list_episode_age">12sp</dimen>
     <dimen name="fragment_feeds_list_episode_description">12sp</dimen>
     
+    <!-- Feed Details Fragment -->
+    <dimen name="fragment_feed_details_title">18sp</dimen>
+    <dimen name="fragment_feed_details_author">14sp</dimen>
+    <dimen name="fragment_feed_details_category">14sp</dimen>
+    <dimen name="fragment_feed_details_description">14sp</dimen>
+    
+    
     <!-- Latest Episodes Fragment -->
     <dimen name="fragment_latest_title">22sp</dimen>
     
     <!-- Latest Episodes Fragment List -->
-    <dimen name="fragment_latest_list_episode_title">12sp</dimen>
-    <dimen name="fragment_latest_list_episode_age">12sp</dimen>
-    <dimen name="fragment_latest_list_episode_description">12sp</dimen>
+    <dimen name="fragment_latest_list_episode_title">14sp</dimen>
+    <dimen name="fragment_latest_list_episode_age">14sp</dimen>
+    <dimen name="fragment_latest_list_episode_description">14sp</dimen>
     
     <!-- Player -->
     <dimen name="fragment_player_podcast_title">12sp</dimen>
@@ -33,8 +40,8 @@
     <dimen name="popup_add_feed_searchresults_list_row_description">12sp</dimen>
     
     <!-- Circular Progress Bar -->
-    <dimen name="circular_progress_bar_foreground">1dp</dimen>
-    <dimen name="circular_progress_bar_background">1dp</dimen>
+    <dimen name="circular_progress_bar_foreground">2dp</dimen>
+    <dimen name="circular_progress_bar_background">2dp</dimen>
     
     <!-- Service Notification -->
     <dimen name="service_notification_title">16sp</dimen>

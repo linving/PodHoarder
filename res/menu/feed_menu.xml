@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_feed_markAsListened"
+          android:title="@string/menu_feed_markAsListened"
+          android:icon="@drawable/ic_action_view_as_list" />
+    <item android:id="@+id/menu_feed_delete"
+          android:title="@string/menu_feed_delete"
+          android:icon="@drawable/ic_action_discard" />
+</menu>

@@ -1,6 +1,7 @@
 package com.podhoarderproject.podhoarder.service;
 
 import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.activity.MainActivity;
 import com.podhoarderproject.podhoarder.util.Feed;
 
 import android.app.Notification;
@@ -16,12 +17,16 @@ public class ServiceNotification
   private final static int ID_REMOTESERVICE = 1;
   private RemoteViews _smallView, _bigView;
   private Notification _notification;
-  private Intent _playIntent;
-  private PendingIntent _playPendingIntent;
+  private Intent _playIntent, _navigateIntent;
+  private PendingIntent _playPendingIntent, _navigatePendingIntent;
 
 
   public ServiceNotification(PodHoarderService $context)
   {
+	_navigateIntent = new Intent($context, MainActivity.class);
+	_navigateIntent.setAction("navigate_player");
+	_navigatePendingIntent = PendingIntent.getActivity($context, 0, _navigateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+	  
     _playIntent = new Intent($context, PodHoarderService.class);
     _playIntent.setAction("play");
     _playPendingIntent = PendingIntent.getService($context, 0, _playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -46,7 +51,8 @@ public class ServiceNotification
     NotificationCompat.Builder builder = new NotificationCompat.Builder($context).setSmallIcon(R.drawable.ic_launcher)
                                                                                  .setLargeIcon(currentFeed.getFeedImage().imageObject().getBitmap())
                                                                                  .setTicker(res.getString(R.string.app_name))
-                                                                                 .setContentTitle(res.getString(R.string.app_name));
+                                                                                 .setContentTitle(res.getString(R.string.app_name))
+                                                                                 .setContentIntent(_navigatePendingIntent);
     _notification = builder.build();
     _notification.contentView = _smallView;
     _notification.bigContentView = _bigView;
