@@ -23,7 +23,7 @@ public class TestActivity extends Activity
 		//this.helper.downloadEpisode(1, 24);
 		this.helper.refreshFeeds();
 		ExpandableListView list = (ExpandableListView)findViewById(R.id.mainListView);
-		list.setAdapter(helper.listAdapter);
+		list.setAdapter(helper.feedsListAdapter);
 		System.out.println("Done!");
 	}
 

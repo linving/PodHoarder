@@ -30,7 +30,7 @@ import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.activity.SettingsActivity;
 import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
 import com.podhoarderproject.podhoarder.adapter.FeedDetailsListAdapter;
-import com.podhoarderproject.podhoarder.adapter.FeedListAdapter;
+import com.podhoarderproject.podhoarder.adapter.FeedsListAdapter;
 import com.podhoarderproject.podhoarder.adapter.LatestEpisodesListAdapter;
 import com.podhoarderproject.podhoarder.db.EpisodeDBHelper;
 import com.podhoarderproject.podhoarder.db.FeedDBHelper;
@@ -78,7 +78,7 @@ public class PodcastHelper
 	private 				FeedDBHelper 				fDbH;	//Handles saving the Feed objects to a database for persistence.
 	private 				EpisodeDBHelper 			eph;	//Handles saving the Episode objects to a database for persistence.
 	public 					PlaylistDBHelper 			plDbH;	//Handles saving the current playlist to a database for persistence.
-	public 					FeedListAdapter 			listAdapter;	//An expandable list containing all the Feed and their respective Episodes.	
+	public 					FeedsListAdapter 			feedsListAdapter;	//An expandable list containing all the Feed and their respective Episodes.	
 	public					FeedDetailsListAdapter		feedDetailsListAdapter;
 	public 					LatestEpisodesListAdapter 	latestEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
 	public 					DragNDropAdapter 			playlistAdapter;	//A list containing all the downloaded episodes.
@@ -96,7 +96,7 @@ public class PodcastHelper
 		this.fDbH = new FeedDBHelper(this.context);
 		this.eph = new EpisodeDBHelper(this.context);
 		this.plDbH = new PlaylistDBHelper(this.context);
-		this.listAdapter = new FeedListAdapter(this.fDbH.getAllFeeds(), this.context);
+		this.feedsListAdapter = new FeedsListAdapter(this.fDbH.getAllFeeds(), this.context);
 		this.feedDetailsListAdapter = new FeedDetailsListAdapter(this.context);
 		this.latestEpisodesListAdapter = new LatestEpisodesListAdapter(this.eph.getLatestEpisodes(100), this.context);
 		this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
@@ -128,14 +128,14 @@ public class PodcastHelper
 	{
 		int i = 0;
 		this.fDbH.deleteFeed(feedId);
-		while (this.listAdapter.feeds.get(i).getFeedId() != feedId
-				&& i < this.listAdapter.feeds.size())
+		while (this.feedsListAdapter.feeds.get(i).getFeedId() != feedId
+				&& i < this.feedsListAdapter.feeds.size())
 		{
 			i++;
 		}
 
 		// Delete Feed Image
-		String fName = this.listAdapter.feeds.get(i).getFeedId() + ".jpg";
+		String fName = this.feedsListAdapter.feeds.get(i).getFeedId() + ".jpg";
 		File file = new File(this.context.getFilesDir(), fName);
 		boolean check = file.delete();
 		if (check)
@@ -155,7 +155,7 @@ public class PodcastHelper
 	public void refreshFeeds()
 	{
 		List<String> urls = new ArrayList<String>();
-		for (Feed f:this.listAdapter.feeds)
+		for (Feed f:this.feedsListAdapter.feeds)
 		{
 			urls.add(f.getLink());
 		}
@@ -186,12 +186,12 @@ public class PodcastHelper
 		final int feedPos = getFeedPositionWithId(feedId);
 		final int epPos = getEpisodePositionWithId(feedPos, episodeId);
 		
-		if (isDownloadManagerAvailable(this.context) && !new File(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink()).exists())
+		if (isDownloadManagerAvailable(this.context) && !new File(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink()).exists())
 		{
-			String url = this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLink();
+			String url = this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLink();
 			DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 			request.setDescription(this.context.getString(R.string.notification_download_in_progress));
-			request.setTitle(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle());
+			request.setTitle(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle());
 			// in order for this if to run, you must use the android 3.2 to compile your app
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) 
 			{
@@ -199,7 +199,7 @@ public class PodcastHelper
 			    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 			}
 			//TODO: If there is no sdcard, DownloadManager will throw an exception because it cannot save to a non-existing directory. Make sure the directory is valid or something.
-			request.setDestinationInExternalPublicDir(this.storagePath, sanitizeFileName(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle())  + ".mp3");
+			request.setDestinationInExternalPublicDir(this.storagePath, sanitizeFileName(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle())  + ".mp3");
 			
 			// register broadcast receiver for when the download is done.
 			this.broadcastReceivers.add(new BroadcastReceiver() {
@@ -229,9 +229,9 @@ public class PodcastHelper
 	private void downloadCompleted(int feedPos, int epPos, BroadcastReceiver receiver)
 	{
 		//update list adapter object
-		Episode currentEpisode = this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos);
+		Episode currentEpisode = this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos);
 		
-		currentEpisode.setLocalLink(this.podcastDir + "/" + sanitizeFileName(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle()) + ".mp3");
+		currentEpisode.setLocalLink(this.podcastDir + "/" + sanitizeFileName(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle()) + ".mp3");
 		
 		//THIS IS CURRENTLY NOT WORKING CORRECTLY.
 //		//If the total duration of the .mp3 file isn't already stored, we need to access the file to retrieve it.
@@ -285,11 +285,11 @@ public class PodcastHelper
 	{
 		int feedPos = getFeedPositionWithId(feedId);
 		int epPos = getEpisodePositionWithId(feedPos, episodeId);
-		File file = new File(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink());
+		File file = new File(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink());
 		if (file.delete())
 		{
-			this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos).setLocalLink("");
-			this.eph.updateEpisode(this.listAdapter.feeds.get(feedPos).getEpisodes().get(epPos));
+			this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).setLocalLink("");
+			this.eph.updateEpisode(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos));
 			this.plDbH.deleteEntry(episodeId);
 			Log.i(LOG_TAG, file.getAbsolutePath() + " deleted successfully!");
 		}
@@ -308,7 +308,7 @@ public class PodcastHelper
 	 */
 	private void checkLocalLinks()
 	{
-		List<Feed> feeds = this.listAdapter.feeds;
+		List<Feed> feeds = this.feedsListAdapter.feeds;
 		for (int feedNo=0; feedNo<feeds.size(); feedNo++)
 		{
 			List<Episode> episodes = feeds.get(feedNo).getEpisodes();
@@ -321,8 +321,8 @@ public class PodcastHelper
 					if (!file.exists())
 					{
 						Log.w(LOG_TAG, "Couldn't find " + file.getName() + ". Resetting local link for entry: " + episodes.get(epNo).getEpisodeId());
-						this.listAdapter.feeds.get(feedNo).getEpisodes().get(epNo).setLocalLink("");
-						Episode temp = this.listAdapter.feeds.get(feedNo).getEpisodes().get(epNo);
+						this.feedsListAdapter.feeds.get(feedNo).getEpisodes().get(epNo).setLocalLink("");
+						Episode temp = this.feedsListAdapter.feeds.get(feedNo).getEpisodes().get(epNo);
 						this.eph.updateEpisode(temp);
 					}
 				}
@@ -341,7 +341,7 @@ public class PodcastHelper
 		try
 		{
 			feed = this.fDbH.insertFeed(feed);
-			this.listAdapter.feeds.add(feed);
+			this.feedsListAdapter.feeds.add(feed);
 			this.refreshLists();
 		} catch (SQLiteConstraintException e)
 		{
@@ -911,9 +911,9 @@ public class PodcastHelper
 	private int getFeedPositionWithId(int feedId)
 	{
 		int retVal = -1;
-		for (int i=0; i<this.listAdapter.feeds.size(); i++)
+		for (int i=0; i<this.feedsListAdapter.feeds.size(); i++)
 		{
-			if (this.listAdapter.feeds.get(i).getFeedId() == feedId)
+			if (this.feedsListAdapter.feeds.get(i).getFeedId() == feedId)
 			{
 				retVal = i;
 			}
@@ -929,7 +929,7 @@ public class PodcastHelper
 	public Feed getFeed(int feedId)
 	{
 		int index = this.getFeedPositionWithId(feedId);
-		return this.listAdapter.feeds.get(index);
+		return this.feedsListAdapter.feeds.get(index);
 	}
 	
 	public BitmapDrawable getFeedImage(int feedId)
@@ -947,9 +947,9 @@ public class PodcastHelper
 	private int getEpisodePositionWithId(int feedPosition, int episodeId)
 	{
 		int retVal = -1;
-		for (int i=0; i<this.listAdapter.feeds.get(feedPosition).getEpisodes().size(); i++)
+		for (int i=0; i<this.feedsListAdapter.feeds.get(feedPosition).getEpisodes().size(); i++)
 		{
-			if (this.listAdapter.feeds.get(feedPosition).getEpisodes().get(i).getEpisodeId() == episodeId)
+			if (this.feedsListAdapter.feeds.get(feedPosition).getEpisodes().get(i).getEpisodeId() == episodeId)
 			{
 				retVal = i;
 			}
@@ -973,7 +973,7 @@ public class PodcastHelper
 	 */
 	private Feed getFeedWithURL(String url)
 	{
-		for (Feed currentFeed : this.listAdapter.feeds)
+		for (Feed currentFeed : this.feedsListAdapter.feeds)
 		{
 			if (url.equals(currentFeed.getLink())) return currentFeed;
 		}
@@ -1102,7 +1102,7 @@ public class PodcastHelper
 		//Update the list adapters to reflect changes.
 		((LatestEpisodesListAdapter)this.latestEpisodesListAdapter).replaceItems(this.eph.getLatestEpisodes(100));
 		((DragNDropAdapter)this.playlistAdapter).replaceItems(this.plDbH.sort(this.eph.getDownloadedEpisodes()));
-		this.listAdapter.replaceItems(this.fDbH.getAllFeeds());
+		this.feedsListAdapter.replaceItems(this.fDbH.getAllFeeds());
 		
 		if (this.feedDetailsListAdapter != null && this.feedDetailsListAdapter.feed != null)
 		{
@@ -1111,7 +1111,7 @@ public class PodcastHelper
 		}
 		
 		//Notify for UI updates.
-		this.listAdapter.notifyDataSetChanged();
+		this.feedsListAdapter.notifyDataSetChanged();
 		this.playlistAdapter.notifyDataSetChanged();
 		this.latestEpisodesListAdapter.notifyDataSetChanged();
 		

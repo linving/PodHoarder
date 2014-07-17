@@ -6,7 +6,7 @@
     android:background="@color/fragment_feeds_background"
     android:id="@+id/feedFragment_container">
 
-    <ExpandableListView
+    <ListView
         android:id="@+id/mainListView"
         android:background="@color/fragment_feeds_background"
         android:layout_marginLeft="10dip"
@@ -14,7 +14,6 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:divider="@color/fragment_feeds_background"
-        android:childDivider="@color/fragment_feeds_background"
         android:clickable="true"
         android:longClickable="true"
         android:groupIndicator="@null"/>

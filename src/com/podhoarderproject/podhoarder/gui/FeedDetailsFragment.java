@@ -18,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -55,8 +56,8 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
 		if (helper.feedDetailsListAdapter.feed != null)
 		{
 			setupFeedDetails();
+			setupRefreshControls();
 	    	setupListView();
-	    	setupRefreshControls();
 		}
 		return view;
     }
@@ -171,6 +172,29 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     		    	   return true;
     				}
     			});
+        		
+        		this.episodesListView.setOnScrollListener(new AbsListView.OnScrollListener() {  
+        			  @Override
+        			  public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+        			  }
+
+        			  @Override
+        			  public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) 
+        			  {
+        				  boolean enable = false;
+        				  if(episodesListView != null && episodesListView.getChildCount() > 0)
+        				  {
+        					  // check if the first item of the list is visible
+        					  boolean firstItemVisible = episodesListView.getFirstVisiblePosition() == 0;
+        					  // check if the top of the first item is visible (because of the margins we've set this is 8 instead of 0)
+        					  boolean topOfFirstItemVisible = episodesListView.getChildAt(0).getTop() == 8;
+        					  // enabling or disabling the refresh layout
+        					  enable = firstItemVisible && topOfFirstItemVisible;
+        				  }
+        				  swipeLayout.setEnabled(enable);
+        			  }
+        		});
         	}
         	else
         	{

@@ -20,8 +20,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
+import android.widget.ListView;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
@@ -40,7 +42,7 @@ public class FeedFragment extends Fragment
 	@SuppressWarnings("unused")
 	private static final 	String 				LOG_TAG = "com.podhoarderproject.podhoarder.FeedFragment";
 	
-	public 					ExpandableListView 	mainListView;
+	public 					ListView 			mainListView;
 	public 					TextView 			feedTitle;
 	
 	private 				View view;
@@ -78,26 +80,11 @@ public class FeedFragment extends Fragment
     
     private void setupListView()
     {
-    	this.mainListView = (ExpandableListView) view.findViewById(R.id.mainListView);
-    	if (!this.helper.listAdapter.isEmpty())
+    	this.mainListView = (ListView) view.findViewById(R.id.mainListView);
+    	if (!this.helper.feedsListAdapter.isEmpty())
     	{
     		this.mainListView.addFooterView(setupAddFeed());
-    		this.mainListView.setAdapter(this.helper.listAdapter);
-    		this.mainListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {  
-				@Override
-				public boolean onChildClick(ExpandableListView parent, View v,
-						int groupPosition, int childPosition, long id)
-				{
-					LinearLayout episodeExpandableArea = (LinearLayout)v.findViewById(R.id.list_episode_row_expandable_container);
-   				 
-    		        // Creating the expand animation for the item
-    		        ExpandAnimation expandAni = new ExpandAnimation(episodeExpandableArea, 100);
-    		 
-    		        // Start the animation on the toolbar
-    		        episodeExpandableArea.startAnimation(expandAni);
-					return true;
-				}
-        	});
+    		this.mainListView.setAdapter(this.helper.feedsListAdapter);
     		
     		this.mainListView.setOnItemLongClickListener(new OnItemLongClickListener()
 			{
@@ -105,100 +92,44 @@ public class FeedFragment extends Fragment
 				@Override
 				public boolean onItemLongClick(AdapterView<?> parent, View v, int pos, long id)
 				{
-					long position = ((ExpandableListView)parent).getExpandableListPosition(pos);
-					//Log.i(LOG_TAG,"GroupPos: " + ExpandableListView.getPackedPositionGroup(position) + " ChildPos: " + ExpandableListView.getPackedPositionChild(position));
-					if (ExpandableListView.getPackedPositionType(position) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-			            int groupPosition = ExpandableListView.getPackedPositionGroup(position);
-			            int childPosition = ExpandableListView.getPackedPositionChild(position);
-
-			            // You now have everything that you would as if this was an OnChildClickListener() 
-			            // Add your logic here.
-			            
-			            final Episode currentEp = helper.listAdapter.feeds.get(groupPosition).getEpisodes().get(childPosition);
-						
-						PopupMenu actionMenu = new PopupMenu(getActivity(), v);
-						MenuInflater inflater = actionMenu.getMenuInflater();
-						if (!currentEp.getLocalLink().isEmpty()) inflater.inflate(R.menu.episode_menu_downloaded, actionMenu.getMenu());	//Different menus depending on if the file is downloaded or not.
-						else inflater.inflate(R.menu.episode_menu_not_downloaded, actionMenu.getMenu());
-						actionMenu.setOnMenuItemClickListener(new OnMenuItemClickListener()
-						{
-							@Override
-							public boolean onMenuItemClick(MenuItem item)
-							{
-								switch (item.getItemId()) 
-								{
-							        case R.id.menu_episode_download:
-							        	((MainActivity)getActivity()).downloadEpisode(currentEp.getFeedId(), currentEp.getEpisodeId());
-							            return true;
-							        case R.id.menu_episode_stream:
-							        	((MainActivity)getActivity()).podService.streamEpisode(currentEp);
-								    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(2);	//Navigate to the Player Fragment automatically.
-							            return true;
-							        case R.id.menu_episode_playFile:
-							        	((MainActivity)getActivity()).podService.startEpisode(currentEp);
-								    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(2);	//Navigate to the Player Fragment automatically.
-								    	return true;
-							        case R.id.menu_episode_deleteFile:
-							        	((MainActivity)getActivity()).podService.deletingEpisode(currentEp.getEpisodeId());
-								    	((MainActivity)getActivity()).helper.deleteEpisode(currentEp.getFeedId(), currentEp.getEpisodeId());
-								    	return true;
-								}
-								return true;
-							}
-						});
-			    	   
-			    	   actionMenu.show();
-			           return true;
-			        }
+					final Feed currentFeed = helper.feedsListAdapter.feeds.get(pos);
 					
-					else if (ExpandableListView.getPackedPositionType(position) == ExpandableListView.PACKED_POSITION_TYPE_GROUP)
+					PopupMenu actionMenu = new PopupMenu(getActivity(), v);
+					MenuInflater inflater = actionMenu.getMenuInflater();
+					inflater.inflate(R.menu.feed_menu, actionMenu.getMenu());
+		    	   
+					actionMenu.setOnMenuItemClickListener(new OnMenuItemClickListener()
 					{
-						int groupPosition = ExpandableListView.getPackedPositionGroup(id);
-						
-						final Feed currentFeed = helper.listAdapter.feeds.get(groupPosition);
-						
-						PopupMenu actionMenu = new PopupMenu(getActivity(), v);
-						MenuInflater inflater = actionMenu.getMenuInflater();
-						inflater.inflate(R.menu.feed_menu, actionMenu.getMenu());
-			    	   
-						actionMenu.setOnMenuItemClickListener(new OnMenuItemClickListener()
+						@Override
+						public boolean onMenuItemClick(MenuItem item)
 						{
-							@Override
-							public boolean onMenuItemClick(MenuItem item)
+							switch (item.getItemId()) 
 							{
-								switch (item.getItemId()) 
-								{
-							        case R.id.menu_feed_markAsListened:
-							        	//TODO: Add a function that marks all Episodes of a Feed as 100% listened.
-							            return true;
-							        case R.id.menu_feed_delete:
-							        	((MainActivity)getActivity()).helper.deleteFeed(currentFeed.getFeedId());
-								    	return true;
-								}
-								return true;
+						        case R.id.menu_feed_markAsListened:
+						        	//TODO: Add a function that marks all Episodes of a Feed as 100% listened.
+						            return true;
+						        case R.id.menu_feed_delete:
+						        	((MainActivity)getActivity()).helper.deleteFeed(currentFeed.getFeedId());
+							    	return true;
 							}
-						});
-			    	   
-			    	   actionMenu.show();
-			           return true;
-					}
-					else
-					{
-						return false;
-					}
+							return true;
+						}
+					});
+		    	   
+		    	   actionMenu.show();
+		           return true;
 				}
 			});
     		
-    		this.mainListView.setOnGroupClickListener(new OnGroupClickListener()
+    		this.mainListView.setOnItemClickListener(new OnItemClickListener()
 			{
-				
 				@Override
-				public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id)
+				public void onItemClick(AdapterView<?> parent, View v, int pos, long id)
 				{
-					helper.feedDetailsListAdapter.setFeed(helper.listAdapter.feeds.get(groupPosition));
+					helper.feedDetailsListAdapter.setFeed(helper.feedsListAdapter.feeds.get(pos));
 					firstPageListener.onSwitchToNextFragment();
-					return true;
 				}
+
 			});
     	}
     	else
