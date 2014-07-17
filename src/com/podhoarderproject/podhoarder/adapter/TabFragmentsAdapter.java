@@ -1,5 +1,6 @@
 package com.podhoarderproject.podhoarder.adapter;
 
+import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.gui.FeedDetailsFragment;
 import com.podhoarderproject.podhoarder.gui.FeedFragment;
 import com.podhoarderproject.podhoarder.gui.LatestEpisodesFragment;
@@ -9,6 +10,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 
 public class TabFragmentsAdapter extends FragmentStatePagerAdapter 
 {
@@ -63,16 +67,29 @@ public class TabFragmentsAdapter extends FragmentStatePagerAdapter
     {
         public void onSwitchToNextFragment() 
         {
-            mFragmentManager.beginTransaction().setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_FADE).remove(mFragmentAtPos0).commit();
-            if (mFragmentAtPos0 instanceof FeedFragment)
-            {
-                mFragmentAtPos0 = new FeedDetailsFragment(listener);
-            }
-            else
-            { // Instance of NextFragment
-                mFragmentAtPos0 = new FeedFragment(listener);
-            }
-            notifyDataSetChanged();
+        	if (mFragmentAtPos0 instanceof FeedFragment)	//This means that the current Fragment is the List View, and we are going to Details View ->
+        	{
+        		slideAnimation(mFragmentAtPos0,R.anim.slide_out_left);
+        		mFragmentManager.beginTransaction().remove(mFragmentAtPos0).commitAllowingStateLoss();	//should end with just "commit()"
+        		mFragmentAtPos0 = new FeedDetailsFragment(listener);
+        		notifyDataSetChanged();
+        		slideAnimation(mFragmentAtPos0,R.anim.slide_in_right);
+        	}
+        	else	//This means we are in the Details View, and are going back out to the List View <-
+        	{
+        		slideAnimation(mFragmentAtPos0,R.anim.slide_out_right);
+        		mFragmentManager.beginTransaction().remove(mFragmentAtPos0).commitAllowingStateLoss();	//should end with just "commit()"
+        		mFragmentAtPos0 = new FeedFragment(listener);
+        		notifyDataSetChanged();
+        		slideAnimation(mFragmentAtPos0,R.anim.slide_in_left);
+        	}
+        }
+        
+        private void slideAnimation(Fragment fragmentToSlide, int anim)
+        {
+        	Animation animation = AnimationUtils.loadAnimation(fragmentToSlide.getActivity(), anim);
+        	animation.setDuration(100);
+        	fragmentToSlide.getView().startAnimation(animation);
         }
     }
 }

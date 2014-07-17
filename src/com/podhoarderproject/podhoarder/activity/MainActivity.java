@@ -18,6 +18,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -300,7 +303,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         {
             if (mAdapter.getItem(0) instanceof FeedDetailsFragment) 
             {
-                ((FeedDetailsFragment) mAdapter.getItem(0)).backPressed();
+            	((FeedDetailsFragment) mAdapter.getItem(0)).backPressed();
             }
             else 
             {
