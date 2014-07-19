@@ -63,7 +63,6 @@ public class PlayerFragment extends Fragment
     	setupListView();
     	setupMediaControls();
     	
-    	
     	if (this.podService != null && this.podService.isPng())	playPauseButton.setChecked(false);
     	return this.view;
     }

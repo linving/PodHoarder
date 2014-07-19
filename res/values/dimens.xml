@@ -10,10 +10,10 @@
     <dimen name="fragment_feeds_list_episode_description">12sp</dimen>
     
     <!-- Feed Details Fragment -->
-    <dimen name="fragment_feed_details_title">18sp</dimen>
-    <dimen name="fragment_feed_details_author">14sp</dimen>
-    <dimen name="fragment_feed_details_category">14sp</dimen>
-    <dimen name="fragment_feed_details_description">14sp</dimen>
+    <dimen name="fragment_feed_details_title">22sp</dimen>
+    <dimen name="fragment_feed_details_author">20sp</dimen>
+    <dimen name="fragment_feed_details_category">20sp</dimen>
+    <dimen name="fragment_feed_details_description">18sp</dimen>
     
     
     <!-- Latest Episodes Fragment -->

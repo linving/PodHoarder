@@ -8,7 +8,6 @@ import com.podhoarderproject.podhoarder.util.Episode;
 import com.podhoarderproject.podhoarder.util.ImageUtils;
 import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -94,7 +93,8 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     		TextView author = (TextView) view.findViewById(R.id.feed_details_author);
     		TextView category = (TextView) view.findViewById(R.id.feed_details_category);
     		TextView description = (TextView) view.findViewById(R.id.feed_details_description);
-    		img.setBackground(new BitmapDrawable(getActivity().getResources(),ImageUtils.getCircularBitmap(this.helper.feedDetailsListAdapter.feed.getFeedImage().imageObject().getBitmap())));
+    		img.setImageBitmap(ImageUtils.getCircularBitmap(this.helper.feedDetailsListAdapter.feed.getFeedImage().imageObject().getBitmap()));
+    		//img.setBackground(new BitmapDrawable(getActivity().getResources(),ImageUtils.getCircularBitmap(this.helper.feedDetailsListAdapter.feed.getFeedImage().imageObject().getBitmap())));
     		title.setText(this.helper.feedDetailsListAdapter.feed.getTitle());
     		author.setText(this.helper.feedDetailsListAdapter.feed.getAuthor());
     		category.setText(this.helper.feedDetailsListAdapter.feed.getCategory());
@@ -212,10 +212,10 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     {
     	swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
         swipeLayout.setOnRefreshListener(this);
-        swipeLayout.setColorScheme(android.R.color.holo_blue_bright, 
-                android.R.color.holo_green_light, 
-                android.R.color.holo_orange_light, 
-                android.R.color.holo_red_light);
+        swipeLayout.setColorScheme(R.color.refresh_bar_blue, 
+        		R.color.refresh_bar_green, 
+        		R.color.refresh_bar_orange, 
+                R.color.refresh_bar_red);
     }
 
 	@Override

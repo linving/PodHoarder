@@ -5,6 +5,7 @@ import com.podhoarderproject.podhoarder.adapter.TabFragmentsAdapter;
 import com.podhoarderproject.podhoarder.gui.*;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
 import com.podhoarderproject.podhoarder.service.PodHoarderService.PodHoarderBinder;
+import com.podhoarderproject.podhoarder.util.MusicIntentReceiver;
 import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
 import android.os.Bundle;
@@ -12,15 +13,13 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,6 +29,7 @@ import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 
 /**
@@ -54,6 +54,9 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	
 	private Intent playIntent;
 	private boolean musicBound = false;
+	
+	//Receiver for music channel intents (headphones unplugged etc.)
+	private MusicIntentReceiver musicIntentReceiver;
     
 	private ServiceConnection podConnection = new ServiceConnection()	//connect to the service
     { 
@@ -67,12 +70,20 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		    podService.setList(helper.playlistAdapter.playList);
 		    musicBound = true;
 		    
+		    //Initialise the headphone jack listener / intent receiver.
+		    IntentFilter headsetFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+		    IntentFilter callStateFilter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+	        musicIntentReceiver = new MusicIntentReceiver(podService);
+	        registerReceiver(musicIntentReceiver, headsetFilter);
+	        registerReceiver(musicIntentReceiver, callStateFilter);
+	        
 		    setTab();
 	    }
 	    
 	    @Override
 	    public void onServiceDisconnected(ComponentName name) 
 	    {
+	    	unregisterReceiver(musicIntentReceiver);
 	    	musicBound = false;
 	    }
     };   
@@ -99,7 +110,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     			this.musicBound = this.bindService(playIntent, podConnection, Context.BIND_AUTO_CREATE);
     			this.startService(playIntent);
     		}
-    	}
+    	} 
     }
     
     
@@ -127,7 +138,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     
     @Override
     protected void onPause()
-    {
+    {    	
     	super.onPause();
     }
     
@@ -155,7 +166,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     	mPager = (ViewPager) findViewById(R.id.pager);
         actionBar = getActionBar();
         mAdapter = new TabFragmentsAdapter(getSupportFragmentManager());
-        //mAdapter = new TabsPagerAdapter(getSupportFragmentManager());
 
         mPager.setAdapter(mAdapter);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);

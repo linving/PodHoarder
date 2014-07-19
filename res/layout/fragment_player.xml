@@ -41,8 +41,7 @@
         <com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView
             android:id="@+id/playerList"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-			android:background="@color/fragment_player_playerlist_background">
+            android:layout_height="fill_parent">
         </com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView>
         
     </LinearLayout>

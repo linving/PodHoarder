@@ -45,6 +45,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	private 	TextView 		totalTime;
 	private 	SeekBar 		seekBar;
 	
+	
 
 	@Override
 	public IBinder onBind(Intent arg0) 
@@ -86,7 +87,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 				playNext();	//Play
 			}
 			else this.stop();
-			if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SettingsActivity.SETTINGS_KEY_DELETELISTENED, true) && !streaming)	
+			if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SettingsActivity.SETTINGS_KEY_DELETELISTENED, true) && indexToDelete != -1)	
 			{
 				this.helper.deleteEpisode(this.playList.get(indexToDelete).getFeedId(), this.playList.get(indexToDelete).getEpisodeId());
 			}
@@ -192,6 +193,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		{
 			Log.e(LOG_TAG, "Error setting data source", e);
 		}
+		this.updateUI();
 		this.player.prepareAsync();
 	}
 	
@@ -208,6 +210,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		{
 			Log.e(LOG_TAG, "Error setting data source", e);
 		}
+		this.updateUI();
 		this.player.prepareAsync();
 	}
 	
@@ -224,6 +227,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		{
 			Log.e(LOG_TAG, "Error setting data source", e);
 		}
+		this.updateUI();
 		this.player.prepareAsync();
 	}
 	
@@ -490,6 +494,11 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		}
 	}
 	
+	/**
+	 * Returns the index of ep.
+	 * @param ep The Episode to find.
+	 * @return Index of ep, or -1 if it isn't found.
+	 */
 	private int findEpisodeInPlaylist(Episode ep)
 	{
 		for (int i=0; i<this.playList.size(); i++)

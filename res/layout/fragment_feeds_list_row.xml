@@ -3,13 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content" 
     android:orientation="horizontal"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp"
+    android:padding="5dp"
     android:gravity="center_vertical"
     android:descendantFocusability="blocksDescendants">
     <ImageView android:id="@+id/list_feed_row_image"
         android:layout_width="75dip"
         android:layout_height="75dip"
+        android:padding="5dp"
         android:layout_alignParentLeft="true"/>
     <RelativeLayout 
         android:layout_width="match_parent"

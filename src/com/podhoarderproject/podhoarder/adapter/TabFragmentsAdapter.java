@@ -9,9 +9,7 @@ import com.podhoarderproject.podhoarder.gui.PlayerFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 
 public class TabFragmentsAdapter extends FragmentStatePagerAdapter 

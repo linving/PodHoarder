@@ -7,8 +7,8 @@
     
     <!-- Tabs -->
     <color name="actionbar_title">#323a45</color>
-    <color name="tab_background">#FFFFFF</color>
-    <color name="tab_text">#2e3641</color>
+    <color name="tab_background">#fbfbfb</color>
+    <color name="tab_text">#616161</color>
     
     <!-- Circular Progress Bar -->
     <color name="circular_progress_bar_foreground">#1fbba6</color>
@@ -32,7 +32,6 @@
     <!-- Player Fragment List -->
     <color name="fragment_player_playerlist_row_episode_title">#323a45</color>
     <color name="fragment_player_playerlist_row_podcast_title">#323a45</color>
-    <color name="fragment_player_playerlist_background">#FFFFFF</color>
     <color name="fragment_player_playerlist_row_background_ondrag">#b6c2d1</color>
     
     <!-- Feeds Fragment -->
@@ -40,7 +39,6 @@
     <color name="fragment_feeds_title">#323a45</color>
     
     <!-- Feeds Fragment List -->
-    <color name="fragment_feeds_list_background">#FFFFFF</color>
     <color name="fragment_feeds_list_podcast_title">#323a45</color>
     <color name="fragment_feeds_list_podcast_count">#323a45</color>
     <color name="fragment_feeds_list_podcast_description">#323a45</color>
@@ -63,7 +61,7 @@
     
     <!-- Latest Episodes Fragment List -->
     <color name="fragment_latest_list_background">#FFFFFF</color>
-    <color name="fragment_latest_list_episode_title">#1fbba6</color>
+    <color name="fragment_latest_list_episode_title">#616161</color>
     <color name="fragment_latest_list_episode_age">#c1cfd9</color>
     <color name="fragment_latest_list_episode_description">#2e3641</color>
     <color name="fragment_latest_list_episode_expandable_container">#FFFFFF</color>
@@ -92,4 +90,9 @@
     <!-- Settings -->
     <color name="settings_background">#FFFFFF</color>
     
+    <!-- Refreshing Bar -->
+    <color name="refresh_bar_blue">#74b4da</color>
+    <color name="refresh_bar_green">#1fbba6</color>
+    <color name="refresh_bar_orange">#f0701e</color>
+    <color name="refresh_bar_red">#d55c5b</color>
 </resources>

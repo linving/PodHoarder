@@ -47,6 +47,7 @@ public class LatestEpisodesFragment extends Fragment implements OnRefreshListene
 		setupHelper();
 		setupListView();
 		setupRefreshControls();
+		
 		return view;
     }
     
@@ -139,10 +140,10 @@ public class LatestEpisodesFragment extends Fragment implements OnRefreshListene
     {
     	swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
         swipeLayout.setOnRefreshListener(this);
-        swipeLayout.setColorScheme(android.R.color.holo_blue_bright, 
-                android.R.color.holo_green_light, 
-                android.R.color.holo_orange_light, 
-                android.R.color.holo_red_light);
+        swipeLayout.setColorScheme(R.color.refresh_bar_blue, 
+        		R.color.refresh_bar_green, 
+        		R.color.refresh_bar_orange, 
+                R.color.refresh_bar_red);
     }
 
 	@Override
