@@ -12,11 +12,17 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -57,6 +63,7 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
 			setupFeedDetails();
 			setupRefreshControls();
 	    	setupListView();
+	    	setupGestureDetection(view);
 		}
 		return view;
     }
@@ -96,7 +103,7 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     		img.setImageBitmap(ImageUtils.getCircularBitmap(this.helper.feedDetailsListAdapter.feed.getFeedImage().imageObject().getBitmap()));
     		//img.setBackground(new BitmapDrawable(getActivity().getResources(),ImageUtils.getCircularBitmap(this.helper.feedDetailsListAdapter.feed.getFeedImage().imageObject().getBitmap())));
     		title.setText(this.helper.feedDetailsListAdapter.feed.getTitle());
-    		author.setText(this.helper.feedDetailsListAdapter.feed.getAuthor());
+    		author.setText(getActivity().getString(R.string.notification_by) + " " + this.helper.feedDetailsListAdapter.feed.getAuthor());
     		category.setText(this.helper.feedDetailsListAdapter.feed.getCategory());
     		description.setText(this.helper.feedDetailsListAdapter.feed.getDescription());
     	}
@@ -173,28 +180,6 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     				}
     			});
         		
-        		this.episodesListView.setOnScrollListener(new AbsListView.OnScrollListener() {  
-        			  @Override
-        			  public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-        			  }
-
-        			  @Override
-        			  public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) 
-        			  {
-        				  boolean enable = false;
-        				  if(episodesListView != null && episodesListView.getChildCount() > 0)
-        				  {
-        					  // check if the first item of the list is visible
-        					  boolean firstItemVisible = episodesListView.getFirstVisiblePosition() == 0;
-        					  // check if the top of the first item is visible (because of the margins we've set this is 8 instead of 0)
-        					  boolean topOfFirstItemVisible = episodesListView.getChildAt(0).getTop() == 8;
-        					  // enabling or disabling the refresh layout
-        					  enable = firstItemVisible && topOfFirstItemVisible;
-        				  }
-        				  swipeLayout.setEnabled(enable);
-        			  }
-        		});
         	}
         	else
         	{
@@ -218,10 +203,188 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
                 R.color.refresh_bar_red);
     }
 
+    private void setupGestureDetection(View v)
+    {
+    	final View container = v.findViewById(R.id.feed_details_container);
+    	final ListView listView = (ListView)v.findViewById(R.id.episodesListView);
+    	
+    	final GestureDetector upSwipeDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+
+    	            @Override
+    	            public boolean onDown(MotionEvent e) {
+    	                return true;
+    	            }
+
+    	            @Override
+    	            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) 
+    	            {
+    	            	final int SWIPE_THRESHOLD = 100;
+    	                final int SWIPE_VELOCITY_THRESHOLD = 100;
+    	                try {
+    	                    float diffY = e2.getY() - e1.getY();
+    	                    float diffX = e2.getX() - e1.getX();
+    	                    if (Math.abs(diffX) > Math.abs(diffY)) 
+    	                    {
+    	                        if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) 
+    	                        {
+    	                            if (diffX > 0) 
+    	                            {
+    	                            	Log.i(LOG_TAG,"Swipe right!");
+    	                            } 
+    	                            else 
+    	                            {
+    	                            	Log.i(LOG_TAG,"Swipe left!");
+    	                            }
+    	                        }
+    	                    } 
+    	                    else 
+    	                    {
+    	                        if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) 
+    	                        {
+    	                            if (diffY > 0) 
+    	                            {
+    	                            	Log.i(LOG_TAG,"Swipe down!");
+    	                            } 
+    	                            else 
+    	                            {
+    	                            	slideAnimation(container, R.anim.slide_out_top);
+    	    	                        container.setVisibility(View.GONE);
+    	    	                        swipeLayout.setEnabled(false);
+    	    	                        listView.setVisibility(View.VISIBLE);
+    	    	                        slideAnimation(listView, R.anim.slide_in_bottom);
+    	                            }
+    	                        }
+    	                    }
+    	                }
+    	                
+    	                catch (Exception e) 
+    	                {
+    	                    // nothing
+    	                }
+    	                return super.onFling(e1, e2, velocityX, velocityY);
+    	            }
+    	            
+    	        });
+    	
+    	final GestureDetector downSwipeDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return listView.onTouchEvent(e);
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) 
+            {
+            	final int SWIPE_THRESHOLD = 100;
+                final int SWIPE_VELOCITY_THRESHOLD = 100;
+                try {
+                    float diffY = e2.getY() - e1.getY();
+                    float diffX = e2.getX() - e1.getX();
+                    if (Math.abs(diffX) > Math.abs(diffY)) {
+                        if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) 
+                        {
+                            if (diffX > 0) 
+                            {
+                            	Log.i(LOG_TAG,"Swipe right!");
+                            } 
+                            else 
+                            {
+                            	Log.i(LOG_TAG,"Swipe left!");
+                            }
+                        }
+                    } 
+                    else 
+                    {
+                        if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) 
+                        {
+                            if (diffY > 0) 
+                            {
+                            	slideAnimation(listView, R.anim.slide_out_bottom);
+                                listView.setVisibility(View.GONE);
+                                swipeLayout.setEnabled(true);
+                                container.setVisibility(View.VISIBLE);
+                                slideAnimation(container, R.anim.slide_in_top);
+                            } 
+                            else 
+                            {
+                            	Log.i(LOG_TAG, "Swipe up!");
+                            }
+                        }
+                    }
+                }
+                
+                catch (Exception e) 
+                {
+                    // nothing
+                }
+                return super.onFling(e1, e2, velocityX, velocityY);
+            }
+        });
+    	
+
+	    container.setOnTouchListener(new View.OnTouchListener() 
+	    {
+	        @Override
+	        public boolean onTouch(View v, MotionEvent event) 
+	        {
+	            return upSwipeDetector.onTouchEvent(event);
+	        }
+	    });
+	    
+	    listView.setOnScrollListener(new AbsListView.OnScrollListener() 
+	    {  
+			  @Override
+			  public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+			  }
+
+			  @Override
+			  public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) 
+			  {
+				  boolean enable = false;
+				  if(episodesListView != null && episodesListView.getChildCount() > 0)
+				  {
+					  // check if the first item of the list is visible
+					  boolean firstItemVisible = episodesListView.getFirstVisiblePosition() == 0;
+					  // check if the top of the first item is visible (because of the margins we've set this is 8 instead of 0)
+					  boolean topOfFirstItemVisible = episodesListView.getChildAt(0).getTop() == 8;
+					  // enabling or disabling the swipe to hide logic
+					  enable = firstItemVisible && topOfFirstItemVisible;
+				  }
+				  
+				  if (enable)
+				  {
+					  	final OnTouchListener onTouchListener = new View.OnTouchListener() 
+					    {
+					        @Override
+					        public boolean onTouch(View v, MotionEvent event) 
+					        {
+					        	if (downSwipeDetector.onTouchEvent(event)) return true;
+					        	else return false;
+					        }
+					    };
+					    listView.setOnTouchListener(onTouchListener);
+				  }
+				  else
+				  {
+					  listView.setOnTouchListener(null);
+				  }
+			  }
+		});
+    }
+    
 	@Override
 	public void onRefresh()
 	{
 		this.helper.setRefreshLayout(swipeLayout);	//Set the layout that should be updated once the Refresh task is done executing.
 		this.helper.refreshFeed(helper.feedDetailsListAdapter.feed.getFeedId());	//Start the refresh process.
 	}
+	
+	private void slideAnimation(View viewToSlide, int anim)
+    {
+    	Animation animation = AnimationUtils.loadAnimation(getActivity(), anim);
+    	animation.setDuration(100);
+    	viewToSlide.startAnimation(animation);
+    }
 }

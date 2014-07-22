@@ -42,8 +42,8 @@
     <Button android:id="@+id/service_notification_playpausebutton"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:padding="15dp"
+        android:padding="25dp"
         android:layout_alignParentRight="true"
-        android:background="@drawable/player_button_playpause"
+        android:background="@drawable/notification_button_playpause"
 	    android:alpha=".9"/>
 </RelativeLayout>

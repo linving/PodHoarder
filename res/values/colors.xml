@@ -54,6 +54,8 @@
     <color name="fragment_feed_details_author">#323a45</color>
     <color name="fragment_feed_details_category">#323a45</color>
     <color name="fragment_feed_details_description">#323a45</color>
+    <color name="fragment_feed_details_swipe_up_hint">#323a45</color>
+    <color name="fragment_feed_details_swipe_down_hint">#323a45</color>
     
     <!-- Latest Episodes Fragment-->
     <color name="fragment_latest_background">#FFFFFF</color>

@@ -17,6 +17,10 @@
     <string name="fragment_feed_list_add_row">Add New Podcast</string>
     <string name="fragment_feeds_list_feed_row_deleteBtn">Delete</string>
     
+    <!-- Feed Details Fragment -->
+    <string name="fragment_feed_details_swipe_up_hint">Swipe up for Podcast episodes.</string>
+    <string name="fragment_feed_details_swipe_down_hint">Swipe down for Podcast details.</string>
+    
     <!-- Episodes tab -->
     <string name="episodes_tab">Episodes</string>
     <string name="episodes_title">Latest Episodes</string>
