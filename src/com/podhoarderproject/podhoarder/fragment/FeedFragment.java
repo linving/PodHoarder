@@ -1,4 +1,4 @@
-package com.podhoarderproject.podhoarder.gui;
+package com.podhoarderproject.podhoarder.fragment;
 
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.activity.MainActivity;

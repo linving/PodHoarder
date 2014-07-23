@@ -1,10 +1,12 @@
-package com.podhoarderproject.podhoarder.gui;
+package com.podhoarderproject.podhoarder.fragment;
 
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.activity.MainActivity;
 import com.podhoarderproject.podhoarder.adapter.FeedDetailsListAdapter;
 import com.podhoarderproject.podhoarder.adapter.FirstPageFragmentListener;
+import com.podhoarderproject.podhoarder.util.Constants;
 import com.podhoarderproject.podhoarder.util.Episode;
+import com.podhoarderproject.podhoarder.util.ExpandAnimation;
 import com.podhoarderproject.podhoarder.util.ImageUtils;
 import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
@@ -160,11 +162,11 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     						            return true;
     						        case R.id.menu_episode_stream:
     						        	((MainActivity)getActivity()).podService.streamEpisode(currentEp);
-    							    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(2);	//Navigate to the Player Fragment automatically.
+    							    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Player Fragment automatically.
     						            return true;
     						        case R.id.menu_episode_playFile:
     						        	((MainActivity)getActivity()).podService.startEpisode(currentEp);
-    							    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(2);	//Navigate to the Player Fragment automatically.
+    							    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Player Fragment automatically.
     							    	return true;
     						        case R.id.menu_episode_deleteFile:
     						        	((MainActivity)getActivity()).podService.deletingEpisode(currentEp.getEpisodeId());
@@ -220,20 +222,17 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     	            {
     	            	final int SWIPE_THRESHOLD = 100;
     	                final int SWIPE_VELOCITY_THRESHOLD = 100;
-    	                try {
+    	                try 
+    	                {
     	                    float diffY = e2.getY() - e1.getY();
     	                    float diffX = e2.getX() - e1.getX();
     	                    if (Math.abs(diffX) > Math.abs(diffY)) 
     	                    {
     	                        if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) 
     	                        {
-    	                            if (diffX > 0) 
+    	                            if (diffX > 0)  //When we detect a swipe right here, we should "simulate" back pressed, and take the user back to the Feed List Page
     	                            {
-    	                            	Log.i(LOG_TAG,"Swipe right!");
-    	                            } 
-    	                            else 
-    	                            {
-    	                            	Log.i(LOG_TAG,"Swipe left!");
+    	                            	backPressed();
     	                            }
     	                        }
     	                    } 
@@ -241,11 +240,7 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     	                    {
     	                        if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) 
     	                        {
-    	                            if (diffY > 0) 
-    	                            {
-    	                            	Log.i(LOG_TAG,"Swipe down!");
-    	                            } 
-    	                            else 
+    	                            if (diffY < 0) //An upwards swipe means that we should show the Feed Episodes List, and hide the Feed Details page.
     	                            {
     	                            	slideAnimation(container, R.anim.slide_out_top);
     	    	                        container.setVisibility(View.GONE);
@@ -256,20 +251,19 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     	                        }
     	                    }
     	                }
-    	                
     	                catch (Exception e) 
     	                {
     	                    // nothing
     	                }
     	                return super.onFling(e1, e2, velocityX, velocityY);
     	            }
-    	            
     	        });
     	
     	final GestureDetector downSwipeDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
 
             @Override
-            public boolean onDown(MotionEvent e) {
+            public boolean onDown(MotionEvent e) 
+            {
                 return listView.onTouchEvent(e);
             }
 
@@ -284,13 +278,9 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
                     if (Math.abs(diffX) > Math.abs(diffY)) {
                         if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) 
                         {
-                            if (diffX > 0) 
+                            if (diffX > 0) //When we detect a swipe right here, we should "simulate" back pressed, and take the user back to the Feed List Page
                             {
-                            	Log.i(LOG_TAG,"Swipe right!");
-                            } 
-                            else 
-                            {
-                            	Log.i(LOG_TAG,"Swipe left!");
+                            	backPressed();
                             }
                         }
                     } 
@@ -298,17 +288,13 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
                     {
                         if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) 
                         {
-                            if (diffY > 0) 
+                            if (diffY > 0) 	//A downwards swipe means that we should go back to the Feed Details page, and hide the Feed Episodes List.
                             {
                             	slideAnimation(listView, R.anim.slide_out_bottom);
                                 listView.setVisibility(View.GONE);
                                 swipeLayout.setEnabled(true);
                                 container.setVisibility(View.VISIBLE);
                                 slideAnimation(container, R.anim.slide_in_top);
-                            } 
-                            else 
-                            {
-                            	Log.i(LOG_TAG, "Swipe up!");
                             }
                         }
                     }
@@ -321,8 +307,7 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
                 return super.onFling(e1, e2, velocityX, velocityY);
             }
         });
-    	
-
+  	
 	    container.setOnTouchListener(new View.OnTouchListener() 
 	    {
 	        @Override
@@ -343,6 +328,7 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
 			  public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) 
 			  {
 				  boolean enable = false;
+				  //We need to make sure that the user is at the top of the list, and if so, the swipe up to switch page should be enabled. Otherwise it should be disabled (otherwise the user can't scroll the list up, only down.)
 				  if(episodesListView != null && episodesListView.getChildCount() > 0)
 				  {
 					  // check if the first item of the list is visible

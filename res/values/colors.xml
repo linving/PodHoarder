@@ -95,6 +95,6 @@
     <!-- Refreshing Bar -->
     <color name="refresh_bar_blue">#74b4da</color>
     <color name="refresh_bar_green">#1fbba6</color>
-    <color name="refresh_bar_orange">#f0701e</color>
+    <color name="refresh_bar_orange">#ffbb33</color>
     <color name="refresh_bar_red">#d55c5b</color>
 </resources>

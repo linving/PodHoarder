@@ -1,4 +1,4 @@
-package com.podhoarderproject.podhoarder.gui;
+package com.podhoarderproject.podhoarder.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,7 +19,9 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.activity.MainActivity;
+import com.podhoarderproject.podhoarder.util.Constants;
 import com.podhoarderproject.podhoarder.util.Episode;
+import com.podhoarderproject.podhoarder.util.ExpandAnimation;
 import com.podhoarderproject.podhoarder.util.PodcastHelper;
  
 /**
@@ -105,11 +107,11 @@ public class LatestEpisodesFragment extends Fragment implements OnRefreshListene
 						            return true;
 						        case R.id.menu_episode_stream:
 						        	((MainActivity)getActivity()).podService.streamEpisode(currentEp);
-							    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(2);	//Navigate to the Player Fragment automatically.
+							    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Player Fragment automatically.
 						            return true;
 						        case R.id.menu_episode_playFile:
 						        	((MainActivity)getActivity()).podService.startEpisode(currentEp);
-							    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(2);	//Navigate to the Player Fragment automatically.
+							    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Player Fragment automatically.
 							    	return true;
 						        case R.id.menu_episode_deleteFile:
 						        	((MainActivity)getActivity()).podService.deletingEpisode(currentEp.getEpisodeId());

@@ -115,13 +115,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			this.currentEpisode.setTotalTime(player.getDuration());
 			this.currentEpisode = this.helper.updateEpisode(this.currentEpisode);
 		}
-		if (this.episodeTitle != null && 
-				this.totalTime != null && 
-				this.seekBar != null &&
-				this.elapsedTime != null)
-		{
-			updateUI();
-		}
+		updateUI();
 	}
 	
 	private void setupNotification()
@@ -156,11 +150,11 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void updateUI()
 	{
 		//Update the UI Elements in the Player Fragment.
-		this.episodeTitle.setText(this.currentEpisode.getTitle());
-		this.totalTime.setText(millisToTime(this.currentEpisode.getTotalTime()));
-		this.elapsedTime.setText(millisToTime(this.currentEpisode.getElapsedTime()));
-		this.seekBar.setMax(this.currentEpisode.getTotalTime());
-		if (isPng()) playPauseButton.setChecked(true);
+		if (this.episodeTitle != null) this.episodeTitle.setText(this.currentEpisode.getTitle());
+		if (this.totalTime != null)this.totalTime.setText(millisToTime(this.currentEpisode.getTotalTime()));
+		if (this.elapsedTime != null) this.elapsedTime.setText(millisToTime(this.currentEpisode.getElapsedTime()));
+		if (this.seekBar != null) this.seekBar.setMax(this.currentEpisode.getTotalTime());
+		if (isPng() && this.playPauseButton != null) playPauseButton.setChecked(true);
 		this.handler.post(UpdateRunnable);
 	}
 	

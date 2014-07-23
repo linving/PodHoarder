@@ -2,9 +2,11 @@ package com.podhoarderproject.podhoarder.activity;
  
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.adapter.TabFragmentsAdapter;
-import com.podhoarderproject.podhoarder.gui.*;
+import com.podhoarderproject.podhoarder.fragment.FeedDetailsFragment;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
 import com.podhoarderproject.podhoarder.service.PodHoarderService.PodHoarderBinder;
+import com.podhoarderproject.podhoarder.util.Constants;
+import com.podhoarderproject.podhoarder.util.DynamicViewPager;
 import com.podhoarderproject.podhoarder.util.MusicIntentReceiver;
 import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
@@ -42,7 +44,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.MainActivity";
 	//UI Elements
-    private ViewPager mPager;
+    public DynamicViewPager mPager;
     private TabFragmentsAdapter mAdapter;
     public ActionBar actionBar;
     
@@ -163,7 +165,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     
     private void doTabSetup()
     {
-    	mPager = (ViewPager) findViewById(R.id.pager);
+    	mPager = (DynamicViewPager) findViewById(R.id.pager);
         actionBar = getActionBar();
         mAdapter = new TabFragmentsAdapter(getSupportFragmentManager());
 
@@ -175,65 +177,73 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         View view = null;
         ImageView tabImg = null;
         TextView tabText = null;
+        
         // Adding Tabs
-        //1. Feed tab
-        Tab feedTab = actionBar.newTab();
-        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
-        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
-        tabText = (TextView) view.findViewById(R.id.tabText);
-        
-        tabText.setText(R.string.feed_tab);
-        tabImg.setBackgroundResource(R.drawable.tab_icon_feeds_dark);
-        feedTab.setCustomView(view);
-        feedTab.setTabListener(this);
-        actionBar.addTab(feedTab);
-        
-        //2. Latest Episodes tab        
-        Tab latestTab = actionBar.newTab();
-        
-        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
-        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
-        tabText = (TextView) view.findViewById(R.id.tabText);
-        
-        tabText.setText(R.string.episodes_tab);
-        tabImg.setBackgroundResource(R.drawable.tab_icon_latest_dark);
-        latestTab.setCustomView(view);
-        latestTab.setTabListener(this);
-        actionBar.addTab(latestTab);
-        
-        //3. Player tab
-        Tab playerTab = actionBar.newTab();
-        
-        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
-        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
-        tabText = (TextView) view.findViewById(R.id.tabText);
-        
-        tabText.setText(R.string.player_tab);
-        tabImg.setBackgroundResource(R.drawable.tab_icon_player_dark);
-        playerTab.setCustomView(view);
-        playerTab.setTabListener(this);
-        actionBar.addTab(playerTab);
-        
+        for (int i=0; i<3; i++)
+        {
+        	switch (i)
+        	{
+        		//1. Feed tab
+        		case Constants.FEEDS_TAB_POSITION:
+	                Tab feedTab = actionBar.newTab();
+	                view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
+	                tabImg = (ImageView) view.findViewById(R.id.tabIcon);
+	                tabText = (TextView) view.findViewById(R.id.tabText);
+	                
+	                tabText.setText(R.string.feed_tab);
+	                tabImg.setBackgroundResource(R.drawable.tab_icon_feeds_dark);
+	                feedTab.setCustomView(view);
+	                feedTab.setTabListener(this);
+	                actionBar.addTab(feedTab);
+	                break;
+	            //2. Latest Episodes tab    
+        		case Constants.LATEST_TAB_POSITION:   
+        	        Tab latestTab = actionBar.newTab();
+        	        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
+        	        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
+        	        tabText = (TextView) view.findViewById(R.id.tabText);
+        	        
+        	        tabText.setText(R.string.episodes_tab);
+        	        tabImg.setBackgroundResource(R.drawable.tab_icon_latest_dark);
+        	        latestTab.setCustomView(view);
+        	        latestTab.setTabListener(this);
+        	        actionBar.addTab(latestTab);
+        	        break;
+        	      //3. Player tab    
+        		case Constants.PLAYER_TAB_POSITION:
+        	        Tab playerTab = actionBar.newTab();
+        	        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
+        	        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
+        	        tabText = (TextView) view.findViewById(R.id.tabText);
+        	        
+        	        tabText.setText(R.string.player_tab);
+        	        tabImg.setBackgroundResource(R.drawable.tab_icon_player_dark);
+        	        playerTab.setCustomView(view);
+        	        playerTab.setTabListener(this);
+        	        actionBar.addTab(playerTab);
+        	        break;
+        	}
+        }
         
     	 /**
          * on swiping the viewpager make respective tab selected
          * */
-        mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() 
+        {
 
             @Override
-            public void onPageSelected(int position) {
+            public void onPageSelected(int position) 
+            {
                 // on changing the page
                 // make respected tab selected
                 actionBar.setSelectedNavigationItem(position);
             }
 
             @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-            }
+            public void onPageScrolled(int arg0, float arg1, int arg2) { }
 
             @Override
-            public void onPageScrollStateChanged(int arg0) {
-            }
+            public void onPageScrollStateChanged(int arg0) {  }
         });
         
     	
@@ -282,15 +292,15 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	{
 		switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString(SettingsActivity.SETTINGS_KEY_STARTTAB, "0")))
 		{
-		case 0:
-			this.actionBar.setSelectedNavigationItem(0);
-			break;
-		case 1:
-			this.actionBar.setSelectedNavigationItem(1);
-			break;
-		case 2:
-			this.actionBar.setSelectedNavigationItem(2);
-			break;
+			case Constants.FEEDS_TAB_POSITION:
+				this.actionBar.setSelectedNavigationItem(Constants.FEEDS_TAB_POSITION);
+				break;
+			case Constants.LATEST_TAB_POSITION:
+				this.actionBar.setSelectedNavigationItem(Constants.LATEST_TAB_POSITION);
+				break;
+			case Constants.PLAYER_TAB_POSITION:
+				this.actionBar.setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);
+				break;
 		}
 	}
 	
@@ -300,23 +310,31 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	    super.onNewIntent(intent);
 	    if (intent.getAction() != null && this != null)	//Make sure the Intent contains any data.
 		{
-		    if (intent.getAction().equals("navigate_player"))
+		    if (intent.getAction().equals("navigate_feeds"))
 		    {
-		    	this.actionBar.setSelectedNavigationItem(2);	//Navigate to the Player tab.
+		    	this.actionBar.setSelectedNavigationItem(Constants.FEEDS_TAB_POSITION);	//Navigate to the Player tab.
+		    }
+		    else if (intent.getAction().equals("navigate_latest"))
+		    {
+		    	this.actionBar.setSelectedNavigationItem(Constants.LATEST_TAB_POSITION);	//Navigate to the Latest Episodes tab.
+		    }
+		    else if (intent.getAction().equals("navigate_player"))
+		    {
+		    	this.actionBar.setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Latest Episodes tab.
 		    }
 		}
 	}
 
 	public void onBackPressed() 
 	{
-        if(mPager.getCurrentItem() == 0) 
+        if(mPager.getCurrentItem() == Constants.FEEDS_TAB_POSITION) 
         {
-            if (mAdapter.getItem(0) instanceof FeedDetailsFragment) 
+            if (mAdapter.getItem(Constants.FEEDS_TAB_POSITION) instanceof FeedDetailsFragment) 
             {
-            	((FeedDetailsFragment) mAdapter.getItem(0)).backPressed();
+            	((FeedDetailsFragment) mAdapter.getItem(Constants.FEEDS_TAB_POSITION)).backPressed();
             }
             else 
-            {
+            {	//If back is pressed when we are at the Feeds list, we should go back to the home screen (minimize the app)
             	Intent startMain = new Intent(Intent.ACTION_MAIN);
             	startMain.addCategory(Intent.CATEGORY_HOME);
             	startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

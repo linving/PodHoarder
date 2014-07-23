@@ -15,7 +15,9 @@
         android:layout_width="match_parent"
     	android:layout_height="wrap_content" 
     	android:layout_marginLeft="5dp"
+    	android:layout_marginRight="30dp"
     	android:layout_toRightOf="@id/list_feed_row_image"
+    	android:layout_centerVertical="true"
     	android:orientation="vertical">
         <TextView
 	        android:id="@+id/list_feed_row_title"
@@ -23,7 +25,6 @@
 	        android:layout_height="match_parent"
 	        android:textColor="@color/fragment_feeds_list_podcast_title"
 	        android:textSize="@dimen/fragment_feeds_list_podcast_title"
-	        android:maxLength="55"
 	        android:singleLine="true"
    			android:ellipsize="end"/>
 	    <TextView
@@ -34,4 +35,11 @@
 	        android:textColor="@color/fragment_feeds_list_podcast_count"
 	        android:textSize="@dimen/fragment_feeds_list_podcast_count"/>
     </RelativeLayout>
+    <ImageView android:id="@+id/list_feed_row_arrow"
+        android:layout_width="36dip"
+        android:layout_height="36dip"
+        android:padding="5dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_action_next_item"/>
 </RelativeLayout>
