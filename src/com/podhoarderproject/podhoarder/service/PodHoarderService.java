@@ -127,7 +127,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
 		
-		if (intent.getAction() != null && this != null)	//Make sure the Intent contains any data.
+		if (this != null && intent != null && intent.getAction() != null)	//Make sure the Intent contains any data.
 		{
 			if (intent.getAction().equals("play"))	//The play button has been pressed.
 			{

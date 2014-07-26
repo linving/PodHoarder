@@ -16,6 +16,11 @@
 
 package com.podhoarderproject.ericharlow.DragNDrop;
 
+
+import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
+import com.podhoarderproject.podhoarder.util.Episode;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
@@ -42,6 +47,9 @@ public class DragNDropListView extends ListView {
 	DropListener mDropListener;
 	RemoveListener mRemoveListener;
 	DragListener mDragListener;
+	
+	private Episode tempEpisode;
+	private int defaultBackgroundColor;
 	
 	public DragNDropListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -91,8 +99,20 @@ public class DragNDropListView extends ListView {
 				mDragMode = false;
 				mEndPosition = pointToPosition(x,y);
 				stopDrag(mStartPosition - getFirstVisiblePosition());
+				
 				if (mDropListener != null && mStartPosition != INVALID_POSITION && mEndPosition != INVALID_POSITION) 
 	        		 mDropListener.onDrop(mStartPosition, mEndPosition);
+				else if (mDropListener != null && mEndPosition == INVALID_POSITION)
+				{
+					if (y < getTop())
+					{
+						mDropListener.onDrop(mStartPosition, getFirstVisiblePosition());
+					}
+					else if(y > getChildAt(getLastVisiblePosition()).getBottom())
+					{
+						mDropListener.onDrop(mStartPosition, getLastVisiblePosition()+1);
+					}
+				}
 				break;
 		}
 		return true;
@@ -119,6 +139,8 @@ public class DragNDropListView extends ListView {
 		layoutChildren();	//This fixed a bug where the drawing cache would contain an outdated image (another list row in this case.)
 		View item = getChildAt(itemIndex);
 		if (item == null) return;
+		this.defaultBackgroundColor =  item.getDrawingCacheBackgroundColor();	//Store the background color of the item
+		item.setBackgroundColor(getResources().getColor(R.color.fragment_player_playerlist_row_background_ondrag));	//Set the background color.
 		item.setDrawingCacheEnabled(true);
 		
 		if (mDragListener != null)
@@ -152,11 +174,24 @@ public class DragNDropListView extends ListView {
         WindowManager mWindowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
         mWindowManager.addView(v, mWindowParams);
         mDragView = v;
+        
+        DragNDropAdapter ad = (DragNDropAdapter) getAdapter();
+        this.tempEpisode = ad.playList.get(itemIndex);
+        ad.playList.remove(itemIndex);
+        item.setBackgroundColor(defaultBackgroundColor);	//Reset background color.
+        invalidateViews();
 	}
 
 	// destroy drag view
 	private void stopDrag(int itemIndex) {
 		if (mDragView != null) {
+			if (this.tempEpisode != null)
+			{
+				DragNDropAdapter ad = (DragNDropAdapter) getAdapter();
+				ad.playList.add(itemIndex, this.tempEpisode);
+				invalidateViews();
+				this.tempEpisode = null;
+			}
 			if (mDragListener != null)
 				mDragListener.onStopDrag(getChildAt(itemIndex));
             mDragView.setVisibility(GONE);
@@ -166,4 +201,6 @@ public class DragNDropListView extends ListView {
             mDragView = null;
         }
 	}
+	
+
 }

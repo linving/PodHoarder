@@ -144,8 +144,8 @@ public final class DragNDropAdapter extends BaseAdapter implements RemoveListene
   	}
 
 	public void onRemove(int which) {
-		if (which < 0 || which > this.playList.size()) return;		
-		this.playList.remove(which);
+//		if (which < 0 || which > this.playList.size()) return;		
+//		this.playList.remove(which);
 	}
 
 	public void onDrop(int from, int to) {

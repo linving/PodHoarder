@@ -1,5 +1,8 @@
 package com.podhoarderproject.podhoarder.fragment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.podhoarderproject.ericharlow.DragNDrop.DragListener;
 import com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView;
 import com.podhoarderproject.ericharlow.DragNDrop.DropListener;
@@ -11,9 +14,12 @@ import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -172,7 +178,7 @@ public class PlayerFragment extends Fragment
         	ListAdapter adapter = mainListView.getAdapter();
         	if (adapter instanceof DragNDropAdapter) 
         	{
-        		podService.setEpisode(to);
+        		//podService.setEpisode(to);
         		((DragNDropAdapter)adapter).onDrop(from, to);
         		mainListView.invalidateViews();
         	}
@@ -194,28 +200,70 @@ public class PlayerFragment extends Fragment
         
     private DragListener mDragListener = new DragListener() 
     {
-    	int defaultBackgroundColor;
+    	int index = -1, originalCount = -1;
     	
 		public void onDrag(int x, int y, ListView listView) 
 		{
-			// TODO Auto-generated method stub
+			if (listView.getChildCount() < originalCount)												//This means the grabbed row has been removed, and the list now contains 1 row less.
+			{
+				if (index != listView.pointToPosition(x, y) && listView.pointToPosition(x, y) != -1)	//Only animate if the view is dragged onto a new index in the list.
+				{
+					resetAnimations();																	//Reset all the rows to their initial locations. (before they were animated)
+					
+					for (int i = listView.pointToPosition(x, y); i<listView.getChildCount(); i++)		//Iterate through all rows from the one we're hovering to the end.
+					{
+						try
+						{
+							slideAnimation(listView.getChildAt(i), R.anim.slide_out_bottom);			//Animate them moving down one row (we don't actually move any objects/indexes, just pixels)
+						}
+						catch (NullPointerException e)
+						{
+							Log.e(LOG_TAG, "NullPointerException at index: " + i);
+							e.printStackTrace();
+						}
+					}
+				}
+				else if (index != listView.pointToPosition(x, y) && listView.pointToPosition(x, y) == -1)
+				{
+					resetAnimations();
+				}
+			}
+			index = listView.pointToPosition(x, y);	//Store the index of where we're currently hovering.
 		}
 
 		public void onStartDrag(View itemView) 
 		{
-			itemView.setVisibility(View.INVISIBLE);
-			defaultBackgroundColor = itemView.getDrawingCacheBackgroundColor();
-			itemView.setBackgroundColor(getResources().getColor(R.color.fragment_player_playerlist_row_background_ondrag));
-			ImageView iv = (ImageView)itemView.findViewById(R.id.player_list_row_grabber);
-			if (iv != null) iv.setVisibility(View.INVISIBLE);
+			originalCount = mainListView.getChildCount();
 		}
 
 		public void onStopDrag(View itemView) 
 		{
-			itemView.setVisibility(View.VISIBLE);
-			itemView.setBackgroundColor(defaultBackgroundColor);
-			ImageView iv = (ImageView)itemView.findViewById(R.id.player_list_row_grabber);
-			if (iv != null) iv.setVisibility(View.VISIBLE);
+			resetAnimations();		//Reset all the rows to their initial locations. (before they were animated)
+		}
+		
+		/**
+		 * Does an animation on the selected View object. Animations will persist after they are completed, so you have to manually clear animations afterwards if you want to reset their position.
+		 * @param viewToSlide	View to slide.
+		 * @param anim	Animation resource identifier.
+		 */
+		private void slideAnimation(View viewToSlide, int anim)
+	    {
+	    	Animation animation = AnimationUtils.loadAnimation(getActivity(), anim);
+	    	animation.setDuration(100);
+	    	animation.setFillEnabled(true);
+	    	animation.setFillAfter(true);
+	    	viewToSlide.startAnimation(animation);
+	    }
+		
+		/**
+		 * Goes through all the rows in the list and resets/clears their animations.
+		 */
+		private void resetAnimations()
+		{
+			for (int i=0; i<mainListView.getChildCount(); i++)	//Go through all the rows in the list.	
+			{
+				mainListView.getChildAt(i).clearAnimation();	//Cancel any animation (reset their location in this case)
+			}
 		}
     };
     
@@ -304,5 +352,7 @@ public class PlayerFragment extends Fragment
         		podService.seek(progress);
         	}
         }       
-    };           
+    };
+    
+	
 }
