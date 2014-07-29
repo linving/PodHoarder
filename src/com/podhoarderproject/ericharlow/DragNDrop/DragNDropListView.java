@@ -45,7 +45,6 @@ public class DragNDropListView extends ListView {
 	GestureDetector mGestureDetector;
 	
 	DropListener mDropListener;
-	RemoveListener mRemoveListener;
 	DragListener mDragListener;
 	
 	private Episode tempEpisode;
@@ -57,10 +56,6 @@ public class DragNDropListView extends ListView {
 	
 	public void setDropListener(DropListener l) {
 		mDropListener = l;
-	}
-
-	public void setRemoveListener(RemoveListener l) {
-		mRemoveListener = l;
 	}
 	
 	public void setDragListener(DragListener l) {
@@ -104,11 +99,11 @@ public class DragNDropListView extends ListView {
 	        		 mDropListener.onDrop(mStartPosition, mEndPosition);
 				else if (mDropListener != null && mStartPosition != INVALID_POSITION && mEndPosition == INVALID_POSITION && getChildCount() >= 1)
 				{
-					if (y < getTop())
+					if (y < getChildAt(0).getTop())
 					{
 						mDropListener.onDrop(mStartPosition, 0);
 					}
-					else if(y > getChildAt(getLastVisiblePosition()).getBottom())
+					else
 					{
 						mDropListener.onDrop(mStartPosition, getChildCount());
 					}

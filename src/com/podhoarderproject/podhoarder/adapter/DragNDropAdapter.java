@@ -18,12 +18,6 @@ package com.podhoarderproject.podhoarder.adapter;
 
 import java.util.List;
 
-import com.podhoarderproject.ericharlow.DragNDrop.DropListener;
-import com.podhoarderproject.ericharlow.DragNDrop.RemoveListener;
-import com.podhoarderproject.podhoarder.R;
-import com.podhoarderproject.podhoarder.activity.MainActivity;
-import com.podhoarderproject.podhoarder.util.Episode;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +26,12 @@ import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public final class DragNDropAdapter extends BaseAdapter implements RemoveListener, DropListener{
+import com.podhoarderproject.ericharlow.DragNDrop.DropListener;
+import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.activity.MainActivity;
+import com.podhoarderproject.podhoarder.util.Episode;
+
+public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.DragNDropAdapter";

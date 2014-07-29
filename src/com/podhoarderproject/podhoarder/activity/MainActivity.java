@@ -179,52 +179,24 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	        	//1. Player tab    
 	    		case Constants.PLAYER_TAB_POSITION:
 	    	        Tab playerTab = actionBar.newTab();
-	//    	        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
-	//    	        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
-	//    	        tabText = (TextView) view.findViewById(R.id.tabText);
-	//    	        
-	//    	        tabText.setText(R.string.player_tab);
-	//    	        tabImg.setBackgroundResource(R.drawable.tab_icon_player_light);
-	//    	        playerTab.setCustomView(view);
 	    	        playerTab.setTabListener(this);
 	    	        actionBar.addTab(playerTab);
 	    	        break;
 	            //2. Latest Episodes tab    
         		case Constants.LATEST_TAB_POSITION:   
         	        Tab latestTab = actionBar.newTab();
-//        	        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
-//        	        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
-//        	        tabText = (TextView) view.findViewById(R.id.tabText);
-//        	        
-//        	        tabText.setText(R.string.episodes_tab);
-//        	        tabImg.setBackgroundResource(R.drawable.tab_icon_latest_light);
-//        	        latestTab.setCustomView(view);
         	        latestTab.setTabListener(this);
         	        actionBar.addTab(latestTab);
         	        break;
         	    //3. Feed tab
         		case Constants.FEEDS_TAB_POSITION:
 	                Tab feedTab = actionBar.newTab();
-//	                view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
-//	                tabImg = (ImageView) view.findViewById(R.id.tabIcon);
-//	                tabText = (TextView) view.findViewById(R.id.tabText);
-//	                
-//	                tabText.setText(R.string.feed_tab);
-//	                tabImg.setBackgroundResource(R.drawable.tab_icon_feeds_light);
-//	                feedTab.setCustomView(view);
 	                feedTab.setTabListener(this);
 	                actionBar.addTab(feedTab);
 	                break;
 	              //3. Feed tab
         		case Constants.FEED_DETAILS_TAB_POSITION:
 	                Tab feedDetailsTab = actionBar.newTab();
-//	                view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
-//	                tabImg = (ImageView) view.findViewById(R.id.tabIcon);
-//	                tabText = (TextView) view.findViewById(R.id.tabText);
-//	                
-//	                tabText.setText(R.string.feed_tab);
-//	                tabImg.setBackgroundResource(R.drawable.tab_icon_feeds_light);
-//	                feedTab.setCustomView(view);
 	                feedDetailsTab.setTabListener(this);
 	                actionBar.addTab(feedDetailsTab);
 	                break;

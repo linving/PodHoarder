@@ -23,7 +23,6 @@ import android.widget.ToggleButton;
 import com.podhoarderproject.ericharlow.DragNDrop.DragListener;
 import com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView;
 import com.podhoarderproject.ericharlow.DragNDrop.DropListener;
-import com.podhoarderproject.ericharlow.DragNDrop.RemoveListener;
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
@@ -115,7 +114,6 @@ public class PlayerFragment extends Fragment
     	{
     		this.mainListView.setAdapter(this.helper.playlistAdapter);
     		((DragNDropListView) this.mainListView).setDropListener(mDropListener);
-        	((DragNDropListView) this.mainListView).setRemoveListener(mRemoveListener);
         	((DragNDropListView) this.mainListView).setDragListener(mDragListener);
         	((DragNDropListView) this.mainListView).setOnItemClickListener(mOnClickListener);
     	}
@@ -181,19 +179,6 @@ public class PlayerFragment extends Fragment
         }
     };
         
-    private RemoveListener mRemoveListener = new RemoveListener() 
-    {
-        public void onRemove(int which) 
-        {
-        	ListAdapter adapter = mainListView.getAdapter();
-        	if (adapter instanceof DragNDropAdapter) 
-        	{
-        		((DragNDropAdapter)adapter).onRemove(which);
-        		mainListView.invalidateViews();
-        	}
-        }
-    };
-        
     private DragListener mDragListener = new DragListener() 
     {
     	int index = -1, originalCount = -1;
@@ -219,12 +204,12 @@ public class PlayerFragment extends Fragment
 						}
 					}
 				}
-				else if (index != listView.pointToPosition(x, y) && listView.pointToPosition(x, y) == -1)
+				else if (index != listView.pointToPosition(x, y) && listView.pointToPosition(x, y) == -1)//Reset all animations if we are outside the list.
 				{
 					resetAnimations();
 				}
 			}
-			index = listView.pointToPosition(x, y);	//Store the index of where we're currently hovering.
+			index = listView.pointToPosition(x, y);														//Store the index of where we're currently hovering.
 		}
 
 		public void onStartDrag(View itemView) 
