@@ -1,16 +1,12 @@
 package com.podhoarderproject.podhoarder.fragment;
 
-import com.podhoarderproject.podhoarder.R;
-import com.podhoarderproject.podhoarder.activity.MainActivity;
-import com.podhoarderproject.podhoarder.adapter.FirstPageFragmentListener;
-import com.podhoarderproject.podhoarder.util.Feed;
-import com.podhoarderproject.podhoarder.util.PodcastHelper;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -18,46 +14,47 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ListView;
-import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.TextView;
+import android.widget.PopupMenu.OnMenuItemClickListener;
+
+import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.activity.MainActivity;
+import com.podhoarderproject.podhoarder.util.Feed;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
+import com.podhoarderproject.podhoarder.util.PopupMenuUtils;
  
 /**
  * 
  * @author Sebastian Andersson
  * 2013-04-17
  */
-public class FeedFragment extends Fragment
+public class FeedFragment extends Fragment implements OnRefreshListener
 {
 
 	@SuppressWarnings("unused")
 	private static final 	String 				LOG_TAG = "com.podhoarderproject.podhoarder.FeedFragment";
 	
-	public 					ListView 			mainListView;
-	public 					TextView 			feedTitle;
+	public 					GridView 			mainGridView;
 	
-	private 				View view;
-	private 				PodcastHelper helper;
+	private 				SwipeRefreshLayout 	swipeLayout;
 	
-	private static			FirstPageFragmentListener firstPageListener;
+	private 				View 				view;
+	private 				PodcastHelper 		helper;
 	
 	public FeedFragment() { }
 	
-	public FeedFragment(FirstPageFragmentListener listener) {
-        firstPageListener = listener;
-    }
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
     	this.view = inflater.inflate(R.layout.fragment_feeds, container, false);
 		
 		setupHelper();
-		setupListView();
+		setupGridView();
+		setupRefreshControls();
 		return view;
     }
     
@@ -73,16 +70,21 @@ public class FeedFragment extends Fragment
     	super.onStart();
     	
     }
-    
-    private void setupListView()
+ 
+    private void setupHelper()
     {
-    	this.mainListView = (ListView) view.findViewById(R.id.mainListView);
+    	this.helper = ((com.podhoarderproject.podhoarder.activity.MainActivity)this.getActivity()).helper;
+    }
+
+    private void setupGridView()
+    {
+    	this.mainGridView = (GridView) view.findViewById(R.id.mainGridView);
     	if (!this.helper.feedsListAdapter.isEmpty())
     	{
-    		this.mainListView.addFooterView(setupAddFeed());
-    		this.mainListView.setAdapter(this.helper.feedsListAdapter);
+    		this.helper.feedsListAdapter.setFooterView(setupAddFeed());
+    		this.mainGridView.setAdapter(this.helper.feedsListAdapter);
     		
-    		this.mainListView.setOnItemLongClickListener(new OnItemLongClickListener()
+    		this.mainGridView.setOnItemLongClickListener(new OnItemLongClickListener()
 			{
 
 				@Override
@@ -90,7 +92,7 @@ public class FeedFragment extends Fragment
 				{
 					final Feed currentFeed = helper.feedsListAdapter.feeds.get(pos);
 					
-					PopupMenu actionMenu = new PopupMenu(getActivity(), v);
+					final PopupMenu actionMenu = new PopupMenu(getActivity(), v);
 					MenuInflater inflater = actionMenu.getMenuInflater();
 					inflater.inflate(R.menu.feed_menu, actionMenu.getMenu());
 		    	   
@@ -102,37 +104,29 @@ public class FeedFragment extends Fragment
 							switch (item.getItemId()) 
 							{
 						        case R.id.menu_feed_markAsListened:
-						        	//TODO: Add a function that marks all Episodes of a Feed as 100% listened.
+						        	actionMenu.dismiss();
+						        	((MainActivity)getActivity()).helper.markAsListened(currentFeed);
 						            return true;
 						        case R.id.menu_feed_delete:
+						        	actionMenu.dismiss();
 						        	((MainActivity)getActivity()).helper.deleteFeed(currentFeed.getFeedId());
 							    	return true;
 							}
 							return true;
 						}
 					});
-		    	   
-		    	   actionMenu.show();
-		           return true;
+					PopupMenuUtils.forceShowIcons(actionMenu);
+					actionMenu.show();
+					return true;
 				}
 			});
-    		
-    		this.mainListView.setOnItemClickListener(new OnItemClickListener()
-			{
-				@Override
-				public void onItemClick(AdapterView<?> parent, View v, int pos, long id)
-				{
-					helper.feedDetailsListAdapter.setFeed(helper.feedsListAdapter.feeds.get(pos));
-					firstPageListener.onSwitchToNextFragment();
-				}
 
-			});
     	}
     	else
     	{
     		View emptyView = (setupAddFeed());
-    		((LinearLayout)this.mainListView.getParent()).addView(emptyView);
-    		this.mainListView.setEmptyView(emptyView);
+    		((LinearLayout)this.mainGridView.getParent()).addView(emptyView);
+    		this.mainGridView.setEmptyView(emptyView);
     		//TODO: Show some kind of "list is empty" text instead of the mainlistview here.
     	}
     	
@@ -142,7 +136,7 @@ public class FeedFragment extends Fragment
     {
     	//We add the footer view (last item) for adding new Feeds here.
     	LayoutInflater inflater = (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);	//get the inflater service.
-    	View addFeedRow = inflater.inflate(R.layout.fragment_feeds_list_add_feed_row, this.mainListView, false);	//Inflate the custom row layout for the footer.
+    	View addFeedRow = inflater.inflate(R.layout.fragment_feeds_grid_add_feed_item, this.mainGridView, false);	//Inflate the custom row layout for the footer.
     	addFeedRow.setOnClickListener(new View.OnClickListener() {	//Add Click Listener for the footer. It shouldn't behave like the other listrows.
 			@Override
 			public void onClick(View v)
@@ -176,9 +170,21 @@ public class FeedFragment extends Fragment
     	return addFeedRow;
     }
     
-    private void setupHelper()
+    private void setupRefreshControls()
     {
-    	this.helper = ((com.podhoarderproject.podhoarder.activity.MainActivity)this.getActivity()).helper;
+    	swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(this);
+        swipeLayout.setColorScheme(R.color.refresh_bar_blue, 
+        		R.color.refresh_bar_green, 
+        		R.color.refresh_bar_orange, 
+                R.color.refresh_bar_red);
     }
-
+    
+    @Override
+	public void onRefresh()
+	{
+		this.helper.setRefreshLayout(swipeLayout);	//Set the layout that should be updated once the Refresh task is done executing.
+		this.helper.refreshFeeds();	//Start the refresh process.
+	}
+    
 }

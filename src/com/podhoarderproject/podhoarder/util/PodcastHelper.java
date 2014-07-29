@@ -26,16 +26,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.podhoarderproject.podhoarder.R;
-import com.podhoarderproject.podhoarder.activity.SettingsActivity;
-import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
-import com.podhoarderproject.podhoarder.adapter.FeedDetailsListAdapter;
-import com.podhoarderproject.podhoarder.adapter.FeedsListAdapter;
-import com.podhoarderproject.podhoarder.adapter.LatestEpisodesListAdapter;
-import com.podhoarderproject.podhoarder.db.EpisodeDBHelper;
-import com.podhoarderproject.podhoarder.db.FeedDBHelper;
-import com.podhoarderproject.podhoarder.db.PlaylistDBHelper;
-
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -51,10 +41,18 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
+import com.podhoarderproject.podhoarder.adapter.FeedDetailsListAdapter;
+import com.podhoarderproject.podhoarder.adapter.GridListAdapter;
+import com.podhoarderproject.podhoarder.adapter.LatestEpisodesListAdapter;
+import com.podhoarderproject.podhoarder.db.EpisodeDBHelper;
+import com.podhoarderproject.podhoarder.db.FeedDBHelper;
+import com.podhoarderproject.podhoarder.db.PlaylistDBHelper;
 
 /**
  * Helper class that acts as an interface between GUI and SQLite etc.
@@ -78,7 +76,7 @@ public class PodcastHelper
 	private 				FeedDBHelper 				fDbH;	//Handles saving the Feed objects to a database for persistence.
 	private 				EpisodeDBHelper 			eph;	//Handles saving the Episode objects to a database for persistence.
 	public 					PlaylistDBHelper 			plDbH;	//Handles saving the current playlist to a database for persistence.
-	public 					FeedsListAdapter 			feedsListAdapter;	//An expandable list containing all the Feed and their respective Episodes.	
+	public 					GridListAdapter 			feedsListAdapter;	//An expandable list containing all the Feed and their respective Episodes.	
 	public					FeedDetailsListAdapter		feedDetailsListAdapter;
 	public 					LatestEpisodesListAdapter 	latestEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
 	public 					DragNDropAdapter 			playlistAdapter;	//A list containing all the downloaded episodes.
@@ -96,10 +94,10 @@ public class PodcastHelper
 		this.fDbH = new FeedDBHelper(this.context);
 		this.eph = new EpisodeDBHelper(this.context);
 		this.plDbH = new PlaylistDBHelper(this.context);
-		this.feedsListAdapter = new FeedsListAdapter(this.fDbH.getAllFeeds(), this.context);
-		this.feedDetailsListAdapter = new FeedDetailsListAdapter(this.context);
-		this.latestEpisodesListAdapter = new LatestEpisodesListAdapter(this.eph.getLatestEpisodes(100), this.context);
-		this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
+		//this.feedsListAdapter = new GridListAdapter(this.fDbH.getAllFeeds(), this.context);
+		//this.feedDetailsListAdapter = new FeedDetailsListAdapter(this.context);
+		//this.latestEpisodesListAdapter = new LatestEpisodesListAdapter(this.eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT), this.context);
+		//this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
 		// get download service and enqueue file
 		this.downloadManager = (DownloadManager) this.context.getSystemService(Context.DOWNLOAD_SERVICE);
 		this.broadcastReceivers = new ArrayList<BroadcastReceiver>();
@@ -276,6 +274,134 @@ public class PodcastHelper
 	}
 	
 	/**
+	 * Marks an Episode as listened.
+	 * @param ep Episode to mark as listened.
+	 * @param isBatchUpdating If false there will be a refreshLists() call at the end of the update.
+	 */
+	public void markAsListened(Episode ep)
+	{
+		if (ep.getElapsedTime() != ep.getTotalTime() && ep.getTotalTime() != 0)	//Only update Episodes that aren't already listened to.
+		{
+			if (ep.getTotalTime() > 100) ep.setElapsedTime(ep.getTotalTime());	//If totalTime is more than 100 (ms) that means there's a "real" time stored already. So we set elapsedTime to totalTime.
+			else																//Otherwise we make up the value 100 (easy when dealing with percent)
+			{
+				ep.setTotalTime(100);
+				ep.setElapsedTime(100);
+			}
+			this.eph.updateEpisode(ep);
+			this.refreshLists();
+		}
+	}
+	
+	/**
+	 * Marks all the Episodes in a Feed as listened.
+	 * @param feed Feed to mark as listened.
+	 */
+	public void markAsListened(Feed feed)
+	{
+		for (Episode ep : feed.getEpisodes())
+		{
+			if (ep.getTotalTime() > 100) ep.setElapsedTime(ep.getTotalTime());	//If totalTime is more than 100 (ms) that means there's a "real" time stored already. So we set elapsedTime to totalTime.
+			else																//Otherwise we make up the value 100 (easy when dealing with percent)
+			{
+				ep.setTotalTime(100);
+				ep.setElapsedTime(100);
+			}
+		}
+		this.eph.bulkUpdateEpisodes(feed.getEpisodes());
+		this.refreshLists();
+	}
+	
+	/**
+	 * Marks all the Episodes of a Feed as listened asynchronously.
+	 * @param feed Feed that should be marked as listened.
+	 */
+	public void markAsListenedAsync(Feed feed)
+	{
+		new MarkFeedAsListenedTask().execute(feed);
+	}
+	
+	/**
+	 * Marks all the Episodes of a Feed as listened asynchronously.
+	 * @param feed Feed that should be marked as listened.
+	 */
+	public void markAsListenedAsync(Episode ep)
+	{
+		new MarkEpisodeAsListenedTask().execute(ep);
+	}
+	
+	/**
+     * AsyncTask for marking all the Episodes of a Feed as listened.
+     */
+    class MarkFeedAsListenedTask extends AsyncTask<Feed, Void, Void> 
+    {
+
+        public MarkFeedAsListenedTask() 
+        {	}
+
+        /**
+         * Fires when Task has been executed.
+         * This function associates the downloaded bitmap with the object property.
+         */
+        @Override
+        protected void onPostExecute(Void v) 
+        {
+        	refreshLists();
+        }
+
+		@Override
+		protected Void doInBackground(Feed... params)
+		{
+			for (Episode ep : params[0].getEpisodes())
+			{
+				if (ep.getTotalTime() > 100) ep.setElapsedTime(ep.getTotalTime());	//If totalTime is more than 100 (ms) that means there's a "real" time stored already. So we set elapsedTime to totalTime.
+				else																//Otherwise we make up the value 100 (easy when dealing with percent)
+				{
+					ep.setTotalTime(100);
+					ep.setElapsedTime(100);
+				}
+			}
+			eph.bulkUpdateEpisodes(params[0].getEpisodes());
+			return null;
+		}
+    }
+    
+    /**
+     * AsyncTask for marking all the Episodes of a Feed as listened.
+     */
+    class MarkEpisodeAsListenedTask extends AsyncTask<Episode, Void, Void> 
+    {
+
+        public MarkEpisodeAsListenedTask() 
+        {	}
+
+        /**
+         * Fires when Task has been executed.
+         * This function associates the downloaded bitmap with the object property.
+         */
+        @Override
+        protected void onPostExecute(Void v) 
+        {
+        	refreshLists();
+        }
+
+		@Override
+		protected Void doInBackground(Episode... params)
+		{
+			Episode ep = params[0];
+			if (ep.getTotalTime() > 100) ep.setElapsedTime(ep.getTotalTime());	//If totalTime is more than 100 (ms) that means there's a "real" time stored already. So we set elapsedTime to totalTime.
+			else																//Otherwise we make up the value 100 (easy when dealing with percent)
+			{
+				ep.setTotalTime(100);
+				ep.setElapsedTime(100);
+			}
+			eph.updateEpisode(ep);
+			return null;
+		}
+    }
+    
+	
+	/**
 	 * Deletes the physical mp3-file associated with an Episode, not the Episode object itself.
 	 * @param feedId Id of the Feed that the Podcast belongs to.
 	 * @param episodeId Id of the Episode within the specified feed.
@@ -308,7 +434,7 @@ public class PodcastHelper
 	 */
 	private void checkLocalLinks()
 	{
-		List<Feed> feeds = this.feedsListAdapter.feeds;
+		List<Feed> feeds = this.fDbH.getAllFeeds(false);
 		for (int feedNo=0; feedNo<feeds.size(); feedNo++)
 		{
 			List<Episode> episodes = feeds.get(feedNo).getEpisodes();
@@ -374,17 +500,7 @@ public class PodcastHelper
 				
 				oldFeed.getFeedImage().imageObject().getBitmap().recycle();
 				//Update the Feed with the new Episodes in the db.
-				oldFeed = this.fDbH.updateFeed(oldFeed);
-				
-				//TODO: Make sure this works. (AUTOMATICALLY DOWNLOAD NEW EPISODES SETTING)
-				if (PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean(SettingsActivity.SETTINGS_KEY_AUTODOWNLOADNEW, false))
-				{
-					for (int i = 0; i<newFeed.getEpisodes().size(); i++)
-					{
-						this.downloadEpisode(oldFeed.getEpisodes().get(i).getFeedId(), oldFeed.getEpisodes().get(i).getEpisodeId());
-					}
-				}
-				
+				oldFeed = this.fDbH.updateFeed(oldFeed);				
 			}
 			//Disable the "refreshing" animation.
 			this.refreshLayout.setRefreshing(false);
@@ -523,13 +639,13 @@ public class PodcastHelper
 											description = ielem.getElementsByTagName("itunes:subtitle");	//First, try and get the itunes:subtitle tag
 											break;
 										case 1:
-											description = ielem.getElementsByTagName("itunes:summary");	//Second, try and get the description tag
+											description = ielem.getElementsByTagName("itunes:summary");	//Second, try and get the itunes:summary tag
 											break;
 										case 2:
-											description = ielem.getElementsByTagName("description");	//Second, try the content:encoded tag
+											description = ielem.getElementsByTagName("description");	//Third, try the description tag
 											break;
 										case 3:
-											description = ielem.getElementsByTagName("content:encoded");	//Third, try the itunes:summary tag
+											description = ielem.getElementsByTagName("content:encoded");	//Fourth, try the content:encoded tag
 											break;
 									}
 									iterator++;
@@ -540,7 +656,10 @@ public class PodcastHelper
 							{
 								e.printStackTrace();
 							}
+							
 						}
+						ep.setTotalTime(100);
+						ep.setElapsedTime(0);
 						publishProgress((int) percentIncrement);
 						eps.add(ep);
 					}
@@ -1100,14 +1219,33 @@ public class PodcastHelper
 	public void refreshLists()
 	{
 		//Update the list adapters to reflect changes.
-		((LatestEpisodesListAdapter)this.latestEpisodesListAdapter).replaceItems(this.eph.getLatestEpisodes(100));
-		((DragNDropAdapter)this.playlistAdapter).replaceItems(this.plDbH.sort(this.eph.getDownloadedEpisodes()));
-		this.feedsListAdapter.replaceItems(this.fDbH.getAllFeeds());
+		//Latest Episodes list
+		if (this.latestEpisodesListAdapter != null)	
+			this.latestEpisodesListAdapter.replaceItems(this.eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT));
+		else	
+			this.latestEpisodesListAdapter = new LatestEpisodesListAdapter(this.eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT), this.context);
 		
+		//Playlist
+		if (this.playlistAdapter != null)	
+			this.playlistAdapter.replaceItems(this.plDbH.sort(this.eph.getDownloadedEpisodes()));
+		else	
+			this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
+		
+		//Feeds List
+		if (this.feedsListAdapter != null)	
+			this.feedsListAdapter.replaceItems(this.fDbH.getAllFeeds());
+		else	
+			this.feedsListAdapter = new GridListAdapter(this.fDbH.getAllFeeds(), this.context);
+		
+		//Feed Details List
 		if (this.feedDetailsListAdapter != null && this.feedDetailsListAdapter.feed != null)
 		{
 			this.feedDetailsListAdapter.replaceItems(this.fDbH.getFeed(this.feedDetailsListAdapter.feed.getFeedId()).getEpisodes());
 			this.feedDetailsListAdapter.notifyDataSetChanged();
+		}
+		else if (this.feedDetailsListAdapter == null)
+		{
+			this.feedDetailsListAdapter = new FeedDetailsListAdapter(this.context);
 		}
 		
 		//Notify for UI updates.
@@ -1116,4 +1254,6 @@ public class PodcastHelper
 		this.latestEpisodesListAdapter.notifyDataSetChanged();
 		
 	}
+
+	
 }

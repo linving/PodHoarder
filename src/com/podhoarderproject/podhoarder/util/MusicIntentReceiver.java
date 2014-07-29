@@ -1,12 +1,11 @@
 package com.podhoarderproject.podhoarder.util;
 
-import com.podhoarderproject.podhoarder.service.PodHoarderService;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.telephony.TelephonyManager;
-import android.util.Log;
+
+import com.podhoarderproject.podhoarder.service.PodHoarderService;
 
 /**
  * A Broadcast Receiver class for intercepting and handling hardware events that disrupt playback somehow.

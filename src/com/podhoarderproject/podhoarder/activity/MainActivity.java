@@ -1,30 +1,5 @@
 package com.podhoarderproject.podhoarder.activity;
  
-import com.podhoarderproject.podhoarder.R;
-import com.podhoarderproject.podhoarder.adapter.TabFragmentsAdapter;
-import com.podhoarderproject.podhoarder.fragment.FeedDetailsFragment;
-import com.podhoarderproject.podhoarder.service.PodHoarderService;
-import com.podhoarderproject.podhoarder.service.PodHoarderService.PodHoarderBinder;
-import com.podhoarderproject.podhoarder.util.Constants;
-import com.podhoarderproject.podhoarder.util.DynamicViewPager;
-import com.podhoarderproject.podhoarder.util.MusicIntentReceiver;
-import com.podhoarderproject.podhoarder.util.PodcastHelper;
-
-import android.os.Bundle;
-import android.os.IBinder;
-import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
-import android.telephony.TelephonyManager;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
@@ -33,6 +8,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
+import android.telephony.TelephonyManager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+
+import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.adapter.TabFragmentsAdapter;
+import com.podhoarderproject.podhoarder.service.PodHoarderService;
+import com.podhoarderproject.podhoarder.service.PodHoarderService.PodHoarderBinder;
+import com.podhoarderproject.podhoarder.util.Constants;
+import com.podhoarderproject.podhoarder.util.MusicIntentReceiver;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
 /**
  * 
@@ -44,8 +40,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.MainActivity";
 	//UI Elements
-    public DynamicViewPager mPager;
-    private TabFragmentsAdapter mAdapter;
+    private ViewPager mPager;
+    public TabFragmentsAdapter mAdapter;
     public ActionBar actionBar;
     
     //Podcast Helper
@@ -96,14 +92,15 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     {
     	getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         getActionBar().hide();
+        
         super.onCreate(savedInstanceState);
         
         // Initialisation
         setContentView(R.layout.activity_main);
-        getActionBar().show();
+        //getActionBar().show();
         doTabSetup();
         this.helper = new PodcastHelper(this);  
-        
+        //goFullScreen();
         if (!this.musicBound)
     	{
     		if(playIntent==null)
@@ -165,7 +162,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     
     private void doTabSetup()
     {
-    	mPager = (DynamicViewPager) findViewById(R.id.pager);
+    	mPager = (ViewPager) findViewById(R.id.pager);
         actionBar = getActionBar();
         mAdapter = new TabFragmentsAdapter(getSupportFragmentManager());
 
@@ -174,54 +171,64 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowHomeEnabled(false);
         
-        View view = null;
-        ImageView tabImg = null;
-        TextView tabText = null;
-        
         // Adding Tabs
-        for (int i=0; i<3; i++)
+        for (int i=0; i<Constants.TAB_COUNT; i++)
         {
         	switch (i)
         	{
-        		//1. Feed tab
-        		case Constants.FEEDS_TAB_POSITION:
-	                Tab feedTab = actionBar.newTab();
-	                view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
-	                tabImg = (ImageView) view.findViewById(R.id.tabIcon);
-	                tabText = (TextView) view.findViewById(R.id.tabText);
-	                
-	                tabText.setText(R.string.feed_tab);
-	                tabImg.setBackgroundResource(R.drawable.tab_icon_feeds_dark);
-	                feedTab.setCustomView(view);
-	                feedTab.setTabListener(this);
-	                actionBar.addTab(feedTab);
-	                break;
+	        	//1. Player tab    
+	    		case Constants.PLAYER_TAB_POSITION:
+	    	        Tab playerTab = actionBar.newTab();
+	//    	        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
+	//    	        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
+	//    	        tabText = (TextView) view.findViewById(R.id.tabText);
+	//    	        
+	//    	        tabText.setText(R.string.player_tab);
+	//    	        tabImg.setBackgroundResource(R.drawable.tab_icon_player_light);
+	//    	        playerTab.setCustomView(view);
+	    	        playerTab.setTabListener(this);
+	    	        actionBar.addTab(playerTab);
+	    	        break;
 	            //2. Latest Episodes tab    
         		case Constants.LATEST_TAB_POSITION:   
         	        Tab latestTab = actionBar.newTab();
-        	        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
-        	        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
-        	        tabText = (TextView) view.findViewById(R.id.tabText);
-        	        
-        	        tabText.setText(R.string.episodes_tab);
-        	        tabImg.setBackgroundResource(R.drawable.tab_icon_latest_dark);
-        	        latestTab.setCustomView(view);
+//        	        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
+//        	        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
+//        	        tabText = (TextView) view.findViewById(R.id.tabText);
+//        	        
+//        	        tabText.setText(R.string.episodes_tab);
+//        	        tabImg.setBackgroundResource(R.drawable.tab_icon_latest_light);
+//        	        latestTab.setCustomView(view);
         	        latestTab.setTabListener(this);
         	        actionBar.addTab(latestTab);
         	        break;
-        	      //3. Player tab    
-        		case Constants.PLAYER_TAB_POSITION:
-        	        Tab playerTab = actionBar.newTab();
-        	        view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
-        	        tabImg = (ImageView) view.findViewById(R.id.tabIcon);
-        	        tabText = (TextView) view.findViewById(R.id.tabText);
-        	        
-        	        tabText.setText(R.string.player_tab);
-        	        tabImg.setBackgroundResource(R.drawable.tab_icon_player_dark);
-        	        playerTab.setCustomView(view);
-        	        playerTab.setTabListener(this);
-        	        actionBar.addTab(playerTab);
-        	        break;
+        	    //3. Feed tab
+        		case Constants.FEEDS_TAB_POSITION:
+	                Tab feedTab = actionBar.newTab();
+//	                view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
+//	                tabImg = (ImageView) view.findViewById(R.id.tabIcon);
+//	                tabText = (TextView) view.findViewById(R.id.tabText);
+//	                
+//	                tabText.setText(R.string.feed_tab);
+//	                tabImg.setBackgroundResource(R.drawable.tab_icon_feeds_light);
+//	                feedTab.setCustomView(view);
+	                feedTab.setTabListener(this);
+	                actionBar.addTab(feedTab);
+	                break;
+	              //3. Feed tab
+        		case Constants.FEED_DETAILS_TAB_POSITION:
+	                Tab feedDetailsTab = actionBar.newTab();
+//	                view = LayoutInflater.from(this).inflate(R.layout.tabs_layout, null);
+//	                tabImg = (ImageView) view.findViewById(R.id.tabIcon);
+//	                tabText = (TextView) view.findViewById(R.id.tabText);
+//	                
+//	                tabText.setText(R.string.feed_tab);
+//	                tabImg.setBackgroundResource(R.drawable.tab_icon_feeds_light);
+//	                feedTab.setCustomView(view);
+	                feedDetailsTab.setTabListener(this);
+	                actionBar.addTab(feedDetailsTab);
+	                break;
+        	           
         	}
         }
         
@@ -234,8 +241,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             @Override
             public void onPageSelected(int position) 
             {
-                // on changing the page
-                // make respected tab selected
+                if (position < 3)	mAdapter.setDetailsPageEnabled(false);
                 actionBar.setSelectedNavigationItem(position);
             }
 
@@ -249,6 +255,23 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     	
     }
 
+    private void goFullScreen()
+    {
+    	if (Build.VERSION.SDK_INT < 16) 
+    	{ //ye olde method
+    	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    	} 
+    	else 
+    	{ 	// Jellybean and up, new hotness
+    	    View decorView = getWindow().getDecorView();
+    	    // Hide the status bar.
+    	    int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+    	    decorView.setSystemUiVisibility(uiOptions);
+    	    // Remember that you should never show the action bar if the
+    	    // status bar is hidden, so hide that too if necessary.
+    	    actionBar.hide();
+    	}
+    }
 
     public void downloadEpisode(int feedId, int episodeId)
     {
@@ -327,19 +350,9 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
 	public void onBackPressed() 
 	{
-        if(mPager.getCurrentItem() == Constants.FEEDS_TAB_POSITION) 
+        if(mPager.getCurrentItem() == Constants.FEED_DETAILS_TAB_POSITION) 
         {
-            if (mAdapter.getItem(Constants.FEEDS_TAB_POSITION) instanceof FeedDetailsFragment) 
-            {
-            	((FeedDetailsFragment) mAdapter.getItem(Constants.FEEDS_TAB_POSITION)).backPressed();
-            }
-            else 
-            {	//If back is pressed when we are at the Feeds list, we should go back to the home screen (minimize the app)
-            	Intent startMain = new Intent(Intent.ACTION_MAIN);
-            	startMain.addCategory(Intent.CATEGORY_HOME);
-            	startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            	startActivity(startMain);
-            }
+        	actionBar.setSelectedNavigationItem(Constants.FEEDS_TAB_POSITION);
         }
         else 
         {

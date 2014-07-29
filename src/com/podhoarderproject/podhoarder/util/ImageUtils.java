@@ -9,7 +9,9 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Shader.TileMode;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
+import android.view.View;
 
 public class ImageUtils
 {
@@ -260,6 +262,25 @@ public class ImageUtils
         return (bitmap);
     }
 
+	public static void blurOverlay(Bitmap bkg, View view) 
+	{
+	    float scaleFactor = 8;
+	    float radius = 1;
+	
+	    Bitmap overlay = Bitmap.createBitmap((int) (view.getMeasuredWidth()/scaleFactor),
+	            (int) (view.getMeasuredHeight()/scaleFactor), Bitmap.Config.ARGB_8888);
+	    Canvas canvas = new Canvas(overlay);
+	    canvas.translate(-view.getLeft()/scaleFactor, -view.getTop()/scaleFactor);
+	    canvas.scale(1 / scaleFactor, 1 / scaleFactor);
+	    Paint paint = new Paint();
+	    paint.setFlags(Paint.FILTER_BITMAP_FLAG);
+	    canvas.drawBitmap(bkg, 0, 0, paint);
+	
+	    overlay = fastblur(overlay, (int)radius);
+	    
+	    view.setBackground(new BitmapDrawable(view.getResources(), overlay));
+	}
+	
 	public static Bitmap buildBackground(Context ctx)
 	{
 		final BitmapFactory.Options options = new BitmapFactory.Options();

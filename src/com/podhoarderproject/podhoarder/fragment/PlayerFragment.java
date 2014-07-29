@@ -1,7 +1,24 @@
 package com.podhoarderproject.podhoarder.fragment;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageButton;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.podhoarderproject.ericharlow.DragNDrop.DragListener;
 import com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView;
@@ -11,27 +28,6 @@ import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
 import com.podhoarderproject.podhoarder.util.PodcastHelper;
-
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
-import android.widget.ToggleButton;
 
 /**
  * 
@@ -114,7 +110,7 @@ public class PlayerFragment extends Fragment
     
     private void setupListView()
     {
-    	this.mainListView = (ListView) view.findViewById(R.id.playerList);
+    	this.mainListView = (ListView) view.findViewById(R.id.playlist);
     	if (!this.helper.playlistAdapter.isEmpty())
     	{
     		this.mainListView.setAdapter(this.helper.playlistAdapter);

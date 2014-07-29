@@ -26,16 +26,18 @@
 		        android:id="@+id/player_list_row_episodeName"
 		        android:layout_width="wrap_content"
 		        android:layout_height="match_parent"
-		        android:textColor="@color/fragment_player_playerlist_row_episode_title"
-		        android:textSize="@dimen/fragment_player_playerlist_row_episode_title"
+		        android:textColor="@color/fragment_player_playlist_row_episode_title"
+		        android:textSize="@dimen/fragment_player_playlist_row_episode_title"
+	        android:fontFamily="sans-serif-light"
 		        android:maxLines="1"
     			android:ellipsize="end"/>
 		    <TextView
 		        android:id="@+id/player_list_row_podcastName"
 		        android:layout_width="match_parent"
 		        android:layout_height="match_parent"
-		        android:textColor="@color/fragment_player_playerlist_row_podcast_title"
-		        android:textSize="@dimen/fragment_player_playerlist_row_podcast_title"/>
+		        android:textColor="@color/fragment_player_playlist_row_podcast_title"
+	        android:fontFamily="sans-serif-light"
+		        android:textSize="@dimen/fragment_player_playlist_row_podcast_title"/>
 	    </LinearLayout>
 	    <ImageView
 	        android:id="@+id/player_list_row_grabber"

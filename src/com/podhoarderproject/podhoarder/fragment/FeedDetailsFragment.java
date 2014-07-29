@@ -1,20 +1,10 @@
 package com.podhoarderproject.podhoarder.fragment;
 
-import com.podhoarderproject.podhoarder.R;
-import com.podhoarderproject.podhoarder.activity.MainActivity;
-import com.podhoarderproject.podhoarder.adapter.FeedDetailsListAdapter;
-import com.podhoarderproject.podhoarder.adapter.FirstPageFragmentListener;
-import com.podhoarderproject.podhoarder.util.Constants;
-import com.podhoarderproject.podhoarder.util.Episode;
-import com.podhoarderproject.podhoarder.util.ExpandAnimation;
-import com.podhoarderproject.podhoarder.util.ImageUtils;
-import com.podhoarderproject.podhoarder.util.PodcastHelper;
-
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -30,11 +20,22 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageView;
-import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
+
+import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.activity.MainActivity;
+import com.podhoarderproject.podhoarder.adapter.FeedDetailsListAdapter;
+import com.podhoarderproject.podhoarder.util.Constants;
+import com.podhoarderproject.podhoarder.util.Episode;
+import com.podhoarderproject.podhoarder.util.ExpandAnimation;
+import com.podhoarderproject.podhoarder.util.ImageUtils;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
+import com.podhoarderproject.podhoarder.util.Banner;
+import com.podhoarderproject.podhoarder.util.PopupMenuUtils;
  
 /**
  * 
@@ -54,8 +55,6 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
 	private View view;
 	private PodcastHelper helper;
 	
-	private static FirstPageFragmentListener firstPageListener;
-	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
     	this.view = inflater.inflate(R.layout.fragment_feed_details, container, false);
@@ -72,10 +71,6 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     
     public FeedDetailsFragment() {}
     
-    public FeedDetailsFragment(FirstPageFragmentListener listener) {
-        firstPageListener = listener;
-    }
-    
 	@Override
     public void onActivityCreated(Bundle savedInstanceState)
     {
@@ -88,21 +83,20 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     	super.onStart();
     }
 
-    public void backPressed() 
-    {
-        firstPageListener.onSwitchToNextFragment();
-    }
     
     private void setupFeedDetails()
     {
     	if (this.helper.feedDetailsListAdapter.feed != null)
     	{
     		ImageView img = (ImageView) view.findViewById(R.id.feed_details_image);
+    		ImageView banner = (Banner) view.findViewById(R.id.feed_details_banner);
     		TextView title = (TextView) view.findViewById(R.id.feed_details_title);
     		TextView author = (TextView) view.findViewById(R.id.feed_details_author);
     		TextView category = (TextView) view.findViewById(R.id.feed_details_category);
     		TextView description = (TextView) view.findViewById(R.id.feed_details_description);
-    		img.setImageBitmap(ImageUtils.getCircularBitmap(this.helper.feedDetailsListAdapter.feed.getFeedImage().imageObject().getBitmap()));
+    		
+    		img.setImageBitmap(this.helper.feedDetailsListAdapter.feed.getFeedImage().imageObject().getBitmap());
+    		banner.setBackground(new BitmapDrawable(getResources(),ImageUtils.fastblur(this.helper.feedDetailsListAdapter.feed.getFeedImage().thumbnail().getBitmap(), 4)));
     		//img.setBackground(new BitmapDrawable(getActivity().getResources(),ImageUtils.getCircularBitmap(this.helper.feedDetailsListAdapter.feed.getFeedImage().imageObject().getBitmap())));
     		title.setText(this.helper.feedDetailsListAdapter.feed.getTitle());
     		author.setText(getActivity().getString(R.string.notification_by) + " " + this.helper.feedDetailsListAdapter.feed.getAuthor());
@@ -145,11 +139,13 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     				{
     					final Episode currentEp = (Episode)episodesListView.getItemAtPosition(pos);
     					
-    					PopupMenu actionMenu = new PopupMenu(getActivity(), v);
+    					final PopupMenu actionMenu = new PopupMenu(getActivity(), v);
     					MenuInflater inflater = actionMenu.getMenuInflater();
     					if (!currentEp.getLocalLink().isEmpty()) inflater.inflate(R.menu.episode_menu_downloaded, actionMenu.getMenu());	//Different menus depending on if the file is downloaded or not.
     					else inflater.inflate(R.menu.episode_menu_not_downloaded, actionMenu.getMenu());
     		    	   
+    					if (currentEp.isListened()) actionMenu.getMenu().removeItem(R.id.menu_episode_markAsListened); //If the Episode is already fully listened to, no need to show "Mark As Listened" alternative.
+    					
     					actionMenu.setOnMenuItemClickListener(new OnMenuItemClickListener()
     					{
     						@Override
@@ -158,25 +154,33 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     							switch (item.getItemId()) 
     							{
     						        case R.id.menu_episode_download:
+    						        	actionMenu.dismiss();
     						        	((MainActivity)getActivity()).downloadEpisode(currentEp.getFeedId(), currentEp.getEpisodeId());
     						            return true;
     						        case R.id.menu_episode_stream:
+    						        	actionMenu.dismiss();
     						        	((MainActivity)getActivity()).podService.streamEpisode(currentEp);
     							    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Player Fragment automatically.
     						            return true;
     						        case R.id.menu_episode_playFile:
+    						        	actionMenu.dismiss();
     						        	((MainActivity)getActivity()).podService.startEpisode(currentEp);
     							    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Player Fragment automatically.
     							    	return true;
     						        case R.id.menu_episode_deleteFile:
+    						        	actionMenu.dismiss();
     						        	((MainActivity)getActivity()).podService.deletingEpisode(currentEp.getEpisodeId());
     							    	((MainActivity)getActivity()).helper.deleteEpisode(currentEp.getFeedId(), currentEp.getEpisodeId());
     							    	return true;
+    						        case R.id.menu_episode_markAsListened:
+    						        	actionMenu.dismiss();
+    						        	((MainActivity)getActivity()).helper.markAsListenedAsync(currentEp);
+    						        	return true;
     							}
     							return true;
     						}
     					});
-    		    	   
+    		    	   PopupMenuUtils.forceShowIcons(actionMenu);
     		    	   actionMenu.show();
     		    	   return true;
     				}
@@ -226,17 +230,7 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     	                {
     	                    float diffY = e2.getY() - e1.getY();
     	                    float diffX = e2.getX() - e1.getX();
-    	                    if (Math.abs(diffX) > Math.abs(diffY)) 
-    	                    {
-    	                        if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) 
-    	                        {
-    	                            if (diffX > 0)  //When we detect a swipe right here, we should "simulate" back pressed, and take the user back to the Feed List Page
-    	                            {
-    	                            	backPressed();
-    	                            }
-    	                        }
-    	                    } 
-    	                    else 
+    	                    if (Math.abs(diffX) < Math.abs(diffY)) 
     	                    {
     	                        if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) 
     	                        {
@@ -275,16 +269,7 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
                 try {
                     float diffY = e2.getY() - e1.getY();
                     float diffX = e2.getX() - e1.getX();
-                    if (Math.abs(diffX) > Math.abs(diffY)) {
-                        if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) 
-                        {
-                            if (diffX > 0) //When we detect a swipe right here, we should "simulate" back pressed, and take the user back to the Feed List Page
-                            {
-                            	backPressed();
-                            }
-                        }
-                    } 
-                    else 
+                    if (Math.abs(diffX) < Math.abs(diffY)) 
                     {
                         if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) 
                         {

@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/fragment_feeds_background"
     android:id="@+id/feedFragment_container">
-
-    <ListView
-        android:id="@+id/mainListView"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:divider="@color/fragment_feeds_background"
-        android:clickable="true"
-        android:longClickable="true"
-        android:groupIndicator="@null"/>
-</LinearLayout>
+	
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_container"
+        android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_centerInParent="true"
+	    android:layout_gravity="center">
+	    <GridView 
+	        android:id="@+id/mainGridView"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:paddingLeft="2dp"
+	    	android:paddingTop="2dp"
+	    	android:layout_gravity="center"
+	        android:columnWidth="@dimen/fragment_feeds_grid_item"
+		    android:numColumns="auto_fit"
+		    android:verticalSpacing="2dp"
+		    android:horizontalSpacing="2dp"
+		    android:stretchMode="none" />
+	 </android.support.v4.widget.SwipeRefreshLayout>
+</RelativeLayout>

@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -110,7 +111,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		player.start();
 		setupNotification();
 		this.notification.showNotify(this);
-		if (this.currentEpisode.getTotalTime() == 0) 
+		if (this.currentEpisode.getTotalTime() == 0 || this.currentEpisode.getTotalTime() == 100) 
 		{
 			this.currentEpisode.setTotalTime(player.getDuration());
 			this.currentEpisode = this.helper.updateEpisode(this.currentEpisode);
@@ -150,11 +151,16 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void updateUI()
 	{
 		//Update the UI Elements in the Player Fragment.
-		if (this.episodeTitle != null) this.episodeTitle.setText(this.currentEpisode.getTitle());
+		if (this.episodeTitle != null) 
+		{
+			this.episodeTitle.setText(this.currentEpisode.getTitle());
+			this.episodeTitle.setSelected(true);
+		}
 		if (this.totalTime != null)this.totalTime.setText(millisToTime(this.currentEpisode.getTotalTime()));
 		if (this.elapsedTime != null) this.elapsedTime.setText(millisToTime(this.currentEpisode.getElapsedTime()));
 		if (this.seekBar != null) this.seekBar.setMax(this.currentEpisode.getTotalTime());
 		if (isPng() && this.playPauseButton != null) playPauseButton.setChecked(true);
+		if (isPng() && this.seekBar.getVisibility() != View.VISIBLE) this.seekBar.setVisibility(View.VISIBLE);
 		this.handler.post(UpdateRunnable);
 	}
 	
@@ -165,6 +171,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		this.elapsedTime.setText("");
 		this.seekBar.setMax(0);
 		this.seekBar.setProgress(0);
+		this.seekBar.setVisibility(View.INVISIBLE);
 		playPauseButton.setChecked(false);
 	}
 	
@@ -253,7 +260,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
                 if (isPng()) 
                 {
                 	elapsedTime.setText(millisToTime(getPosn()));	// update progress bar using getCurrentPosition()
-                	handler.postDelayed(UpdateRunnable, 500);
+                	handler.postDelayed(UpdateRunnable, 350);
                 }
         	}
         }
@@ -391,8 +398,8 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	
 	public boolean shouldSaveElapsedTime()
 	{
-		//A limit of 20 is set because the Runnable generally runs twice per second and we want to save the elapsed time every ~10 seconds.
-		if (this.timeTracker >= 20)
+		//A limit of 40 is set because the Runnable generally runs twice per second and we want to save the elapsed time every ~20 seconds.
+		if (this.timeTracker >= 40)
 		{
 			//Reset the tracker if we are about to save.
 			this.timeTracker = 0;

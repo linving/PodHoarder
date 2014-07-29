@@ -59,6 +59,29 @@ public class FeedDBHelper
 		this.db.close();
 		return feeds;
 	}
+	
+	/**
+	 * 
+	 * Retrieves a list of all the Feeds from the SQLite database.
+	 * @param createBitmaps Determines whether the bitmap files should be decoded.
+	 * @return A list containing all stored Feeds
+	 */
+	public List<Feed> getAllFeeds(boolean createBitmaps)
+	{
+		List<Feed> feeds = new ArrayList<Feed>();
+		this.db = this.dbHelper.getWritableDatabase();
+		Cursor cursor = this.db.query(TABLE_NAME, columns, null, null,
+				null, null, null);
+		if (cursor.moveToFirst())
+		{
+			do
+			{
+				feeds.add(cursorToFeed(cursor, createBitmaps));
+			} while (cursor.moveToNext());
+		}
+		this.db.close();
+		return feeds;
+	}
 
 	/**
 	 * 

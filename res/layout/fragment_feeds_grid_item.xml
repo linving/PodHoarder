@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/fragment_feeds_grid_item"
+    android:layout_height="@dimen/fragment_feeds_grid_item"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:longClickable="true"
+    android:focusable="true"
+	android:descendantFocusability="blocksDescendants"
+    android:background="?android:attr/selectableItemBackground"
+    android:layout_marginTop="5dp">
+ 
+    <ImageView
+        android:id="@+id/feeds_grid_item_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/feeds_grid_image"
+        android:scaleType="fitXY"
+        android:tint="@color/fragment_feeds_grid_item_image_tint">
+    </ImageView>
+ 
+    <TextView
+        android:id="@+id/feeds_grid_item_text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:textSize="@dimen/fragment_feeds_grid_item_text"
+        android:maxWidth="@dimen/fragment_feeds_grid_item"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="@color/fragment_feeds_grid_item_title"
+		android:background="#80000000"/>
+    
+    <TextView android:id="@+id/feeds_grid_item_notification"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="5dp"
+        android:maxLines="1"
+        android:textColor="@color/fragment_feeds_grid_item_notification_text"
+        android:textSize="@dimen/fragment_feeds_grid_item_notification_text"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:background="@drawable/feeds_grid_notification_shape"/>
+ 
+</RelativeLayout>

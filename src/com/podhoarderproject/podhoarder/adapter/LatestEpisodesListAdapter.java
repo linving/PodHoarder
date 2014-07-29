@@ -7,18 +7,21 @@ package com.podhoarderproject.podhoarder.adapter;
 import java.text.ParseException;
 import java.util.List;
 
-import com.podhoarderproject.podhoarder.R;
-import com.podhoarderproject.podhoarder.util.Episode;
-import com.podhoarderproject.podhoarder.util.PodcastHelper;
-
 import android.content.Context;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+
+import com.podhoarderproject.podhoarder.R;
+import com.podhoarderproject.podhoarder.activity.MainActivity;
+import com.podhoarderproject.podhoarder.util.Episode;
+import com.podhoarderproject.podhoarder.util.Feed;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
 public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapter
 {
@@ -92,13 +95,15 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 		{
 			//Inflate
 			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = inflater.inflate(R.layout.list_episode_row, null);
+			convertView = inflater.inflate(R.layout.fragment_latest_list_row, null);
 			
 			// Set up the ViewHolder
 	        viewHolder = new ViewHolderItem();
 	        viewHolder.episodeTitle = (TextView) convertView.findViewById(R.id.list_episode_row_episodeName);
+	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.list_episode_row_feedName);
 	        viewHolder.episodeAge = (TextView) convertView.findViewById(R.id.list_episode_row_episodeAge);
 	        viewHolder.episodeDescription = (TextView) convertView.findViewById(R.id.list_episode_row_expandableTextView);
+	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.list_episode_row_feed_image);
 	        
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
@@ -110,10 +115,13 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 		
 		
 		Episode currentEpisode = this.latestEpisodes.get(position);
+		Feed currentFeed = ((MainActivity)context).helper.getFeed(currentEpisode.getFeedId());
 		
 		if(currentEpisode != null) {
 			//Set Episode Title
-			viewHolder.episodeTitle.setText(currentEpisode.getTitle());	
+			viewHolder.episodeTitle.setText(currentEpisode.getTitle());
+			//Set Feed Title
+			viewHolder.feedTitle.setText(currentFeed.getTitle());
 			//Set Episode Description
 			viewHolder.episodeDescription.setText(currentEpisode.getDescription());	
 			//Set Episode Timestamp.
@@ -130,7 +138,9 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 				e.printStackTrace();
 			}
 			
-			if (currentEpisode.getElapsedTime() >= currentEpisode.getTotalTime() && currentEpisode.getTotalTime() > 0)
+			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().thumbnail().getBitmap());
+			
+			if (currentEpisode.isListened())
 			{
 				convertView.setAlpha(.5f);
 			}
@@ -148,7 +158,9 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 	//http://developer.android.com/training/improving-layouts/smooth-scrolling.html
 	static class ViewHolderItem {	
 	    TextView episodeTitle;
+	    TextView feedTitle;
 	    TextView episodeAge;
 	    TextView episodeDescription;
+	    ImageView feedImage;
 	}
 }

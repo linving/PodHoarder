@@ -102,7 +102,7 @@ public class DragNDropListView extends ListView {
 				
 				if (mDropListener != null && mStartPosition != INVALID_POSITION && mEndPosition != INVALID_POSITION) 
 	        		 mDropListener.onDrop(mStartPosition, mEndPosition);
-				else if (mDropListener != null && mEndPosition == INVALID_POSITION && getChildCount() >= 1)
+				else if (mDropListener != null && mStartPosition != INVALID_POSITION && mEndPosition == INVALID_POSITION && getChildCount() >= 1)
 				{
 					if (y < getTop())
 					{
@@ -140,7 +140,7 @@ public class DragNDropListView extends ListView {
 		View item = getChildAt(itemIndex);
 		if (item == null) return;
 		this.defaultBackgroundColor =  item.getDrawingCacheBackgroundColor();	//Store the background color of the item
-		item.setBackgroundColor(getResources().getColor(R.color.fragment_player_playerlist_row_background_ondrag));	//Set the background color.
+		item.setBackgroundColor(getResources().getColor(R.color.fragment_player_playlist_row_background_ondrag));	//Set the background color.
 		item.setDrawingCacheEnabled(true);
 		
 		if (mDragListener != null)

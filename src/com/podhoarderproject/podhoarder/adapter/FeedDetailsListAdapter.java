@@ -98,11 +98,12 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 		{
 			//Inflate
 			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = inflater.inflate(R.layout.list_episode_row, null);
+			convertView = inflater.inflate(R.layout.fragment_feed_details_list_row, null);
 			
 			// Set up the ViewHolder
 	        viewHolder = new ViewHolderItem();
 	        viewHolder.episodeTitle = (TextView) convertView.findViewById(R.id.list_episode_row_episodeName);
+	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.list_episode_row_feedName);
 	        viewHolder.episodeAge = (TextView) convertView.findViewById(R.id.list_episode_row_episodeAge);
 	        viewHolder.episodeDescription = (TextView) convertView.findViewById(R.id.list_episode_row_expandableTextView);
 	        
@@ -120,6 +121,8 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 		if(currentEpisode != null) {
 			//Set Episode Title
 			viewHolder.episodeTitle.setText(currentEpisode.getTitle());	
+			//Set Feed Title
+			viewHolder.feedTitle.setText(this.feed.getTitle());
 			//Set Episode Description
 			viewHolder.episodeDescription.setText(currentEpisode.getDescription());	
 			//Set Episode Timestamp.
@@ -136,7 +139,7 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 				e.printStackTrace();
 			}
 			
-			if (currentEpisode.getElapsedTime() >= currentEpisode.getTotalTime() && currentEpisode.getTotalTime() > 0)
+			if (currentEpisode.isListened())
 			{
 				convertView.setAlpha(.5f);
 			}
@@ -154,6 +157,7 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 	//http://developer.android.com/training/improving-layouts/smooth-scrolling.html
 	static class ViewHolderItem {	
 	    TextView episodeTitle;
+	    TextView feedTitle;
 	    TextView episodeAge;
 	    TextView episodeDescription;
 	}

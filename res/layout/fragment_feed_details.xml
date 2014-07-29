@@ -4,86 +4,100 @@
         android:id="@+id/swipe_container"
         android:layout_width="fill_parent"
 	    android:layout_height="fill_parent">
-	<LinearLayout 
-	    android:id="@+id/feedDetailsFragment_container"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:layout_marginTop="10dp"
-	    android:layout_marginLeft="15dip"
-		android:layout_marginRight="15dip"
-	    android:orientation="vertical"
-	    android:background="@color/fragment_feed_details_background">
-		<RelativeLayout
-		    android:id="@+id/feed_details_container"
-		    android:layout_width="fill_parent"
-	    	android:layout_height="fill_parent">
-	    	
-	    	<TextView android:id="@+id/feed_details_author"
-	    	    android:layout_width="wrap_content"
-	    	    android:layout_height="wrap_content"
-	    	    android:layout_centerInParent="true"
-	    	    android:textColor="@color/fragment_feed_details_author"
-	    	    android:textSize="@dimen/fragment_feed_details_author"
-	    	    android:maxLines="1"
-	    	    android:ellipsize="end"/>
-	    	
-	    	<TextView android:id="@+id/feed_details_title"
-	    	    android:layout_width="wrap_content"
-	    	    android:layout_height="wrap_content"
-	    	    android:layout_above="@id/feed_details_author"
-	    	    android:layout_centerHorizontal="true"
-	    	    android:textColor="@color/fragment_feed_details_title"
-	    	    android:textSize="@dimen/fragment_feed_details_title"
-	    	    android:maxLines="1"
-	    	    android:ellipsize="end"/>
-	    	
-	    	<ImageView android:id="@+id/feed_details_image"
-		        android:layout_width="100dp"
-		        android:layout_height="100dp"
-		        android:layout_centerHorizontal="true"
-		        android:layout_above="@id/feed_details_title"
-		        android:layout_margin="15dp"/>
-	    	
-	    	<TextView android:id="@+id/feed_details_description"
-		    	android:layout_width="wrap_content"
-		    	android:layout_height="wrap_content"
-		    	android:layout_marginTop="15dp"
-		    	android:layout_marginLeft="5dp"
-		    	android:layout_marginRight="5dp"
-		    	android:layout_below="@id/feed_details_author"
-		    	android:layout_centerHorizontal="true"
-		    	android:textColor="@color/fragment_feed_details_description"
-		    	android:textSize="@dimen/fragment_feed_details_description"/>
-	    	
-	    	<TextView android:id="@+id/feed_details_category"
-	    	    android:layout_width="wrap_content"
-	    	    android:layout_height="wrap_content"
-	    	    android:layout_marginTop="5dp"
-	    	    android:layout_below="@id/feed_details_description"
-	    	    android:textColor="@color/fragment_feed_details_category"
-	    	    android:textSize="@dimen/fragment_feed_details_category"
-	    	    android:maxLines="1"
-	    	    android:ellipsize="end"
-	    	    android:visibility="gone"/>
-	    	
-	    	<TextView android:id="@+id/feed_details_swipe_up_hint"
-	    	    android:layout_width="wrap_content"
-	    	    android:layout_height="wrap_content"
-	    	    android:layout_alignParentBottom="true"
-	    	    android:layout_centerHorizontal="true"
-	    	    android:textColor="@color/fragment_feed_details_swipe_up_hint"
-	    	    android:textSize="@dimen/fragment_feed_details_swipe_up_hint"
-	    	    android:text="@string/fragment_feed_details_swipe_up_hint"/>
-		</RelativeLayout>
-	    <ListView
-	        android:id="@+id/episodesListView"
-	        android:paddingTop="5dp"
-	        android:layout_width="fill_parent"
-	        android:layout_height="fill_parent"
-	        android:divider="@drawable/list_divider"
-	        android:dividerHeight="1px"
-	        android:clickable="true"
-	        android:longClickable="true"
-	        android:visibility="gone"/>
-	</LinearLayout>
+		<LinearLayout 
+		    android:id="@+id/feedDetailsFragment_container"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:layout_marginTop="10dp"
+		    android:layout_marginLeft="15dip"
+			android:layout_marginRight="15dip"
+		    android:orientation="vertical">
+			<RelativeLayout
+			    android:id="@+id/feed_details_container"
+			    android:layout_width="fill_parent"
+		    	android:layout_height="fill_parent">
+			    <com.podhoarderproject.podhoarder.util.Banner 
+			        android:id="@+id/feed_details_banner"
+			        android:layout_width="fill_parent"
+			        android:layout_height="wrap_content"
+			        android:layout_alignParentTop="true"
+			        android:src="@drawable/fade_bottom"/>
+			    
+		    	<TextView android:id="@+id/feed_details_author"
+		    	    android:layout_width="wrap_content"
+		    	    android:layout_height="wrap_content"
+		    	    android:layout_centerInParent="true"
+		    	    android:textColor="@color/fragment_feed_details_author"
+		    	    android:textSize="@dimen/fragment_feed_details_author"
+	        android:fontFamily="sans-serif-light"
+		    	    android:maxLines="1"
+		    	    android:ellipsize="end"/>
+		    	
+		    	<TextView android:id="@+id/feed_details_title"
+		    	    android:layout_width="wrap_content"
+		    	    android:layout_height="wrap_content"
+		    	    android:layout_above="@id/feed_details_author"
+		    	    android:layout_centerHorizontal="true"
+		    	    android:textColor="@color/fragment_feed_details_title"
+		    	    android:textSize="@dimen/fragment_feed_details_title"
+	        android:fontFamily="sans-serif-light"
+		    	    android:maxLines="1"
+		    	    android:ellipsize="end"/>
+		    	
+		    	<ImageView android:id="@+id/feed_details_image"
+			        android:layout_width="150dp"
+			        android:layout_height="150dp"
+			        android:layout_centerHorizontal="true"
+			        android:layout_above="@id/feed_details_title"
+			        android:layout_margin="15dp"
+			        android:background="@drawable/feed_details_image"/>
+		    	
+		    	<TextView android:id="@+id/feed_details_description"
+			    	android:layout_width="wrap_content"
+			    	android:layout_height="wrap_content"
+			    	android:layout_marginTop="15dp"
+			    	android:layout_marginLeft="5dp"
+			    	android:layout_marginRight="5dp"
+			    	android:layout_below="@id/feed_details_author"
+			    	android:layout_centerHorizontal="true"
+	        android:fontFamily="sans-serif-light"
+			    	android:textColor="@color/fragment_feed_details_description"
+			    	android:textSize="@dimen/fragment_feed_details_description"/>
+		    	
+		    	<TextView android:id="@+id/feed_details_category"
+		    	    android:layout_width="wrap_content"
+		    	    android:layout_height="wrap_content"
+		    	    android:layout_marginTop="5dp"
+		    	    android:layout_below="@id/feed_details_description"
+		    	    android:textColor="@color/fragment_feed_details_category"
+		    	    android:textSize="@dimen/fragment_feed_details_category"
+	        android:fontFamily="sans-serif-light"
+		    	    android:maxLines="1"
+		    	    android:ellipsize="end"
+		    	    android:visibility="gone"/>
+		    	
+		    	<TextView android:id="@+id/feed_details_swipe_up_hint"
+		    	    android:layout_width="wrap_content"
+		    	    android:layout_height="wrap_content"
+		    	    android:layout_alignParentBottom="true"
+		    	    android:layout_centerHorizontal="true"
+	        android:fontFamily="sans-serif-light"
+		    	    android:textColor="@color/fragment_feed_details_swipe_up_hint"
+		    	    android:textSize="@dimen/fragment_feed_details_swipe_up_hint"
+		    	    android:text="@string/fragment_feed_details_swipe_up_hint"/>
+			</RelativeLayout>
+		    <ListView
+		        android:id="@+id/episodesListView"
+		        android:paddingTop="5dp"
+		        android:layout_width="fill_parent"
+		        android:layout_height="fill_parent"
+			    android:paddingRight="10dp"
+			    android:paddingLeft="10dp"
+		        android:divider="@drawable/list_divider"
+		        android:dividerHeight="1px"
+		        android:clickable="true"
+		        android:longClickable="true"
+		        android:visibility="gone"
+		        android:fastScrollEnabled="true"/>
+		</LinearLayout>
 </android.support.v4.widget.SwipeRefreshLayout>

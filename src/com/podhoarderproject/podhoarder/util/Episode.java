@@ -124,6 +124,18 @@ public class Episode
 	{
 		return this.feedId;
 	}
+	
+	public boolean isNew()
+	{
+		if (this.elapsedTime == 0 && this.totalTime == 0 && this.localLink.equals("")) return true;
+		else return false;
+	}
+	
+	public boolean isListened()
+	{
+		if (this.elapsedTime >= this.totalTime && this.totalTime > 0) return true;
+		else return false;
+	}
 }
 
 //TODO: Implement Comparator for Episodes (compare dates)

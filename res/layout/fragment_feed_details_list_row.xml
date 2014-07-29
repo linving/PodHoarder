@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" 
+    android:layout_height="75dp" 
     android:orientation="vertical"
-    android:paddingBottom="5dp">
+    android:paddingBottom="5dp"
+    android:paddingTop="5dp">
 	<RelativeLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent" 
@@ -22,6 +23,18 @@
 		        android:layout_height="match_parent"
 		        android:textColor="@color/fragment_latest_list_episode_title"
 		        android:textSize="@dimen/fragment_latest_list_episode_title"
+	        android:fontFamily="sans-serif-light"
+		        android:textStyle="bold"
+		        android:maxLines="1"
+    			android:ellipsize="end"
+    			android:maxWidth="320dp"/>
+		    <TextView
+		        android:id="@+id/list_episode_row_feedName"
+		        android:layout_width="wrap_content"
+		        android:layout_height="match_parent"
+		        android:textColor="@color/fragment_latest_list_feed_title"
+		        android:textSize="@dimen/fragment_latest_list_feed_title"
+	        android:fontFamily="sans-serif-light"
 		        android:textStyle="bold"
 		        android:maxLines="1"
     			android:ellipsize="end"
@@ -30,6 +43,7 @@
 		        android:id="@+id/list_episode_row_episodeAge"
 		        android:layout_width="match_parent"
 		        android:layout_height="match_parent"
+	        android:fontFamily="sans-serif-light"
 		        android:textColor="@color/fragment_latest_list_episode_age"
 		        android:textSize="@dimen/fragment_latest_list_episode_age"/>
 	    </LinearLayout>
@@ -46,6 +60,7 @@
 	        android:layout_height="wrap_content"
 	        android:layout_marginTop="10dip"
 	        android:layout_marginRight="20dip"
+	    android:fontFamily="sans-serif-light"
 	        android:textColor="@color/fragment_latest_list_episode_description"
 	        android:textSize="@dimen/fragment_latest_list_episode_description"/>
 		<!-- <ProgressBar

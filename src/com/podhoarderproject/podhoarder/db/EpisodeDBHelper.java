@@ -14,6 +14,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
 public class EpisodeDBHelper
@@ -200,7 +201,7 @@ public class EpisodeDBHelper
 		    this.db = this.dbHelper.getWritableDatabase();
 		    long insertId = this.db.insert(TABLE_NAME, null, values);
 		    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
-		    Log.w(LOG_TAG,"Added Episode with id: " + insertId);
+		    Log.i(LOG_TAG,"Added Episode with id: " + insertId);
 		    cursor.moveToFirst();
 		    Episode insertedEpisode = cursorToEpisode(cursor);
 		    this.db.close();
@@ -252,7 +253,7 @@ public class EpisodeDBHelper
 	}	
 	
 	/**
-	 * Updated the specified Episode in the database.
+	 * Updates the specified Episode in the database.
 	 * @param updatedEpisode Episode to update with the new values already stored.
 	 * @return The updated Episode object.
 	 */
@@ -277,6 +278,47 @@ public class EpisodeDBHelper
 	    ep = cursorToEpisode(cursor);
 	    this.db.close();
 		return ep;
+	}
+	
+	/**
+	 * Updates the specified Episodes in the database.
+	 * @param updatedEpisodes List of Episode objects to update with the new values already stored.
+	 * @return The updated Episode List object.
+	 */
+	public List<Episode> bulkUpdateEpisodes(List<Episode> updatedEpisodes)
+	{
+		String sql = "INSERT OR REPLACE INTO " + TABLE_NAME + " ("
+				+ columns[0] + ", "
+				+ columns[1] + ", "
+				+ columns[2] + ", "
+				+ columns[3] + ", "		
+				+ columns[4] + ", "
+				+ columns[5] + ", "
+				+ columns[6] + ", "
+				+ columns[7] + ", "
+				+ columns[8] + ") values(?,?,?,?,?,?,?,?,?)";
+		
+		this.db = this.dbHelper.getWritableDatabase();
+		SQLiteStatement statement = this.db.compileStatement(sql);
+		this.db.beginTransaction();
+		for (Episode ep : updatedEpisodes)
+		{
+			statement.clearBindings();
+			statement.bindLong(1, ep.getEpisodeId());
+			statement.bindString(2, ep.getTitle());
+			statement.bindString(3, ep.getLink());
+			statement.bindString(4, ep.getLocalLink());
+			statement.bindString(5, ep.getPubDate());
+			statement.bindString(6, ep.getDescription());
+			statement.bindLong(7, ep.getElapsedTime());
+			statement.bindLong(8, ep.getTotalTime());
+			statement.bindLong(9, ep.getFeedId());
+			statement.execute();
+		}
+		this.db.setTransactionSuccessful();
+		this.db.endTransaction();
+		this.db.close();
+		return updatedEpisodes;
 	}
 	
 	/**

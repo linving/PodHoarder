@@ -11,8 +11,11 @@ public class SettingsActivity extends PreferenceActivity
 {
 	public static String SETTINGS_KEY_DELETELISTENED = "pref_deleteListened";
 	public static String SETTINGS_KEY_PLAYNEXTFILE = "pref_playNextFile";
-	public static String SETTINGS_KEY_AUTODOWNLOADNEW = "pref_autoDownloadNew";
 	public static String SETTINGS_KEY_STARTTAB = "pref_startTab";
+	public static String SETTINGS_KEY_GRIDSHOWTITLE = "pref_gridShowTitle";
+	
+	public static String SETTINGS_GROUP_KEY_PLAYER = "pref_player";
+	public static String SETTINGS_GROUP_KEY_UI = "pref_ui";
 	
 	
 	@Override

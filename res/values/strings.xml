@@ -8,12 +8,10 @@
     
     <!-- Player tab -->
     <string name="player_tab">Player</string>
-    <string name="player_title">Podcast title</string>
-    <string name="episode">Episode title</string>
+    <string name="fragment_player_playlist_header">Playlist</string>
     
     <!-- Feed tab -->
     <string name="feed_tab">Podcasts</string>
-    <string name="fragment_feeds_list_feed_row_episodes">episodes</string>
     <string name="fragment_feed_list_add_row">Add New Podcast</string>
     <string name="fragment_feeds_list_feed_row_deleteBtn">Delete</string>
     
@@ -23,25 +21,30 @@
     
     <!-- Episodes tab -->
     <string name="episodes_tab">Episodes</string>
-    <string name="episodes_title">Latest Episodes</string>
-    <string name="fragment_latest_list_episode_stream_button_text">Stream</string>
-    <string name="fragment_latest_list_episode_download_button_text">Download</string>
-    <string name="fragment_latest_list_episode_play_button_text">Play File</string>
-    <string name="fragment_latest_list_episode_delete_button_text">Delete File</string>
     
     <!-- Settings -->
     <string name="settings_title">Settings</string>
+    
+    <string name="pref_group_player_title">Player Settings</string>
+    
     <string name="pref_deleteListened_title">Delete Finished Episodes</string>
     <string name="pref_deleteListened_summary">Automatically delete downloaded episodes once you have listened to their full duration.</string>
+    
     <string name="pref_playNextFile_title">Play Next File</string>
-    <string name="pref_playNextFile_summary">Keep playing through the playlist once an episode has ended.</string>
-    <string name="pref_autoDownloadNew_title">Automatic Download</string>
-    <string name="pref_autoDownloadNew_summary">Automatically download new episodes when found.</string>
-    <string name="pref_startTab_title">Select Start Tab</string>
+    <string name="pref_playNextFile_summary">Enable to keep playing through the playlist once an episode has ended.</string>
+    
+    <string name="pref_group_ui_title">UI Options</string>
+    
+    <string name="pref_gridShowTitle_title">Show Podcast Titles In Grid</string>
+    <string name="pref_gridShowTitle_summary">Disable to hide the text overlay in the podcast grid view.</string>
+    
+    <string name="pref_startTab_title">Default View</string>
+    <string name="pref_startTab_dialogTitle">Select Default View</string>
+    <string name="pref_startTab_summary">Select which view to show when first starting the app.</string>
     
     <!-- Feed Context Menu -->
     <string name="menu_feed_refresh">Refresh Feed</string>
-    <string name="menu_feed_markAsListened">Mark Episodes as Listened</string>
+    <string name="menu_feed_markAsListened">Mark Episodes As Listened</string>
     <string name="menu_feed_delete">Delete Feed</string>
     
     <!-- Episode Context Menu -->
@@ -49,7 +52,7 @@
     <string name="menu_episode_download">Download</string>
     <string name="menu_episode_playFile">Play File</string>
     <string name="menu_episode_deleteFile">Delete File</string>
-    
+    <string name="menu_episode_markAsListened">Mark As Listened</string>
     
     <!-- Add Feed Popup Window -->
     <string name="popup_window_title">Add Feed</string>

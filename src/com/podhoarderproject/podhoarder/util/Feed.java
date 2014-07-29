@@ -199,6 +199,20 @@ public class Feed
 	{
 		this.episodes = episodes;
 	}
+	
+	/**
+	 * Returns the number of new (unlistened) Episodes.
+	 * @return The number of new (unlistened) Episodes.
+	 */
+	public int getNewEpisodesCount()
+	{
+		int retVal = 0;
+		for (Episode ep : this.episodes)
+		{
+			if (ep.isNew()) retVal++;
+		}
+		return retVal;
+	}
 
 	/**
 	 * Returns context property.

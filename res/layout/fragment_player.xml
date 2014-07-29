@@ -2,14 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/fragment_player_background"
+	android:paddingLeft="10dp"
+	android:paddingRight="10dp"
     android:orientation="vertical" 
     android:id="@+id/playerFragment_container">
-
     <LinearLayout 
         android:id="@+id/player_controls_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="20dp"
         android:orientation="vertical">
         
         <include layout="@layout/player_controls"
@@ -36,12 +37,28 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingTop="30dp"
         android:orientation="vertical">
-
+		<TextView android:id="@+id/playlist_header"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="10dp"
+		    android:maxLines="1"
+		    android:textSize="@dimen/fragment_player_playlist_header"
+		    android:textColor="@color/fragment_player_playlist_header"
+		    android:fontFamily="sans-serif-light"
+		    android:text="@string/fragment_player_playlist_header"/>
+		<ImageView android:id="@+id/playlist_header_underline"
+		    android:layout_width="match_parent"
+		    android:layout_height="1px"
+		    android:layout_marginLeft="10dp"
+		    android:layout_marginBottom="10dp"
+		    android:background="?android:attr/listDivider"/>
         <com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView
-            android:id="@+id/playerList"
+            android:id="@+id/playlist"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="fill_parent"
+            android:divider="@null">
         </com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView>
         
     </LinearLayout>

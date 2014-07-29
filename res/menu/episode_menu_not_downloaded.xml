@@ -6,4 +6,7 @@
     <item android:id="@+id/menu_episode_stream"
           android:title="@string/menu_episode_stream"
           android:icon="@drawable/ic_action_cloud" />
+    <item android:id="@+id/menu_episode_markAsListened"
+          android:title="@string/menu_episode_markAsListened"
+          android:icon="@drawable/ic_action_accept" />
 </menu>

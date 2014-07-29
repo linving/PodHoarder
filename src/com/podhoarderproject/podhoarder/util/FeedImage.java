@@ -30,6 +30,7 @@ public class FeedImage
 	private int		feedId;
 	private String 	imageURL;
 	private Bitmap 	imageObject;
+	private Bitmap  thumbnail;
 	
 	private Context	ctx;
 	
@@ -45,6 +46,7 @@ public class FeedImage
 		this.feedId = feedId;
 		this.imageURL = onlineURL;
 		this.imageObject = null;
+		this.thumbnail = null;
 		this.ctx = ctx;
 		if (this.feedId > 0 && shouldCreateImage)
 		{
@@ -59,6 +61,11 @@ public class FeedImage
 	public BitmapDrawable imageObject()
 	{
 		return new BitmapDrawable(this.ctx.getResources(),this.imageObject);
+	}
+	
+	public BitmapDrawable thumbnail()
+	{
+		return new BitmapDrawable(this.ctx.getResources(),this.thumbnail);
 	}
 	
 	/**
@@ -79,6 +86,7 @@ public class FeedImage
 	    {
 	    	Log.w(LOG_TAG, "Error when saving image " + fName, e);
 	    }
+	    this.imageObject = decodeSampledBitmap(this.feedId + ".jpg", 150, 150);
 	}
 	
 	/**
@@ -88,7 +96,8 @@ public class FeedImage
 	 */
 	private void loadImage(String url)
 	{
-		this.imageObject = decodeSampledBitmap(this.feedId + ".jpg", 75, 75);
+		this.imageObject = decodeSampledBitmap(this.feedId + ".jpg", 100, 100);
+		this.thumbnail = decodeSampledBitmap(this.feedId + ".jpg", 50, 50);
 		Log.d(LOG_TAG, "File loaded from local storage.");
 	}
 
