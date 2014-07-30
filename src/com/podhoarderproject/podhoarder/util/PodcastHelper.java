@@ -68,7 +68,7 @@ public class PodcastHelper
 {
 	private static final 	String 						LOG_TAG = "com.podhoarderproject.podhoarder.PodcastHelper";
 	
-	public 	static final 	SimpleDateFormat 			xmlFormat = new SimpleDateFormat("EEE, d MMM yyy HH:mm:ss Z");	//Used when formatting timestamps in .xml's
+	public 	static final 	SimpleDateFormat 			xmlFormat = new SimpleDateFormat("EEE, d MMM yyy HH:mm:ss Z");	//Used when formatting Timestamps in .xml's
 	public 	static final 	SimpleDateFormat 			correctFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");	//Used when formatting timestamps in .xml's
 	private 				DownloadManager 			downloadManager;
 	private					List<BroadcastReceiver>		broadcastReceivers;
@@ -231,20 +231,6 @@ public class PodcastHelper
 		
 		currentEpisode.setLocalLink(this.podcastDir + "/" + sanitizeFileName(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle()) + ".mp3");
 		
-		//THIS IS CURRENTLY NOT WORKING CORRECTLY.
-//		//If the total duration of the .mp3 file isn't already stored, we need to access the file to retrieve it.
-//		if (currentEpisode.getTotalTime() == 0)
-//		{
-//			//A MediaMetadataRetriever is used to extract the duration of an Episode from the downloaded .mp3 file.
-//			MediaMetadataRetriever r = new MediaMetadataRetriever();
-//			//Point the MediaMetadataRetriever to our recently downloaded file.
-//			r.setDataSource(currentEpisode.getLocalLink());
-//			//Extract the duration in milliseconds.
-//			currentEpisode.setTotalTime(Integer.parseInt(r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)));
-//			//Release MediaMetadataRetriever to free up system resources.
-//			r.release();
-//		}
-		
 		//update db entry
 		this.eph.updateEpisode(currentEpisode);
 		Log.i(LOG_TAG, "download completed: " + currentEpisode.getTitle());
@@ -254,6 +240,11 @@ public class PodcastHelper
 		this.refreshLists();
 	}
 	
+	/**
+	 * Makes sure that a file name is within the OS rules for naming files. (length, special chars etc.)
+	 * @param fileName	The file name you want sanitized.
+	 * @return A sanitized version of fileName.
+	 */
 	private static String sanitizeFileName(String fileName)
 	{
 		String retString = fileName;
@@ -538,15 +529,13 @@ public class PodcastHelper
 				URL url = new URL(urls[0]);
 
 				// Setup the connection
-				HttpURLConnection conn = (HttpURLConnection) url
-						.openConnection();
+				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
 				// Connect
 				if (conn.getResponseCode() == HttpURLConnection.HTTP_OK)
 				{
 					// Retreive the XML from the URL
-					DocumentBuilderFactory dbf = DocumentBuilderFactory
-							.newInstance();
+					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 					DocumentBuilder db = dbf.newDocumentBuilder();
 					Document doc;
 					doc = db.parse(url.openStream());
@@ -556,110 +545,22 @@ public class PodcastHelper
 					NodeList itemLst = doc.getElementsByTagName("item");
 					NodeList itemLst2 = doc.getElementsByTagName("channel");
 
-					this.title = ((Element) itemLst2.item(0))
-							.getElementsByTagName("title").item(0)
-							.getChildNodes().item(0).getNodeValue();
-					this.link = urls[0];
-					this.description = ((Element) itemLst2.item(0))
-							.getElementsByTagName("description").item(0)
-							.getChildNodes().item(0).getNodeValue();
-					this.author = ((Element) itemLst2.item(0))
-							.getElementsByTagName("itunes:author").item(0)
-							.getChildNodes().item(0).getNodeValue();
-					this.category = ((Element) itemLst2.item(0))
-							.getElementsByTagName("itunes:category").item(0)
-							.getAttributes().item(0).getNodeValue();
-					this.img = ((Element) itemLst2.item(0))
-							.getElementsByTagName("itunes:image").item(0)
-							.getAttributes().item(0).getNodeValue();
+					this.title = 		DataParser.parsePodcastTitle(itemLst2);
+					this.link = 		urls[0];
+					this.description = 	DataParser.parsePodcastDescription(itemLst2);
+					this.author = 		DataParser.parsePodcastAuthor(itemLst2);
+					this.category = 	DataParser.parsePodcastCategory(itemLst2);
+					this.img = 			DataParser.parsePodcastImageLocation(itemLst2);
+					
 					percentIncrement = 10.0;
 					publishProgress((int) percentIncrement);
 					
 					// Loop through the XML passing the data to the arrays
-					percentIncrement = (itemLst.getLength() / 100);
+					percentIncrement = (itemLst.getLength() / 90);
 					for (int i = 0; i < itemLst.getLength(); i++)
 					{
-						Episode ep = new Episode();
-						Node item = itemLst.item(i);
-						if (item.getNodeType() == Node.ELEMENT_NODE)
-						{
-							Element ielem = (Element) item;
-
-							// This section gets the elements from the XML.
-							
-							// Extract relevant data from the NodeList objects.
-							//EPISODE TITLE
-							try
-							{
-								NodeList title = ielem.getElementsByTagName("title");
-								ep.setTitle(title.item(0).getChildNodes().item(0).getNodeValue());
-							} catch (NullPointerException e)
-							{
-								e.printStackTrace();
-							}
-							//URL LINK
-							try
-							{
-								NodeList link = ielem.getElementsByTagName("enclosure");
-								ep.setLink(link.item(0).getAttributes().getNamedItem("url").getNodeValue());	//Extract the attributes from the NodeList, and then extract value of the attribute named "url".
-							} 
-							catch (NullPointerException e)
-							{
-								e.printStackTrace();
-							}
-							//PUBLISH DATE
-							try
-							{
-								NodeList pubDate = ielem.getElementsByTagName("pubDate");
-								String val = pubDate.item(0).getChildNodes().item(0).getNodeValue();
-								try
-								{
-									Date date = xmlFormat.parse(val);
-									ep.setPubDate(correctFormat.format(date));
-								} catch (ParseException e)
-								{
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-							}
-							catch (NullPointerException e)
-							{
-								e.printStackTrace();
-							}
-							//DESCRIPTION
-							try
-							{
-								int iterator = 0;
-								NodeList description = null;
-								do
-								{
-									switch (iterator)
-									{
-										case 0:
-											description = ielem.getElementsByTagName("itunes:subtitle");	//First, try and get the itunes:subtitle tag
-											break;
-										case 1:
-											description = ielem.getElementsByTagName("itunes:summary");	//Second, try and get the itunes:summary tag
-											break;
-										case 2:
-											description = ielem.getElementsByTagName("description");	//Third, try the description tag
-											break;
-										case 3:
-											description = ielem.getElementsByTagName("content:encoded");	//Fourth, try the content:encoded tag
-											break;
-									}
-									iterator++;
-								} while (description.item(0).getChildNodes().item(0).getNodeValue().toString().isEmpty());
-								ep.setDescription(android.text.Html.fromHtml(description.item(0).getChildNodes().item(0).getNodeValue()).toString());
-							}
-							catch (NullPointerException e)
-							{
-								e.printStackTrace();
-							}
-							
-						}
-						ep.setTotalTime(100);
-						ep.setElapsedTime(0);
+						
+						Episode ep = DataParser.parseNewEpisode(itemLst.item(i));
 						publishProgress((int) percentIncrement);
 						eps.add(ep);
 					}
@@ -701,31 +602,22 @@ public class PodcastHelper
 			{
 				insertFeedObject(this.newFeed);
 				// TODO: Change Strings value instead of hardcoded.
-				Toast notification = Toast.makeText(context, "Feed added!",
-						Toast.LENGTH_LONG);
+				Toast notification = Toast.makeText(context, "Feed added!", Toast.LENGTH_LONG);
 				notification.show();
 			} 
 			catch (CursorIndexOutOfBoundsException e)
 			{
-				Log.e(LOG_TAG,
-						"CursorIndexOutOfBoundsException: Insert failed. Feed link not unique?");
+				Log.e(LOG_TAG, "CursorIndexOutOfBoundsException: Insert failed. Feed link not unique?");
 				// TODO: Change Strings value instead of hardcoded.
-				Toast notification = Toast
-						.makeText(context,
-								"You can't add the same feed twice!",
-								Toast.LENGTH_LONG);
+				Toast notification = Toast.makeText(context, "You can't add the same feed twice!", Toast.LENGTH_LONG);
 				notification.show();
 				cancel(true);
 			} 
 			catch (SQLiteConstraintException e)
 			{
-				Log.e(LOG_TAG,
-						"SQLiteConstraintException: Insert failed. Feed link not unique?");
+				Log.e(LOG_TAG, "SQLiteConstraintException: Insert failed. Feed link not unique?");
 				// TODO: Change Strings value instead of hardcoded.
-				Toast notification = Toast
-						.makeText(context,
-								"You can't add the same feed twice!",
-								Toast.LENGTH_LONG);
+				Toast notification = Toast.makeText(context, "You can't add the same feed twice!", Toast.LENGTH_LONG);
 				notification.show();
 				cancel(true);
 			}
@@ -787,19 +679,11 @@ public class PodcastHelper
 						NodeList itemLst = doc.getElementsByTagName("item");
 						NodeList itemLst2 = doc.getElementsByTagName("channel");
 
-						this.title = ((Element) itemLst2.item(0))
-								.getElementsByTagName("title").item(0)
-								.getChildNodes().item(0).getNodeValue();
+						this.title = DataParser.parsePodcastTitle(itemLst2);
 						this.link = feedLink;
-						this.description = ((Element) itemLst2.item(0))
-								.getElementsByTagName("description").item(0)
-								.getChildNodes().item(0).getNodeValue();
-						this.author = ((Element) itemLst2.item(0))
-								.getElementsByTagName("itunes:author").item(0)
-								.getChildNodes().item(0).getNodeValue();
-						this.category = ((Element) itemLst2.item(0))
-								.getElementsByTagName("itunes:category").item(0)
-								.getAttributes().item(0).getNodeValue();
+						this.description = DataParser.parsePodcastDescription(itemLst2);
+						this.author = DataParser.parsePodcastAuthor(itemLst2);
+						this.category = DataParser.parsePodcastCategory(itemLst2);
 						
 						percentIncrement = 10.0;
 						publishProgress((int) percentIncrement);
@@ -807,111 +691,33 @@ public class PodcastHelper
 						
 						// Loop through the XML passing the data to the arrays
 						percentIncrement = ((100/urls[0].size())/itemLst.getLength());
-						for (int i = 0; i < itemLst.getLength(); i++)
+						for (int i = 0; i < itemLst.getLength(); i++)							//Parse each Episode.
 						{
 							Episode ep = new Episode();
 							Node item = itemLst.item(i);
 							if (item.getNodeType() == Node.ELEMENT_NODE)
 							{
-								Element ielem = (Element) item;
 								
-								// This section adds an entry to the arrays with the
-								// data retrieved from above. I have surrounded each
-								// with try/catch just incase the element does not
-								// exist
-								try
+								Element ielem = (Element) item;									//Initialise the base element for an Episode.
+								
+								ep.setTitle(DataParser.parseEpisodeTitle(ielem));				//Parse Title
+								
+								if (currentFeed != null)										//Nullcheck
 								{
-									NodeList title = ielem.getElementsByTagName("title");
-									ep.setTitle(title.item(0).getChildNodes().item(0).getNodeValue());
-									
-									if (currentFeed != null)
-									{
-										if (episodeExists(ep.getTitle(), currentFeed.getEpisodes())) continue;	//If the current Episode is already in the local list, there's no need to keep processing it.
-									}
-								} catch (NullPointerException e)
-								{
-									e.printStackTrace();
+									if (episodeExists(ep.getTitle(), currentFeed.getEpisodes()))//If the current Episode is already in the local list, there's no need to keep processing it.
+										continue;												
 								}
 
-								try
-								{
-									NodeList link = ielem.getElementsByTagName("enclosure");
-									ep.setLink(link.item(0).getAttributes().getNamedItem("url").getNodeValue());	//Extract the attributes from the NodeList, and then extract value of the attribute named "url".
-								} catch (NullPointerException e)
-								{
-									e.printStackTrace();
-								}
+								ep.setLink(DataParser.parseEpisodeLink(ielem));					//Parse Link
 
-								try
-								{
-									NodeList pubDate = ielem.getElementsByTagName("pubDate");	//Extract pubdate data from the XML.
-									String val = pubDate.item(0).getChildNodes().item(0).getNodeValue();
-									try
-									{
-										Date date = xmlFormat.parse(val);
-										ep.setPubDate(correctFormat.format(date));
-									} catch (ParseException e)
-									{
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-								} catch (NullPointerException e)
-								{
-									e.printStackTrace();
-								}
-
-								try
-								{
-									int iterator = 0;
-									NodeList description = null;
-									do
-									{
-										switch (iterator)
-										{
-											case 0:
-												description = ielem.getElementsByTagName("itunes:summary");	//First, try and get the itunes:summary tag
-												if (description.item(0) != null)
-												{
-													ep.setDescription(android.text.Html.fromHtml(description.item(0).getChildNodes().item(0).getNodeValue()).toString());
-												}
-												break;
-											case 1:
-												description = ielem.getElementsByTagName("itunes:subtitle");	//Second, try and get the itunes:subtitle tag
-												if (description.item(0) != null)
-												{
-													ep.setDescription(android.text.Html.fromHtml(description.item(0).getChildNodes().item(0).getNodeValue()).toString());
-												}
-												break;
-											case 2:
-												description = ielem.getElementsByTagName("description");	//Third, try the description tag
-												if (description.item(0) != null)
-												{
-													ep.setDescription(android.text.Html.fromHtml(description.item(0).getChildNodes().item(0).getNodeValue()).toString());
-												}
-												break;
-											case 3:
-												description = ielem.getElementsByTagName("content:encoded");	//Fourth and finally, try the content:encoded tag
-												if (description.item(0) != null)
-												{
-													ep.setDescription(android.text.Html.fromHtml(description.item(0).getChildNodes().item(0).getNodeValue()).toString());
-												}
-												break;
-										}
-										iterator++;
-									} while (ep.getDescription().isEmpty() || iterator > 3);
-									
-								} catch (NullPointerException e)
-								{
-									e.printStackTrace();
-								}
+								ep.setPubDate(DataParser.parseEpisodePubDate(ielem));			//Parse Publish date
+								
+								ep.setDescription(DataParser.parseEpisodeDescription(ielem));	//Parse Description
 							}
-							publishProgress((int) percentIncrement);
+							publishProgress((int) percentIncrement);							//Update AsyncTask progress
 							eps.add(ep);	
 						}
-						//We process the image last, because it can potentially take a lot of time and if we discover that we don't need to update anything, this shouldn't be done at all.
-						this.img = ((Element) itemLst2.item(0))
-								.getElementsByTagName("itunes:image").item(0)
-								.getAttributes().item(0).getNodeValue();
+						this.img = DataParser.parsePodcastImageLocation(itemLst2);				//We process the image last, because it can potentially take a lot of time and if we discover that we don't need to update anything, this shouldn't be done at all.
 					}
 
 				} catch (MalformedURLException e)

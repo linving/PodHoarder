@@ -86,6 +86,7 @@
 	    <SeekBar android:id="@+id/player_controls_seekbar"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_below="@id/player_controls_seekbar_text_container"/>
+	        android:layout_below="@id/player_controls_seekbar_text_container"
+	        android:visibility="invisible"/>
     </RelativeLayout>
 </RelativeLayout>
