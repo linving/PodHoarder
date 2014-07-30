@@ -160,7 +160,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		if (this.elapsedTime != null) this.elapsedTime.setText(millisToTime(this.currentEpisode.getElapsedTime()));
 		if (this.seekBar != null) this.seekBar.setMax(this.currentEpisode.getTotalTime());
 		if (isPng() && this.playPauseButton != null) playPauseButton.setChecked(true);
-		if (isPng() && this.seekBar.getVisibility() != View.VISIBLE) this.seekBar.setVisibility(View.VISIBLE);
+		if (this.currentEpisode != null && this.seekBar.getVisibility() != View.VISIBLE) this.seekBar.setVisibility(View.VISIBLE);
 		this.handler.post(UpdateRunnable);
 	}
 	

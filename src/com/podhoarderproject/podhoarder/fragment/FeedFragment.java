@@ -86,41 +86,14 @@ public class FeedFragment extends Fragment implements OnRefreshListener
     		
     		this.mainGridView.setOnItemLongClickListener(new OnItemLongClickListener()
 			{
-
 				@Override
 				public boolean onItemLongClick(AdapterView<?> parent, View v, int pos, long id)
 				{
 					final Feed currentFeed = helper.feedsListAdapter.feeds.get(pos);
-					
-					final PopupMenu actionMenu = new PopupMenu(getActivity(), v);
-					MenuInflater inflater = actionMenu.getMenuInflater();
-					inflater.inflate(R.menu.feed_menu, actionMenu.getMenu());
-		    	   
-					actionMenu.setOnMenuItemClickListener(new OnMenuItemClickListener()
-					{
-						@Override
-						public boolean onMenuItemClick(MenuItem item)
-						{
-							switch (item.getItemId()) 
-							{
-						        case R.id.menu_feed_markAsListened:
-						        	actionMenu.dismiss();
-						        	((MainActivity)getActivity()).helper.markAsListened(currentFeed);
-						            return true;
-						        case R.id.menu_feed_delete:
-						        	actionMenu.dismiss();
-						        	((MainActivity)getActivity()).helper.deleteFeed(currentFeed.getFeedId());
-							    	return true;
-							}
-							return true;
-						}
-					});
-					PopupMenuUtils.forceShowIcons(actionMenu);
-					actionMenu.show();
+					PopupMenuUtils.buildFeedContextMenu(getActivity(), v, currentFeed, true).show();
 					return true;
 				}
 			});
-
     	}
     	else
     	{

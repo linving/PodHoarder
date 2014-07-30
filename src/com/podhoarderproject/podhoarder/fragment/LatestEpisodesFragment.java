@@ -22,6 +22,7 @@ import com.podhoarderproject.podhoarder.activity.MainActivity;
 import com.podhoarderproject.podhoarder.util.Constants;
 import com.podhoarderproject.podhoarder.util.Episode;
 import com.podhoarderproject.podhoarder.util.ExpandAnimation;
+import com.podhoarderproject.podhoarder.util.NetworkUtils;
 import com.podhoarderproject.podhoarder.util.PodcastHelper;
 import com.podhoarderproject.podhoarder.util.PopupMenuUtils;
  
@@ -85,55 +86,11 @@ public class LatestEpisodesFragment extends Fragment implements OnRefreshListene
     		//Longclicks should bring up the popupmenu.
     		this.mainListView.setOnItemLongClickListener(new OnItemLongClickListener()
 			{
-
 				@Override
 				public boolean onItemLongClick(AdapterView<?> parent, View v, int pos, long id)
 				{
 					final Episode currentEp = (Episode)mainListView.getItemAtPosition(pos);
-					
-					final PopupMenu actionMenu = new PopupMenu(getActivity(), v);
-					MenuInflater inflater = actionMenu.getMenuInflater();
-					if (!currentEp.getLocalLink().isEmpty()) inflater.inflate(R.menu.episode_menu_downloaded, actionMenu.getMenu());	//Different menus depending on if the file is downloaded or not.
-					else inflater.inflate(R.menu.episode_menu_not_downloaded, actionMenu.getMenu());
-					
-					if (currentEp.isListened()) actionMenu.getMenu().removeItem(R.id.menu_episode_markAsListened); //If the Episode is already fully listened to, no need to show "Mark As Listened" alternative.
-					
-					actionMenu.setOnMenuItemClickListener(new OnMenuItemClickListener()
-					{
-						@Override
-						public boolean onMenuItemClick(MenuItem item)
-						{
-							switch (item.getItemId()) 
-							{
-						        case R.id.menu_episode_download:
-						        	actionMenu.dismiss();
-						        	((MainActivity)getActivity()).downloadEpisode(currentEp.getFeedId(), currentEp.getEpisodeId());
-						            return true;
-						        case R.id.menu_episode_stream:
-						        	actionMenu.dismiss();
-						        	((MainActivity)getActivity()).podService.streamEpisode(currentEp);
-							    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Player Fragment automatically.
-						            return true;
-						        case R.id.menu_episode_playFile:
-						        	actionMenu.dismiss();
-						        	((MainActivity)getActivity()).podService.startEpisode(currentEp);
-							    	((MainActivity)getActivity()).getActionBar().setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Player Fragment automatically.
-							    	return true;
-						        case R.id.menu_episode_deleteFile:
-						        	actionMenu.dismiss();
-						        	((MainActivity)getActivity()).podService.deletingEpisode(currentEp.getEpisodeId());
-							    	((MainActivity)getActivity()).helper.deleteEpisode(currentEp.getFeedId(), currentEp.getEpisodeId());
-							    	return true;
-						        case R.id.menu_episode_markAsListened:
-						        	actionMenu.dismiss();
-						        	((MainActivity)getActivity()).helper.markAsListened(currentEp);
-						        	return true;
-							}
-							return true;
-						}
-					});
-					PopupMenuUtils.forceShowIcons(actionMenu);
-					actionMenu.show();
+					PopupMenuUtils.buildEpisodeContextMenu(getActivity(), v, currentEp, true).show();
 					return true;
 				}
 			});
@@ -153,10 +110,7 @@ public class LatestEpisodesFragment extends Fragment implements OnRefreshListene
     {
     	swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
         swipeLayout.setOnRefreshListener(this);
-        swipeLayout.setColorScheme(R.color.refresh_bar_blue, 
-        		R.color.refresh_bar_green, 
-        		R.color.refresh_bar_orange, 
-                R.color.refresh_bar_red);
+        swipeLayout.setColorScheme(R.color.refresh_bar_blue, R.color.refresh_bar_green, R.color.refresh_bar_orange, R.color.refresh_bar_red);
     }
 
 	@Override

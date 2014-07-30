@@ -9,10 +9,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -113,7 +111,10 @@ public class PodcastHelper
 	 */
 	public void addFeed(String urlOfFeedToAdd)
 	{
-		new FeedReaderTask().execute(urlOfFeedToAdd);
+		if (NetworkUtils.isOnline(context))
+			new FeedReaderTask().execute(urlOfFeedToAdd);
+		else
+			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
 	}
 
 	/**
@@ -152,12 +153,21 @@ public class PodcastHelper
 	 */
 	public void refreshFeeds()
 	{
-		List<String> urls = new ArrayList<String>();
-		for (Feed f:this.feedsListAdapter.feeds)
+		if (NetworkUtils.isOnline(context))
 		{
-			urls.add(f.getLink());
+			List<String> urls = new ArrayList<String>();
+			for (Feed f:this.feedsListAdapter.feeds)
+			{
+				urls.add(f.getLink());
+			}
+			new FeedRefreshTask().execute(urls);
 		}
-		new FeedRefreshTask().execute(urls);
+		else
+		{
+			if (refreshLayout.isRefreshing())
+				refreshLayout.setRefreshing(false);
+			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
+		}
 	}
 	
 	/**
@@ -167,9 +177,18 @@ public class PodcastHelper
 	 */
 	public void refreshFeed(int id)
 	{
-		List<String> urls = new ArrayList<String>();
-		urls.add(this.getFeed(id).getLink());
-		new FeedRefreshTask().execute(urls);
+		if (NetworkUtils.isOnline(context))
+		{
+			List<String> urls = new ArrayList<String>();
+			urls.add(this.getFeed(id).getLink());
+			new FeedRefreshTask().execute(urls);
+		}
+		else
+		{
+			if (refreshLayout.isRefreshing())
+				refreshLayout.setRefreshing(false);
+			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
+		}
 	}
 	
 	/**
@@ -184,7 +203,7 @@ public class PodcastHelper
 		final int feedPos = getFeedPositionWithId(feedId);
 		final int epPos = getEpisodePositionWithId(feedPos, episodeId);
 		
-		if (isDownloadManagerAvailable(this.context) && !new File(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink()).exists())
+		if (NetworkUtils.isDownloadManagerAvailable(this.context) && !new File(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink()).exists())
 		{
 			String url = this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLink();
 			DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
@@ -197,7 +216,7 @@ public class PodcastHelper
 			    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 			}
 			//TODO: If there is no sdcard, DownloadManager will throw an exception because it cannot save to a non-existing directory. Make sure the directory is valid or something.
-			request.setDestinationInExternalPublicDir(this.storagePath, sanitizeFileName(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle())  + ".mp3");
+			request.setDestinationInExternalPublicDir(this.storagePath, FileUtils.sanitizeFileName(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle())  + ".mp3");
 			
 			// register broadcast receiver for when the download is done.
 			this.broadcastReceivers.add(new BroadcastReceiver() {
@@ -229,7 +248,7 @@ public class PodcastHelper
 		//update list adapter object
 		Episode currentEpisode = this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos);
 		
-		currentEpisode.setLocalLink(this.podcastDir + "/" + sanitizeFileName(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle()) + ".mp3");
+		currentEpisode.setLocalLink(this.podcastDir + "/" + FileUtils.sanitizeFileName(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle()) + ".mp3");
 		
 		//update db entry
 		this.eph.updateEpisode(currentEpisode);
@@ -239,20 +258,7 @@ public class PodcastHelper
 		
 		this.refreshLists();
 	}
-	
-	/**
-	 * Makes sure that a file name is within the OS rules for naming files. (length, special chars etc.)
-	 * @param fileName	The file name you want sanitized.
-	 * @return A sanitized version of fileName.
-	 */
-	private static String sanitizeFileName(String fileName)
-	{
-		String retString = fileName;
-		retString = retString.replaceAll("[^a-zA-Z0-9_\\-\\.]", "_");
-		if (retString.length() > 30) retString = retString.substring(0, 25);
-		return retString;
-	}
-	
+		
 	/**
 	 * Saves an updated Episode object in the db.
 	 * @param ep An already existing Episode object with new values.
@@ -391,7 +397,6 @@ public class PodcastHelper
 		}
     }
     
-	
 	/**
 	 * Deletes the physical mp3-file associated with an Episode, not the Episode object itself.
 	 * @param feedId Id of the Feed that the Podcast belongs to.
@@ -418,7 +423,7 @@ public class PodcastHelper
 	}
 	
 	/**
-	 * Checks all stored links to make sure that the referenced files actually exist on startup.
+	 * Checks all stored links to make sure that the referenced files actually exist.
 	 * The function resets local links of files that can't be found, so that they may be downloaded again.
 	 * Files can be manually removed from the public external directories, thus this is necessary.
 	 * @author Emil 
@@ -476,7 +481,6 @@ public class PodcastHelper
 	 */
 	private void refreshFeedObjects(List<Feed> feeds) throws SQLiteConstraintException
 	{
-		//TODO: Make sure this works correctly.
 		try
 		{
 			for (Feed newFeed : feeds)
@@ -661,8 +665,7 @@ public class PodcastHelper
 					URL url = new URL(feedLink);
 
 					// Setup the connection
-					HttpURLConnection conn = (HttpURLConnection) url
-							.openConnection();
+					HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
 					// Connect
 					if (conn.getResponseCode() == HttpURLConnection.HTTP_OK)
@@ -728,7 +731,8 @@ public class PodcastHelper
 					e.printStackTrace();
 				} catch (IOException e)
 				{
-					e.printStackTrace();
+					cancel(true);
+					Log.e(LOG_TAG, e.getMessage());
 				} catch (ParserConfigurationException e)
 				{
 					e.printStackTrace();
@@ -738,7 +742,8 @@ public class PodcastHelper
 				} catch (SQLiteConstraintException e)
 				{
 					cancel(true);
-				}
+				} 
+				
 				if (eps.size() > 0)	//If we haven't found any new Episodes, there's no need to add the entire Feed object and process it. 
 				{
 					
@@ -750,6 +755,14 @@ public class PodcastHelper
 			return feeds;
 		}
 
+		@Override
+		protected void onCancelled()
+		{
+			if (refreshLayout.isRefreshing()) 
+				refreshLayout.setRefreshing(false);
+			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
+		}
+		
 		@Override
 		protected void onProgressUpdate(Integer... progress)
 		{
@@ -766,16 +779,14 @@ public class PodcastHelper
 			{
 				Log.e(LOG_TAG,"CursorIndexOutOfBoundsException: Refresh failed.");
 				refreshLayout.setRefreshing(false);
-				//TODO: Replace with String resource
-				Toast.makeText(context, "Refresh failed!", Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
 				cancel(true);
 			} 
 			catch (SQLiteConstraintException e)
 			{
 				Log.e(LOG_TAG,"SQLiteConstraintException: Refresh failed.");
 				refreshLayout.setRefreshing(false);
-				//TODO: Replace with String resource
-				Toast.makeText(context, "Refresh failed!", Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
 				cancel(true);
 			}
 		}
@@ -801,33 +812,6 @@ public class PodcastHelper
 		}
 	}
 	
-	/**
-	 *	Used to check the device version and DownloadManager information.
-	 * 
-	 * @param context Context object.
-	 * @return true if the download manager is available
-	 */
-	private static boolean isDownloadManagerAvailable(Context context)
-	{
-		try
-		{
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD)
-			{
-				return false;
-			}
-			Intent intent = new Intent(Intent.ACTION_MAIN);
-			intent.addCategory(Intent.CATEGORY_LAUNCHER);
-			intent.setClassName("com.android.providers.downloads.ui",
-					"com.android.providers.downloads.ui.DownloadList");
-			List<ResolveInfo> list = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-			return list.size() > 0;
-		} 
-		catch (Exception e)
-		{
-			return false;
-		}
-	}
-
 	/**
 	 * Finds the correct position of a Feed in the listadapter list containing Feed objects.
 	 * @param feedId ID of the Feed to get the location of.
