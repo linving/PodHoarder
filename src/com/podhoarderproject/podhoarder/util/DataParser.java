@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import android.text.Html;
 import android.util.Log;
 
 public class DataParser
@@ -21,7 +22,7 @@ public class DataParser
 	private static final	String[]					podcastImageTagNames = {"itunes:image"};
 	
 	private static final	String[]					episodeTitleTagNames = {"title"};
-	private static final	String[]					episodeDescriptionTagNames = {"itunes:summary","itunes:subtitle","description","content:encoded"};
+	private static final	String[]					episodeDescriptionTagNames = {"description","content:encoded","itunes:summary","itunes:subtitle"};
 	private static final	String[]					episodeLinkTagNames = {"enclosure"};
 	private static final	String[]					episodePubdateTagNames = {"pubDate"};
 	
@@ -34,11 +35,15 @@ public class DataParser
 	{
 		String title = "";
 		Element element = (Element) itemLst.item(0);
-		for (String titleTag : podcastTitleTagNames)	//Loop through all the alternatives
+		for (String titleTag : podcastTitleTagNames)									//Loop through all the alternatives
 		{
 			NodeList titleElement = element.getElementsByTagName(titleTag);
+			if (titleElement.equals(null) || titleElement.getLength() < 1)				//If the titleElement has no children or is null there are no elements with the current tag.
+			{
+				continue;																//We didn't find anything by using the current titleTag, so we try the next one.
+			}
 			title = titleElement.item(0).getChildNodes().item(0).getNodeValue();
-			if (!title.isEmpty()) break;	//If we have found a value for title, we can break here. No need to keep looping.
+			if (!title.isEmpty()) break;												//If we have found a value for title, we can break here. No need to keep looping.
 		}
 		return title;
 	}
@@ -47,11 +52,15 @@ public class DataParser
 	{
 		String description = "";
 		Element element = (Element) itemLst.item(0);
-		for (String descriptionTag : podcastDescriptionTagNames)	//Loop through all the alternatives
+		for (String descriptionTag : podcastDescriptionTagNames)						//Loop through all the alternatives
 		{
 			NodeList descriptionElement = element.getElementsByTagName(descriptionTag);
+			if (descriptionElement.equals(null) || descriptionElement.getLength() < 1)	//If the descriptionElement has no children or is null there are no elements with the current tag.
+			{
+				continue;																//We didn't find anything by using the current descriptionTag, so we try the next one.
+			}
 			description = descriptionElement.item(0).getChildNodes().item(0).getNodeValue();
-			if (!description.isEmpty()) break;	//If we have found a value for title, we can break here. No need to keep looping.
+			if (!description.isEmpty()) break;											//If we have found a value for title, we can break here. No need to keep looping.
 		}
 		return description;
 	}
@@ -60,11 +69,15 @@ public class DataParser
 	{
 		String author = "";
 		Element element = (Element) itemLst.item(0);
-		for (String authorTag : podcastAuthorTagNames)	//Loop through all the alternatives
+		for (String authorTag : podcastAuthorTagNames)									//Loop through all the alternatives
 		{
 			NodeList authorElement = element.getElementsByTagName(authorTag);
+			if (authorElement.equals(null) || authorElement.getLength() < 1)			//If the authorElement has no children or is null there are no elements with the current tag.
+			{
+				continue;																//We didn't find anything by using the current authorTag, so we try the next one.
+			}
 			author = authorElement.item(0).getChildNodes().item(0).getNodeValue();
-			if (!author.isEmpty()) break;	//If we have found a value for title, we can break here. No need to keep looping.
+			if (!author.isEmpty()) break;												//If we have found a value for title, we can break here. No need to keep looping.
 		}
 		return author;
 	}
@@ -73,11 +86,15 @@ public class DataParser
 	{
 		String category = "";
 		Element element = (Element) itemLst.item(0);
-		for (String categoryTag : podcastCategoryTagNames)	//Loop through all the alternatives
+		for (String categoryTag : podcastCategoryTagNames)								//Loop through all the alternatives
 		{
 			try
 			{
 				NodeList categoryElement = element.getElementsByTagName(categoryTag);
+				if (categoryElement.equals(null) || categoryElement.getLength() < 1)	//If the categoryElement has no children or is null there are no elements with the current tag.
+				{
+					continue;															//We didn't find anything by using the current categoryTag, so we try the next one.
+				}
 				if (categoryTag.equals(podcastCategoryTagNames[0]))	
 					category = categoryElement.item(0).getAttributes().item(0).getNodeValue();
 			}
@@ -86,7 +103,7 @@ public class DataParser
 				e.printStackTrace();
 				break;
 			}
-			if (!category.isEmpty()) break;	//If we have found a value for title, we can break here. No need to keep looping.
+			if (!category.isEmpty()) break;												//If we have found a value for title, we can break here. No need to keep looping.
 		}
 		return category;
 		
@@ -96,12 +113,16 @@ public class DataParser
 	{
 		String imageURL = "";
 		Element element = (Element) itemLst.item(0);
-		for (String imageTag : podcastImageTagNames)	//Loop through all the alternatives
+		for (String imageTag : podcastImageTagNames)									//Loop through all the alternatives
 		{
 			NodeList imageElement = element.getElementsByTagName(imageTag);
+			if (imageElement.equals(null) || imageElement.getLength() < 1)				//If the imageElement has no children or is null there are no elements with the current tag.
+			{
+				continue;																//We didn't find anything by using the current imageTag, so we try the next one.
+			}
 			if (imageTag.equals(podcastImageTagNames[0]))
 				imageURL = imageElement.item(0).getAttributes().item(0).getNodeValue();
-			if (!imageURL.isEmpty()) break;	//If we have found a value for title, we can break here. No need to keep looping.
+			if (!imageURL.isEmpty()) break;												//If we have found a value for title, we can break here. No need to keep looping.
 		}
 		return imageURL;
 	}
@@ -139,6 +160,10 @@ public class DataParser
 			for (String titleTag : episodeTitleTagNames)							//Loop through all the alternatives
 			{
 				NodeList titleNode = element.getElementsByTagName(titleTag);
+				if (titleNode.equals(null) || titleNode.getLength() < 1)			//If the titleNode has no children or is null there are no elements with the current tag.
+				{
+					continue;																	//We didn't find anything by using the current titleTag, so we try the next one.
+				}
 				title = titleNode.item(0).getChildNodes().item(0).getNodeValue();
 				if (!title.isEmpty()) break;										//If we have found a value for title, we can break here. No need to keep looping.
 			}
@@ -160,7 +185,19 @@ public class DataParser
 			for (String descriptionTag : episodeDescriptionTagNames)							//Loop through all the alternatives
 			{
 				NodeList descriptionNode = element.getElementsByTagName(descriptionTag);
-				description = descriptionNode.item(0).getChildNodes().item(0).getNodeValue();
+				if (descriptionNode.equals(null) || descriptionNode.getLength() < 1)			//If the descriptionNode has no children or is null there are no elements with the current tag.
+				{
+					continue;																	//We didn't find anything by using the current descriptionTag, so we try the next one.
+				}
+				
+				if (descriptionTag.equals(episodeDescriptionTagNames[0]))						//<description> often has html-tags, so we try to strip those here.
+				{
+					description = Html.fromHtml(descriptionNode.item(0).getChildNodes().item(0).getNodeValue()).toString();
+				}
+				else
+				{
+					description = descriptionNode.item(0).getChildNodes().item(0).getNodeValue();
+				}
 				if (!description.isEmpty()) break;												//If we have found a value for description, we can break here. No need to keep looping.
 			}
 			return description;
@@ -180,7 +217,12 @@ public class DataParser
 		{
 			for (String linkTag : episodeLinkTagNames)											//Loop through all the alternatives
 			{
-				NodeList linkNode = element.getElementsByTagName(linkTag);						//Extract the attributes from the NodeList, and 
+				NodeList linkNode = element.getElementsByTagName(linkTag);						//Extract the attributes from the NodeList
+				if (linkNode.equals(null) || linkNode.getLength() < 1)							//If the linkNode has no children or is null there are no elements with the current tag.
+				{
+					continue;																	//We didn't find anything by using the current linkTag, so we try the next one.
+				}
+				
 				if (linkTag.equals("enclosure"))	
 					link = linkNode.item(0).getAttributes().getNamedItem("url").getNodeValue();	//Then extract value of the attribute named "url".
 				
@@ -204,6 +246,10 @@ public class DataParser
 			for (String pubdateTag : episodePubdateTagNames)							//Loop through all the alternatives
 			{
 				NodeList pubdateNode = element.getElementsByTagName(pubdateTag);
+				if (pubdateNode.equals(null) || pubdateNode.getLength() < 1)			//If the pubdateNode has no children or is null there are no elements with the current tag.
+				{
+					continue;																	//We didn't find anything by using the current pubdateTag, so we try the next one.
+				}
 				pubDate = pubdateNode.item(0).getChildNodes().item(0).getNodeValue();
 				if (!pubDate.isEmpty()) break;											//If we have found a value for pubdate, we can break here. No need to keep looping.
 			}

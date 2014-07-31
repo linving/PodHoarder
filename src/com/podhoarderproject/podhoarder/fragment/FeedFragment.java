@@ -82,6 +82,7 @@ public class FeedFragment extends Fragment implements OnRefreshListener
     	if (!this.helper.feedsListAdapter.isEmpty())
     	{
     		this.helper.feedsListAdapter.setFooterView(setupAddFeed());
+    		this.helper.feedsListAdapter.setLoadingView(setupLoadingFeed());
     		this.mainGridView.setAdapter(this.helper.feedsListAdapter);
     		
     		this.mainGridView.setOnItemLongClickListener(new OnItemLongClickListener()
@@ -110,6 +111,7 @@ public class FeedFragment extends Fragment implements OnRefreshListener
     	//We add the footer view (last item) for adding new Feeds here.
     	LayoutInflater inflater = (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);	//get the inflater service.
     	View addFeedRow = inflater.inflate(R.layout.fragment_feeds_grid_add_feed_item, this.mainGridView, false);	//Inflate the custom row layout for the footer.
+    	
     	addFeedRow.setOnClickListener(new View.OnClickListener() {	//Add Click Listener for the footer. It shouldn't behave like the other listrows.
 			@Override
 			public void onClick(View v)
@@ -126,7 +128,8 @@ public class FeedFragment extends Fragment implements OnRefreshListener
 		    	// Set up the buttons
 		    	builder.setPositiveButton(R.string.popup_window_ok_button, new DialogInterface.OnClickListener() { 
 		    	    @Override
-		    	    public void onClick(DialogInterface dialog, int which) {
+		    	    public void onClick(DialogInterface dialog, int which) 
+		    	    {
 		    	        helper.addFeed(input.getText().toString());
 		    	    }
 		    	});
@@ -141,6 +144,13 @@ public class FeedFragment extends Fragment implements OnRefreshListener
 			
 		});
     	return addFeedRow;
+    }
+
+    private View setupLoadingFeed()
+    {
+    	LayoutInflater inflater = (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);	//get the inflater service.
+    	View loadingFeedItem = inflater.inflate(R.layout.fragment_feeds_grid_loading_feed_item, this.mainGridView, false);	//Inflate the "loading" grid item to show while data is downloaded
+    	return loadingFeedItem;
     }
     
     private void setupRefreshControls()

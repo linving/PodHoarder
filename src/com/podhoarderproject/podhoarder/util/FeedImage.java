@@ -32,6 +32,8 @@ public class FeedImage
 	private Bitmap 	imageObject;
 	private Bitmap  thumbnail;
 	
+	private ImageDownloadListener downloadListener;
+	
 	private Context	ctx;
 	
 	/**
@@ -58,14 +60,24 @@ public class FeedImage
 	 * Getter for the imageObject
 	 * @return
 	 */
-	public BitmapDrawable imageObject()
+	public BitmapDrawable imageObjectDrawable()
 	{
 		return new BitmapDrawable(this.ctx.getResources(),this.imageObject);
 	}
 	
-	public BitmapDrawable thumbnail()
+	public BitmapDrawable thumbnailDrawable()
 	{
 		return new BitmapDrawable(this.ctx.getResources(),this.thumbnail);
+	}
+	
+	public Bitmap imageObject()
+	{
+		return this.imageObject;
+	}
+	
+	public Bitmap thumbnail()
+	{
+		return this.thumbnail;
 	}
 	
 	/**
@@ -81,12 +93,15 @@ public class FeedImage
 	    	this.imageObject.compress(Bitmap.CompressFormat.JPEG, 50, out);
 	    	out.flush();
 	    	out.close();
+	    	Log.d(LOG_TAG, "File downloaded from URL.");
 	    } 
 	    catch (IOException e) 
 	    {
-	    	Log.w(LOG_TAG, "Error when saving image " + fName, e);
+	    	Log.e(LOG_TAG, "Error when saving image " + fName, e);
 	    }
-	    this.imageObject = decodeSampledBitmap(this.feedId + ".jpg", 150, 150);
+	    this.imageObject = decodeSampledBitmap(this.feedId + ".jpg", 100, 100);
+	    this.thumbnail = decodeSampledBitmap(this.feedId + ".jpg", 50, 50);
+	    if (this.downloadListener != null) this.downloadListener.downloadFinished(this.feedId);
 	}
 	
 	/**
@@ -256,10 +271,19 @@ public class FeedImage
         catch (FileNotFoundException e)
 		{
 			new BitmapDownloaderTask().execute(this.imageURL);
-	    	Log.d(LOG_TAG, "File downloaded from URL.");
 			return null;
 		}
 
         
     }
+
+    public void setImageDownloadListener(ImageDownloadListener listener)
+    {
+    	this.downloadListener = listener;
+    }
+    
+    public interface ImageDownloadListener 
+    {
+    	  public void downloadFinished(int feedId);
+    } 
 }

@@ -96,8 +96,8 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     		TextView category = (TextView) view.findViewById(R.id.feed_details_category);
     		TextView description = (TextView) view.findViewById(R.id.feed_details_description);
     		
-    		img.setImageBitmap(this.helper.feedDetailsListAdapter.feed.getFeedImage().imageObject().getBitmap());
-    		banner.setBackground(new BitmapDrawable(getResources(),ImageUtils.fastblur(this.helper.feedDetailsListAdapter.feed.getFeedImage().thumbnail().getBitmap(), 4)));
+    		img.setImageBitmap(this.helper.feedDetailsListAdapter.feed.getFeedImage().imageObject());
+    		banner.setBackground(new BitmapDrawable(getResources(),ImageUtils.fastblur(this.helper.feedDetailsListAdapter.feed.getFeedImage().thumbnail(), 4)));
     		//img.setBackground(new BitmapDrawable(getActivity().getResources(),ImageUtils.getCircularBitmap(this.helper.feedDetailsListAdapter.feed.getFeedImage().imageObject().getBitmap())));
     		title.setText(this.helper.feedDetailsListAdapter.feed.getTitle());
     		author.setText(getActivity().getString(R.string.notification_by) + " " + this.helper.feedDetailsListAdapter.feed.getAuthor());

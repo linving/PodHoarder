@@ -138,7 +138,7 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 				e.printStackTrace();
 			}
 			
-			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().thumbnail().getBitmap());
+			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().thumbnail());
 			
 			if (currentEpisode.isListened())
 			{

@@ -5,6 +5,7 @@ import java.util.List;
 import android.content.Context;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,8 +20,9 @@ import com.podhoarderproject.podhoarder.activity.MainActivity;
 import com.podhoarderproject.podhoarder.activity.SettingsActivity;
 import com.podhoarderproject.podhoarder.util.Constants;
 import com.podhoarderproject.podhoarder.util.Feed;
+import com.podhoarderproject.podhoarder.util.FeedImage.ImageDownloadListener;
 
-public class GridListAdapter extends BaseAdapter 
+public class GridListAdapter extends BaseAdapter implements ImageDownloadListener
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.GridListAdapter";
@@ -31,12 +33,17 @@ public class GridListAdapter extends BaseAdapter
     
     private View footerView;
     
+    private View loadingView;
+    private boolean loading;
+    
     private int screenWidth, screenHeight, gridItemSize;
 
     public GridListAdapter(List<Feed> feeds, Context c) 
     {
     	this.feeds = feeds;
     	this.mContext = c;
+    	
+    	this.loading = false;
     	
     	DisplayMetrics metrics = new DisplayMetrics();
 		((MainActivity)mContext).getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -57,10 +64,16 @@ public class GridListAdapter extends BaseAdapter
 		this.notifyDataSetChanged();
 	}
 
-    public int getCount() {
-    	if (this.footerView == null) return this.feeds.size();
-    	else return (this.feeds.size() + 1);
+    public int getCount() 
+    {
+    	int additionalItems = 0;
     	
+    	if (this.footerView != null) 
+    		additionalItems++;
+    	if (this.loading)
+    		additionalItems++;
+    	
+    	return this.feeds.size() + additionalItems;
     }
 
     public Object getItem(int position) {
@@ -78,8 +91,27 @@ public class GridListAdapter extends BaseAdapter
     	v.setMinimumWidth(gridItemSize);
     	this.footerView = v;
     }
+    
+    public void setLoadingView(View v)
+    {
+    	v.findViewById(R.id.feeds_grid_loadingBar).setMinimumHeight(gridItemSize);
+    	v.findViewById(R.id.feeds_grid_loadingBar).setMinimumWidth(gridItemSize);
+    	v.setMinimumHeight(gridItemSize);
+    	v.setMinimumWidth(gridItemSize);
+    	this.loadingView = v;
+    }
+    
+    public boolean isLoading()
+    {
+    	return this.loading;
+    }
+    
+    public void setLoading(boolean isLoading)
+    {
+    	this.loading = isLoading;
+    	this.notifyDataSetChanged();
+    }
 
-    // create a new ImageView for each item referenced by the Adapter
     public View getView(int position, View convertView, ViewGroup parent) {
     	
     	FeedViewHolderItem viewHolder;
@@ -88,11 +120,21 @@ public class GridListAdapter extends BaseAdapter
     	{
     		((GridView) parent).setColumnWidth(gridItemSize);
     	}
+    	
+    	if (this.loading && position == getCount()-2)
+    	{
+    		return loadingView;
+    	}
 		
     	if (footerView != null && position == getCount()-1) 
     	{
             return footerView;
         }
+    	
+    	if (convertView != null && convertView.findViewById(R.id.fragment_feeds_grid_loading_item) != null) 
+    	{ 
+    		convertView = null; 
+    	}
     	
     	if (convertView != null && convertView.findViewById(R.id.fragment_feeds_grid_add_item) != null) 
     	{ 
@@ -148,7 +190,7 @@ public class GridListAdapter extends BaseAdapter
 					viewHolder.feedNumberOfEpisodes.setVisibility(View.GONE);
 				}
     			
-    			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().imageObject().getBitmap());
+    			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().imageObject());
     			
     			convertView.setOnClickListener(new OnClickListener()
     			{
@@ -175,5 +217,12 @@ public class GridListAdapter extends BaseAdapter
 	    TextView feedTitle;
 	    TextView feedNumberOfEpisodes;
 	    ImageView feedImage;
+	}
+
+	@Override
+	public void downloadFinished(int feedId)
+	{
+		setLoading(false);
+		((MainActivity)this.mContext).helper.refreshLists();
 	}
 }

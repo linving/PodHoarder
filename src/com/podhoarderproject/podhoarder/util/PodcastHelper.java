@@ -41,6 +41,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Toast;
 
 import com.podhoarderproject.podhoarder.R;
@@ -112,7 +114,11 @@ public class PodcastHelper
 	public void addFeed(String urlOfFeedToAdd)
 	{
 		if (NetworkUtils.isOnline(context))
+		{    	
+			this.feedsListAdapter.setLoading(true);
 			new FeedReaderTask().execute(urlOfFeedToAdd);
+		}
+			
 		else
 			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
 	}
@@ -463,9 +469,10 @@ public class PodcastHelper
 		try
 		{
 			feed = this.fDbH.insertFeed(feed);
-			this.feedsListAdapter.feeds.add(feed);
-			this.refreshLists();
-		} catch (SQLiteConstraintException e)
+			Feed newFeed = this.fDbH.getFeed(feed.getFeedId());
+			newFeed.getFeedImage().setImageDownloadListener(feedsListAdapter);			
+		} 
+		catch (SQLiteConstraintException e)
 		{
 			Log.e(LOG_TAG,
 					"NOT A UNIQUE LINK. FEED ALREADY EXISTS IN THE DATABASE?");
@@ -493,7 +500,7 @@ public class PodcastHelper
 					oldFeed.getEpisodes().add(0, newFeed.getEpisodes().get(i));
 				}
 				
-				oldFeed.getFeedImage().imageObject().getBitmap().recycle();
+				oldFeed.getFeedImage().imageObject().recycle();
 				//Update the Feed with the new Episodes in the db.
 				oldFeed = this.fDbH.updateFeed(oldFeed);				
 			}
@@ -590,7 +597,7 @@ public class PodcastHelper
 				cancel(true);
 			}
 			this.newFeed = new Feed(this.title, this.author, this.description,
-					this.link, this.category, this.img, true, eps, context);
+					this.link, this.category, this.img, false, eps, context);
 			return newFeed;
 		}
 
@@ -605,15 +612,12 @@ public class PodcastHelper
 			try
 			{
 				insertFeedObject(this.newFeed);
-				// TODO: Change Strings value instead of hardcoded.
-				Toast notification = Toast.makeText(context, "Feed added!", Toast.LENGTH_LONG);
-				notification.show();
 			} 
 			catch (CursorIndexOutOfBoundsException e)
 			{
 				Log.e(LOG_TAG, "CursorIndexOutOfBoundsException: Insert failed. Feed link not unique?");
 				// TODO: Change Strings value instead of hardcoded.
-				Toast notification = Toast.makeText(context, "You can't add the same feed twice!", Toast.LENGTH_LONG);
+				Toast notification = Toast.makeText(context, "You can't add the same feed twice!", Toast.LENGTH_SHORT);
 				notification.show();
 				cancel(true);
 			} 
@@ -621,7 +625,7 @@ public class PodcastHelper
 			{
 				Log.e(LOG_TAG, "SQLiteConstraintException: Insert failed. Feed link not unique?");
 				// TODO: Change Strings value instead of hardcoded.
-				Toast notification = Toast.makeText(context, "You can't add the same feed twice!", Toast.LENGTH_LONG);
+				Toast notification = Toast.makeText(context, "You can't add the same feed twice!", Toast.LENGTH_SHORT);
 				notification.show();
 				cancel(true);
 			}
@@ -843,7 +847,7 @@ public class PodcastHelper
 	
 	public BitmapDrawable getFeedImage(int feedId)
 	{
-		return getFeed(feedId).getFeedImage().imageObject();
+		return new BitmapDrawable(this.context.getResources(),getFeed(feedId).getFeedImage().imageObject());
 	}
 	
 	/**

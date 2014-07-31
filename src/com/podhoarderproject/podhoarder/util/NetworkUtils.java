@@ -12,6 +12,7 @@ import android.os.Build;
 
 public class NetworkUtils
 {
+	
 	/**
 	 * A basic check to determine if the phone has internet connectivity or not.
 	 * @param context	App context (must be passed in order to access system services.

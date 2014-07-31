@@ -181,6 +181,7 @@ public class EpisodeDBHelper
 	 * 
 	 * Stores a collection of Episode objects in the database.
 	 * @param eps Episode objects to insert.
+	 * @param feedId ID of the Feed that the Episodes belong to.
 	 * @return A List<Episode> object with updated Id's relative to the table.
 	 */
 	public List<Episode> insertEpisodes(List<Episode> eps, int feedId)
@@ -208,6 +209,18 @@ public class EpisodeDBHelper
 		    episodes.add(insertedEpisode);
 		}
 		return episodes;
+	}
+	
+	/**
+	 * **UNDER CONSTRUCTION**
+	 * @param eps Episode objects to insert.
+	 * @param feedId ID of the Feed that the Episodes belong to.
+	 * @return A List<Episode> object with updated Id's relative to the table.
+	 */
+	public List<Episode> insertEpisodesAsync(List<Episode> eps, int feedId)
+	{
+		//TODO: Make this
+		return null;
 	}
 	
 	/**

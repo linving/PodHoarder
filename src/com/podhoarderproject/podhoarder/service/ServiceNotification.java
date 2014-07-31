@@ -35,21 +35,21 @@ public class ServiceNotification
     
     _smallView = new RemoteViews($context.getPackageName(), R.layout.service_notification);
     _smallView.setOnClickPendingIntent(R.id.service_notification_playpausebutton, _playPendingIntent);
-    _smallView.setImageViewBitmap(R.id.service_notification_image, currentFeed.getFeedImage().imageObject().getBitmap());
+    _smallView.setImageViewBitmap(R.id.service_notification_image, currentFeed.getFeedImage().imageObject());
     _smallView.setTextViewText(R.id.service_notification_title, $context.currentEpisode.getTitle());
     _smallView.setTextViewText(R.id.service_notification_subtitle, currentFeed.getTitle());
     //_smallView.setTextViewText(R.id.service_notification_apptitle, $context.getText(R.string.app_name));
 
     _bigView = new RemoteViews($context.getPackageName(), R.layout.service_notification);
     _bigView.setOnClickPendingIntent(R.id.service_notification_playpausebutton, _playPendingIntent);
-    _bigView.setImageViewBitmap(R.id.service_notification_image, currentFeed.getFeedImage().imageObject().getBitmap());
+    _bigView.setImageViewBitmap(R.id.service_notification_image, currentFeed.getFeedImage().imageObject());
     _bigView.setTextViewText(R.id.service_notification_title, $context.currentEpisode.getTitle());
     _bigView.setTextViewText(R.id.service_notification_subtitle, currentFeed.getTitle());
     _bigView.setTextViewText(R.id.service_notification_apptitle, "by " + $context.getText(R.string.app_name));
 
     Resources res = $context.getResources();
     NotificationCompat.Builder builder = new NotificationCompat.Builder($context).setSmallIcon(R.drawable.ic_launcher)
-                                                                                 .setLargeIcon(currentFeed.getFeedImage().imageObject().getBitmap())
+                                                                                 .setLargeIcon(currentFeed.getFeedImage().imageObject())
                                                                                  .setTicker(res.getString(R.string.app_name))
                                                                                  .setContentTitle(res.getString(R.string.app_name))
                                                                                  .setContentIntent(_navigatePendingIntent);
