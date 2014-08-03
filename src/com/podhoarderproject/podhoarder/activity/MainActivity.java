@@ -130,6 +130,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     {
     	this.unbindService(this.podConnection);
     	this.stopService(playIntent);
+    	unregisterReceiver(musicIntentReceiver);
 	    this.podService=null;
 	    this.musicBound = false;
 	    super.onDestroy();

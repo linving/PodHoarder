@@ -48,6 +48,14 @@
 	        android:textOff=""
 			android:textOn="" 
 	        android:alpha=".9"/>
+	    <ProgressBar
+	    	android:id="@+id/player_controls_loading_circle"
+	        android:layout_width="65dp"
+	        android:layout_height="65dp"
+	    	android:indeterminate="true"
+	    	android:layout_centerInParent="true"
+	    	style="?android:attr/progressBarStyle"
+	    	android:visibility="gone"/>
 	    <ImageButton android:id="@+id/player_controls_button_skip_forward"
 	        android:layout_width="50dp"
 	        android:layout_height="40dp"

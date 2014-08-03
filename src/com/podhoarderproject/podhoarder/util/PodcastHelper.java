@@ -34,6 +34,7 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteConstraintException;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -94,11 +95,6 @@ public class PodcastHelper
 		this.fDbH = new FeedDBHelper(this.context);
 		this.eph = new EpisodeDBHelper(this.context);
 		this.plDbH = new PlaylistDBHelper(this.context);
-		//this.feedsListAdapter = new GridListAdapter(this.fDbH.getAllFeeds(), this.context);
-		//this.feedDetailsListAdapter = new FeedDetailsListAdapter(this.context);
-		//this.latestEpisodesListAdapter = new LatestEpisodesListAdapter(this.eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT), this.context);
-		//this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
-		// get download service and enqueue file
 		this.downloadManager = (DownloadManager) this.context.getSystemService(Context.DOWNLOAD_SERVICE);
 		this.broadcastReceivers = new ArrayList<BroadcastReceiver>();
 		checkLocalLinks();
@@ -120,7 +116,7 @@ public class PodcastHelper
 		}
 			
 		else
-			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, context.getString(R.string.toast_add_feed_failed), Toast.LENGTH_SHORT).show();
 	}
 
 	/**
@@ -150,7 +146,7 @@ public class PodcastHelper
 		{
 			Log.w(LOG_TAG, "Feed Image not found! No delete necessary.");
 		}
-		this.refreshLists();
+		this.refreshListsAsync();
 	}
 
 	/**
@@ -262,7 +258,7 @@ public class PodcastHelper
 		this.context.unregisterReceiver(receiver);
 		this.broadcastReceivers.remove(receiver);
 		
-		this.refreshLists();
+		this.refreshListsAsync();
 	}
 		
 	/**
@@ -272,14 +268,14 @@ public class PodcastHelper
 	public Episode updateEpisode(Episode ep)
 	{
 		Episode temp = this.eph.updateEpisode(ep);
-		this.refreshLists();
+		this.refreshListsAsync();
 		return temp;
 	}
 	
 	/**
 	 * Marks an Episode as listened.
 	 * @param ep Episode to mark as listened.
-	 * @param isBatchUpdating If false there will be a refreshLists() call at the end of the update.
+	 * @param isBatchUpdating If false there will be a refreshListsAsync() call at the end of the update.
 	 */
 	public void markAsListened(Episode ep)
 	{
@@ -292,7 +288,7 @@ public class PodcastHelper
 				ep.setElapsedTime(100);
 			}
 			this.eph.updateEpisode(ep);
-			this.refreshLists();
+			this.refreshListsAsync();
 		}
 	}
 	
@@ -312,7 +308,7 @@ public class PodcastHelper
 			}
 		}
 		this.eph.bulkUpdateEpisodes(feed.getEpisodes());
-		this.refreshLists();
+		this.refreshListsAsync();
 	}
 	
 	/**
@@ -349,7 +345,7 @@ public class PodcastHelper
         @Override
         protected void onPostExecute(Void v) 
         {
-        	refreshLists();
+        	refreshListsAsync();
         }
 
 		@Override
@@ -385,7 +381,7 @@ public class PodcastHelper
         @Override
         protected void onPostExecute(Void v) 
         {
-        	refreshLists();
+        	refreshListsAsync();
         }
 
 		@Override
@@ -425,7 +421,7 @@ public class PodcastHelper
 		{
 			Log.e(LOG_TAG, file.getAbsolutePath() + " not deleted. Make sure it exists.");
 		}
-		this.refreshLists();
+		this.refreshListsAsync();
 	}
 	
 	/**
@@ -506,7 +502,7 @@ public class PodcastHelper
 			}
 			//Disable the "refreshing" animation.
 			this.refreshLayout.setRefreshing(false);
-			this.refreshLists();
+			this.refreshListsAsync();
 			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_successful), Toast.LENGTH_SHORT).show();
 		}
 		catch (Exception ex)
@@ -598,7 +594,22 @@ public class PodcastHelper
 			}
 			this.newFeed = new Feed(this.title, this.author, this.description,
 					this.link, this.category, this.img, false, eps, context);
-			return newFeed;
+			
+			//Insert all the data into the db.
+			try
+			{
+				this.newFeed = fDbH.insertFeed(this.newFeed);
+				Feed newFeed2 = fDbH.getFeed(this.newFeed.getFeedId());
+				newFeed2.getFeedImage().setImageDownloadListener(feedsListAdapter);	
+				return newFeed2;
+			} 
+			catch (SQLiteConstraintException e)
+			{
+				Log.e(LOG_TAG,
+						"NOT A UNIQUE LINK. FEED ALREADY EXISTS IN THE DATABASE?");
+				throw e;
+			}
+			
 		}
 
 		@Override
@@ -609,26 +620,7 @@ public class PodcastHelper
 
 		protected void onPostExecute(Feed result)
 		{
-			try
-			{
-				insertFeedObject(this.newFeed);
-			} 
-			catch (CursorIndexOutOfBoundsException e)
-			{
-				Log.e(LOG_TAG, "CursorIndexOutOfBoundsException: Insert failed. Feed link not unique?");
-				// TODO: Change Strings value instead of hardcoded.
-				Toast notification = Toast.makeText(context, "You can't add the same feed twice!", Toast.LENGTH_SHORT);
-				notification.show();
-				cancel(true);
-			} 
-			catch (SQLiteConstraintException e)
-			{
-				Log.e(LOG_TAG, "SQLiteConstraintException: Insert failed. Feed link not unique?");
-				// TODO: Change Strings value instead of hardcoded.
-				Toast notification = Toast.makeText(context, "You can't add the same feed twice!", Toast.LENGTH_SHORT);
-				notification.show();
-				cancel(true);
-			}
+			Log.i(LOG_TAG, "Added Feed: " + result.getTitle());
 		}
 
 		@SuppressWarnings("unused")
@@ -1009,6 +1001,8 @@ public class PodcastHelper
 
 	/**
 	 * Refreshes the lists on each of the fragments simultaneously. This operation is pretty intense because of sorting and selection etc.
+	 * You probably want to use refreshListsAsync() instead since it doesn't do all the heavy lifting on the UI thread.
+	 * @see refreshListsAsync()
 	 */
 	public void refreshLists()
 	{
@@ -1048,6 +1042,76 @@ public class PodcastHelper
 		this.latestEpisodesListAdapter.notifyDataSetChanged();
 		
 	}
+	
+	/**
+	 * Refreshes the lists on each of the fragments asynchronously. This operation is pretty intense because of sorting and selection etc.
+	 */
+	public void refreshListsAsync()
+	{
+		new ListRefreshTask().execute();
+	}
+	
+	/**
+     * AsyncTask for refreshing list adapters.
+     */
+    class ListRefreshTask extends AsyncTask<Void, Void, Void> 
+    {
+    	private List<Episode> latestEpisodes, playlist, feedDetailsEpisodes;
+    	private List<Feed> feeds;
+    	
+    	
+        public ListRefreshTask()	
+        {
+        	
+        }
+
+        /**
+         * Actual download method.
+         * This function does all the work "in the background". (In this case it gets all the new data from the db)
+         */
+        @Override
+        protected Void doInBackground(Void... params) 
+        {
+        	this.latestEpisodes = eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT);
+        	this.playlist = plDbH.sort(eph.getDownloadedEpisodes());
+        	this.feeds = fDbH.getAllFeeds();
+        	if (feedDetailsListAdapter != null && feedDetailsListAdapter.feed != null)
+    		{
+    			this.feedDetailsEpisodes = fDbH.getFeed(feedDetailsListAdapter.feed.getFeedId()).getEpisodes();
+    			
+    		}
+        	
+    		return null;
+        }
+
+        /**
+         * Fires when Task has been executed.
+         * This function replaces all the collections and calls for a redraw.
+         */
+        @Override
+        protected void onPostExecute(Void param) 
+        {
+        	//Notify for UI updates.
+        	//Replace and reload the Feeds Grid List.
+        	feedsListAdapter.replaceItems(this.feeds);
+        	feedsListAdapter.notifyDataSetChanged();
+        	
+        	//Replace and reload the Latest Episodes List.
+        	latestEpisodesListAdapter.replaceItems(this.latestEpisodes);
+        	latestEpisodesListAdapter.notifyDataSetChanged();
+        	
+        	//Replace and reload the Playlist.
+        	playlistAdapter.replaceItems(this.playlist);
+        	playlistAdapter.notifyDataSetChanged();
+        	
+        	//Replace and reload the Feed Details List only when a feed is selected.
+        	if (feedDetailsListAdapter != null && feedDetailsListAdapter.feed != null)
+        	{
+        		feedDetailsListAdapter.replaceItems(feedDetailsEpisodes);
+            	feedDetailsListAdapter.notifyDataSetChanged();   
+        	}	
+        }
+    }
 
 	
 }

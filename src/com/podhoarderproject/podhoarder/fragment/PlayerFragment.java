@@ -47,7 +47,7 @@ public class PlayerFragment extends Fragment
 	
 	//UI Elements
 	public ToggleButton playPauseButton;
-	public ToggleButton doubleSpeedButton;
+	public ProgressBar	loadingCircle;
 	public ImageButton forwardButton;
 	public ImageButton backwardButton;
 	public TextView episodeTitle;
@@ -77,6 +77,8 @@ public class PlayerFragment extends Fragment
     {
     	this.playPauseButton = (ToggleButton)view.findViewById(R.id.player_controls_button_playpause);
     	this.playPauseButton.setOnClickListener(mPlayPauseClickListener);
+    	
+    	this.loadingCircle = (ProgressBar)view.findViewById(R.id.player_controls_loading_circle);
     	    	
     	this.forwardButton = (ImageButton)view.findViewById(R.id.player_controls_button_skip_forward);
     	this.forwardButton.setOnClickListener(mForwardClickListener);
@@ -101,7 +103,7 @@ public class PlayerFragment extends Fragment
 		setServiceVars();
 		if (this.podService != null)
 		{
-			this.podService.setUIElements(playPauseButton, episodeTitle, elapsedTime, totalTime, seekBar, helper);
+			this.podService.setUIElements(playPauseButton, loadingCircle, episodeTitle, elapsedTime, totalTime, seekBar, helper);
 		}
 		if (this.podService != null && this.podService.currentEpisode != null) this.podService.updateUI();
 		else if (this.podService != null && this.podService.currentEpisode == null) this.podService.resetUI();

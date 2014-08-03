@@ -69,4 +69,5 @@
     <string name="toast_feeds_refreshed_successful">Refresh done!</string>
     <string name="toast_feeds_refreshed_failed">Refresh failed!</string>
     <string name="toast_player_playback_failed">Playback failed!</string>
+    <string name="toast_add_feed_failed">Failed to add Podcast!</string>
 </resources>

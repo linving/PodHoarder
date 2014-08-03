@@ -68,9 +68,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     {
     	int additionalItems = 0;
     	
-    	if (this.footerView != null) 
-    		additionalItems++;
-    	if (this.loading)
+    	if (this.loading || this.footerView != null)
     		additionalItems++;
     	
     	return this.feeds.size() + additionalItems;
@@ -121,15 +119,13 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     		((GridView) parent).setColumnWidth(gridItemSize);
     	}
     	
-    	if (this.loading && position == getCount()-2)
+    	if (position == getCount()-1)
     	{
-    		return loadingView;
+    		if (this.loading)
+    			return loadingView;
+    		else
+    			return footerView;
     	}
-		
-    	if (footerView != null && position == getCount()-1) 
-    	{
-            return footerView;
-        }
     	
     	if (convertView != null && convertView.findViewById(R.id.fragment_feeds_grid_loading_item) != null) 
     	{ 

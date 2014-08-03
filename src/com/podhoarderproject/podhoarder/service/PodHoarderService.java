@@ -14,6 +14,7 @@ import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,12 +36,14 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public 		PodcastHelper 	helper;								//Podcast helper.
 	private 	int 			timeTracker = 0;					//Integer for keeping track of when to save elapsedTime to db.
 	private 	boolean 		streaming = false;					//Boolean to keep track of whether the player is streaming or playing a local file.
+	private		boolean			loading = false;					//Boolean that keeps track of whether the player is loading a track or not.
 	private 	boolean 		updateBlocked = false;				//Boolean to keep track of whether the UI should be updated or not.
 	private 	Handler 		handler;							//Handler object (for threading)
 	private		ServiceNotification	notification;
 	
 	//Fragment UI Elements
 	private 	ToggleButton	playPauseButton;
+	private		ProgressBar		loadingCircle;
 	private 	TextView 		episodeTitle;
 	private 	TextView 		elapsedTime;
 	private 	TextView 		totalTime;
@@ -106,6 +109,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	@Override
 	public void onPrepared(MediaPlayer player)
 	{
+		this.loading = false;
 		if (this.currentEpisode.getElapsedTime() < this.currentEpisode.getTotalTime())	player.seekTo(this.currentEpisode.getElapsedTime());	//If we haven't listened to the complete Episode, seek to the elapsed time stored in the db.
 		else player.seekTo(0);	//If we have listened to the entire Episode, the player should start over.
 		player.start();
@@ -158,9 +162,23 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		}
 		if (this.totalTime != null)this.totalTime.setText(millisToTime(this.currentEpisode.getTotalTime()));
 		if (this.elapsedTime != null) this.elapsedTime.setText(millisToTime(this.currentEpisode.getElapsedTime()));
-		if (this.seekBar != null) this.seekBar.setMax(this.currentEpisode.getTotalTime());
-		if (isPng() && this.playPauseButton != null) playPauseButton.setChecked(true);
-		if (this.currentEpisode != null && this.seekBar.getVisibility() != View.VISIBLE) this.seekBar.setVisibility(View.VISIBLE);
+		if (this.seekBar != null) 
+		{
+			if (this.currentEpisode != null && this.seekBar.getVisibility() != View.VISIBLE) 
+				this.seekBar.setVisibility(View.VISIBLE);
+			this.seekBar.setMax(this.currentEpisode.getTotalTime());
+		}
+		if (isLoading())
+		{
+			if (this.playPauseButton != null && this.playPauseButton.getVisibility() == View.VISIBLE)	this.playPauseButton.setVisibility(View.GONE);
+			if (this.loadingCircle != null && this.loadingCircle.getVisibility() == View.GONE) this.loadingCircle.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			if (this.playPauseButton != null && this.playPauseButton.getVisibility() == View.GONE)	this.playPauseButton.setVisibility(View.VISIBLE);
+			if (this.loadingCircle != null && this.loadingCircle.getVisibility() == View.VISIBLE) this.loadingCircle.setVisibility(View.GONE);
+			if (isPng() && this.playPauseButton != null) playPauseButton.setChecked(true);
+		}
 		this.handler.post(UpdateRunnable);
 	}
 	
@@ -172,7 +190,9 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		this.seekBar.setMax(0);
 		this.seekBar.setProgress(0);
 		this.seekBar.setVisibility(View.INVISIBLE);
-		playPauseButton.setChecked(false);
+		this.loadingCircle.setVisibility(View.GONE);
+		this.playPauseButton.setVisibility(View.VISIBLE);
+		this.playPauseButton.setChecked(false);
 	}
 	
 	@Override
@@ -218,6 +238,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void streamEpisode(Episode ep)
 	{
 		this.streaming = true;
+		this.loading = true;
 		this.player.reset();
 		this.currentEpisode = ep;
 		try
@@ -232,9 +253,10 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		this.player.prepareAsync();
 	}
 	
-	public void setUIElements(ToggleButton playPauseButton, TextView episodeTitle, TextView elapsedTime, TextView totalTime, SeekBar seekBar, PodcastHelper helper)
+	public void setUIElements(ToggleButton playPauseButton, ProgressBar loadingCircle, TextView episodeTitle, TextView elapsedTime, TextView totalTime, SeekBar seekBar, PodcastHelper helper)
 	{
 		this.playPauseButton = playPauseButton;
+		this.loadingCircle = loadingCircle;
 		this.episodeTitle = episodeTitle;
 		this.totalTime = totalTime;
 		this.elapsedTime = elapsedTime;
@@ -338,6 +360,11 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public boolean isPng()
 	{
 		return player.isPlaying();
+	}
+	
+	public boolean isLoading()
+	{
+		return this.loading;
 	}
 
 	public void setUpdateBlocked(boolean updateBlocked)
