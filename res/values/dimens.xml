@@ -33,6 +33,7 @@
     <dimen name="fragment_latest_list_episode_description">14sp</dimen>
     <dimen name="fragment_latest_list_feed_title">14sp</dimen>
     <dimen name="fragment_latest_list_episode_status">14sp</dimen>
+    <dimen name="fragment_latest_list_row_new">14sp</dimen>
     
     <!-- Player -->
     <dimen name="fragment_player_podcast_title">12sp</dimen>

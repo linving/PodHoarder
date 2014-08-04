@@ -29,12 +29,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteConstraintException;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -42,8 +39,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.Toast;
 
 import com.podhoarderproject.podhoarder.R;
@@ -268,14 +263,23 @@ public class PodcastHelper
 	public Episode updateEpisode(Episode ep)
 	{
 		Episode temp = this.eph.updateEpisode(ep);
-		this.refreshListsAsync();
+		this.refreshLists();
+		return temp;
+	}
+	
+	/**
+	 * Saves an updated Episode object in the db. (Does not refresh list adapters afterwards)
+	 * @param ep An already existing Episode object with new values.
+	 */
+	public Episode updateEpisodeNoRefresh(Episode ep)
+	{
+		Episode temp = this.eph.updateEpisode(ep);
 		return temp;
 	}
 	
 	/**
 	 * Marks an Episode as listened.
 	 * @param ep Episode to mark as listened.
-	 * @param isBatchUpdating If false there will be a refreshListsAsync() call at the end of the update.
 	 */
 	public void markAsListened(Episode ep)
 	{
@@ -405,7 +409,7 @@ public class PodcastHelper
 	 * @param episodeId Id of the Episode within the specified feed.
 	 * @author Emil
 	 */
-	public void deleteEpisode(int feedId, int episodeId)
+	public void deleteEpisodeFile(int feedId, int episodeId)
 	{
 		int feedPos = getFeedPositionWithId(feedId);
 		int epPos = getEpisodePositionWithId(feedPos, episodeId);
@@ -414,7 +418,6 @@ public class PodcastHelper
 		{
 			this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).setLocalLink("");
 			this.eph.updateEpisode(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos));
-			this.plDbH.deleteEntry(episodeId);
 			Log.i(LOG_TAG, file.getAbsolutePath() + " deleted successfully!");
 		}
 		else
@@ -1015,9 +1018,11 @@ public class PodcastHelper
 		
 		//Playlist
 		if (this.playlistAdapter != null)	
-			this.playlistAdapter.replaceItems(this.plDbH.sort(this.eph.getDownloadedEpisodes()));
+			//this.playlistAdapter.replaceItems(this.plDbH.sort(this.eph.getDownloadedEpisodes()));
+			this.playlistAdapter.replaceItems(this.eph.getPlaylistEpisodes(this.plDbH.loadPlaylistPointers()));
 		else	
-			this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
+			//this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
+			this.playlistAdapter = new DragNDropAdapter(this.eph.getPlaylistEpisodes(this.plDbH.loadPlaylistPointers()), this.context);
 		
 		//Feeds List
 		if (this.feedsListAdapter != null)	
@@ -1073,14 +1078,12 @@ public class PodcastHelper
         protected Void doInBackground(Void... params) 
         {
         	this.latestEpisodes = eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT);
-        	this.playlist = plDbH.sort(eph.getDownloadedEpisodes());
+        	this.playlist = eph.getPlaylistEpisodes(plDbH.loadPlaylistPointers());
         	this.feeds = fDbH.getAllFeeds();
         	if (feedDetailsListAdapter != null && feedDetailsListAdapter.feed != null)
     		{
     			this.feedDetailsEpisodes = fDbH.getFeed(feedDetailsListAdapter.feed.getFeedId()).getEpisodes();
-    			
     		}
-        	
     		return null;
         }
 

@@ -19,8 +19,9 @@
     <string name="fragment_feed_details_swipe_up_hint">Swipe up for Podcast episodes.</string>
     <string name="fragment_feed_details_swipe_down_hint">Swipe down for Podcast details.</string>
     
-    <!-- Episodes tab -->
+    <!-- Latest Episodes tab -->
     <string name="episodes_tab">Episodes</string>
+    <string name="fragment_latest_list_row_new">NEW!</string>
     
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -48,11 +49,16 @@
     <string name="menu_feed_delete">Delete Feed</string>
     
     <!-- Episode Context Menu -->
-    <string name="menu_episode_stream">Stream</string>
-    <string name="menu_episode_download">Download</string>
-    <string name="menu_episode_playFile">Play File</string>
+    <string name="menu_episode_add_playlist">Add To Playlist</string>
+    <string name="menu_episode_available_offline">Make Available Offline</string>
+    <string name="menu_episode_play_now">Play Now</string>
     <string name="menu_episode_deleteFile">Delete File</string>
     <string name="menu_episode_markAsListened">Mark As Listened</string>
+    
+    <!-- Playlist Montext Menu -->
+    <string name="menu_playlist_delete">Remove From Playlist</string>
+    <string name="menu_playlist_startOver">Play From Beginning</string>
+    <string name="menu_playlist_available_offline">Make Available Offline</string>
     
     <!-- Add Feed Popup Window -->
     <string name="popup_window_title">Add Feed</string>

@@ -4,6 +4,16 @@
     android:layout_height="match_parent" 
     android:orientation="horizontal"
     android:paddingBottom="5dp">
+	    <ImageView android:id="@+id/player_list_row_currentEpisode"
+	        android:layout_width="35dp"
+	        android:layout_height="35dp"
+	        android:layout_centerInParent="true"  
+	        android:layout_alignParentLeft="true"
+	        android:layout_marginLeft="5dp"
+	        android:layout_marginRight="5dp"
+	        android:alpha=".85"
+	        android:src="@drawable/dark_player_play"
+	        android:visibility="gone"/>
     	<ProgressBar
         android:id="@+id/player_list_row_elapsed_progressBar"
         style="?android:attr/progressBarStyleHorizontal"

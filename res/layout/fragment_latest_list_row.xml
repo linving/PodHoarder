@@ -46,13 +46,30 @@
 		        android:maxLines="1"
     			android:ellipsize="end"
     			android:maxWidth="320dp"/>
-		    <TextView
-		        android:id="@+id/list_episode_row_episodeAge"
-		        android:layout_width="match_parent"
+		    <LinearLayout android:id="@+id/list_episode_row_age_container"
+		        android:layout_width="wrap_content"
 		        android:layout_height="match_parent"
-	        android:fontFamily="sans-serif-light"
-		        android:textColor="@color/fragment_latest_list_episode_age"
-		        android:textSize="@dimen/fragment_latest_list_episode_age"/>
+		        android:orientation="horizontal">
+			    <TextView
+			        android:id="@+id/list_episode_row_episodeAge"
+			        android:layout_width="match_parent"
+			        android:layout_height="match_parent"
+		        android:fontFamily="sans-serif-light"
+			        android:textColor="@color/fragment_latest_list_episode_age"
+			        android:textSize="@dimen/fragment_latest_list_episode_age"/>
+			    <TextView
+			        android:id="@+id/list_episode_row_new"
+			        android:layout_width="wrap_content"
+			        android:layout_height="match_parent"
+			        android:layout_marginLeft="5dp"
+			        android:textColor="@color/fragment_latest_list_row_new"
+			        android:textSize="@dimen/fragment_latest_list_row_new"
+			        android:textStyle="bold"
+		        android:fontFamily="sans-serif-light"
+			        android:maxLines="1"
+	    			android:text="@string/fragment_latest_list_row_new"
+	    			android:visibility="gone"/>
+		    </LinearLayout>
 	    </LinearLayout>
 	</RelativeLayout>
 	<LinearLayout android:id="@+id/list_episode_row_expandable_container"

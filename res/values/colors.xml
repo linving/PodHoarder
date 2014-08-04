@@ -61,6 +61,7 @@
     <color name="fragment_latest_list_episode_status">#2e3641</color>
     <color name="fragment_latest_list_episode_age">#c1cfd9</color>
     <color name="fragment_latest_list_episode_description">#2e3641</color>
+    <color name="fragment_latest_list_row_new">#ff5a5f</color>
     
     <!-- Add Feed Popup Window -->
     <color name="popup_add_feed_searchbar_textfield_foreground">#323a45</color>

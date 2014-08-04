@@ -53,7 +53,6 @@
 	        android:layout_width="65dp"
 	        android:layout_height="65dp"
 	    	android:indeterminate="true"
-	    	android:layout_centerInParent="true"
 	    	style="?android:attr/progressBarStyle"
 	    	android:visibility="gone"/>
 	    <ImageButton android:id="@+id/player_controls_button_skip_forward"

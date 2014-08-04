@@ -11,6 +11,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -26,7 +27,9 @@ import com.podhoarderproject.ericharlow.DragNDrop.DropListener;
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
+import com.podhoarderproject.podhoarder.util.Episode;
 import com.podhoarderproject.podhoarder.util.PodcastHelper;
+import com.podhoarderproject.podhoarder.util.PopupMenuUtils;
 
 /**
  * 
@@ -118,6 +121,7 @@ public class PlayerFragment extends Fragment
     		((DragNDropListView) this.mainListView).setDropListener(mDropListener);
         	((DragNDropListView) this.mainListView).setDragListener(mDragListener);
         	((DragNDropListView) this.mainListView).setOnItemClickListener(mOnClickListener);
+        	((DragNDropListView) this.mainListView).setOnItemLongClickListener(mOnLongClickListener);
     	}
     	else
     	{
@@ -162,7 +166,7 @@ public class PlayerFragment extends Fragment
 		//Toggle the play button to a pause button, since the track has started.
 		this.playPauseButton.setChecked(true);
 		//The service should start the episode.
-		this.podService.startEpisode(epPos);
+		this.podService.playEpisode(epPos);
 	}
 	
 	//UI Logic
@@ -259,6 +263,18 @@ public class PlayerFragment extends Fragment
 		}
     };
     
+    private OnItemLongClickListener mOnLongClickListener = new OnItemLongClickListener()
+	{
+		@Override
+		public boolean onItemLongClick(AdapterView<?> arg0, View listRow, int position, long id)
+		{
+			final Episode currentEp = (Episode)mainListView.getItemAtPosition(position);
+			PopupMenuUtils.buildPlaylistContextMenu(getActivity(), listRow, currentEp, true).show();
+			return true;
+		}
+    	
+	};
+    
     //Button Listeners
     private OnClickListener mPlayPauseClickListener = new OnClickListener() {
 
@@ -272,7 +288,7 @@ public class PlayerFragment extends Fragment
             	{
             		if (podService.currentEpisode == null)	//If there is no current episode assigned, we do it manually and set it to the first item in the playlist.
                 	{
-                		podService.startEpisode(0);
+                		podService.playEpisode(0);
                 	}
                 	else resume();
             	}

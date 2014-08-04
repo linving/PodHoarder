@@ -136,6 +136,12 @@ public class Episode
 		if (this.elapsedTime >= this.totalTime && this.totalTime > 0) return true;
 		else return false;
 	}
+	
+	public boolean isDownloaded()
+	{
+		if (this.localLink.isEmpty()) return false;
+		else return true;
+	}
 }
 
 //TODO: Implement Comparator for Episodes (compare dates)

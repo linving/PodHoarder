@@ -7,9 +7,6 @@ package com.podhoarderproject.podhoarder.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.podhoarderproject.podhoarder.util.Episode;
-import com.podhoarderproject.podhoarder.util.EpisodePointer;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -17,6 +14,9 @@ import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+
+import com.podhoarderproject.podhoarder.util.Episode;
+import com.podhoarderproject.podhoarder.util.EpisodePointer;
 
 public class PlaylistDBHelper
 {
@@ -83,12 +83,29 @@ public class PlaylistDBHelper
 		return ret;
 	}
 
+	public List<EpisodePointer> loadPlaylistPointers()
+	{
+		//Load the pointers from the db.
+		List<EpisodePointer> pointers = new ArrayList<EpisodePointer>();
+		this.db = this.dbHelper.getWritableDatabase();
+		Cursor cursor = this.db.query(TABLE_NAME, columns, null, null,
+				null, null, null);
+		if (cursor.moveToFirst())
+		{
+			do
+			{
+				pointers.add(EpisodePointer.cursorToEpisodePointer(cursor));
+			} while (cursor.moveToNext());
+		}
+		this.db.close();
+		return pointers;
+	}
+	
 	/**
 	 * 
 	 * Stores the playlist in the database. (Replaces the one already there!)
-	 * @param feed Feed object to insert.
+	 * @param playlist Playlist to save.
 	 * @throws SQLiteConstraintException Throws an SQLiteConstrainException if the Feed added already exists in the database (duplicate entries not allowed)
-	 * @return A List<Episode> object containing the playlist.
 	 */
 	public void savePlaylist(List<Episode> playlist) throws SQLiteConstraintException, CursorIndexOutOfBoundsException
 	{
@@ -105,6 +122,7 @@ public class PlaylistDBHelper
 		    //Log.i(LOG_TAG,"SAVED " + playlist.get(i).getTitle() + "(ID: " + insertId + ")");
 		    this.db.close();
 		}
+		Log.i(LOG_TAG, "Updated playlist!");
 	}
 	
 	public void deleteEntry(int episodeId)
@@ -118,7 +136,7 @@ public class PlaylistDBHelper
 	    }
 	    else
 	    {
-	    	Log.w(LOG_TAG,"Episode deleted with id: " + episodeId + "from the playlist");
+	    	Log.w(LOG_TAG,"Episode deleted with id: " + episodeId + " from the playlist");
 	    }
 	}
 

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.podhoarderproject.podhoarder.util.Episode;
+import com.podhoarderproject.podhoarder.util.EpisodePointer;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -122,6 +123,35 @@ public class EpisodeDBHelper
 		this.db.close();
 		return episodes;	
 	}
+	
+	public List<Episode> getPlaylistEpisodes(List<EpisodePointer> pointers)
+	{
+		List<Episode> ret = new ArrayList<Episode>();
+		if (pointers.size() > 0)
+		{
+			String[] ids = new String[pointers.size()];
+			int i = 0;
+			for (EpisodePointer p : pointers)
+			{
+				ids[i] = ""+p.getEpisodeId();
+				i++;
+			}
+			this.db = this.dbHelper.getWritableDatabase();
+			String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + columns[0] + " IN (" + makePlaceholders(ids.length) + ")";
+			Cursor cursor = this.db.rawQuery(query, ids);
+			if (cursor.moveToFirst())
+			{
+				do
+				{
+					ret.add(cursorToEpisode(cursor));
+				} while (cursor.moveToNext());
+			}
+			this.db.close();
+		}
+		return ret;
+	}
+	
+	
 
 	/**
 	 * 
@@ -209,18 +239,6 @@ public class EpisodeDBHelper
 		    episodes.add(insertedEpisode);
 		}
 		return episodes;
-	}
-	
-	/**
-	 * **UNDER CONSTRUCTION**
-	 * @param eps Episode objects to insert.
-	 * @param feedId ID of the Feed that the Episodes belong to.
-	 * @return A List<Episode> object with updated Id's relative to the table.
-	 */
-	public List<Episode> insertEpisodesAsync(List<Episode> eps, int feedId)
-	{
-		//TODO: Make this
-		return null;
 	}
 	
 	/**
@@ -345,5 +363,27 @@ public class EpisodeDBHelper
 				c.getString(1), c.getString(2), c.getString(3), c.getString(4),
 				c.getString(5), Integer.parseInt(c.getString(6)), Integer.parseInt(c.getString(7)), Integer.parseInt(c.getString(8)));
 		return ep;
+	}
+	
+	/**
+	 * Makes a correctly formatted placeholder string for queries.
+	 * @param length Number of items to represent.
+	 * @return A correctly formatted placeholder string.
+	 */
+	private String makePlaceholders(int length) 
+	{
+	    if (length < 1) 
+	    {
+	    	return "";
+	    } 
+	    else 
+	    {
+	        StringBuilder sb = new StringBuilder(length * 2 - 1);
+	        sb.append("?");
+	        for (int i = 1; i < length; i++) {
+	            sb.append(",?");
+	        }
+	        return sb.toString();
+	    }
 	}
 }

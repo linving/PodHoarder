@@ -7,8 +7,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -22,20 +20,15 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupMenu;
-import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 
 import com.podhoarderproject.podhoarder.R;
-import com.podhoarderproject.podhoarder.activity.MainActivity;
 import com.podhoarderproject.podhoarder.adapter.FeedDetailsListAdapter;
-import com.podhoarderproject.podhoarder.util.Constants;
+import com.podhoarderproject.podhoarder.util.Banner;
 import com.podhoarderproject.podhoarder.util.Episode;
 import com.podhoarderproject.podhoarder.util.ExpandAnimation;
 import com.podhoarderproject.podhoarder.util.ImageUtils;
-import com.podhoarderproject.podhoarder.util.NetworkUtils;
 import com.podhoarderproject.podhoarder.util.PodcastHelper;
-import com.podhoarderproject.podhoarder.util.Banner;
 import com.podhoarderproject.podhoarder.util.PopupMenuUtils;
  
 /**

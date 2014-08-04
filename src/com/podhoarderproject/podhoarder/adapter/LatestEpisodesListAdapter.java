@@ -102,6 +102,7 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 	        viewHolder.episodeTitle = (TextView) convertView.findViewById(R.id.list_episode_row_episodeName);
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.list_episode_row_feedName);
 	        viewHolder.episodeAge = (TextView) convertView.findViewById(R.id.list_episode_row_episodeAge);
+	        viewHolder.newNotification = (TextView) convertView.findViewById(R.id.list_episode_row_new);
 	        viewHolder.episodeDescription = (TextView) convertView.findViewById(R.id.list_episode_row_expandableTextView);
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.list_episode_row_feed_image);
 	        
@@ -138,6 +139,11 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 				e.printStackTrace();
 			}
 			
+			if (currentEpisode.isNew()) 
+				viewHolder.newNotification.setVisibility(View.VISIBLE);
+			else
+				viewHolder.newNotification.setVisibility(View.GONE);
+			
 			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().thumbnail());
 			
 			if (currentEpisode.isListened())
@@ -160,6 +166,7 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 	    TextView episodeTitle;
 	    TextView feedTitle;
 	    TextView episodeAge;
+	    TextView newNotification;
 	    TextView episodeDescription;
 	    ImageView feedImage;
 	}

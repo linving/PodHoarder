@@ -105,6 +105,7 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 	        viewHolder.episodeTitle = (TextView) convertView.findViewById(R.id.list_episode_row_episodeName);
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.list_episode_row_feedName);
 	        viewHolder.episodeAge = (TextView) convertView.findViewById(R.id.list_episode_row_episodeAge);
+	        viewHolder.newNotification = (TextView) convertView.findViewById(R.id.list_episode_row_new);
 	        viewHolder.episodeDescription = (TextView) convertView.findViewById(R.id.list_episode_row_expandableTextView);
 	        
 	        // Store the holder with the view.
@@ -139,6 +140,11 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 				e.printStackTrace();
 			}
 			
+			if (currentEpisode.isNew()) 
+				viewHolder.newNotification.setVisibility(View.VISIBLE);
+			else
+				viewHolder.newNotification.setVisibility(View.GONE);
+			
 			if (currentEpisode.isListened())
 			{
 				convertView.setAlpha(.5f);
@@ -159,6 +165,7 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 	    TextView episodeTitle;
 	    TextView feedTitle;
 	    TextView episodeAge;
+	    TextView newNotification;
 	    TextView episodeDescription;
 	}
 }
