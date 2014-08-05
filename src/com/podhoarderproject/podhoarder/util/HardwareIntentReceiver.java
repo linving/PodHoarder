@@ -88,7 +88,7 @@ public class HardwareIntentReceiver extends BroadcastReceiver
                 {
                 	if (playbackService.isPlaying() && playbackService.isStreaming())
                 	{
-                		playbackService.pause();
+                		playbackService.stop();
                 		((MainActivity)context).helper.refreshLists();
                 	}
                 	else
