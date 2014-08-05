@@ -7,6 +7,7 @@
 	    <ImageView android:id="@+id/player_list_row_currentEpisode"
 	        android:layout_width="35dp"
 	        android:layout_height="35dp"
+	        android:padding="5dp"
 	        android:layout_centerInParent="true"  
 	        android:layout_alignParentLeft="true"
 	        android:layout_marginLeft="5dp"

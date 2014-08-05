@@ -27,7 +27,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.podhoarderproject.ericharlow.DragNDrop.DropListener;
+import com.ericharlow.DragNDrop.DropListener;
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.activity.MainActivity;
 import com.podhoarderproject.podhoarder.util.Episode;
@@ -146,6 +146,7 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 			
 			
 			if (!currentEpisode.isDownloaded() && !NetworkUtils.isOnline(context)) convertView.setAlpha(.5f);	//If we don't have network access and the episode is to be streamed we make it look "disabled"
+			else 	convertView.setAlpha(1f);
 		}		
         return convertView;
     }

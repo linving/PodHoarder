@@ -185,11 +185,12 @@ public class PopupMenuUtils
 			        case R.id.menu_episode_play_now:
 			        	actionMenu.dismiss();
 			        	((MainActivity)context).podService.playEpisode(ep);
-				    	((MainActivity)context).getActionBar().setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Player Fragment automatically.
+				    	((MainActivity)context).actionBar.setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Player Fragment automatically.
 			            return true;
 			        case R.id.menu_episode_add_playlist:
 			        	actionMenu.dismiss();
 			        	((MainActivity)context).helper.playlistAdapter.addToPlaylist(ep);
+			        	ToastMessages.EpisodeAddedToPlaylist(context).show();
 			        	return true;
 			        case R.id.menu_episode_deleteFile:
 			        	actionMenu.dismiss();

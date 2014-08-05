@@ -72,8 +72,11 @@
     <string name="notification_by">by</string>
     
     <!-- Toast Notifications -->
+    <string name="toast_downloading_podcast">Downloading Podcast!</string>
+    <string name="toast_episode_added_to_playlist">Added To Playlist!</string>
     <string name="toast_feeds_refreshed_successful">Refresh done!</string>
     <string name="toast_feeds_refreshed_failed">Refresh failed!</string>
     <string name="toast_player_playback_failed">Playback failed!</string>
-    <string name="toast_add_feed_failed">Failed to add Podcast!</string>
+    <string name="toast_download_failed">Download failed!</string>
+    <string name="toast_add_feed_failed">Failed To Add Podcast!</string>
 </resources>

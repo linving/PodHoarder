@@ -24,6 +24,7 @@ public class EpisodeDBHelper
 	
 	private DBHelper dbHelper;
 	private SQLiteDatabase db;
+	private PlaylistDBHelper plDbH;
 	private static final String TABLE_NAME = DBHelper.episodeTable;
 	private final String[] columns = { DBHelper.colEpisodeId,
 			DBHelper.colEpisodeTitle, DBHelper.colEpisodeLink,
@@ -34,6 +35,7 @@ public class EpisodeDBHelper
 	public EpisodeDBHelper(Context ctx)
 	{
 		this.dbHelper = new DBHelper(ctx);
+		this.plDbH = new PlaylistDBHelper(ctx);
 	}
 
 	/**
@@ -124,9 +126,12 @@ public class EpisodeDBHelper
 		return episodes;	
 	}
 	
-	public List<Episode> getPlaylistEpisodes(List<EpisodePointer> pointers)
+	public List<Episode> getPlaylistEpisodes()
 	{
 		List<Episode> ret = new ArrayList<Episode>();
+		List<Episode> unordered = new ArrayList<Episode>();
+		List<EpisodePointer> pointers = plDbH.loadPlaylistPointers();
+		
 		if (pointers.size() > 0)
 		{
 			String[] ids = new String[pointers.size()];
@@ -143,10 +148,35 @@ public class EpisodeDBHelper
 			{
 				do
 				{
-					ret.add(cursorToEpisode(cursor));
+					unordered.add(cursorToEpisode(cursor));
 				} while (cursor.moveToNext());
 			}
 			this.db.close();
+			
+			//Now that we have the correct order in pointers we need to reorder the playlist accordingly.
+			for (EpisodePointer pointer:pointers)
+			{
+				
+				for (int i2=0; i2<unordered.size(); i2++)
+				{
+					if (unordered.get(i2).getEpisodeId() == pointer.getEpisodeId()) 
+					{
+						//Log.i(LOG_TAG,"LOADED " + playlist.get(i).getTitle() + "(ID: " + pointer.getId() + ")");
+						ret.add(unordered.get(i2));
+						break;
+					}
+				}
+			}
+			
+			if (ret.size() != unordered.size())	//This means that there are playlist entries that have not been stored in the database. They should be added to the end and then we should save the playlist.
+			{
+				//Log.w(LOG_TAG, "Playlist size doesn't match number of stored pointers. Mismatch!");
+				for (Episode ep : unordered)	//Go through playlist and look for the entries that haven't been added to ret yet.
+				{
+					if (!ret.contains(ep)) ret.add(ep);	//Add the missing entry at the last index.
+				}
+				this.plDbH.savePlaylist(ret);	//Save the appended playlist to the db before returning.
+			}
 		}
 		return ret;
 	}

@@ -39,7 +39,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
@@ -111,7 +110,7 @@ public class PodcastHelper
 		}
 			
 		else
-			Toast.makeText(context, context.getString(R.string.toast_add_feed_failed), Toast.LENGTH_SHORT).show();
+			ToastMessages.AddFeedFailed(this.context).show();
 	}
 
 	/**
@@ -163,7 +162,7 @@ public class PodcastHelper
 		{
 			if (refreshLayout.isRefreshing())
 				refreshLayout.setRefreshing(false);
-			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
+			ToastMessages.RefreshFailed(this.context).show();
 		}
 	}
 	
@@ -184,7 +183,7 @@ public class PodcastHelper
 		{
 			if (refreshLayout.isRefreshing())
 				refreshLayout.setRefreshing(false);
-			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
+			ToastMessages.RefreshFailed(this.context).show();
 		}
 	}
 	
@@ -225,8 +224,7 @@ public class PodcastHelper
 			});
 			this.context.registerReceiver(this.broadcastReceivers.get(this.broadcastReceivers.size()-1), new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 			this.downloadManager.enqueue(request);
-			//TODO: Replace with string resource
-			Toast.makeText(context, "Downloading Podcast.",Toast.LENGTH_SHORT).show();
+			ToastMessages.DownloadingPodcast(this.context).show();
 		}
 		else
 		{
@@ -506,12 +504,12 @@ public class PodcastHelper
 			//Disable the "refreshing" animation.
 			this.refreshLayout.setRefreshing(false);
 			this.refreshListsAsync();
-			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_successful), Toast.LENGTH_SHORT).show();
+			ToastMessages.RefreshSuccessful(this.context).show();
 		}
 		catch (Exception ex)
 		{
 			Log.e(LOG_TAG, ex.getMessage());
-			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
+			ToastMessages.RefreshFailed(this.context).show();
 			//Disable the "refreshing" animation.
 			this.refreshLayout.setRefreshing(false);
 		}
@@ -759,7 +757,7 @@ public class PodcastHelper
 		{
 			if (refreshLayout.isRefreshing()) 
 				refreshLayout.setRefreshing(false);
-			Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
+			ToastMessages.RefreshFailed(context).show();
 		}
 		
 		@Override
@@ -778,14 +776,14 @@ public class PodcastHelper
 			{
 				Log.e(LOG_TAG,"CursorIndexOutOfBoundsException: Refresh failed.");
 				refreshLayout.setRefreshing(false);
-				Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
+				ToastMessages.RefreshFailed(context).show();
 				cancel(true);
 			} 
 			catch (SQLiteConstraintException e)
 			{
 				Log.e(LOG_TAG,"SQLiteConstraintException: Refresh failed.");
 				refreshLayout.setRefreshing(false);
-				Toast.makeText(context, context.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT).show();
+				ToastMessages.RefreshFailed(context).show();
 				cancel(true);
 			}
 		}
@@ -896,8 +894,6 @@ public class PodcastHelper
 	 */
 	private void checkDownloadStatus(long dwnId, int feedPos, int epPos, BroadcastReceiver source)
 	{
-		
-		 // TODO Auto-generated method stub
 		 DownloadManager.Query query = new DownloadManager.Query();
 		 query.setFilterById(dwnId);
 		 Cursor cursor = downloadManager.query(query);
@@ -914,81 +910,66 @@ public class PodcastHelper
 					   String failedReason = "";
 					   switch(reason){
 						   case DownloadManager.ERROR_CANNOT_RESUME:
-							 //TODO: Replace with String resource
 							    failedReason = "ERROR_CANNOT_RESUME";
 							    break;
 						   case DownloadManager.ERROR_DEVICE_NOT_FOUND:
-							 //TODO: Replace with String resource
 							    failedReason = "ERROR_DEVICE_NOT_FOUND";
 							    break;
 						   case DownloadManager.ERROR_FILE_ALREADY_EXISTS:
-							 //TODO: Replace with String resource
 							    failedReason = "ERROR_FILE_ALREADY_EXISTS";
 							    break;
 						   case DownloadManager.ERROR_FILE_ERROR:
-							 //TODO: Replace with String resource
 							    failedReason = "ERROR_FILE_ERROR";
 							    break;
 						   case DownloadManager.ERROR_HTTP_DATA_ERROR:
-							 //TODO: Replace with String resource
 							    failedReason = "ERROR_HTTP_DATA_ERROR";
 							    break;
 						   case DownloadManager.ERROR_INSUFFICIENT_SPACE:
-							 //TODO: Replace with String resource
 							    failedReason = "ERROR_INSUFFICIENT_SPACE";
 							    break;
 						   case DownloadManager.ERROR_TOO_MANY_REDIRECTS:
-							 //TODO: Replace with String resource
 							    failedReason = "ERROR_TOO_MANY_REDIRECTS";
 							    break;
 						   case DownloadManager.ERROR_UNHANDLED_HTTP_CODE:
-							 //TODO: Replace with String resource
 							    failedReason = "ERROR_UNHANDLED_HTTP_CODE";
 							    break;
 						   case DownloadManager.ERROR_UNKNOWN:
-							 //TODO: Replace with String resource
 							    failedReason = "ERROR_UNKNOWN";
 							    break;
 					   }
-					 //TODO: Replace with String resource
-					   Toast.makeText(this.context,"FAILED: " + failedReason, Toast.LENGTH_LONG).show();
+					   ToastMessages.DownloadFailed(this.context).show();
+					   Log.i(LOG_TAG, "FAILED: " + failedReason);
 					   break;
 					   
 				  case DownloadManager.STATUS_PAUSED:
-					   String pausedReason = "";
-					   switch(reason){
-						   case DownloadManager.PAUSED_QUEUED_FOR_WIFI:
-							 //TODO: Replace with String resource
-							    pausedReason = "PAUSED_QUEUED_FOR_WIFI";
-							    break;
-						   case DownloadManager.PAUSED_UNKNOWN:
-							 //TODO: Replace with String resource
-							    pausedReason = "PAUSED_UNKNOWN";
-							    break;
-						   case DownloadManager.PAUSED_WAITING_FOR_NETWORK:
-							 //TODO: Replace with String resource
-							    pausedReason = "PAUSED_WAITING_FOR_NETWORK";
-							    break;
-						   case DownloadManager.PAUSED_WAITING_TO_RETRY:
-							 //TODO: Replace with String resource
-							    pausedReason = "PAUSED_WAITING_TO_RETRY";
-							    break;
+					  String pausedReason = "";
+					  switch(reason)
+					  {
+					  	case DownloadManager.PAUSED_QUEUED_FOR_WIFI:
+					  		pausedReason = "PAUSED_QUEUED_FOR_WIFI";
+						    break;
+					  	case DownloadManager.PAUSED_UNKNOWN:
+					  		pausedReason = "PAUSED_UNKNOWN";
+						    break;
+					  	case DownloadManager.PAUSED_WAITING_FOR_NETWORK:
+					  		pausedReason = "PAUSED_WAITING_FOR_NETWORK";
+						    break;
+					  	case DownloadManager.PAUSED_WAITING_TO_RETRY:
+					  		pausedReason = "PAUSED_WAITING_TO_RETRY";
+					  		break;
 					   }
-					 //TODO: Replace with String resource
-					   Toast.makeText(this.context,"PAUSED: " + pausedReason, Toast.LENGTH_LONG).show();
+					   Log.i(LOG_TAG, "DOWNLOAD PAUSED: " + pausedReason);
 					   break;
 				  case DownloadManager.STATUS_PENDING:
-					//TODO: Replace with String resource
-					   Toast.makeText(this.context, "PENDING", Toast.LENGTH_LONG).show();
-					   break;
+					  Log.i(LOG_TAG, "DOWNLOAD PENDING");
+					  break;
 				  case DownloadManager.STATUS_RUNNING:
-					  //TODO: Replace with String resource
-					   Toast.makeText(this.context, "RUNNING", Toast.LENGTH_LONG).show();
-					   break;
+					  Log.i(LOG_TAG, "DOWNLOAD RUNNING");
+					  break;
 				  case DownloadManager.STATUS_SUCCESSFUL:
 					  //Download was successful. We should update db etc.
-					   downloadCompleted(feedPos, epPos, source);
-					   break;
+					  downloadCompleted(feedPos, epPos, source);
+					  break;
 			 }
 		 }
 	}
@@ -1019,10 +1000,10 @@ public class PodcastHelper
 		//Playlist
 		if (this.playlistAdapter != null)	
 			//this.playlistAdapter.replaceItems(this.plDbH.sort(this.eph.getDownloadedEpisodes()));
-			this.playlistAdapter.replaceItems(this.eph.getPlaylistEpisodes(this.plDbH.loadPlaylistPointers()));
+			this.playlistAdapter.replaceItems(this.eph.getPlaylistEpisodes());
 		else	
 			//this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
-			this.playlistAdapter = new DragNDropAdapter(this.eph.getPlaylistEpisodes(this.plDbH.loadPlaylistPointers()), this.context);
+			this.playlistAdapter = new DragNDropAdapter(this.eph.getPlaylistEpisodes(), this.context);
 		
 		//Feeds List
 		if (this.feedsListAdapter != null)	
@@ -1078,7 +1059,7 @@ public class PodcastHelper
         protected Void doInBackground(Void... params) 
         {
         	this.latestEpisodes = eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT);
-        	this.playlist = eph.getPlaylistEpisodes(plDbH.loadPlaylistPointers());
+        	this.playlist = eph.getPlaylistEpisodes();
         	this.feeds = fDbH.getAllFeeds();
         	if (feedDetailsListAdapter != null && feedDetailsListAdapter.feed != null)
     		{

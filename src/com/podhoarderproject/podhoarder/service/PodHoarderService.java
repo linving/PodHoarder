@@ -1,15 +1,15 @@
 package com.podhoarderproject.podhoarder.service;
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
 import java.util.List;
 
+import android.app.Service;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -17,12 +17,13 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.activity.SettingsActivity;
-import com.podhoarderproject.podhoarder.util.*;
+import com.podhoarderproject.podhoarder.util.Episode;
+import com.podhoarderproject.podhoarder.util.NetworkUtils;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
+import com.podhoarderproject.podhoarder.util.ToastMessages;
 
 public class PodHoarderService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener  
 {
@@ -60,7 +61,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	@Override
 	public boolean onUnbind(Intent intent)
 	{
-		if (isPng()) player.stop();
+		if (isPlaying()) player.stop();
 		player.release();
 		return false;
 	}
@@ -107,7 +108,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 				}
 			}
 		}
-		else	Toast.makeText(getApplication(), getString(R.string.toast_player_playback_failed), Toast.LENGTH_SHORT).show();
+		else	ToastMessages.PlaybackFailed(getApplicationContext()).show();
 	}
 
 	@Override
@@ -198,7 +199,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		{
 			if (this.playPauseButton != null && this.playPauseButton.getVisibility() == View.GONE)	this.playPauseButton.setVisibility(View.VISIBLE);
 			if (this.loadingCircle != null && this.loadingCircle.getVisibility() == View.VISIBLE) this.loadingCircle.setVisibility(View.GONE);
-			if (isPng() && this.playPauseButton != null) playPauseButton.setChecked(true);
+			if (isPlaying() && this.playPauseButton != null) playPauseButton.setChecked(true);
 		}
 		this.helper.playlistAdapter.notifyDataSetChanged();
 		this.handler.post(UpdateRunnable);
@@ -225,26 +226,22 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	
 	public void playEpisode(int epPos)
 	{
-		this.currentEpisode = playList.get(epPos);
-		if (this.currentEpisode.isDownloaded())
-		{
-			this.startEpisode(this.currentEpisode);
-		}
-		else
-		{
-			this.streamEpisode(this.currentEpisode);
-		}
+		playEpisode(playList.get(epPos));
 	}
 	
 	public void playEpisode(Episode ep)
 	{
+		this.currentEpisode = ep;
 		if (ep.isDownloaded())
 		{
 			this.startEpisode(ep);
 		}
 		else
 		{
-			this.streamEpisode(ep);
+			if (!NetworkUtils.isOnline(getApplicationContext()))
+				playNext();
+			else
+				this.streamEpisode(ep);
 		}
 	}
 	
@@ -311,7 +308,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
             		helper.updateEpisode(currentEpisode); //Update the db.
             	}
             	if (!updateBlocked) seekBar.setProgress(getPosn());
-                if (isPng()) 
+                if (isPlaying()) 
                 {
                 	elapsedTime.setText(millisToTime(getPosn()));	// update progress bar using getCurrentPosition()
                 	handler.postDelayed(UpdateRunnable, 350);
@@ -336,7 +333,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
             		helper.updateEpisode(currentEpisode); //Update the db.
             	}
             	if (!updateBlocked) seekBar.setProgress(getPosn());
-            	if (isPng())elapsedTime.setText(millisToTime(getPosn()));	// update progress bar using getCurrentPosition()
+            	if (isPlaying())elapsedTime.setText(millisToTime(getPosn()));	// update progress bar using getCurrentPosition()
         	}
         }
     };
@@ -389,9 +386,14 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		return this.playList.size();
 	}
 	 
-	public boolean isPng()
+	public boolean isPlaying()
 	{
 		return player.isPlaying();
+	}
+	
+	public boolean isStreaming()
+	{
+		return this.streaming;
 	}
 	
 	public boolean isLoading()

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.podhoarderproject.ericharlow.DragNDrop;
+package com.ericharlow.DragNDrop;
 
 
 import com.podhoarderproject.podhoarder.R;

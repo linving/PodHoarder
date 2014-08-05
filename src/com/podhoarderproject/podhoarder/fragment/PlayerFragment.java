@@ -21,9 +21,9 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.podhoarderproject.ericharlow.DragNDrop.DragListener;
-import com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView;
-import com.podhoarderproject.ericharlow.DragNDrop.DropListener;
+import com.ericharlow.DragNDrop.DragListener;
+import com.ericharlow.DragNDrop.DragNDropListView;
+import com.ericharlow.DragNDrop.DropListener;
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
@@ -67,7 +67,7 @@ public class PlayerFragment extends Fragment
     	setupListView();
     	setupMediaControls();
     	
-    	if (this.podService != null && this.podService.isPng())	playPauseButton.setChecked(false);
+    	if (this.podService != null && this.podService.isPlaying())	playPauseButton.setChecked(false);
     	return this.view;
     }
     
@@ -310,7 +310,7 @@ public class PlayerFragment extends Fragment
 
         @Override
         public void onClick(View view) {
-        	if (podService.isPng())
+        	if (podService.isPlaying())
         	{
         		podService.skipForward();
         	}
@@ -321,7 +321,7 @@ public class PlayerFragment extends Fragment
 
         @Override
         public void onClick(View view) {
-        	if (podService.isPng())
+        	if (podService.isPlaying())
         	{
         		podService.skipBackward();
         	}

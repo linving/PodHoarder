@@ -54,12 +54,12 @@
 		    android:layout_marginLeft="10dp"
 		    android:layout_marginBottom="10dp"
 		    android:background="?android:attr/listDivider"/>
-        <com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView
+        <com.ericharlow.DragNDrop.DragNDropListView
             android:id="@+id/playlist"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:divider="@null">
-        </com.podhoarderproject.ericharlow.DragNDrop.DragNDropListView>
+        </com.ericharlow.DragNDrop.DragNDropListView>
         
     </LinearLayout>
     

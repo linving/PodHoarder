@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -27,8 +28,9 @@ import com.podhoarderproject.podhoarder.adapter.TabFragmentsAdapter;
 import com.podhoarderproject.podhoarder.service.PodHoarderService;
 import com.podhoarderproject.podhoarder.service.PodHoarderService.PodHoarderBinder;
 import com.podhoarderproject.podhoarder.util.Constants;
-import com.podhoarderproject.podhoarder.util.MusicIntentReceiver;
+import com.podhoarderproject.podhoarder.util.HardwareIntentReceiver;
 import com.podhoarderproject.podhoarder.util.PodcastHelper;
+import com.viewpagerindicator.CirclePageIndicator;
 
 /**
  * 
@@ -40,6 +42,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.MainActivity";
 	//UI Elements
+	private CirclePageIndicator mTabIndicator;
     private ViewPager mPager;
     public TabFragmentsAdapter mAdapter;
     public ActionBar actionBar;
@@ -54,7 +57,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	private boolean musicBound = false;
 	
 	//Receiver for music channel intents (headphones unplugged etc.)
-	private MusicIntentReceiver musicIntentReceiver;
+	private HardwareIntentReceiver hardwareIntentReceiver;
     
 	private ServiceConnection podConnection = new ServiceConnection()	//connect to the service
     { 
@@ -71,17 +74,18 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		    //Initialise the headphone jack listener / intent receiver.
 		    IntentFilter headsetFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
 		    IntentFilter callStateFilter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
-	        musicIntentReceiver = new MusicIntentReceiver(podService);
-	        registerReceiver(musicIntentReceiver, headsetFilter);
-	        registerReceiver(musicIntentReceiver, callStateFilter);
-	        
+		    IntentFilter connectivityFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);  
+	        hardwareIntentReceiver = new HardwareIntentReceiver(podService);
+	        registerReceiver(hardwareIntentReceiver, headsetFilter);
+	        registerReceiver(hardwareIntentReceiver, callStateFilter);
+	        registerReceiver(hardwareIntentReceiver, connectivityFilter);
 		    setTab();
 	    }
 	    
 	    @Override
 	    public void onServiceDisconnected(ComponentName name) 
 	    {
-	    	unregisterReceiver(musicIntentReceiver);
+	    	unregisterReceiver(hardwareIntentReceiver);
 	    	musicBound = false;
 	    }
     };   
@@ -130,7 +134,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     {
     	this.unbindService(this.podConnection);
     	this.stopService(playIntent);
-    	unregisterReceiver(musicIntentReceiver);
+    	unregisterReceiver(hardwareIntentReceiver);
 	    this.podService=null;
 	    this.musicBound = false;
 	    super.onDestroy();
@@ -172,6 +176,10 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowHomeEnabled(false);
         
+        //Bind the title indicator to the adapter
+        mTabIndicator = (CirclePageIndicator)findViewById(R.id.tabIndicator);
+        mTabIndicator.setViewPager(mPager);
+        
         // Adding Tabs
         for (int i=0; i<Constants.TAB_COUNT; i++)
         {
@@ -195,7 +203,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	                feedTab.setTabListener(this);
 	                actionBar.addTab(feedTab);
 	                break;
-	              //3. Feed tab
+	              //4. Feed Details tab
         		case Constants.FEED_DETAILS_TAB_POSITION:
 	                Tab feedDetailsTab = actionBar.newTab();
 	                feedDetailsTab.setTabListener(this);
@@ -205,10 +213,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         	}
         }
         
-    	 /**
-         * on swiping the viewpager make respective tab selected
-         * */
-        mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() 
+        mTabIndicator.setOnPageChangeListener(new ViewPager.OnPageChangeListener() 
         {
 
             @Override
@@ -224,6 +229,26 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             @Override
             public void onPageScrollStateChanged(int arg0) {  }
         });
+        
+//    	 /**
+//         * on swiping the viewpager make respective tab selected
+//         * */
+//        mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() 
+//        {
+//
+//            @Override
+//            public void onPageSelected(int position) 
+//            {
+//                if (position < 3)	mAdapter.setDetailsPageEnabled(false);
+//                actionBar.setSelectedNavigationItem(position);
+//            }
+//
+//            @Override
+//            public void onPageScrolled(int arg0, float arg1, int arg2) { }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int arg0) {  }
+//        });
         
     	
     }
