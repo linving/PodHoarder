@@ -55,7 +55,6 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 	{
 		this.playList.clear();
 		this.playList.addAll(newItemCollection);
-		this.notifyDataSetChanged();
 	}
 	
     /**
@@ -172,8 +171,8 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
     public void addToPlaylist(Episode ep)
     {
     	this.playList.add(ep);
-    	this.notifyDataSetChanged();
     	((MainActivity)context).helper.plDbH.savePlaylist(this.playList);
+    	this.notifyDataSetChanged();
     }
     
     

@@ -50,7 +50,6 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 	{
 		this.feed.getEpisodes().clear();
 		this.feed.getEpisodes().addAll(newItemCollection);
-		this.notifyDataSetChanged();
 	}
 	
 	public void setFeed(Feed feedToSet)

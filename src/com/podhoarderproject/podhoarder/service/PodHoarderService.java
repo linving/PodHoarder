@@ -99,8 +99,8 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			{
 				if (!wasStreaming)
 				{
-					this.helper.playlistAdapter.removeFromPlaylist(this.playList.get(indexToDelete));
 					this.helper.deleteEpisodeFile(this.playList.get(indexToDelete).getFeedId(), this.playList.get(indexToDelete).getEpisodeId());
+					this.helper.playlistAdapter.removeFromPlaylist(this.playList.get(indexToDelete));
 				}
 				else
 				{

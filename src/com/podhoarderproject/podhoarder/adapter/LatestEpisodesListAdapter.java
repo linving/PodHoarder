@@ -53,7 +53,6 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 	{
 		this.latestEpisodes.clear();
 		this.latestEpisodes.addAll(newItemCollection);
-		this.notifyDataSetChanged();
 	}
 
 	@Override

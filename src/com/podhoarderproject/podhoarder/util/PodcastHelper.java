@@ -261,7 +261,7 @@ public class PodcastHelper
 	public Episode updateEpisode(Episode ep)
 	{
 		Episode temp = this.eph.updateEpisode(ep);
-		this.refreshLists();
+		this.refreshListsAsync();
 		return temp;
 	}
 	
@@ -1065,6 +1065,21 @@ public class PodcastHelper
     		{
     			this.feedDetailsEpisodes = fDbH.getFeed(feedDetailsListAdapter.feed.getFeedId()).getEpisodes();
     		}
+        	
+        	//Replace and reload the Feeds Grid List.
+        	feedsListAdapter.replaceItems(this.feeds);
+        	
+        	//Replace and reload the Latest Episodes List.
+        	latestEpisodesListAdapter.replaceItems(this.latestEpisodes);
+        	
+        	//Replace and reload the Playlist.
+        	playlistAdapter.replaceItems(this.playlist);
+        	
+        	//Replace and reload the Feed Details List only when a feed is selected.
+        	if (feedDetailsListAdapter != null && feedDetailsListAdapter.feed != null)
+        	{
+        		feedDetailsListAdapter.replaceItems(feedDetailsEpisodes);
+        	}	
     		return null;
         }
 
@@ -1076,24 +1091,10 @@ public class PodcastHelper
         protected void onPostExecute(Void param) 
         {
         	//Notify for UI updates.
-        	//Replace and reload the Feeds Grid List.
-        	feedsListAdapter.replaceItems(this.feeds);
         	feedsListAdapter.notifyDataSetChanged();
-        	
-        	//Replace and reload the Latest Episodes List.
-        	latestEpisodesListAdapter.replaceItems(this.latestEpisodes);
         	latestEpisodesListAdapter.notifyDataSetChanged();
-        	
-        	//Replace and reload the Playlist.
-        	playlistAdapter.replaceItems(this.playlist);
         	playlistAdapter.notifyDataSetChanged();
-        	
-        	//Replace and reload the Feed Details List only when a feed is selected.
-        	if (feedDetailsListAdapter != null && feedDetailsListAdapter.feed != null)
-        	{
-        		feedDetailsListAdapter.replaceItems(feedDetailsEpisodes);
-            	feedDetailsListAdapter.notifyDataSetChanged();   
-        	}	
+        	feedDetailsListAdapter.notifyDataSetChanged();   
         }
     }
 

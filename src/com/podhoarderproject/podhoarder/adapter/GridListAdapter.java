@@ -60,7 +60,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 	{
 		this.feeds.clear();
 		this.feeds.addAll(newItemCollection);
-		this.notifyDataSetChanged();
+		//this.notifyDataSetChanged();
 	}
 
     public int getCount() 

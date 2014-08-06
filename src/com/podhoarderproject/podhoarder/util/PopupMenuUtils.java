@@ -190,6 +190,7 @@ public class PopupMenuUtils
 			        case R.id.menu_episode_add_playlist:
 			        	actionMenu.dismiss();
 			        	((MainActivity)context).helper.playlistAdapter.addToPlaylist(ep);
+			        	((MainActivity)context).helper.refreshListsAsync();
 			        	ToastMessages.EpisodeAddedToPlaylist(context).show();
 			        	return true;
 			        case R.id.menu_episode_deleteFile:
