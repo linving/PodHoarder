@@ -115,18 +115,12 @@ public class PlayerFragment extends Fragment
     private void setupListView()
     {
     	this.mainListView = (ListView) view.findViewById(R.id.playlist);
-    	if (!this.helper.playlistAdapter.isEmpty())
-    	{
-    		this.mainListView.setAdapter(this.helper.playlistAdapter);
-    		((DragNDropListView) this.mainListView).setDropListener(mDropListener);
-        	((DragNDropListView) this.mainListView).setDragListener(mDragListener);
-        	((DragNDropListView) this.mainListView).setOnItemClickListener(mOnClickListener);
-        	((DragNDropListView) this.mainListView).setOnItemLongClickListener(mOnLongClickListener);
-    	}
-    	else
-    	{
-    		//TODO: Show some kind of "list is empty" text instead of the mainlistview here.
-    	}
+    	
+    	this.mainListView.setAdapter(this.helper.playlistAdapter);
+		((DragNDropListView) this.mainListView).setDropListener(mDropListener);
+    	((DragNDropListView) this.mainListView).setDragListener(mDragListener);
+    	((DragNDropListView) this.mainListView).setOnItemClickListener(mOnClickListener);
+    	((DragNDropListView) this.mainListView).setOnItemLongClickListener(mOnLongClickListener);
     }
        
     private void setupHelper()

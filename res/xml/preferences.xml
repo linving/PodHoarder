@@ -32,5 +32,5 @@
         android:summary="@string/pref_startTab_summary"
         android:entries="@array/pref_startTab_entries"
         android:entryValues="@array/pref_startTab_values"
-        android:defaultValue="0" />
+        android:defaultValue="2" />
 </PreferenceScreen>

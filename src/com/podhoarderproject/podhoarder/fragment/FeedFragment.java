@@ -11,11 +11,12 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.podhoarderproject.podhoarder.R;
 import com.podhoarderproject.podhoarder.util.Feed;
@@ -93,10 +94,14 @@ public class FeedFragment extends Fragment implements OnRefreshListener
     	}
     	else
     	{
+    		//TODO: MAKE SURE THIS WORKS CORRECTLY
     		View emptyView = (setupAddFeed());
-    		((LinearLayout)this.mainGridView.getParent()).addView(emptyView);
+    		emptyView.setMinimumHeight(this.helper.feedsListAdapter.gridItemSize);
+    		emptyView.setMinimumWidth(this.helper.feedsListAdapter.gridItemSize);
+    		emptyView.setLayoutParams(new LayoutParams(this.helper.feedsListAdapter.gridItemSize, this.helper.feedsListAdapter.gridItemSize));
+    		((RelativeLayout)this.mainGridView.getParent().getParent()).addView(emptyView);
     		this.mainGridView.setEmptyView(emptyView);
-    		//TODO: Show some kind of "list is empty" text instead of the mainlistview here.
+    		
     	}
     	
     }

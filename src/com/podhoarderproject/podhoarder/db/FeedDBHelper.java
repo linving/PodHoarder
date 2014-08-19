@@ -7,7 +7,9 @@ package com.podhoarderproject.podhoarder.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.podhoarderproject.podhoarder.util.Episode;
 import com.podhoarderproject.podhoarder.util.Feed;
+import com.podhoarderproject.podhoarder.util.PodcastHelper;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -210,7 +212,23 @@ public class FeedDBHelper
 	    cursor.moveToFirst();
 	    f = cursorToFeed(cursor, false);
 	    this.db.close();
-		this.eph.insertEpisodes(newFeed.getEpisodes().subList(0, (newFeed.getEpisodes().size()-f.getEpisodes().size())), f.getFeedId());	
+	    
+	    for (Episode ep : newFeed.getEpisodes())
+	    {
+	    	if (!PodcastHelper.episodeExists(ep.getTitle(), f.getEpisodes()))
+	    	{
+	    		this.eph.insertEpisode(ep,f.getFeedId());
+	    	}
+	    }
+	    
+	    for (Episode ep : f.getEpisodes())
+	    {
+	    	if (!PodcastHelper.episodeExists(ep.getTitle(), newFeed.getEpisodes()))
+	    	{
+	    		this.eph.deleteEpisode(ep);
+	    	}
+	    }
+	    
 	    f.setEpisodes(this.eph.getAllEpisodes(f.getFeedId()));
 		return f;
 	}

@@ -35,7 +35,8 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     private View loadingView;
     private boolean loading;
     
-    private int screenWidth, screenHeight, gridItemSize;
+    private int screenWidth, screenHeight; 
+    public int gridItemSize;
 
     public GridListAdapter(List<Feed> feeds, Context c) 
     {
@@ -49,7 +50,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 
 		screenWidth = metrics.widthPixels;
 		screenHeight = metrics.heightPixels;
-		gridItemSize = (screenWidth/2)-4;
+		gridItemSize = (screenWidth/2)-10;
     }
     
     /**

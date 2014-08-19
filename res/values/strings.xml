@@ -23,6 +23,9 @@
     <string name="episodes_tab">Episodes</string>
     <string name="fragment_latest_list_row_new">NEW!</string>
     
+    <!-- Search Fragment -->
+    <string name="fragment_search_button">SEARCH</string>
+    
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     

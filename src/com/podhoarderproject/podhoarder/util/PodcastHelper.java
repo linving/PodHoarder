@@ -251,7 +251,7 @@ public class PodcastHelper
 		this.context.unregisterReceiver(receiver);
 		this.broadcastReceivers.remove(receiver);
 		
-		this.refreshListsAsync();
+		this.refreshLists();
 	}
 		
 	/**
@@ -446,8 +446,8 @@ public class PodcastHelper
 					if (!file.exists())
 					{
 						Log.w(LOG_TAG, "Couldn't find " + file.getName() + ". Resetting local link for entry: " + episodes.get(epNo).getEpisodeId());
-						this.feedsListAdapter.feeds.get(feedNo).getEpisodes().get(epNo).setLocalLink("");
-						Episode temp = this.feedsListAdapter.feeds.get(feedNo).getEpisodes().get(epNo);
+						Episode temp = feeds.get(feedNo).getEpisodes().get(epNo);
+						temp.setLocalLink("");
 						this.eph.updateEpisode(temp);
 					}
 				}
@@ -649,9 +649,13 @@ public class PodcastHelper
 		private int progressPercent;
 		private String title, link, description, category, author, img;
 		private List<Feed> feeds;
+		private List<String> titles;
+		private boolean shouldDelete = false;
+		
 		protected List<Feed> doInBackground(List<String>... urls)
 		{
 			this.feeds = new ArrayList<Feed>();
+			this.titles = new ArrayList<String>();
 			for (String feedLink:urls[0])
 			{
 				double percentIncrement;
@@ -704,6 +708,7 @@ public class PodcastHelper
 								
 								if (currentFeed != null)										//Nullcheck
 								{
+									titles.add(ep.getTitle());
 									if (episodeExists(ep.getTitle(), currentFeed.getEpisodes()))//If the current Episode is already in the local list, there's no need to keep processing it.
 										continue;												
 								}
@@ -716,6 +721,11 @@ public class PodcastHelper
 							}
 							publishProgress((int) percentIncrement);							//Update AsyncTask progress
 							eps.add(ep);	
+						}
+						
+						if (itemLst.getLength() < (eps.size() + currentFeed.getEpisodes().size()))	//this means that there are fewer Episodes in the XML than in our db. We should remove those that aren't in the XML.
+						{
+							shouldDelete = true;
 						}
 						this.img = DataParser.parsePodcastImageLocation(itemLst2);				//We process the image last, because it can potentially take a lot of time and if we discover that we don't need to update anything, this shouldn't be done at all.
 					}
@@ -741,9 +751,8 @@ public class PodcastHelper
 					cancel(true);
 				} 
 				
-				if (eps.size() > 0)	//If we haven't found any new Episodes, there's no need to add the entire Feed object and process it. 
+				if (eps.size() > 0 || shouldDelete)	//If we haven't found any new Episodes, there's no need to add the entire Feed object and process it. 
 				{
-					
 					feeds.add(new Feed(this.title, this.author, this.description,
 							this.link, this.category, this.img, false, eps, context));
 				}
@@ -766,11 +775,41 @@ public class PodcastHelper
 			setProgressPercent(progress[0]);
 		}
 
-		protected void onPostExecute(List<Feed> result)
+		protected void onPostExecute(List<Feed> feeds)
 		{
 			try
 			{
-				refreshFeedObjects(this.feeds);
+				for (Feed newFeed : feeds)
+				{
+					//Get the Feed that's stored locally with the same Id.
+					Feed oldFeed = fDbH.getFeedByURL(newFeed.getLink());
+					//If the new Episode list has more Episodes, we need to add the new Episodes to the db.
+					for (int i = 0; i<newFeed.getEpisodes().size(); i++)
+					{
+						oldFeed.getEpisodes().add(0, newFeed.getEpisodes().get(i));
+					}
+					
+					if (shouldDelete)	//This is true if we have too many episodes. titles contains all the episode titles from the XML, so we need to remove the Episodes we have that aren't in titles.
+					{
+						if (titles != null)
+						{
+							for (int i = 0; i < oldFeed.getEpisodes().size(); i++)
+							{
+								if (!titles.contains(oldFeed.getEpisodes().get(i).getTitle()))
+									oldFeed.getEpisodes().remove(i);
+							}
+						}
+					}
+					
+					
+					oldFeed.getFeedImage().imageObject().recycle();
+					//Update the Feed with the new Episodes in the db.
+					oldFeed = fDbH.updateFeed(oldFeed);				
+				}
+				//Disable the "refreshing" animation.
+				refreshLayout.setRefreshing(false);
+				refreshListsAsync();
+				ToastMessages.RefreshSuccessful(context).show();
 			} 
 			catch (CursorIndexOutOfBoundsException e)
 			{
@@ -799,14 +838,7 @@ public class PodcastHelper
 			this.progressPercent = progressPercent;
 		}
 		
-		private boolean episodeExists(String episodeTitle, List<Episode> episodes)
-		{
-			for (int r = 0; r < episodes.size(); r++)
-			{
-				if (episodeTitle.equals(episodes.get(r).getTitle())) return true;
-			}
-			return false;
-		}
+		
 	}
 	
 	/**
@@ -1038,6 +1070,23 @@ public class PodcastHelper
 	}
 	
 	/**
+	 * Refreshes the list on the player fragment.
+	 */
+	public void refreshPlayList()
+	{
+		//Playlist
+		if (this.playlistAdapter != null)	
+			//this.playlistAdapter.replaceItems(this.plDbH.sort(this.eph.getDownloadedEpisodes()));
+			this.playlistAdapter.replaceItems(this.eph.getPlaylistEpisodes());
+		else	
+			//this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
+			this.playlistAdapter = new DragNDropAdapter(this.eph.getPlaylistEpisodes(), this.context);
+		
+		//Notify for UI updates.
+		this.playlistAdapter.notifyDataSetChanged();
+	}
+	
+	/**
      * AsyncTask for refreshing list adapters.
      */
     class ListRefreshTask extends AsyncTask<Void, Void, Void> 
@@ -1098,5 +1147,12 @@ public class PodcastHelper
         }
     }
 
-	
+    public static boolean episodeExists(String episodeTitle, List<Episode> episodes)
+	{
+		for (int r = 0; r < episodes.size(); r++)
+		{
+			if (episodeTitle.equals(episodes.get(r).getTitle())) return true;
+		}
+		return false;
+	}
 }

@@ -229,27 +229,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             @Override
             public void onPageScrollStateChanged(int arg0) {  }
         });
-        
-//    	 /**
-//         * on swiping the viewpager make respective tab selected
-//         * */
-//        mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() 
-//        {
-//
-//            @Override
-//            public void onPageSelected(int position) 
-//            {
-//                if (position < 3)	mAdapter.setDetailsPageEnabled(false);
-//                actionBar.setSelectedNavigationItem(position);
-//            }
-//
-//            @Override
-//            public void onPageScrolled(int arg0, float arg1, int arg2) { }
-//
-//            @Override
-//            public void onPageScrollStateChanged(int arg0) {  }
-//        });
-        
     	
     }
 
@@ -311,7 +290,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	
 	public void setTab()
 	{
-		switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString(SettingsActivity.SETTINGS_KEY_STARTTAB, "0")))
+		switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString(SettingsActivity.SETTINGS_KEY_STARTTAB, ""+Constants.FEEDS_TAB_POSITION)))
 		{
 			case Constants.FEEDS_TAB_POSITION:
 				this.actionBar.setSelectedNavigationItem(Constants.FEEDS_TAB_POSITION);

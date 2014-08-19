@@ -3,6 +3,7 @@ package com.podhoarderproject.podhoarder.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -26,8 +27,8 @@ public class DataParser
 	private static final	String[]					episodeLinkTagNames = {"enclosure"};
 	private static final	String[]					episodePubdateTagNames = {"pubDate"};
 	
-	public 	static final 	SimpleDateFormat 			xmlFormat = new SimpleDateFormat("EEE, d MMM yyy HH:mm:ss Z");	//Used when formatting timestamps in .xml's
-	public 	static final 	SimpleDateFormat 			correctFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");	//Used when formatting timestamps in .xml's
+	public 	static final 	SimpleDateFormat 			xmlFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);	//Used when formatting timestamps in .xml's
+	public 	static final 	SimpleDateFormat 			correctFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss", Locale.US);	//Used when formatting timestamps in .xml's
 
 	//Podcast parsing
 	
@@ -262,7 +263,7 @@ public class DataParser
 			
 			catch (ParseException e)
 			{
-				Log.e(LOG_TAG, "ParseException when parsing Episode Description.");
+				Log.e(LOG_TAG, "ParseException when parsing Episode Publish date.");
 				e.printStackTrace();
 				return "";																//If we encounter something that we can't parse, we just return an empty string.
 			}
