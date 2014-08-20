@@ -19,8 +19,9 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.Podhoarder" >
         <activity
-            android:name="com.podhoarderproject.podhoarder.activity.MainActivity"
+            android:name="com.podhoarder.activity.MainActivity"
             android:label="@string/app_name"
+            android:windowSoftInputMode="adjustPan"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,10 +29,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.podhoarderproject.podhoarder.activity.SettingsActivity"
+            android:name="com.podhoarder.activity.SettingsActivity"
             android:label="@string/action_settings">
         </activity>
-        <service android:name="com.podhoarderproject.podhoarder.service.PodHoarderService"
+        <service android:name="com.podhoarder.service.PodHoarderService"
             android:permission="android.permission.WAKE_LOCK" />
     </application>
 

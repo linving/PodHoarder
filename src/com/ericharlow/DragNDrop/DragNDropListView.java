@@ -17,9 +17,9 @@
 package com.ericharlow.DragNDrop;
 
 
+import com.podhoarder.adapter.DragNDropAdapter;
+import com.podhoarder.object.Episode;
 import com.podhoarderproject.podhoarder.R;
-import com.podhoarderproject.podhoarder.adapter.DragNDropAdapter;
-import com.podhoarderproject.podhoarder.util.Episode;
 
 import android.content.Context;
 import android.graphics.Bitmap;

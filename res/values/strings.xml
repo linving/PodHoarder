@@ -24,7 +24,8 @@
     <string name="fragment_latest_list_row_new">NEW!</string>
     
     <!-- Search Fragment -->
-    <string name="fragment_search_button">SEARCH</string>
+    <string name="fragment_search_button">Search</string>
+    <string name="search_hint">Podcast Name</string>
     
     <!-- Settings -->
     <string name="settings_title">Settings</string>

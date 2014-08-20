@@ -16,7 +16,7 @@
 			    android:id="@+id/feed_details_container"
 			    android:layout_width="fill_parent"
 		    	android:layout_height="fill_parent">
-			    <com.podhoarderproject.podhoarder.util.Banner 
+			    <com.podhoarder.object.Banner 
 			        android:id="@+id/feed_details_banner"
 			        android:layout_width="fill_parent"
 			        android:layout_height="wrap_content"

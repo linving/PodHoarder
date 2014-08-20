@@ -35,7 +35,7 @@
     <dimen name="fragment_latest_list_episode_status">14sp</dimen>
     <dimen name="fragment_latest_list_row_new">14sp</dimen>
     
-    <!-- Player -->
+    <!-- Player Fragment -->
     <dimen name="fragment_player_podcast_title">12sp</dimen>
     <dimen name="fragment_player_podcast_episode">22sp</dimen>
     <dimen name="fragment_player_elapsed_time">12sp</dimen>
@@ -45,6 +45,10 @@
     <dimen name="fragment_player_playlist_header">36sp</dimen>
     <dimen name="fragment_player_playlist_row_episode_title">16sp</dimen>
     <dimen name="fragment_player_playlist_row_podcast_title">12sp</dimen>
+    
+    <!-- Search Fragment -->
+    <dimen name="search_list_feed_title">14sp</dimen>
+    <dimen name="search_list_feed_author">14sp</dimen>
     
     <!-- Add Feed Popup Window -->
     <dimen name="popup_add_feed_searchbar_textfield_textSize">12sp</dimen>

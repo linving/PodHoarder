@@ -63,6 +63,10 @@
     <color name="fragment_latest_list_episode_description">#2e3641</color>
     <color name="fragment_latest_list_row_new">#ff5a5f</color>
     
+    <!-- Search Fragment -->
+    <color name="search_list_feed_title">#616161</color>
+    <color name="search_list_feed_author">#616161</color>
+    
     <!-- Add Feed Popup Window -->
     <color name="popup_add_feed_searchbar_textfield_foreground">#323a45</color>
     <color name="popup_add_feed_searchbar_textfield_background">#FFFFFF</color>
