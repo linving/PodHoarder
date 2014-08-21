@@ -7,11 +7,15 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.Normalizer;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -19,6 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -27,8 +33,10 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.google.gson.Gson;
+import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.SearchResultsAdapter;
-import com.podhoarder.json.*;
+import com.podhoarder.json.SearchResult;
+import com.podhoarder.json.SearchResultItem;
 import com.podhoarder.util.Constants;
 import com.podhoarderproject.podhoarder.R;
 
@@ -60,7 +68,7 @@ public class SearchFragment extends Fragment
 	
 	private void doSearch(String searchString)
 	{
-		this.searchTerm = searchString;
+		this.searchTerm = Normalizer.normalize(searchString, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
 		Log.d(LOG_TAG,"Search for: " + this.searchTerm);
 		
 		//Clear results and notify list adapter.
@@ -125,6 +133,35 @@ public class SearchFragment extends Fragment
 		
 		this.mainListView = (ListView) this.view.findViewById(R.id.mainListView);
 		this.mainListView.setAdapter(this.listAdapter);
+		
+		this.mainListView.setOnItemClickListener(new OnItemClickListener()
+		{
+			@Override
+			public void onItemClick(AdapterView<?> adapterView, View v, int position, long id)
+			{
+				final SearchResultItem currentItem = (SearchResultItem)mainListView.getItemAtPosition(position);
+				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		    	builder.setTitle(getString(R.string.popup_window_title));
+		    	builder.setMessage(getActivity().getString(R.string.popup_areyousure) + " " + currentItem.getCollectionName() + "?");
+
+		    	// Set up the buttons
+		    	builder.setPositiveButton(R.string.popup_window_ok_button, new DialogInterface.OnClickListener() { 
+		    	    @Override
+		    	    public void onClick(DialogInterface dialog, int which) 
+		    	    {
+		    	    	((MainActivity)getActivity()).helper.addFeed(currentItem.getFeedUrl());
+						((MainActivity)getActivity()).actionBar.setSelectedNavigationItem(Constants.FEEDS_TAB_POSITION);
+		    	    }
+		    	});
+		    	builder.setNegativeButton(R.string.popup_window_cancel_button, new DialogInterface.OnClickListener() {
+		    	    @Override
+		    	    public void onClick(DialogInterface dialog, int which) {
+		    	        dialog.cancel();
+		    	    }
+		    	});
+				builder.show();
+			}
+		});
 	}
 
 	private class SearchTask extends AsyncTask<String, Void, Void >

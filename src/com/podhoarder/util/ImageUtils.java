@@ -293,11 +293,13 @@ public class ImageUtils
 		return blurTemplate;
 	}
 
-	public static class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-	    ImageView bmImage;
+	public static class DownloadImageTask extends AsyncTask<String, Void, Bitmap> 
+	{
+		ImageView feedImage;
 
-	    public DownloadImageTask(ImageView bmImage) {
-	        this.bmImage = bmImage;
+	    public DownloadImageTask(ImageView feedImage) 
+	    {
+	        this.feedImage = feedImage;
 	    }
 
 	    protected Bitmap doInBackground(String... urls) {
@@ -313,8 +315,10 @@ public class ImageUtils
 	        return mIcon11;
 	    }
 
-	    protected void onPostExecute(Bitmap result) {
-	        bmImage.setImageBitmap(result);
+	    protected void onPostExecute(Bitmap result) 
+	    {
+	        this.feedImage.setImageBitmap(result);
 	    }
 	}
+	
 }

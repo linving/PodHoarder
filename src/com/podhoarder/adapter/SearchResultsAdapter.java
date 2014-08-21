@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +14,7 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.podhoarder.json.SearchResultItem;
-import com.podhoarder.object.SearchResult;
-import com.podhoarder.util.ImageUtils.DownloadImageTask;
+import com.podhoarder.util.ImageUtils;
 import com.podhoarderproject.podhoarder.R;
 
 public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
@@ -100,9 +100,9 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 			//Set Feed Title
 			viewHolder.feedTitle.setText(currentResult.getCollectionName());
 			//Set Feed Description
-			viewHolder.feedAuthor.setText(currentResult.getArtistName());	
+			viewHolder.feedAuthor.setText(this.context.getString(R.string.notification_by) + " " + currentResult.getArtistName());	
 			//Set Bitmap Image
-			new DownloadImageTask(viewHolder.feedImage).execute(currentResult.getArtworkUrl60());
+			new ImageUtils.DownloadImageTask(viewHolder.feedImage).execute(currentResult.getArtworkUrl60());
 		}
 		
 		return convertView;
@@ -111,10 +111,10 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 	//This is to improve ListView performance. See link for details.
 	//http://developer.android.com/training/improving-layouts/smooth-scrolling.html
 	static class ViewHolderItem {	
-	    TextView feedTitle;
-	    TextView feedAuthor;
-	    TextView episodeCount;
-	    ImageView feedImage;
-	    ImageView explicitIndicator;
+	    TextView 			feedTitle;
+	    TextView 			feedAuthor;
+	    TextView 			episodeCount;
+	    ImageView 			explicitIndicator;
+	    ImageView 	feedImage;
 	}
 }

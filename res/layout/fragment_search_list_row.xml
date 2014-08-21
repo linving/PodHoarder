@@ -6,7 +6,8 @@
     android:orientation="vertical"
     android:paddingBottom="5dp"
     android:paddingTop="5dp">
-    <ImageView android:id="@+id/search_list_feed_image"
+    <ImageView 
+        android:id="@+id/search_list_feed_image"
         android:layout_width="75dp"
         android:layout_height="75dp"
         android:maxWidth="75dp"
