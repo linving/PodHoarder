@@ -25,6 +25,8 @@
     
     <!-- Search Fragment -->
     <string name="search_hint">Search</string>
+    <string name="search_list_feed_last_updated">Last update</string>
+    <string name="search_list_feed_last_updated_unknown">unknown</string>
     
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -47,9 +49,9 @@
     <string name="pref_startTab_summary">Select which view to show when first starting the app.</string>
     
     <!-- Feed Context Menu -->
-    <string name="menu_feed_refresh">Refresh Feed</string>
+    <string name="menu_feed_refresh">Refresh Podcast</string>
     <string name="menu_feed_markAsListened">Mark Episodes As Listened</string>
-    <string name="menu_feed_delete">Delete Feed</string>
+    <string name="menu_feed_delete">Delete Podcast</string>
     
     <!-- Episode Context Menu -->
     <string name="menu_episode_add_playlist">Add To Playlist</string>
@@ -57,6 +59,7 @@
     <string name="menu_episode_play_now">Play Now</string>
     <string name="menu_episode_deleteFile">Delete File</string>
     <string name="menu_episode_markAsListened">Mark As Listened</string>
+    <string name="menu_episode_goToFeed">Go To Podcast Page</string>
     
     <!-- Playlist Montext Menu -->
     <string name="menu_playlist_delete">Remove From Playlist</string>
@@ -64,10 +67,10 @@
     <string name="menu_playlist_available_offline">Make Available Offline</string>
     
     <!-- Add Feed Popup Window -->
-    <string name="popup_window_title">Add Feed</string>
+    <string name="popup_window_title">Add Podcast?</string>
     <string name="popup_areyousure">Are you sure you want to add</string>
-    <string name="popup_window_ok_button">OK</string>
-    <string name="popup_window_cancel_button">Cancel</string>
+    <string name="popup_window_ok_button">Yes</string>
+    <string name="popup_window_cancel_button">No</string>
     
     <!--  Notifications -->
     <string name="notification_download_in_progress">Downloading</string>

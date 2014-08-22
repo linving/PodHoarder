@@ -127,8 +127,7 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 			//Set Episode Timestamp.
 			try
 			{
-					viewHolder.episodeAge.setText(
-							DateUtils.getRelativeTimeSpanString(
+					viewHolder.episodeAge.setText(DateUtils.getRelativeTimeSpanString(
 									PodcastHelper.correctFormat.parse(
 											currentEpisode.getPubDate()).getTime()));	//Set a time stamp since Episode publication.
 			} 

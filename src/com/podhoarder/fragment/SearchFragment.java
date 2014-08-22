@@ -108,6 +108,7 @@ public class SearchFragment extends Fragment
 		            getActivity().getCurrentFocus().setSelected(false);
 		            container.requestFocus();
 		            container.setSelected(true);
+		            keyboard.hideSoftInputFromWindow(v.getWindowToken(), 0);
 		            //editText.clearFocus();
 		            //container.requestFocus(View.FOCUS_DOWN);
 		        }
@@ -167,6 +168,7 @@ public class SearchFragment extends Fragment
 	private class SearchTask extends AsyncTask<String, Void, Void >
 	{
 		private SearchResult		results;
+		private int					timeOutInc = 0;
 		
 		@Override
 		protected void onPreExecute()
@@ -192,8 +194,11 @@ public class SearchFragment extends Fragment
 					InputStream input = url.openStream();
 					Reader reader = new InputStreamReader(input, "UTF-8");
 					this.results = new Gson().fromJson(reader, SearchResult.class);
-					while (results == null)
+					while (results == null && timeOutInc < Constants.SEARCH_TIMEOUT)
+					{
 						Thread.sleep(100);
+						this.timeOutInc++;
+					}
 				}
 			} 
 			catch (MalformedURLException e)
@@ -215,8 +220,14 @@ public class SearchFragment extends Fragment
 				for (int i = 0; i<this.results.getResultCount(); i++)
 				{
 					//Add results and notify list adapter.
-					listAdapter.results.add(this.results.getResults().get(i));
-					publishProgress();
+					if (!((MainActivity)getActivity()).helper
+							.feedExists(
+									this.results.getResults().get(i).getFeedUrl()))	//If the feed already exists we don't add it to the results. Can't add the same feed twice.
+					{
+						listAdapter.results.add(this.results.getResults().get(i));
+						publishProgress();
+					}
+					
 				}
 			}
 			return null;

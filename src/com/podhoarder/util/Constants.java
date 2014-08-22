@@ -12,4 +12,6 @@ public class Constants
 	public static final int LATEST_EPISODES_COUNT = 50;
 	
 	public static final int SEARCH_RESULT_LIMIT = 10;
+	
+	public static final int SEARCH_TIMEOUT = 100;
 }

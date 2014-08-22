@@ -1,10 +1,13 @@
 package com.podhoarder.adapter;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,14 +18,16 @@ import android.widget.TextView;
 
 import com.podhoarder.json.SearchResultItem;
 import com.podhoarder.util.ImageUtils;
+import com.podhoarder.util.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
 
 public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 {
 	@SuppressWarnings("unused")
-	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.SearchResultsAdapter";
-	public 	List<SearchResultItem> results;
-	private Context context;
+	private static final 	String 								LOG_TAG = "com.podhoarderproject.podhoarder.SearchResultsAdapter";
+	public 	static final 	SimpleDateFormat 					itFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	public 					List<SearchResultItem> 				results;
+	private 				Context 							context;
 
 	/**
 	 * Creates a LatestEpisodesListAdapter (Constructor).
@@ -82,6 +87,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 	        viewHolder = new ViewHolderItem();
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.search_list_feed_title);
 	        viewHolder.feedAuthor = (TextView) convertView.findViewById(R.id.search_list_feed_author);
+	        viewHolder.lastUpdated = (TextView) convertView.findViewById(R.id.search_list_feed_last_updated);
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.search_list_feed_image);
 	        
 	        // Store the holder with the view.
@@ -100,7 +106,22 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 			//Set Feed Title
 			viewHolder.feedTitle.setText(currentResult.getCollectionName());
 			//Set Feed Description
-			viewHolder.feedAuthor.setText(this.context.getString(R.string.notification_by) + " " + currentResult.getArtistName());	
+			viewHolder.feedAuthor.setText(this.context.getString(R.string.notification_by) + " " + currentResult.getArtistName());
+			//Set Last Updated string
+			try
+			{
+					viewHolder.lastUpdated.setText(context.getString(R.string.search_list_feed_last_updated) + " " + 
+							DateUtils.getRelativeTimeSpanString(itFormat.parse(currentResult.getReleaseDate()).getTime()));	//Set a time stamp since Episode publication.
+			} 
+			catch (ParseException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (NullPointerException ex)
+			{
+				viewHolder.lastUpdated.setText(context.getString(R.string.search_list_feed_last_updated) + " " + context.getString(R.string.search_list_feed_last_updated_unknown));	//Set a time stamp since Episode publication.
+			}
 			//Set Bitmap Image
 			new ImageUtils.DownloadImageTask(viewHolder.feedImage).execute(currentResult.getArtworkUrl60());
 		}
@@ -113,7 +134,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 	static class ViewHolderItem {	
 	    TextView 			feedTitle;
 	    TextView 			feedAuthor;
-	    TextView 			episodeCount;
+	    TextView 			lastUpdated;
 	    ImageView 			explicitIndicator;
 	    ImageView 	feedImage;
 	}

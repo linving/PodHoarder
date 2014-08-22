@@ -66,6 +66,7 @@
     <!-- Search Fragment -->
     <color name="search_list_feed_title">#616161</color>
     <color name="search_list_feed_author">#616161</color>
+    <color name="search_list_feed_last_updated">#c1cfd9</color>
     
     <!-- Add Feed Popup Window -->
     <color name="popup_add_feed_searchbar_textfield_foreground">#323a45</color>

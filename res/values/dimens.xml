@@ -49,6 +49,7 @@
     <!-- Search Fragment -->
     <dimen name="search_list_feed_title">14sp</dimen>
     <dimen name="search_list_feed_author">14sp</dimen>
+    <dimen name="search_list_feed_last_updated">14sp</dimen>
     
     <!-- Add Feed Popup Window -->
     <dimen name="popup_add_feed_searchbar_textfield_textSize">12sp</dimen>

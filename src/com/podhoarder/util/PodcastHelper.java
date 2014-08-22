@@ -535,7 +535,8 @@ public class PodcastHelper
 			List<Episode> eps = new ArrayList<Episode>();
 			try
 			{
-				// Set the url (you will need to change this to your RSS URL
+				
+				// Set the url
 				URL url = new URL(urls[0]);
 
 				// Setup the connection
@@ -1154,6 +1155,16 @@ public class PodcastHelper
 		for (int r = 0; r < episodes.size(); r++)
 		{
 			if (episodeTitle.equals(episodes.get(r).getTitle())) return true;
+		}
+		return false;
+	}
+    
+    public boolean feedExists(String feedURL)
+	{
+    	List<Feed> feeds = this.feedsListAdapter.feeds;
+		for (int r = 0; r < feeds.size(); r++)
+		{
+			if (feedURL.equals(feeds.get(r).getLink())) return true;
 		}
 		return false;
 	}
