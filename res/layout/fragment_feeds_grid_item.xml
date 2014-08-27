@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.podhoarder.object.CheckableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/feeds_grid_item_checkableLayout"
     android:layout_width="@dimen/fragment_feeds_grid_item"
     android:layout_height="@dimen/fragment_feeds_grid_item"
     android:orientation="vertical"
-    android:clickable="true"
-    android:longClickable="true"
-    android:focusable="true"
-	android:descendantFocusability="blocksDescendants"
-    android:background="?android:attr/selectableItemBackground"
+	android:background="?android:attr/activatedBackgroundIndicator"
+	android:clickable="true"
+	android:longClickable="true"
     android:layout_marginTop="5dp">
- 
     <ImageView
         android:id="@+id/feeds_grid_item_image"
         android:layout_width="wrap_content"
@@ -46,5 +44,4 @@
         android:textStyle="bold"
         android:gravity="center"
         android:background="@drawable/feeds_grid_notification_shape"/>
- 
-</RelativeLayout>
+</com.podhoarder.object.CheckableRelativeLayout>

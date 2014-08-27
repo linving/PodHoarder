@@ -4,7 +4,8 @@
     android:layout_height="75dp" 
     android:orientation="vertical"
     android:paddingBottom="5dp"
-    android:paddingTop="5dp">
+    android:paddingTop="5dp"
+	android:background="?android:attr/activatedBackgroundIndicator">
 	<RelativeLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent" 

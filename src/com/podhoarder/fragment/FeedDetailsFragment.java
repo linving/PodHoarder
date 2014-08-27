@@ -22,9 +22,12 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.FeedDetailsListAdapter;
 import com.podhoarder.object.Banner;
 import com.podhoarder.object.Episode;
+import com.podhoarder.object.EpisodeMultiChoiceModeListener;
+import com.podhoarder.util.Constants;
 import com.podhoarder.util.ExpandAnimation;
 import com.podhoarder.util.ImageUtils;
 import com.podhoarder.util.PodcastHelper;
@@ -48,6 +51,8 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
 	
 	private View view;
 	private PodcastHelper helper;
+	
+	private EpisodeMultiChoiceModeListener mListSelectionListener;
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -115,28 +120,22 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     				@Override
     				public void onItemClick(AdapterView<?> parent, View v, int pos, long id)
     				{
-    					LinearLayout episodeDescription = (LinearLayout)v.findViewById(R.id.list_episode_row_expandable_container);
-    	   				 
-        		        // Creating the expand animation for the item
-        		        ExpandAnimation expandAni = new ExpandAnimation(episodeDescription, 100);
-        		 
-        		        // Start the animation on the toolbar
-        		        episodeDescription.startAnimation(expandAni);
-    				}
-    			});
-        		//Longclicks should bring up the popupmenu.
-        		this.episodesListView.setOnItemLongClickListener(new OnItemLongClickListener()
-    			{
-
-    				@Override
-    				public boolean onItemLongClick(AdapterView<?> parent, View v, int pos, long id)
-    				{
-    					final Episode currentEp = (Episode)episodesListView.getItemAtPosition(pos);
-    					PopupMenuUtils.buildEpisodeContextMenu(getActivity(), v, currentEp, true).show();
-    					return true;
+//    					LinearLayout episodeDescription = (LinearLayout)v.findViewById(R.id.list_episode_row_expandable_container);
+//    	   				 
+//        		        // Creating the expand animation for the item
+//        		        ExpandAnimation expandAni = new ExpandAnimation(episodeDescription, 100);
+//        		 
+//        		        // Start the animation on the toolbar
+//        		        episodeDescription.startAnimation(expandAni);
+        		        
+        		        ((MainActivity)getActivity()).podService.playEpisode((Episode)episodesListView.getItemAtPosition(pos));
+    					((MainActivity)getActivity()).setTab(Constants.PLAYER_TAB_POSITION);
     				}
     			});
         		
+        		this.episodesListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        		this.mListSelectionListener = new EpisodeMultiChoiceModeListener(getActivity(), this.episodesListView);
+        		this.episodesListView.setMultiChoiceModeListener(this.mListSelectionListener);
         	}
         	else
         	{
@@ -309,4 +308,9 @@ public class FeedDetailsFragment extends Fragment implements OnRefreshListener
     	animation.setDuration(100);
     	viewToSlide.startAnimation(animation);
     }
+	
+	public EpisodeMultiChoiceModeListener getListSelectionListener()
+	{
+		return mListSelectionListener;
+	}
 }

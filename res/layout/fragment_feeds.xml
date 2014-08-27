@@ -22,6 +22,8 @@
 		    android:numColumns="auto_fit"
 		    android:verticalSpacing="2dp"
 		    android:horizontalSpacing="2dp"
-		    android:stretchMode="none" />
+		    android:stretchMode="none"
+		    android:clickable="true"
+		    android:longClickable="true"/>
 	 </android.support.v4.widget.SwipeRefreshLayout>
 </RelativeLayout>

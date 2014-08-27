@@ -16,6 +16,8 @@ public class TabFragmentsAdapter extends FragmentStatePagerAdapter
 	private boolean detailsPageEnabled = false;
 	private boolean searchPageEnabled = false;
 	
+	private Fragment[] fragments = new Fragment[]{new PlayerFragment(), new LatestEpisodesFragment(), new FeedFragment(), new FeedDetailsFragment(), new SearchFragment()};
+	
     public TabFragmentsAdapter(FragmentManager fragmentManager) 
     {
         super(fragmentManager);
@@ -27,17 +29,18 @@ public class TabFragmentsAdapter extends FragmentStatePagerAdapter
         switch (position) 
         {
 	        case Constants.FEEDS_TAB_POSITION: 	// Fragment # 0
-	            return new FeedFragment();
+	            return fragments[Constants.FEEDS_TAB_POSITION];
 	        case Constants.LATEST_TAB_POSITION: // Fragment # 1
-	            return new LatestEpisodesFragment();
+	            return fragments[Constants.LATEST_TAB_POSITION];
 	        case Constants.PLAYER_TAB_POSITION:	// Fragment # 2
-	            return new PlayerFragment();
+	            return fragments[Constants.PLAYER_TAB_POSITION];
 	        case Constants.BONUS_TAB_POSITION:	// Fragment # 3
-	        	if (detailsPageEnabled)	return new FeedDetailsFragment();
-	        	else if (searchPageEnabled) return new SearchFragment();
+	        	if (detailsPageEnabled)	return fragments[Constants.BONUS_TAB_POSITION];
+	        	else if (searchPageEnabled) return fragments[Constants.BONUS_TAB_POSITION+1];;
         }
         return null;
     }
+
     
     @Override
     public int getItemPosition(Object object)

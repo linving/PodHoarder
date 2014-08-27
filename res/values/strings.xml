@@ -59,7 +59,6 @@
     <string name="menu_episode_play_now">Play Now</string>
     <string name="menu_episode_deleteFile">Delete File</string>
     <string name="menu_episode_markAsListened">Mark As Listened</string>
-    <string name="menu_episode_goToFeed">Go To Podcast Page</string>
     
     <!-- Playlist Montext Menu -->
     <string name="menu_playlist_delete">Remove From Playlist</string>
@@ -79,8 +78,8 @@
     <string name="notification_by">by</string>
     
     <!-- Toast Notifications -->
-    <string name="toast_downloading_podcast">Downloading Podcast!</string>
-    <string name="toast_episode_added_to_playlist">Added To Playlist!</string>
+    <string name="toast_downloading_podcast">Downloading Episode(s)!</string>
+    <string name="toast_added_to_playlist">Episode(s) Added To Playlist!</string>
     <string name="toast_feeds_refreshed_successful">Refresh done!</string>
     <string name="toast_feeds_refreshed_failed">Refresh failed!</string>
     <string name="toast_player_playback_failed">Playback failed!</string>

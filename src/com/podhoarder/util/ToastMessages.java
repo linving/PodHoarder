@@ -39,7 +39,7 @@ public class ToastMessages
 	 */
 	public static Toast EpisodeAddedToPlaylist(Context ctx)
 	{
-		return Toast.makeText(ctx, ctx.getString(R.string.toast_episode_added_to_playlist), Toast.LENGTH_SHORT);
+		return Toast.makeText(ctx, ctx.getString(R.string.toast_added_to_playlist), Toast.LENGTH_SHORT);
 	}
 	
 	/**

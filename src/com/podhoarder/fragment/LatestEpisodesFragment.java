@@ -6,17 +6,17 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.Episode;
-import com.podhoarder.util.ExpandAnimation;
+import com.podhoarder.object.EpisodeMultiChoiceModeListener;
+import com.podhoarder.util.Constants;
 import com.podhoarder.util.PodcastHelper;
-import com.podhoarder.util.PopupMenuUtils;
 import com.podhoarderproject.podhoarder.R;
  
 /**
@@ -36,6 +36,8 @@ public class LatestEpisodesFragment extends Fragment implements OnRefreshListene
 	
 	private View view;
 	private PodcastHelper helper;
+	
+	private EpisodeMultiChoiceModeListener mListSelectionListener;
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -67,26 +69,22 @@ public class LatestEpisodesFragment extends Fragment implements OnRefreshListene
 				@Override
 				public void onItemClick(AdapterView<?> parent, View v, int pos, long id)
 				{
-					LinearLayout episodeDescription = (LinearLayout)v.findViewById(R.id.list_episode_row_expandable_container);
-	   				 
-    		        // Creating the expand animation for the item
-    		        ExpandAnimation expandAni = new ExpandAnimation(episodeDescription, 100);
-    		 
-    		        // Start the animation on the toolbar
-    		        episodeDescription.startAnimation(expandAni);
+//					LinearLayout episodeDescription = (LinearLayout)v.findViewById(R.id.list_episode_row_expandable_container);
+//	   				 
+//    		        // Creating the expand animation for the item
+//    		        ExpandAnimation expandAni = new ExpandAnimation(episodeDescription, 100);
+//    		 
+//    		        // Start the animation on the toolbar
+//    		        episodeDescription.startAnimation(expandAni);
+					
+					((MainActivity)getActivity()).podService.playEpisode((Episode)mainListView.getItemAtPosition(pos));
+					((MainActivity)getActivity()).setTab(Constants.PLAYER_TAB_POSITION);
 				}
 			});
-    		//Longclicks should bring up the popupmenu.
-    		this.mainListView.setOnItemLongClickListener(new OnItemLongClickListener()
-			{
-				@Override
-				public boolean onItemLongClick(AdapterView<?> parent, View v, int pos, long id)
-				{
-					final Episode currentEp = (Episode)mainListView.getItemAtPosition(pos);
-					PopupMenuUtils.buildEpisodeContextMenu(getActivity(), v, currentEp, true).show();
-					return true;
-				}
-			});
+    		
+    		this.mainListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+    		this.mListSelectionListener = new EpisodeMultiChoiceModeListener(getActivity(), this.mainListView);
+    		this.mainListView.setMultiChoiceModeListener(this.mListSelectionListener);
     	}
     	else
     	{
@@ -111,5 +109,10 @@ public class LatestEpisodesFragment extends Fragment implements OnRefreshListene
 	{
 		this.helper.setRefreshLayout(swipeLayout);	//Set the layout that should be updated once the Refresh task is done executing.
 		this.helper.refreshFeeds();	//Start the refresh process.
+	}
+
+	public EpisodeMultiChoiceModeListener getListSelectionListener()
+	{
+		return mListSelectionListener;
 	}
 }

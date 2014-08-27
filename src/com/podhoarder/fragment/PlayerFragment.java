@@ -76,6 +76,11 @@ public class PlayerFragment extends Fragment
     	this.podService = ((com.podhoarder.activity.MainActivity)this.getActivity()).getPodService();
     }
     
+    public void setService(PodHoarderService service)
+    {
+    	this.podService = service;
+    }
+    
     private void setupMediaControls()
     {
     	this.playPauseButton = (ToggleButton)view.findViewById(R.id.player_controls_button_playpause);
@@ -157,10 +162,18 @@ public class PlayerFragment extends Fragment
 
 	public void start(int epPos)
 	{
-		//Toggle the play button to a pause button, since the track has started.
-		this.playPauseButton.setChecked(true);
-		//The service should start the episode.
-		this.podService.playEpisode(epPos);
+		if (this.podService != null)
+		{
+			//Toggle the play button to a pause button, since the track has started.
+			this.playPauseButton.setChecked(true);
+			//The service should start the episode.
+			this.podService.playEpisode(epPos);
+		}
+		else
+		{
+			setServiceVars();
+			start(epPos);
+		}
 	}
 	
 	//UI Logic

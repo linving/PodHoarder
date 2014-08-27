@@ -1,5 +1,8 @@
 package com.podhoarder.activity;
  
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
@@ -9,26 +12,25 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 import com.podhoarder.adapter.TabFragmentsAdapter;
+import com.podhoarder.object.Episode;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.HardwareIntentReceiver;
 import com.podhoarder.util.PodcastHelper;
+import com.podhoarder.fragment.*;
 import com.podhoarderproject.podhoarder.R;
 import com.viewpagerindicator.CirclePageIndicator;
 
@@ -79,7 +81,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	        registerReceiver(hardwareIntentReceiver, headsetFilter);
 	        registerReceiver(hardwareIntentReceiver, callStateFilter);
 	        registerReceiver(hardwareIntentReceiver, connectivityFilter);
-		    setTab();
+	        fragmentSetup();
 	    }
 	    
 	    @Override
@@ -93,18 +95,11 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) 
-    {
-    	getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        getActionBar().hide();
-        
-        super.onCreate(savedInstanceState);
-        
+    {	
+    	super.onCreate(savedInstanceState);
         // Initialisation
         setContentView(R.layout.activity_main);
-        //getActionBar().show();
-        doTabSetup();
-        this.helper = new PodcastHelper(this);  
-        //goFullScreen();
+        this.helper = new PodcastHelper(this);
         if (!this.musicBound)
     	{
     		if(playIntent==null)
@@ -116,6 +111,11 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     	} 
     }
     
+    private void fragmentSetup()
+    {
+        doTabSetup();
+	    setInitialTab();
+    }
     
     @Override
     protected void onStart()
@@ -172,9 +172,9 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         mAdapter = new TabFragmentsAdapter(getSupportFragmentManager());
 
         mPager.setAdapter(mAdapter);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(true);
         
         //Bind the title indicator to the adapter
         mTabIndicator = (CirclePageIndicator)findViewById(R.id.tabIndicator);
@@ -189,29 +189,34 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	    		case Constants.PLAYER_TAB_POSITION:
 	    	        Tab playerTab = actionBar.newTab();
 	    	        playerTab.setTabListener(this);
+	    	        playerTab.setCustomView(null);
 	    	        actionBar.addTab(playerTab);
 	    	        break;
 	            //2. Latest Episodes tab    
         		case Constants.LATEST_TAB_POSITION:   
         	        Tab latestTab = actionBar.newTab();
         	        latestTab.setTabListener(this);
+        	        latestTab.setCustomView(null);
         	        actionBar.addTab(latestTab);
         	        break;
         	    //3. Feed tab
         		case Constants.FEEDS_TAB_POSITION:
 	                Tab feedTab = actionBar.newTab();
 	                feedTab.setTabListener(this);
+	                feedTab.setCustomView(null);
 	                actionBar.addTab(feedTab);
 	                break;
         		case Constants.BONUS_TAB_POSITION:
         			//4. Feed Details tab
 	                Tab feedDetailsTab = actionBar.newTab();
 	                feedDetailsTab.setTabListener(this);
+	                feedDetailsTab.setCustomView(null);
 	                actionBar.addTab(feedDetailsTab);
 	                
 	                //5. Search tab
 	                Tab searchTab = actionBar.newTab();
 	                searchTab.setTabListener(this);
+	                searchTab.setCustomView(null);
 	                actionBar.addTab(searchTab);
 	                break;     
 	           
@@ -225,44 +230,32 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             @Override
             public void onPageSelected(int position) 
             {
-                if (position < 3)	
+                for (int i : adjacentFragmentIndexes(position))
+                {
+                	finishActionModeIfActive(i);
+                }
+                if (position < 3)	//Disables the rightmost page once the user leaves it. 	
                 {
                 	mAdapter.setDetailsPageEnabled(false);
                 	mAdapter.setSearchPageEnabled(false);
                 }
-                actionBar.setSelectedNavigationItem(position);
+                setTab(position);
             }
 
+            
+            
             @Override
             public void onPageScrolled(int arg0, float arg1, int arg2) { }
 
             @Override
             public void onPageScrollStateChanged(int arg0) {  }
         });
-    	
     }
 
-    private void goFullScreen()
-    {
-    	if (Build.VERSION.SDK_INT < 16) 
-    	{ //ye olde method
-    	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-    	} 
-    	else 
-    	{ 	// Jellybean and up, new hotness
-    	    View decorView = getWindow().getDecorView();
-    	    // Hide the status bar.
-    	    int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-    	    decorView.setSystemUiVisibility(uiOptions);
-    	    // Remember that you should never show the action bar if the
-    	    // status bar is hidden, so hide that too if necessary.
-    	    actionBar.hide();
-    	}
-    }
 
-    public void downloadEpisode(int feedId, int episodeId)
+    public void downloadEpisode(Episode ep)
     {
-    	this.helper.downloadEpisode(feedId, episodeId);
+    	this.helper.downloadEpisode(ep);
     }
     
 	@Override
@@ -298,18 +291,18 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		return musicBound;
 	}
 	
-	public void setTab()
+	public void setInitialTab()
 	{
 		switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString(SettingsActivity.SETTINGS_KEY_STARTTAB, ""+Constants.FEEDS_TAB_POSITION)))
 		{
 			case Constants.FEEDS_TAB_POSITION:
-				this.actionBar.setSelectedNavigationItem(Constants.FEEDS_TAB_POSITION);
+                setTab(Constants.FEEDS_TAB_POSITION);
 				break;
 			case Constants.LATEST_TAB_POSITION:
-				this.actionBar.setSelectedNavigationItem(Constants.LATEST_TAB_POSITION);
+                setTab(Constants.LATEST_TAB_POSITION);
 				break;
 			case Constants.PLAYER_TAB_POSITION:
-				this.actionBar.setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);
+                setTab(Constants.PLAYER_TAB_POSITION);
 				break;
 		}
 	}
@@ -322,16 +315,87 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		{
 		    if (intent.getAction().equals("navigate_feeds"))
 		    {
-		    	this.actionBar.setSelectedNavigationItem(Constants.FEEDS_TAB_POSITION);	//Navigate to the Player tab.
+		    	setTab(Constants.FEEDS_TAB_POSITION);	//Navigate to the Player tab.
 		    }
 		    else if (intent.getAction().equals("navigate_latest"))
 		    {
-		    	this.actionBar.setSelectedNavigationItem(Constants.LATEST_TAB_POSITION);	//Navigate to the Latest Episodes tab.
+		    	setTab(Constants.LATEST_TAB_POSITION);	//Navigate to the Latest Episodes tab.
 		    }
 		    else if (intent.getAction().equals("navigate_player"))
 		    {
-		    	this.actionBar.setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Latest Episodes tab.
+		    	setTab(Constants.PLAYER_TAB_POSITION);	//Navigate to the Latest Episodes tab.
 		    }
+		}
+	}
+	
+	/**
+	 * Convenience method for finding adjacent fragments around a given index. 
+	 * @param currentIndex Index of the Fragment you want to find adjacent indexes for.
+	 * @return	A List<Integer> containing the adjacent fragment positions.
+	 */
+	private List<Integer> adjacentFragmentIndexes(int currentIndex)
+	{
+		List<Integer> indexes = new ArrayList<Integer>();
+		int before = currentIndex - 1;
+		int after = currentIndex + 1;
+		if (before > -1)
+		{
+			indexes.add(before);
+		}
+		if (after < Constants.TAB_COUNT)
+		{
+			indexes.add(after);
+		}
+		return indexes;
+	}
+	
+	/**
+	 * A really bad solution for checking if the Fragment at fragmentPos currently has an active ActionMode going, and finishing it if true.
+	 * @param fragmentPos Position of the fragment to check for ActionMode.
+	 */
+	private void finishActionModeIfActive(int fragmentPos)
+	{
+		switch (fragmentPos)
+		{
+			case Constants.LATEST_TAB_POSITION:
+				LatestEpisodesFragment latestEpisodesFragment = ((LatestEpisodesFragment)mAdapter.getItem(Constants.LATEST_TAB_POSITION));
+            	if (latestEpisodesFragment != null && latestEpisodesFragment.getListSelectionListener() != null && latestEpisodesFragment.getListSelectionListener().getActionMode() != null)
+            	{
+            		if (latestEpisodesFragment.getListSelectionListener().isActive())
+                	{
+            			latestEpisodesFragment.getListSelectionListener().getActionMode().finish();
+                	}
+            	}
+            	break;
+			case Constants.FEEDS_TAB_POSITION:
+				FeedFragment feedsFragment = ((FeedFragment)mAdapter.getItem(Constants.FEEDS_TAB_POSITION));
+            	if (feedsFragment != null && feedsFragment.getActionModeCallback() != null && feedsFragment.getActionMode() != null)
+            	{
+            		if (feedsFragment.getActionModeCallback().isActive())
+                	{
+                		feedsFragment.getActionModeCallback().getActionMode().finish();
+                	}
+            	}
+            	break;
+			case Constants.BONUS_TAB_POSITION:
+				Fragment fragment = mAdapter.getItem(Constants.BONUS_TAB_POSITION);
+				if(fragment instanceof FeedDetailsFragment )
+				{
+					FeedDetailsFragment feedDetailsFragment = (FeedDetailsFragment) fragment;
+					if (feedDetailsFragment != null && feedDetailsFragment.getListSelectionListener() != null && feedDetailsFragment.getListSelectionListener().getActionMode() != null)
+	            	{
+	            		if (feedDetailsFragment.getListSelectionListener().isActive())
+	                	{
+	            			feedDetailsFragment.getListSelectionListener().getActionMode().finish();
+	                	}
+	            	}
+				}
+				else if ( fragment instanceof SearchFragment) 
+				{
+					//TODO: Add multiple selection on search results.
+				}
+            	
+            	break;
 		}
 	}
 
@@ -339,7 +403,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	{
         if(mPager.getCurrentItem() == Constants.BONUS_TAB_POSITION) 
         {
-        	actionBar.setSelectedNavigationItem(Constants.FEEDS_TAB_POSITION);
+        	setTab(Constants.FEEDS_TAB_POSITION);
         }
         else 
         {
@@ -348,5 +412,14 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         	startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         	startActivity(startMain);
         }
+    }
+	
+	/**
+     * Navigates to the desired tab position. Use Constants for reliable values.
+     * @param pos Position of the tab to navigate to.
+     */
+    public void setTab(int pos) 
+    {
+    	this.mPager.setCurrentItem(pos);
     }
 }

@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 
 import android.content.Context;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -99,13 +98,13 @@ public class PopupMenuUtils
 				{
 			        case R.id.menu_playlist_available_offline:
 			        	actionMenu.dismiss();
-			        	((MainActivity)context).downloadEpisode(ep.getFeedId(), ep.getEpisodeId());
+			        	((MainActivity)context).downloadEpisode(ep);
 			            return true;
 			        case R.id.menu_playlist_delete:
 			        	actionMenu.dismiss();
 			        	((MainActivity)context).podService.deletingEpisode(ep.getEpisodeId());
 			        	if (ep.isDownloaded())
-			        		((MainActivity)context).helper.deleteEpisodeFile(ep.getFeedId(), ep.getEpisodeId());
+			        		((MainActivity)context).helper.deleteEpisodeFile(ep);
 			        	((MainActivity)context).helper.playlistAdapter.removeFromPlaylist(ep);
 				    	return true;
 			        case R.id.menu_playlist_startOver:
@@ -123,154 +122,7 @@ public class PopupMenuUtils
 		return actionMenu;
 	}
 	
-	/**
-	 * Show a context menu for an Episode object.
-	 * @param context	App context.
-	 * @param anchorView	The view that was clicked. The PopupMenu will appear near this View.
-	 * @param ep Episode to perform actions on.
-	 * @param showIcons	True to show icons on the menu, False otherwise.
-	 * @return	A PopupMenu object ready for use. Just need to call show().
-	 */
-	public static PopupMenu buildEpisodeContextMenu(final Context context, View anchorView, final Episode ep, boolean showIcons)
-	{
-		final PopupMenu actionMenu = new PopupMenu(context, anchorView);
-		MenuInflater inflater = actionMenu.getMenuInflater();
-		inflater.inflate(R.menu.episode_menu, actionMenu.getMenu());
-		
-		if (!NetworkUtils.isOnline(context)) 	//Phone is not connected
-		{
-			if (ep.isDownloaded())	//Episode is downloaded
-			{
-				//actionMenu.getMenu().removeItem(R.id.menu_episode_available_offline);
-				actionMenu.getMenu().findItem(R.id.menu_episode_available_offline).setVisible(false);	//Since the file is downloaded,, we show the Delete File row instead.
-				actionMenu.getMenu().findItem(R.id.menu_episode_deleteFile).setVisible(true);
-			}
-			else					//Episode is not downloaded
-			{
-				actionMenu.getMenu().findItem(R.id.menu_episode_available_offline).setEnabled(false);	//If the phone isn't connected to the internet, you can't download anything, so we disable the stream option.
-				actionMenu.getMenu().findItem(R.id.menu_episode_play_now).setEnabled(false);	//If the phone isn't connected to the internet, you can't stream anything, so we disable the stream option.
-				//actionMenu.getMenu().removeItem(R.id.menu_episode_deleteFile);
-				actionMenu.getMenu().findItem(R.id.menu_episode_deleteFile).setVisible(false);	//Can't delete a file that doesn't exist, so we remove the Delete File row.
-			}
-		}
-		else									//Phone is connected
-		{
-			if (ep.isDownloaded())	//Episode is downloaded
-			{
-				//actionMenu.getMenu().removeItem(R.id.menu_episode_available_offline);
-				actionMenu.getMenu().findItem(R.id.menu_episode_available_offline).setVisible(false);	//Since the file is downloaded,, we show the Delete File row instead.
-				actionMenu.getMenu().findItem(R.id.menu_episode_deleteFile).setVisible(true);
-			}
-			else					//Episode is not downloaded
-			{
-				//actionMenu.getMenu().removeItem(R.id.menu_episode_deleteFile);
-				actionMenu.getMenu().findItem(R.id.menu_episode_deleteFile).setVisible(false);	//Can't delete a file that doesn't exist, so we remove the Delete File row.
-				actionMenu.getMenu().findItem(R.id.menu_episode_available_offline).setVisible(true);
-			}
-		}
-
-		if ((((MainActivity)context).helper.playlistAdapter.findEpisodeInPlaylist(ep)) != -1) //If file is already in playlist, we disable the add to playlist row.
-			actionMenu.getMenu().findItem(R.id.menu_episode_add_playlist).setEnabled(false);
-		else
-			actionMenu.getMenu().findItem(R.id.menu_episode_add_playlist).setEnabled(true);
-		
-		if (ep.isListened()) //File has been listened to already, so we can't mark it as listened.
-			//actionMenu.getMenu().removeItem(R.id.menu_episode_markAsListened);
-			actionMenu.getMenu().findItem(R.id.menu_episode_markAsListened).setVisible(false); //No need to show "Mark As Listened" alternative.
-		else
-			actionMenu.getMenu().findItem(R.id.menu_episode_markAsListened).setVisible(true);
 	
-		actionMenu.setOnMenuItemClickListener(new OnMenuItemClickListener()
-		{
-			@Override
-			public boolean onMenuItemClick(MenuItem item)
-			{
-				Log.d("PopupMenuUtils", "Clicked " + item.getTitle());
-				if (item.getTitle().equals(context.getString(R.string.menu_episode_available_offline)))
-				{
-					actionMenu.dismiss();
-		        	((MainActivity)context).downloadEpisode(ep.getFeedId(), ep.getEpisodeId());
-		            return true;
-				}
-				else if (item.getTitle().equals(context.getString(R.string.menu_episode_play_now)))
-				{
-					actionMenu.dismiss();
-		        	((MainActivity)context).podService.playEpisode(ep);
-			    	((MainActivity)context).actionBar.setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Player Fragment automatically.
-		            return true;
-				}
-				else if (item.getTitle().equals(context.getString(R.string.menu_episode_add_playlist)))
-				{
-					actionMenu.dismiss();
-		        	((MainActivity)context).helper.playlistAdapter.addToPlaylist(ep);
-		        	((MainActivity)context).helper.refreshPlayList();
-		        	ToastMessages.EpisodeAddedToPlaylist(context).show();
-		        	return true;
-				}
-				else if (item.getTitle().equals(context.getString(R.string.menu_episode_goToFeed)))
-				{
-					Feed currentFeed = ((MainActivity)context).helper.getFeed(ep.getFeedId());
-		        	((MainActivity)context).helper.feedDetailsListAdapter.setFeed(currentFeed);
-					((MainActivity)context).mAdapter.setDetailsPageEnabled(true);
-					((MainActivity)context).actionBar.setSelectedNavigationItem(Constants.BONUS_TAB_POSITION);
-		        	return true;
-				}
-				else if (item.getTitle().equals(context.getString(R.string.menu_episode_deleteFile)))
-				{
-					actionMenu.dismiss();
-		        	((MainActivity)context).podService.deletingEpisode(ep.getEpisodeId());
-			    	((MainActivity)context).helper.deleteEpisodeFile(ep.getFeedId(), ep.getEpisodeId());
-			    	return true;
-				}
-				else if (item.getTitle().equals(context.getString(R.string.menu_episode_markAsListened)))
-				{
-					actionMenu.dismiss();
-		        	((MainActivity)context).helper.markAsListenedAsync(ep);
-		        	return true;
-				}
-				else
-					return false;
-				
-				
-//				switch (item.getItemId()) 
-//				{
-//			        case R.id.menu_episode_available_offline:
-//			        	actionMenu.dismiss();
-//			        	((MainActivity)context).downloadEpisode(ep.getFeedId(), ep.getEpisodeId());
-//			            return true;
-//			        case R.id.menu_episode_play_now:
-//			        	actionMenu.dismiss();
-//			        	((MainActivity)context).podService.playEpisode(ep);
-//				    	((MainActivity)context).actionBar.setSelectedNavigationItem(Constants.PLAYER_TAB_POSITION);	//Navigate to the Player Fragment automatically.
-//			            return true;
-//			        case R.id.menu_episode_add_playlist:
-//			        	actionMenu.dismiss();
-//			        	((MainActivity)context).helper.playlistAdapter.addToPlaylist(ep);
-//			        	((MainActivity)context).helper.refreshPlayList();
-//			        	ToastMessages.EpisodeAddedToPlaylist(context).show();
-//			        	return true;
-//			        case R.id.menu_episode_goToFeed:
-//			        	Feed currentFeed = ((MainActivity)context).helper.getFeed(ep.getFeedId());
-//			        	((MainActivity)context).helper.feedDetailsListAdapter.setFeed(currentFeed);
-//    					((MainActivity)context).mAdapter.setDetailsPageEnabled(true);
-//    					((MainActivity)context).actionBar.setSelectedNavigationItem(Constants.BONUS_TAB_POSITION);
-//			        	return true;
-//			        case R.id.menu_episode_deleteFile:
-//			        	actionMenu.dismiss();
-//			        	((MainActivity)context).podService.deletingEpisode(ep.getEpisodeId());
-//				    	((MainActivity)context).helper.deleteEpisodeFile(ep.getFeedId(), ep.getEpisodeId());
-//				    	return true;
-//			        case R.id.menu_episode_markAsListened:
-//			        	actionMenu.dismiss();
-//			        	((MainActivity)context).helper.markAsListenedAsync(ep);
-//			        	return true;
-//				}
-//				return true;
-			}
-		});
-		if (showIcons) forceShowIcons(actionMenu);
-		return actionMenu;
-	}
 	
 	/**
 	 * A hacky method of forcing a PopupMenu to show icons.

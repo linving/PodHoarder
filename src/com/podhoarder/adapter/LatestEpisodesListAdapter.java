@@ -135,7 +135,7 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}			
 			
 			if (currentEpisode.isNew()) 
 				viewHolder.newNotification.setVisibility(View.VISIBLE);

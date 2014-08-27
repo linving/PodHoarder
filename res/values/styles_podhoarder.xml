@@ -20,10 +20,20 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="Theme.Podhoarder" parent="@android:style/Theme.Holo.Light">
-        <item name="android:windowActionBar">false</item>
-		<item name="android:windowTitleSize">0dp</item>
-        
-        
+        <item name="android:windowActionBar">true</item>
+		<item name="android:actionBarTabBarStyle">@style/TabBar</item>
+		<item name="android:actionBarTabStyle">@style/TabView</item>
     </style>
     
+    <style name="TabBar" parent="@android:style/Widget.ActionBar.TabBar">
+	    <item name="android:visibility">invisible</item>
+	    <item name="android:height">1sp</item>
+	    <item name="android:background">#000000</item>
+	</style>
+	
+    <style name="TabView" parent="@android:style/Widget.ActionBar.TabView">
+        <item name="android:visibility">invisible</item>
+	    <item name="android:background">#000000</item>
+	    <item name="android:height">1sp</item>
+    </style>
 </resources>

@@ -3,8 +3,10 @@ package com.podhoarder.adapter;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.ColorFilter;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,7 +18,9 @@ import android.widget.TextView;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.activity.SettingsActivity;
+import com.podhoarder.object.CheckableRelativeLayout;
 import com.podhoarder.object.Feed;
+import com.podhoarder.object.GridActionModeCallback;
 import com.podhoarder.object.FeedImage.ImageDownloadListener;
 import com.podhoarder.util.Constants;
 import com.podhoarderproject.podhoarder.R;
@@ -34,6 +38,9 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     
     private View loadingView;
     private boolean loading;
+    
+    private GridActionModeCallback mActionModeCallback;  //This comes from the parent fragment and is used to keep track of whether the ActionMode context bar is enabled.
+	private ActionMode mActionMode;  //This comes from the parent fragment and is used to keep track of whether the ActionMode context bar is enabled.
     
     private int screenWidth, screenHeight; 
     public int gridItemSize;
@@ -110,6 +117,12 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     	this.notifyDataSetChanged();
     }
 
+    public void setActionModeVars(ActionMode mode, GridActionModeCallback callback)
+    {
+    	this.mActionMode = mode;
+    	this.mActionModeCallback = callback;
+    }
+    
     public View getView(int position, View convertView, ViewGroup parent) {
     	
     	FeedViewHolderItem viewHolder;
@@ -145,6 +158,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 			convertView.setMinimumHeight(gridItemSize);
 			convertView.setMinimumWidth(gridItemSize);
 			
+			
 			// Set up the ViewHolder
 	        viewHolder = new FeedViewHolderItem();
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.feeds_grid_item_text);
@@ -152,6 +166,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.feeds_grid_item_image);
 	        viewHolder.feedImage.setMinimumHeight(gridItemSize);
 	        viewHolder.feedImage.setMinimumWidth(gridItemSize);
+	        viewHolder.checkableLayout = (CheckableRelativeLayout) convertView.findViewById(R.id.feeds_grid_item_checkableLayout);
 	        
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
@@ -187,6 +202,9 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 				}
     			
     			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().imageObject());
+    			viewHolder.feedImage.setColorFilter(mContext.getResources().getColor(R.color.fragment_feeds_grid_item_image_tint));
+    			
+    			final int pos = position;
     			
     			convertView.setOnClickListener(new OnClickListener()
     			{
@@ -194,9 +212,26 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     				@Override
     				public void onClick(View v)
     				{
-    					((MainActivity)mContext).helper.feedDetailsListAdapter.setFeed(currentFeed);
-    					((MainActivity)mContext).mAdapter.setDetailsPageEnabled(true);
-    					((MainActivity)mContext).actionBar.setSelectedNavigationItem(Constants.BONUS_TAB_POSITION);
+    					if (mActionMode != null && mActionModeCallback != null)
+    					{
+    						if (mActionModeCallback.isActive())
+    						{
+    							((CheckableRelativeLayout)v).toggle();
+    							mActionModeCallback.onItemCheckedStateChanged(pos, ((CheckableRelativeLayout)v).isChecked()); 
+    						}
+    						else
+    						{
+    							((MainActivity)mContext).helper.feedDetailsListAdapter.setFeed(currentFeed);
+    	    					((MainActivity)mContext).mAdapter.setDetailsPageEnabled(true);
+    	    					((MainActivity)mContext).setTab(Constants.BONUS_TAB_POSITION);
+    						}
+    					}
+    					else
+    					{
+    						((MainActivity)mContext).helper.feedDetailsListAdapter.setFeed(currentFeed);
+	    					((MainActivity)mContext).mAdapter.setDetailsPageEnabled(true);
+	    					((MainActivity)mContext).setTab(Constants.BONUS_TAB_POSITION);
+    					}
     				}
     			});
     			
@@ -213,6 +248,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 	    TextView feedTitle;
 	    TextView feedNumberOfEpisodes;
 	    ImageView feedImage;
+	    CheckableRelativeLayout checkableLayout;
 	}
 
 	@Override

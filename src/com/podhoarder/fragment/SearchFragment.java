@@ -15,7 +15,6 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -151,7 +150,7 @@ public class SearchFragment extends Fragment
 		    	    public void onClick(DialogInterface dialog, int which) 
 		    	    {
 		    	    	((MainActivity)getActivity()).helper.addFeed(currentItem.getFeedUrl());
-						((MainActivity)getActivity()).actionBar.setSelectedNavigationItem(Constants.FEEDS_TAB_POSITION);
+						((MainActivity)getActivity()).setTab(Constants.FEEDS_TAB_POSITION);
 		    	    }
 		    	});
 		    	builder.setNegativeButton(R.string.popup_window_cancel_button, new DialogInterface.OnClickListener() {

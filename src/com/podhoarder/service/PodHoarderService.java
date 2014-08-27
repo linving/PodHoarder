@@ -85,10 +85,10 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		if (this.currentEpisode != null)
 		{
 			this.currentEpisode.setElapsedTime(this.currentEpisode.getTotalTime());	//Set elapsed time to total time (100% of the Episode)
-			helper.updateEpisodeNoRefresh(currentEpisode);	//Update the db object.
+			this.currentEpisode = helper.updateEpisodeNoRefresh(this.currentEpisode);	//Update the db object.
+			final Episode lastEp = this.currentEpisode;
 			int indexToDelete = this.helper.playlistAdapter.findEpisodeInPlaylist(this.currentEpisode);
 			boolean wasStreaming = this.streaming;
-			
 			if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SettingsActivity.SETTINGS_KEY_PLAYNEXTFILE, true))
 			{
 				playNext();	//Play
@@ -99,7 +99,8 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			{
 				if (!wasStreaming)
 				{
-					this.helper.deleteEpisodeFile(this.playList.get(indexToDelete).getFeedId(), this.playList.get(indexToDelete).getEpisodeId());
+					
+					this.helper.deleteEpisodeFile(lastEp);
 					this.helper.playlistAdapter.removeFromPlaylist(this.playList.get(indexToDelete));
 				}
 				else
@@ -107,6 +108,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 					this.helper.playlistAdapter.removeFromPlaylist(this.playList.get(indexToDelete));
 				}
 			}
+			this.helper.refreshListsAsync();
 		}
 		else	ToastMessages.PlaybackFailed(getApplicationContext()).show();
 	}
@@ -165,6 +167,14 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			{
 				this.notification.pauseNotify(this);
 				this.pause();
+			}
+			else if (intent.getAction().equals("forward"))
+			{
+				this.skipForward();
+			}
+			else if (intent.getAction().equals("backward"))
+			{
+				this.skipBackward();
 			}
 		}
 		return super.onStartCommand(intent, flags, startId);
@@ -448,6 +458,11 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			this.stop();
 			return;
 		}
+	}
+	
+	public void playNext(int previousIndex)
+	{
+		
 	}
 	
 	public boolean shouldSaveElapsedTime()

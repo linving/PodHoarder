@@ -196,17 +196,14 @@ public class PodcastHelper
 	 * @param episodeId Id of the Episode within the specified feed.
 	 * @author Emil
 	 */
-	public void downloadEpisode(int feedId, int episodeId)
+	public void downloadEpisode(Episode ep)
 	{
-		final int feedPos = getFeedPositionWithId(feedId);
-		final int epPos = getEpisodePositionWithId(feedPos, episodeId);
-		
-		if (NetworkUtils.isDownloadManagerAvailable(this.context) && !new File(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink()).exists())
+		if (NetworkUtils.isDownloadManagerAvailable(this.context) && !new File(ep.getLocalLink()).exists())
 		{
-			String url = this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLink();
+			String url = ep.getLink();
 			DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 			request.setDescription(this.context.getString(R.string.notification_download_in_progress));
-			request.setTitle(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle());
+			request.setTitle(ep.getTitle());
 			// in order for this if to run, you must use the android 3.2 to compile your app
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) 
 			{
@@ -214,14 +211,15 @@ public class PodcastHelper
 			    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 			}
 			//TODO: If there is no sdcard, DownloadManager will throw an exception because it cannot save to a non-existing directory. Make sure the directory is valid or something.
-			request.setDestinationInExternalPublicDir(this.storagePath, FileUtils.sanitizeFileName(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle())  + ".mp3");
+			request.setDestinationInExternalPublicDir(this.storagePath, FileUtils.sanitizeFileName(ep.getTitle())  + ".mp3");
 			
 			// register broadcast receiver for when the download is done.
+			final Episode epTemp = ep;
 			this.broadcastReceivers.add(new BroadcastReceiver() {
 			    public void onReceive(Context ctxt, Intent intent) {
 			        // .mp3 files was successfully downloaded. We should update db and list objects to reflect this.
 			    	Long dwnId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
-			    	checkDownloadStatus(dwnId, feedPos, epPos, this);
+			    	checkDownloadStatus(dwnId, epTemp, this);
 			    }
 			});
 			this.context.registerReceiver(this.broadcastReceivers.get(this.broadcastReceivers.size()-1), new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
@@ -240,16 +238,15 @@ public class PodcastHelper
 	 * @param episodeId Id of the Episode within the specified feed.
 	 * @author Emil
 	 */
-	private void downloadCompleted(int feedPos, int epPos, BroadcastReceiver receiver)
+	private void downloadCompleted(Episode ep, BroadcastReceiver receiver)
 	{
 		//update list adapter object
-		Episode currentEpisode = this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos);
 		
-		currentEpisode.setLocalLink(this.podcastDir + "/" + FileUtils.sanitizeFileName(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getTitle()) + ".mp3");
+		ep.setLocalLink(this.podcastDir + "/" + FileUtils.sanitizeFileName(ep.getTitle()) + ".mp3");
 		
 		//update db entry
-		this.eph.updateEpisode(currentEpisode);
-		Log.i(LOG_TAG, "download completed: " + currentEpisode.getTitle());
+		this.eph.updateEpisode(ep);
+		Log.i(LOG_TAG, "download completed: " + ep.getTitle());
 		this.context.unregisterReceiver(receiver);
 		this.broadcastReceivers.remove(receiver);
 		
@@ -325,12 +322,23 @@ public class PodcastHelper
 	}
 	
 	/**
-	 * Marks all the Episodes of a Feed as listened asynchronously.
-	 * @param feed Feed that should be marked as listened.
+	 * Marks the Episode as listened asynchronously.
+	 * @param ep Episode that should be marked as listened.
 	 */
 	public void markAsListenedAsync(Episode ep)
 	{
-		new MarkEpisodeAsListenedTask().execute(ep);
+		List<Episode> eps = new ArrayList<Episode>();
+		eps.add(ep);
+		new MarkEpisodeAsListenedTask().execute(eps);
+	}
+	
+	/**
+	 * Marks Episodes as listened asynchronously.
+	 * @param eps List<Episode> containing the Episode objects that should be marked as listened.
+	 */
+	public void markAsListenedAsync(List<Episode> eps)
+	{
+		new MarkEpisodeAsListenedTask().execute(eps);
 	}
 	
 	/**
@@ -342,10 +350,6 @@ public class PodcastHelper
         public MarkFeedAsListenedTask() 
         {	}
 
-        /**
-         * Fires when Task has been executed.
-         * This function associates the downloaded bitmap with the object property.
-         */
         @Override
         protected void onPostExecute(Void v) 
         {
@@ -370,18 +374,14 @@ public class PodcastHelper
     }
     
     /**
-     * AsyncTask for marking all the Episodes of a Feed as listened.
+     * AsyncTask for marking the chosen Episodes as listened.
      */
-    class MarkEpisodeAsListenedTask extends AsyncTask<Episode, Void, Void> 
+    class MarkEpisodeAsListenedTask extends AsyncTask<List<Episode>, Void, Void> 
     {
 
         public MarkEpisodeAsListenedTask() 
         {	}
 
-        /**
-         * Fires when Task has been executed.
-         * This function associates the downloaded bitmap with the object property.
-         */
         @Override
         protected void onPostExecute(Void v) 
         {
@@ -389,16 +389,19 @@ public class PodcastHelper
         }
 
 		@Override
-		protected Void doInBackground(Episode... params)
+		protected Void doInBackground(List<Episode>... params)
 		{
-			Episode ep = params[0];
-			if (ep.getTotalTime() > 100) ep.setElapsedTime(ep.getTotalTime());	//If totalTime is more than 100 (ms) that means there's a "real" time stored already. So we set elapsedTime to totalTime.
-			else																//Otherwise we make up the value 100 (easy when dealing with percent)
+			List<Episode> eps = params[0];
+			for (Episode ep : eps)
 			{
-				ep.setTotalTime(100);
-				ep.setElapsedTime(100);
+				if (ep.getTotalTime() > 100) ep.setElapsedTime(ep.getTotalTime());	//If totalTime is more than 100 (ms) that means there's a "real" time stored already. So we set elapsedTime to totalTime.
+				else																//Otherwise we make up the value 100 (easy when dealing with percent)
+				{
+					ep.setTotalTime(100);
+					ep.setElapsedTime(100);
+				}
+				eph.updateEpisode(ep);
 			}
-			eph.updateEpisode(ep);
 			return null;
 		}
     }
@@ -409,22 +412,22 @@ public class PodcastHelper
 	 * @param episodeId Id of the Episode within the specified feed.
 	 * @author Emil
 	 */
-	public void deleteEpisodeFile(int feedId, int episodeId)
+	public void deleteEpisodeFile(Episode ep)
 	{
-		int feedPos = getFeedPositionWithId(feedId);
-		int epPos = getEpisodePositionWithId(feedPos, episodeId);
-		File file = new File(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).getLocalLink());
-		if (file.delete())
+		if (ep != null)
 		{
-			this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos).setLocalLink("");
-			this.eph.updateEpisode(this.feedsListAdapter.feeds.get(feedPos).getEpisodes().get(epPos));
-			Log.i(LOG_TAG, file.getAbsolutePath() + " deleted successfully!");
+			File file = new File(ep.getLocalLink());
+			if (file.delete())
+			{
+				ep.setLocalLink("");
+				this.eph.updateEpisode(ep);
+				Log.i(LOG_TAG, file.getAbsolutePath() + " deleted successfully!");
+			}
+			else
+			{
+				Log.e(LOG_TAG, file.getAbsolutePath() + " not deleted. Make sure it exists.");
+			}
 		}
-		else
-		{
-			Log.e(LOG_TAG, file.getAbsolutePath() + " not deleted. Make sure it exists.");
-		}
-		this.refreshListsAsync();
 	}
 	
 	/**
@@ -927,7 +930,7 @@ public class PodcastHelper
 	 * @param epPos Id of the Episode within the specified feed.
 	 * @author Emil
 	 */
-	private void checkDownloadStatus(long dwnId, int feedPos, int epPos, BroadcastReceiver source)
+	private void checkDownloadStatus(long dwnId, Episode ep, BroadcastReceiver source)
 	{
 		 DownloadManager.Query query = new DownloadManager.Query();
 		 query.setFilterById(dwnId);
@@ -1003,7 +1006,7 @@ public class PodcastHelper
 					  break;
 				  case DownloadManager.STATUS_SUCCESSFUL:
 					  //Download was successful. We should update db etc.
-					  downloadCompleted(feedPos, epPos, source);
+					  downloadCompleted(ep, source);
 					  break;
 			 }
 		 }
@@ -1034,10 +1037,8 @@ public class PodcastHelper
 		
 		//Playlist
 		if (this.playlistAdapter != null)	
-			//this.playlistAdapter.replaceItems(this.plDbH.sort(this.eph.getDownloadedEpisodes()));
 			this.playlistAdapter.replaceItems(this.eph.getPlaylistEpisodes());
 		else	
-			//this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
 			this.playlistAdapter = new DragNDropAdapter(this.eph.getPlaylistEpisodes(), this.context);
 		
 		//Feeds List
@@ -1079,10 +1080,8 @@ public class PodcastHelper
 	{
 		//Playlist
 		if (this.playlistAdapter != null)	
-			//this.playlistAdapter.replaceItems(this.plDbH.sort(this.eph.getDownloadedEpisodes()));
 			this.playlistAdapter.replaceItems(this.eph.getPlaylistEpisodes());
 		else	
-			//this.playlistAdapter = new DragNDropAdapter(this.plDbH.sort(this.eph.getDownloadedEpisodes()), this.context);
 			this.playlistAdapter = new DragNDropAdapter(this.eph.getPlaylistEpisodes(), this.context);
 		
 		//Notify for UI updates.

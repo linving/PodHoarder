@@ -5,20 +5,26 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.podhoarder.activity.MainActivity;
-import com.podhoarder.object.Feed;
+import com.podhoarder.object.CheckableRelativeLayout;
+import com.podhoarder.object.GridActionModeCallback;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.PodcastHelper;
-import com.podhoarder.util.PopupMenuUtils;
 import com.podhoarderproject.podhoarder.R;
  
 /**
@@ -30,21 +36,36 @@ public class FeedFragment extends Fragment implements OnRefreshListener
 {
 
 	@SuppressWarnings("unused")
-	private static final 	String 				LOG_TAG = "com.podhoarderproject.podhoarder.FeedFragment";
+	private static final String 				LOG_TAG = "com.podhoarderproject.podhoarder.FeedFragment";
 	
-	public 					GridView 			mainGridView;
+	public 	GridView 			mainGridView;
 	
-	private 				SwipeRefreshLayout 	swipeLayout;
+	private SwipeRefreshLayout 	swipeLayout;
 	
-	private 				View 				view;
-	private 				PodcastHelper 		helper;
+	private View 				view;
+	private PodcastHelper 		helper;
+	
+	private GridActionModeCallback mActionModeCallback;  
+	private ActionMode mActionMode;  
 	
 	public FeedFragment() { }
 	
 	
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public GridActionModeCallback getActionModeCallback()
+	{
+		return mActionModeCallback;
+	}
+    
+    public ActionMode getActionMode()
+    {
+    	return mActionMode;
+    }
+
+
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
     	this.view = inflater.inflate(R.layout.fragment_feeds, container, false);
+    	
 		
 		setupHelper();
 		setupGridView();
@@ -79,14 +100,21 @@ public class FeedFragment extends Fragment implements OnRefreshListener
     		this.helper.feedsListAdapter.setLoadingView(setupLoadingFeed());
     		this.mainGridView.setAdapter(this.helper.feedsListAdapter);
     		
+    		this.mainGridView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        	mActionModeCallback = new GridActionModeCallback(getActivity(), mainGridView);
     		this.mainGridView.setOnItemLongClickListener(new OnItemLongClickListener()
 			{
 				@Override
 				public boolean onItemLongClick(AdapterView<?> parent, View v, int pos, long id)
 				{
-					final Feed currentFeed = helper.feedsListAdapter.feeds.get(pos);
-					PopupMenuUtils.buildFeedContextMenu(getActivity(), v, currentFeed, true).show();
-					return true;
+					if (mActionMode == null || !mActionModeCallback.isActive())
+					{
+						mActionMode = getActivity().startActionMode(mActionModeCallback);
+			        	helper.feedsListAdapter.setActionModeVars(mActionMode, mActionModeCallback);
+					}
+					((CheckableRelativeLayout)v).toggle();
+					mActionModeCallback.onItemCheckedStateChanged(pos, ((CheckableRelativeLayout)v).isChecked());
+			        return true;  
 				}
 			});
     	}
@@ -104,6 +132,8 @@ public class FeedFragment extends Fragment implements OnRefreshListener
     	
     }
     
+    
+    
     private View setupAddFeed()
     {
     	//We add the footer view (last item) for adding new Feeds here.
@@ -114,32 +144,8 @@ public class FeedFragment extends Fragment implements OnRefreshListener
 			@Override
 			public void onClick(View v)
 			{
-//				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-//		    	builder.setTitle(getString(R.string.popup_window_title));
-//		    	
-//		    	// Set up the input
-//		    	final EditText input = new EditText(getActivity());
-//		    	// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-//		    	input.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
-//		    	builder.setView(input);
-//
-//		    	// Set up the buttons
-//		    	builder.setPositiveButton(R.string.popup_window_ok_button, new DialogInterface.OnClickListener() { 
-//		    	    @Override
-//		    	    public void onClick(DialogInterface dialog, int which) 
-//		    	    {
-//		    	        helper.addFeed(input.getText().toString());
-//		    	    }
-//		    	});
-//		    	builder.setNegativeButton(R.string.popup_window_cancel_button, new DialogInterface.OnClickListener() {
-//		    	    @Override
-//		    	    public void onClick(DialogInterface dialog, int which) {
-//		    	        dialog.cancel();
-//		    	    }
-//		    	});
-//				builder.show();
 				((MainActivity)getActivity()).mAdapter.setSearchPageEnabled(true);
-				((MainActivity)getActivity()).actionBar.setSelectedNavigationItem(Constants.BONUS_TAB_POSITION);
+				((MainActivity)getActivity()).setTab(Constants.BONUS_TAB_POSITION);
 			}
 			
 		});
