@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/service_notification_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="128dp">
+    <ImageView android:id="@+id/service_notification_image"
+        android:layout_width="128dp"
+        android:layout_height="match_parent"
+    	android:scaleType="fitXY"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="10dp"/>
+    <LinearLayout android:id="@+id/service_notification_text_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_toRightOf="@id/service_notification_image"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
+	    <TextView android:id="@+id/service_notification_title"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:ellipsize="end"
+	        android:maxLines="1"
+	        style="@android:style/TextAppearance.StatusBar.EventContent.Title"/>
+	    <TextView android:id="@+id/service_notification_subtitle"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:ellipsize="end"
+	        android:maxLines="1"
+	        style="@android:style/TextAppearance.StatusBar.EventContent"/>
+    </LinearLayout>
+    <LinearLayout 
+        android:id="@+id/service_notification_controls_container"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/service_notification_text_container"
+        android:layout_toRightOf="@id/service_notification_image"
+        android:orientation="horizontal">
+	    <ImageButton
+	    	android:id="@+id/service_notification_backwardbutton"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+		    android:padding="25dp"
+		    android:src="@drawable/white_ic_action_rewind"
+	    	android:background="?android:attr/selectableItemBackground"
+	        android:scaleType="centerInside"
+		    android:alpha=".9"/>
+        <ImageButton
+	    	android:id="@+id/service_notification_playpausebutton"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+		    android:padding="25dp"
+	    	android:background="?android:attr/selectableItemBackground"
+	        android:scaleType="centerInside"
+		    android:alpha=".9"/>
+        <ImageButton
+	    	android:id="@+id/service_notification_forwardbutton"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+		    android:padding="25dp"
+		    android:src="@drawable/white_ic_action_fast_forward"
+	    	android:background="?android:attr/selectableItemBackground"
+	        android:scaleType="centerInside"
+		    android:alpha=".9"/>
+    </LinearLayout>
+    
+</RelativeLayout>
