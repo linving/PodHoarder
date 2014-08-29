@@ -118,7 +118,8 @@ public class PlaylistDBHelper
 		    values.put(columns[0], i);
 		    values.put(columns[1], playlist.get(i).getEpisodeId());
 		    this.db = this.dbHelper.getWritableDatabase();
-		    long insertId = this.db.insert(TABLE_NAME, null, values);	
+		    //long insertId = this.db.insert(TABLE_NAME, null, values);
+		    this.db.insert(TABLE_NAME, null, values);
 		    //Log.i(LOG_TAG,"SAVED " + playlist.get(i).getTitle() + "(ID: " + insertId + ")");
 		    this.db.close();
 		}

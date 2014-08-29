@@ -8,6 +8,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -36,7 +38,10 @@ import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.SearchResultsAdapter;
 import com.podhoarder.json.SearchResult;
 import com.podhoarder.json.SearchResultItem;
+import com.podhoarder.object.EpisodeMultiChoiceModeListener;
+import com.podhoarder.object.SearchResultMultiChoiceModeListener;
 import com.podhoarder.util.Constants;
+import com.podhoarder.util.DialogUtils;
 import com.podhoarderproject.podhoarder.R;
 
 public class SearchFragment extends Fragment
@@ -54,6 +59,8 @@ public class SearchFragment extends Fragment
 	private ProgressBar	progressBar;
 	
 	private AsyncTask<String, Void, Void> searchTask;
+	
+	private SearchResultMultiChoiceModeListener mListSelectionListener;
 	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -133,35 +140,19 @@ public class SearchFragment extends Fragment
 		
 		this.mainListView = (ListView) this.view.findViewById(R.id.mainListView);
 		this.mainListView.setAdapter(this.listAdapter);
-		
 		this.mainListView.setOnItemClickListener(new OnItemClickListener()
 		{
 			@Override
 			public void onItemClick(AdapterView<?> adapterView, View v, int position, long id)
 			{
-				final SearchResultItem currentItem = (SearchResultItem)mainListView.getItemAtPosition(position);
-				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		    	builder.setTitle(getString(R.string.popup_window_title));
-		    	builder.setMessage(getActivity().getString(R.string.popup_areyousure) + " " + currentItem.getCollectionName() + "?");
-
-		    	// Set up the buttons
-		    	builder.setPositiveButton(R.string.popup_window_ok_button, new DialogInterface.OnClickListener() { 
-		    	    @Override
-		    	    public void onClick(DialogInterface dialog, int which) 
-		    	    {
-		    	    	((MainActivity)getActivity()).helper.addFeed(currentItem.getFeedUrl());
-						((MainActivity)getActivity()).setTab(Constants.FEEDS_TAB_POSITION);
-		    	    }
-		    	});
-		    	builder.setNegativeButton(R.string.popup_window_cancel_button, new DialogInterface.OnClickListener() {
-		    	    @Override
-		    	    public void onClick(DialogInterface dialog, int which) {
-		    	        dialog.cancel();
-		    	    }
-		    	});
-				builder.show();
+				List<SearchResultItem> selectedItem = new ArrayList<SearchResultItem>();
+				selectedItem.add((SearchResultItem)mainListView.getItemAtPosition(position));
+				DialogUtils.addFeedsDialog(getActivity(), selectedItem);
 			}
 		});
+		this.mainListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		this.mListSelectionListener = new SearchResultMultiChoiceModeListener(getActivity(), this.mainListView);
+		this.mainListView.setMultiChoiceModeListener(this.mListSelectionListener);
 	}
 
 	private class SearchTask extends AsyncTask<String, Void, Void >
@@ -253,4 +244,9 @@ public class SearchFragment extends Fragment
 			listAdapter.notifyDataSetChanged();
 		}
 	}		
+
+	public SearchResultMultiChoiceModeListener getListSelectionListener()
+	{
+		return mListSelectionListener;
+	}
 }

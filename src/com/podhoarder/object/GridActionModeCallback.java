@@ -1,25 +1,27 @@
 package com.podhoarder.object;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.AbsListView;
-import android.widget.ImageView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.GridView;
+import android.widget.ImageView;
 
 import com.podhoarder.activity.MainActivity;
+import com.podhoarder.adapter.GridListAdapter;
 import com.podhoarderproject.podhoarder.R;
 
 public class GridActionModeCallback implements ActionMode.Callback
 {
-	private AbsListView mParentListView;
+	private GridView mParentListView;
 	private Context mContext;
 	private ActionMode mActionMode;
 	private List<Integer> mSelectedItems;
@@ -30,7 +32,7 @@ public class GridActionModeCallback implements ActionMode.Callback
 		return mActionMode;
 	}
 
-	public GridActionModeCallback(Context context, AbsListView parent)
+	public GridActionModeCallback(Context context, GridView parent)
 	{
 		this.mContext = context;
 		this.mParentListView = parent;
@@ -124,6 +126,11 @@ public class GridActionModeCallback implements ActionMode.Callback
     		this.mSelectedItems.add(position);	//save the list position of the selected view.
     	else
     		this.mSelectedItems.remove((Object)position);	//remove the list position of the unselected view.
+    	
+    	if (this.mSelectedItems.size() == 0)	//If the last item was deselected we finish the actionMode.
+    		this.mActionMode.finish();
+    	else
+    		this.updateTitle();
 	}
 	
 
@@ -151,12 +158,15 @@ public class GridActionModeCallback implements ActionMode.Callback
 
 	private void deleteSelectedItems()
     {
+		List<Integer> ids = new ArrayList<Integer>();
+		Collections.sort(this.mSelectedItems);	//Since we are removing the entries from the adapter manually, using saved indexes we need to sort the indexes.
+		Collections.reverse(this.mSelectedItems); //They are sorted and reversed so they highest index comes first. This prevents later indexes from pointing at the wrong item.
     	for (int i : this.mSelectedItems)
     	{
-    		Feed feed = (Feed) this.mParentListView.getItemAtPosition(i);
-    		((MainActivity)this.mContext).helper.deleteFeed(feed.getFeedId());
+    		ids.add(((Feed) this.mParentListView.getItemAtPosition(i)).getFeedId());	//Save the Feed ID for the db operation.
+    		((GridListAdapter)this.mParentListView.getAdapter()).mItems.remove(i);	//Remove the item from the adapter to quickly reflect changes.
     	}
-    	((MainActivity)this.mContext).helper.refreshListsAsync();
+		((MainActivity)this.mContext).helper.deleteFeeds(ids);	//Perform the background operation on the DB.
     }
     
     private void markSelectedItemsAsListened()
@@ -168,6 +178,21 @@ public class GridActionModeCallback implements ActionMode.Callback
     	}
 		
     }
+    
+    private void updateTitle()
+    {
+    	String titleString = ""+this.mSelectedItems.size();
+    	if (this.mSelectedItems.size() == 1)
+    	{
+    		titleString += " " + this.mContext.getString(R.string.contextual_action_mode_selected);
+    	}
+    	else
+    	{
+    		titleString += " " + this.mContext.getString(R.string.contextual_action_mode_selected);
+        	
+    	}
+    	this.mActionMode.setTitle(titleString);
+    }
 
     private int getSelectedItemColor()
     {
@@ -175,7 +200,7 @@ public class GridActionModeCallback implements ActionMode.Callback
     	int red = Color.red(color);
         int green = Color.green(color);
         int blue = Color.blue(color);
-        return Color.argb(115, red, green, blue);
+        return Color.argb(135, red, green, blue);
     }
     
     /**

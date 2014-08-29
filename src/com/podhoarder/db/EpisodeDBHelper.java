@@ -71,15 +71,23 @@ public class EpisodeDBHelper
 		List<Episode> episodes = new ArrayList<Episode>();
 		this.db = this.dbHelper.getWritableDatabase();
 		Cursor cursor = this.db.query(TABLE_NAME, columns,  columns[8] + "=" + feedId, null, null, null, DBHelper.colEpisodePubDate + " DESC");
-		
-		if (cursor.moveToFirst())
+		try
 		{
-			do
+			if (cursor.moveToFirst())
 			{
-				episodes.add(cursorToEpisode(cursor));
-			} while (cursor.moveToNext());
+				do
+				{
+					episodes.add(cursorToEpisode(cursor));
+				} while (cursor.moveToNext());
+			}
+			this.db.close();
 		}
-		this.db.close();
+		catch (IllegalStateException e)
+		{
+			Log.d(LOG_TAG, "Cursor caused IllegalStateException on FeedID: " + feedId);
+			e.printStackTrace();
+		}
+		
 		return episodes;
 	}
 	

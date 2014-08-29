@@ -60,14 +60,19 @@
     <string name="menu_episode_deleteFile">Delete File</string>
     <string name="menu_episode_markAsListened">Mark As Listened</string>
     
-    <!-- Playlist Montext Menu -->
+    <!-- Playlist Context Menu -->
     <string name="menu_playlist_delete">Remove From Playlist</string>
     <string name="menu_playlist_startOver">Play From Beginning</string>
     <string name="menu_playlist_available_offline">Make Available Offline</string>
     
+    <!-- Search Context Menu -->
+    <string name="menu_search_add">Add Podcast(s)</string>
+    
     <!-- Add Feed Popup Window -->
-    <string name="popup_window_title">Add Podcast?</string>
+    <string name="popup_window_title_single">Add Podcast?</string>
+    <string name="popup_window_title_multiple">Add Podcasts?</string>
     <string name="popup_areyousure">Are you sure you want to add</string>
+    <string name="popup_podcasts">podcasts</string>
     <string name="popup_window_ok_button">Yes</string>
     <string name="popup_window_cancel_button">No</string>
     
@@ -85,4 +90,12 @@
     <string name="toast_player_playback_failed">Playback failed!</string>
     <string name="toast_download_failed">Download failed!</string>
     <string name="toast_add_feed_failed">Failed To Add Podcast!</string>
+    
+    <!-- Contextual Action Mode Bar-->
+    <string name="contextual_action_mode_single_podcast_selected">podcast selected.</string>
+    <string name="contextual_action_mode_multiple_podcasts_selected">podcasts selected.</string>
+    <string name="contextual_action_mode_single_episode_selected">episode selected.</string>
+    <string name="contextual_action_mode_multiple_episodes_selected">episodes selected.</string>
+    <string name="contextual_action_mode_selected">selected.</string>
+    
 </resources>

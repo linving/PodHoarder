@@ -1,6 +1,5 @@
 package com.podhoarder.object;
 
-import android.R;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.Checkable;
@@ -8,7 +7,6 @@ import android.widget.RelativeLayout;
 
 public class CheckableRelativeLayout extends RelativeLayout implements Checkable 
 {
-	private static final int[] STATE_CHECKABLE = {R.attr.state_pressed};
 	private boolean mChecked = false;
 	
 	public CheckableRelativeLayout(Context context)

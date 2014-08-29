@@ -23,7 +23,9 @@
         <item name="android:windowActionBar">true</item>
 		<item name="android:actionBarTabBarStyle">@style/TabBar</item>
 		<item name="android:actionBarTabStyle">@style/TabView</item>
+		<item name="android:actionModeCloseDrawable">@drawable/ic_action_remove</item>
     </style>
+
     
     <style name="TabBar" parent="@android:style/Widget.ActionBar.TabBar">
 	    <item name="android:visibility">invisible</item>

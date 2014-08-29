@@ -1,5 +1,8 @@
 package com.podhoarder.fragment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,18 +10,14 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.CheckableRelativeLayout;
@@ -97,7 +96,7 @@ public class FeedFragment extends Fragment implements OnRefreshListener
     	if (!this.helper.feedsListAdapter.isEmpty())
     	{
     		this.helper.feedsListAdapter.setFooterView(setupAddFeed());
-    		this.helper.feedsListAdapter.setLoadingView(setupLoadingFeed());
+    		this.helper.feedsListAdapter.setLoadingViews(setupLoadingViews());
     		this.mainGridView.setAdapter(this.helper.feedsListAdapter);
     		
     		this.mainGridView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -122,9 +121,9 @@ public class FeedFragment extends Fragment implements OnRefreshListener
     	{
     		//TODO: MAKE SURE THIS WORKS CORRECTLY
     		View emptyView = (setupAddFeed());
-    		emptyView.setMinimumHeight(this.helper.feedsListAdapter.gridItemSize);
-    		emptyView.setMinimumWidth(this.helper.feedsListAdapter.gridItemSize);
-    		emptyView.setLayoutParams(new LayoutParams(this.helper.feedsListAdapter.gridItemSize, this.helper.feedsListAdapter.gridItemSize));
+    		emptyView.setMinimumHeight(this.helper.feedsListAdapter.mGridItemSize);
+    		emptyView.setMinimumWidth(this.helper.feedsListAdapter.mGridItemSize);
+    		emptyView.setLayoutParams(new LayoutParams(this.helper.feedsListAdapter.mGridItemSize, this.helper.feedsListAdapter.mGridItemSize));
     		((RelativeLayout)this.mainGridView.getParent().getParent()).addView(emptyView);
     		this.mainGridView.setEmptyView(emptyView);
     		
@@ -144,19 +143,26 @@ public class FeedFragment extends Fragment implements OnRefreshListener
 			@Override
 			public void onClick(View v)
 			{
-				((MainActivity)getActivity()).mAdapter.setSearchPageEnabled(true);
-				((MainActivity)getActivity()).setTab(Constants.BONUS_TAB_POSITION);
+				if (!mActionModeCallback.isActive())
+				{
+					((MainActivity)getActivity()).mAdapter.setSearchPageEnabled(true);
+					((MainActivity)getActivity()).setTab(Constants.BONUS_TAB_POSITION);
+				}
 			}
 			
 		});
     	return addFeedRow;
     }
 
-    private View setupLoadingFeed()
+    private List<View> setupLoadingViews()
     {
+    	List<View> views = new ArrayList<View>();	//This is an ugly solution but in order to use the GridViews LayoutParams the loading views must be inflated here.
     	LayoutInflater inflater = (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);	//get the inflater service.
-    	View loadingFeedItem = inflater.inflate(R.layout.fragment_feeds_grid_loading_feed_item, this.mainGridView, false);	//Inflate the "loading" grid item to show while data is downloaded
-    	return loadingFeedItem;
+    	for (int i=0; i<Constants.SEARCH_RESULT_LIMIT; i++)	//Inflate a collection of Loading views, same size as the maximum amount Search Results.
+    	{
+        	views.add(inflater.inflate(R.layout.fragment_feeds_grid_loading_feed_item, this.mainGridView, false));	//Inflate the "loading" grid item to show while data is downloaded
+    	}
+    	return views;
     }
     
     private void setupRefreshControls()

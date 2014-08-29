@@ -1,5 +1,8 @@
 package com.podhoarder.activity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.podhoarder.util.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
 
@@ -17,7 +20,8 @@ public class TestActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_test);
 		this.helper = new PodcastHelper(this);
-		this.helper.addFeed("http://smodcast.com/channels/plus-one/feed/");
+		List<String> urls = new ArrayList<String>();
+    	urls.add("http://smodcast.com/channels/plus-one/feed/");
 		//this.helper.updateEpisodeListened(1, 1, 45);
 		//this.helper.deleteFeed(2);
 		//this.helper.downloadEpisode(1, 24);

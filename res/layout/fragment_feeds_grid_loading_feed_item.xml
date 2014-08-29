@@ -8,15 +8,14 @@
     android:clickable="false"
     android:longClickable="false"
     android:focusable="true"
-    android:background="?android:attr/selectableItemBackground"
     android:layout_marginTop="5dp">
  
     <ProgressBar
+    	android:id="@+id/feeds_grid_loadingBar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
     	android:indeterminate="true"
     	android:layout_centerInParent="true"
-    	android:id="@+id/feeds_grid_loadingBar"
     	style="?android:attr/progressBarStyle"/>
  
 </RelativeLayout>

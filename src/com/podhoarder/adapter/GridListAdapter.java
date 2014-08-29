@@ -1,9 +1,9 @@
 package com.podhoarder.adapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import android.graphics.ColorFilter;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.ActionMode;
@@ -20,8 +20,8 @@ import com.podhoarder.activity.MainActivity;
 import com.podhoarder.activity.SettingsActivity;
 import com.podhoarder.object.CheckableRelativeLayout;
 import com.podhoarder.object.Feed;
-import com.podhoarder.object.GridActionModeCallback;
 import com.podhoarder.object.FeedImage.ImageDownloadListener;
+import com.podhoarder.object.GridActionModeCallback;
 import com.podhoarder.util.Constants;
 import com.podhoarderproject.podhoarder.R;
 
@@ -30,34 +30,34 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.GridListAdapter";
 	
-	public 	List<Feed> feeds;
+	private LayoutInflater mInflater;
+	
+	public 	List<Feed> mItems;
 	
     private Context mContext;
     
-    private View footerView;
+    private View mFooterView;
     
-    private View loadingView;
-    private boolean loading;
+    private List<View> mLoadingViews;
+    private int mLoadingItemsCount;
     
     private GridActionModeCallback mActionModeCallback;  //This comes from the parent fragment and is used to keep track of whether the ActionMode context bar is enabled.
 	private ActionMode mActionMode;  //This comes from the parent fragment and is used to keep track of whether the ActionMode context bar is enabled.
     
-    private int screenWidth, screenHeight; 
-    public int gridItemSize;
+    private float mScreenWidth, mScreenHeight; 
+    public int mGridItemSize;
 
     public GridListAdapter(List<Feed> feeds, Context c) 
     {
-    	this.feeds = feeds;
+    	this.mItems = feeds;
     	this.mContext = c;
     	
-    	this.loading = false;
+    	this.mLoadingItemsCount = 0;
+    	this.mLoadingViews = new ArrayList<View>();
     	
-    	DisplayMetrics metrics = new DisplayMetrics();
-		((MainActivity)mContext).getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-		screenWidth = metrics.widthPixels;
-		screenHeight = metrics.heightPixels;
-		gridItemSize = (screenWidth/2)-10;
+    	this.mInflater = (LayoutInflater) this.mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    	
+    	setupScreenVars();
     }
     
     /**
@@ -66,55 +66,73 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 	 */
 	public void replaceItems(List<Feed> newItemCollection)
 	{
-		this.feeds.clear();
-		this.feeds.addAll(newItemCollection);
+		this.mItems.clear();
+		this.mItems.addAll(newItemCollection);
 		//this.notifyDataSetChanged();
 	}
 
     public int getCount() 
-    {
-    	int additionalItems = 0;
-    	
-    	if (this.loading || this.footerView != null)
-    		additionalItems++;
-    	
-    	return this.feeds.size() + additionalItems;
+    {    	
+    	if (isLoading())
+    		return (this.mItems.size() + this.getLoadingItemsCount());	//We return the items size plus the amount of loading views for the total
+    	else
+    		return this.mItems.size() + 1;	//We return the items size plus one (for the "Add Podcast" view.
     }
 
     public Object getItem(int position) {
-        return this.feeds.get(position);
+        return this.mItems.get(position);
     }
 
     public long getItemId(int position) {
-        return this.feeds.get(position).getFeedId();
+        return this.mItems.get(position).getFeedId();
     }
-    
+   
     public void setFooterView(View v) {
-    	v.findViewById(R.id.feeds_grid_item_image).setMinimumHeight(gridItemSize);
-    	v.findViewById(R.id.feeds_grid_item_image).setMinimumWidth(gridItemSize);
-    	v.setMinimumHeight(gridItemSize);
-    	v.setMinimumWidth(gridItemSize);
-    	this.footerView = v;
+    	v.findViewById(R.id.feeds_grid_item_image).setMinimumHeight(mGridItemSize);
+    	v.findViewById(R.id.feeds_grid_item_image).setMinimumWidth(mGridItemSize);
+    	v.setMinimumHeight(mGridItemSize);
+    	v.setMinimumWidth(mGridItemSize);
+    	this.mFooterView = v;
     }
     
-    public void setLoadingView(View v)
+    public void setLoadingViews(List<View> views)
     {
-    	v.findViewById(R.id.feeds_grid_loadingBar).setMinimumHeight(gridItemSize);
-    	v.findViewById(R.id.feeds_grid_loadingBar).setMinimumWidth(gridItemSize);
-    	v.setMinimumHeight(gridItemSize);
-    	v.setMinimumWidth(gridItemSize);
-    	this.loadingView = v;
+    	for (View v : views)
+    	{
+        	v.findViewById(R.id.feeds_grid_loadingBar).setMinimumHeight(mGridItemSize);
+        	v.findViewById(R.id.feeds_grid_loadingBar).setMinimumWidth(mGridItemSize);
+        	v.setMinimumHeight(mGridItemSize);
+        	v.setMinimumWidth(mGridItemSize);
+        	this.mLoadingViews.add(v);
+    	}
     }
     
     public boolean isLoading()
     {
-    	return this.loading;
+    	return (this.getLoadingItemsCount() > 0);
     }
     
-    public void setLoading(boolean isLoading)
+    /**
+     * Resets the loading status of this list to not loading.
+     */
+    public void resetLoading()
     {
-    	this.loading = isLoading;
-    	this.notifyDataSetChanged();
+    	this.mLoadingViews.clear();
+    }
+    
+    public int getLoadingItemsCount()
+    {
+    	return this.mLoadingItemsCount;
+    }
+    
+    public void addLoadingItem()
+    {
+    	this.mLoadingItemsCount++;
+    }
+    
+    public void removeLoadingItem()
+    {
+    	if (this.mLoadingItemsCount > 0) this.mLoadingItemsCount--;	//We can never have a negative amount of loading items.
     }
 
     public void setActionModeVars(ActionMode mode, GridActionModeCallback callback)
@@ -129,17 +147,20 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     	
     	if (position == 0)
     	{
-    		((GridView) parent).setColumnWidth(gridItemSize);
+    		((GridView) parent).setColumnWidth(mGridItemSize);
     	}
     	
-    	if (position == getCount()-1)
+    	if (isLoading())
     	{
-    		if (this.loading)
-    			return loadingView;
-    		else
-    			return footerView;
+    		if (position >= (getCount() - this.mLoadingItemsCount))
+    			return mLoadingViews.get(position - (this.mItems.size() - 1));
     	}
-    	
+    	else
+    	{
+    		if (position == getCount()-1)
+    			return mFooterView;
+    	}
+
     	if (convertView != null && convertView.findViewById(R.id.fragment_feeds_grid_loading_item) != null) 
     	{ 
     		convertView = null; 
@@ -155,8 +176,8 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 			//Inflate
 			LayoutInflater inflater = (LayoutInflater) this.mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			convertView = inflater.inflate(R.layout.fragment_feeds_grid_item, null);
-			convertView.setMinimumHeight(gridItemSize);
-			convertView.setMinimumWidth(gridItemSize);
+			convertView.setMinimumHeight(mGridItemSize);
+			convertView.setMinimumWidth(mGridItemSize);
 			
 			
 			// Set up the ViewHolder
@@ -164,8 +185,8 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.feeds_grid_item_text);
 	        viewHolder.feedNumberOfEpisodes = (TextView) convertView.findViewById(R.id.feeds_grid_item_notification);
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.feeds_grid_item_image);
-	        viewHolder.feedImage.setMinimumHeight(gridItemSize);
-	        viewHolder.feedImage.setMinimumWidth(gridItemSize);
+	        viewHolder.feedImage.setMinimumHeight(mGridItemSize);
+	        viewHolder.feedImage.setMinimumWidth(mGridItemSize);
 	        viewHolder.checkableLayout = (CheckableRelativeLayout) convertView.findViewById(R.id.feeds_grid_item_checkableLayout);
 	        
 	        // Store the holder with the view.
@@ -177,13 +198,12 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 		}
 		
 		
-		final Feed currentFeed = this.feeds.get(position);
+		final Feed currentFeed = this.mItems.get(position);
 		
 		if(currentFeed != null) 
 		{
 			try
 			{
-    			
 				if (PreferenceManager.getDefaultSharedPreferences(this.mContext).getBoolean(SettingsActivity.SETTINGS_KEY_GRIDSHOWTITLE, true))
 				{
 					viewHolder.feedTitle.setText(currentFeed.getTitle());	//Set Feed Title
@@ -214,16 +234,19 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     				{
     					if (mActionMode != null && mActionModeCallback != null)
     					{
-    						if (mActionModeCallback.isActive())
+    						if (v.getId() != R.id.fragment_feeds_grid_add_item && v.getId() != R.id.fragment_feeds_grid_loading_item)	//We prevent the user from selecting the loading and add feed grid items
     						{
-    							((CheckableRelativeLayout)v).toggle();
-    							mActionModeCallback.onItemCheckedStateChanged(pos, ((CheckableRelativeLayout)v).isChecked()); 
-    						}
-    						else
-    						{
-    							((MainActivity)mContext).helper.feedDetailsListAdapter.setFeed(currentFeed);
-    	    					((MainActivity)mContext).mAdapter.setDetailsPageEnabled(true);
-    	    					((MainActivity)mContext).setTab(Constants.BONUS_TAB_POSITION);
+    							if (mActionModeCallback.isActive())
+        						{
+        							((CheckableRelativeLayout)v).toggle();
+        							mActionModeCallback.onItemCheckedStateChanged(pos, ((CheckableRelativeLayout)v).isChecked()); 
+        						}
+        						else
+        						{
+        							((MainActivity)mContext).helper.feedDetailsListAdapter.setFeed(currentFeed);
+        	    					((MainActivity)mContext).mAdapter.setDetailsPageEnabled(true);
+        	    					((MainActivity)mContext).setTab(Constants.BONUS_TAB_POSITION);
+        						}
     						}
     					}
     					else
@@ -243,6 +266,16 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 		}
 		return convertView;
     }
+
+    private void setupScreenVars()
+    {
+    	DisplayMetrics displayMetrics = mContext.getResources().getDisplayMetrics();
+
+        this.mScreenHeight = displayMetrics.heightPixels / displayMetrics.density;
+        this.mScreenWidth = displayMetrics.widthPixels / displayMetrics.density;
+        
+        this.mGridItemSize = Math.round(((mScreenWidth/2) - 4f) * displayMetrics.density);	//The 4f is added padding.
+    }
     
     static class FeedViewHolderItem {	
 	    TextView feedTitle;
@@ -254,7 +287,10 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 	@Override
 	public void downloadFinished(int feedId)
 	{
-		setLoading(false);
-		((MainActivity)this.mContext).helper.refreshLists();
+		removeLoadingItem();
+		if (isLoading())
+		{
+			((MainActivity)this.mContext).helper.refreshListsAsync();
+		}
 	}
 }

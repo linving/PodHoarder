@@ -5,7 +5,8 @@
     android:layout_height="75dp" 
     android:orientation="vertical"
     android:paddingBottom="5dp"
-    android:paddingTop="5dp">
+    android:paddingTop="5dp"
+	android:background="?android:attr/activatedBackgroundIndicator">
     <ImageView 
         android:id="@+id/search_list_feed_image"
         android:layout_width="75dp"

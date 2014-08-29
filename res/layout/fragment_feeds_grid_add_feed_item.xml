@@ -15,7 +15,7 @@
         android:id="@+id/feeds_grid_item_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="25dp"
+        android:padding="30dp"
         android:scaleType="fitXY"
         android:src="@drawable/dark_add_feed">
     </ImageView>

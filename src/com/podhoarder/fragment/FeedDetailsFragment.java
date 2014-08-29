@@ -16,9 +16,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -28,10 +26,8 @@ import com.podhoarder.object.Banner;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.EpisodeMultiChoiceModeListener;
 import com.podhoarder.util.Constants;
-import com.podhoarder.util.ExpandAnimation;
 import com.podhoarder.util.ImageUtils;
 import com.podhoarder.util.PodcastHelper;
-import com.podhoarder.util.PopupMenuUtils;
 import com.podhoarderproject.podhoarder.R;
  
 /**

@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,42 +18,6 @@ import com.podhoarderproject.podhoarder.R;
 public class PopupMenuUtils
 {
 	
-	/**
-	 * Show a context menu for a Feed object.
-	 * @param context	App context.
-	 * @param anchorView	The view that was clicked. The PopupMenu will appear near this View.
-	 * @param feed Feed to perform actions on.
-	 * @param showIcons	True to show icons on the menu, False otherwise.
-	 * @return	A PopupMenu object ready for use. Just need to call show().
-	 */
-	public static PopupMenu buildFeedContextMenu(final Context context, View anchorView, final Feed feed, boolean showIcons)
-	{
-		final PopupMenu actionMenu = new PopupMenu(context, anchorView);
-		MenuInflater inflater = actionMenu.getMenuInflater();
-		inflater.inflate(R.menu.feed_menu, actionMenu.getMenu());
-	   
-		actionMenu.setOnMenuItemClickListener(new OnMenuItemClickListener()
-		{
-			@Override
-			public boolean onMenuItemClick(MenuItem item)
-			{
-				switch (item.getItemId()) 
-				{
-			        case R.id.menu_feed_markAsListened:
-			        	actionMenu.dismiss();
-			        	((MainActivity)context).helper.markAsListened(feed);
-			            return true;
-			        case R.id.menu_feed_delete:
-			        	actionMenu.dismiss();
-			        	((MainActivity)context).helper.deleteFeed(feed.getFeedId());
-				    	return true;
-				}
-				return true;
-			}
-		});
-		if (showIcons) forceShowIcons(actionMenu);
-		return actionMenu;
-	}
 	
 	public static PopupMenu buildPlaylistContextMenu(final Context context, View anchorView, final Episode ep, boolean showIcons)
 	{

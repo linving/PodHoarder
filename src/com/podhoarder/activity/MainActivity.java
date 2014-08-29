@@ -392,7 +392,14 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 				}
 				else if ( fragment instanceof SearchFragment) 
 				{
-					//TODO: Add multiple selection on search results.
+					SearchFragment searchFragment = (SearchFragment) fragment;
+					if (searchFragment != null && searchFragment.getListSelectionListener() != null && searchFragment.getListSelectionListener().getActionMode() != null)
+	            	{
+	            		if (searchFragment.getListSelectionListener().isActive())
+	                	{
+	            			searchFragment.getListSelectionListener().getActionMode().finish();
+	                	}
+	            	}
 				}
             	
             	break;

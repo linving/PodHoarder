@@ -129,62 +129,73 @@ public class FeedDBHelper
 	 */
 	public Feed insertFeed(Feed feed) throws SQLiteConstraintException, CursorIndexOutOfBoundsException
 	{
-		ContentValues values = new ContentValues();
-	    values.put(columns[1], feed.getTitle());
-	    values.put(columns[2], feed.getAuthor());
-	    values.put(columns[3], feed.getDescription());
-	    values.put(columns[4], feed.getLink());
-	    values.put(columns[5], feed.getCategory());
-	    values.put(columns[6], feed.getFeedImage().getImageURL());
-	    
-	    this.db = this.dbHelper.getWritableDatabase();
-	    try
-	    {
-	    	long insertId = this.db.insert(TABLE_NAME, null, values);
-	    	Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
-		    cursor.moveToFirst();
-		    Feed insertedFeed = cursorToFeed(cursor, false);
-		    this.db.close();
-		    //TODO: Might not need to make a new selection here since insertEpisodes returns a list. Is that list usable?
-		    this.eph.insertEpisodes(feed.getEpisodes(), insertedFeed.getFeedId());
-		    insertedFeed.setEpisodes(this.eph.getAllEpisodes(insertedFeed.getFeedId()));
-		    Log.w(LOG_TAG,"Added Feed with id: " + insertId);
-		    return insertedFeed;
-	    }
-	    catch (CursorIndexOutOfBoundsException e)
+		boolean hasNullValues = hasNullValues(feed);
+		
+		if (!hasNullValues)
 		{
-			Log.e(LOG_TAG, "CursorIndexOutOfBoundsException: Insert failed. Feed link not unique?");
-			throw e;
+			ContentValues values = new ContentValues();
+		    values.put(columns[1], feed.getTitle());
+		    values.put(columns[2], feed.getAuthor());
+		    values.put(columns[3], feed.getDescription());
+		    values.put(columns[4], feed.getLink());
+		    values.put(columns[5], feed.getCategory());
+		    values.put(columns[6], feed.getFeedImage().getImageURL());
+		    
+		    this.db = this.dbHelper.getWritableDatabase();
+		    try
+		    {
+		    	long insertId = this.db.insert(TABLE_NAME, null, values);
+		    	Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
+			    cursor.moveToFirst();
+			    Feed insertedFeed = cursorToFeed(cursor, true);
+			    this.db.close();
+			    //TODO: Might not need to make a new selection here since insertEpisodes returns a list. Is that list usable?
+			    insertedFeed.setEpisodes(this.eph.insertEpisodes(feed.getEpisodes(), insertedFeed.getFeedId()));
+			    Log.i(LOG_TAG,"Added Feed with id: " + insertId);
+			    return insertedFeed;
+		    }
+		    catch (CursorIndexOutOfBoundsException e)
+			{
+				Log.e(LOG_TAG, "CursorIndexOutOfBoundsException: Insert failed. Feed link not unique?");
+				throw e;
+			}
+			catch (SQLiteConstraintException e)
+			{
+				Log.e(LOG_TAG, "SQLiteConstraintException: Insert failed. Feed link not unique?");
+				throw e;
+			}
 		}
-		catch (SQLiteConstraintException e)
+		else
 		{
-			Log.e(LOG_TAG, "SQLiteConstraintException: Insert failed. Feed link not unique?");
-			throw e;
+			return null;
 		}
 	}
 	
 	/**
 	 * 
-	 * Deletes a Feed from the database.
+	 * Deletes Feeds from the database.
 	 * @param feedId Feed ID of object to delete.
 	 * @return True if something was deleted. False otherwise.
 	 */
-	public boolean deleteFeed(int feedId) 
+	public boolean deleteFeeds(List<Integer> feedIds) 
 	{
 		boolean retCheck = false;
-	    this.db = this.dbHelper.getWritableDatabase();
-	    int res = this.db.delete(TABLE_NAME, columns[0] + " = " + feedId, null);
-	    this.db.close();
-	    this.eph.deleteEpisodes(feedId);
-	    if (res == 0)
-	    {
-	    	Log.w(LOG_TAG,"No Feed deleted");
-	    }
-	    else
-	    {
-	    	retCheck = true;
-	    	Log.w(LOG_TAG,"Feed deleted with id: " + feedId);
-	    }
+		for (int feedId : feedIds)
+		{
+			this.db = this.dbHelper.getWritableDatabase();
+		    int res = this.db.delete(TABLE_NAME, columns[0] + " = " + feedId, null);
+		    this.db.close();
+		    this.eph.deleteEpisodes(feedId);
+		    if (res == 0)
+		    {
+		    	Log.w(LOG_TAG,"No Feed deleted");
+		    }
+		    else
+		    {
+		    	retCheck = true;
+		    	Log.w(LOG_TAG,"Feed deleted with id: " + feedId);
+		    }
+		}
 	    return retCheck;
 	  }
 	
@@ -251,5 +262,21 @@ public class FeedDBHelper
 							this.eph.getAllEpisodes(Integer.parseInt(c.getString(0))), 
 							this.ctx);
 		return feed;
+	}
+
+	private boolean hasNullValues(Feed feed)
+	{
+		if (feed.getTitle() == null)
+			return true;
+		if (feed.getAuthor() == null)
+			return true;
+		if (feed.getDescription() == null)
+			return true;
+		if (feed.getLink() == null)
+			return true;
+		if (feed.getCategory() == null)
+			return true;
+		
+		return false;
 	}
 }
