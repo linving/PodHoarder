@@ -49,7 +49,6 @@
     <string name="pref_startTab_summary">Select which view to show when first starting the app.</string>
     
     <!-- Feed Context Menu -->
-    <string name="menu_feed_refresh">Refresh Podcast</string>
     <string name="menu_feed_markAsListened">Mark Episodes As Listened</string>
     <string name="menu_feed_delete">Delete Podcast</string>
     

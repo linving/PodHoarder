@@ -31,6 +31,7 @@ import com.ericharlow.DragNDrop.DropListener;
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.NetworkUtils;
+import com.podhoarder.util.ViewHolders.PlaylistAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
 public final class DragNDropAdapter extends BaseAdapter implements DropListener{
@@ -94,7 +95,7 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
     public View getView(int position, View convertView, ViewGroup parent) {
         // A ViewHolder keeps references to children views to avoid unneccessary calls
         // to findViewById() on each row.
-        ViewHolderItem holder;
+    	PlaylistAdapterViewHolder holder;
 
         // When convertView is not null, we can reuse it directly, there is no need
         // to reinflate it. We only inflate a new View when the convertView supplied
@@ -107,7 +108,7 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 
             // Creates a ViewHolder and store references to the two children views
             // we want to bind data to.
-            holder = new ViewHolderItem();
+            holder = new PlaylistAdapterViewHolder();
             holder.episodeTitle = (TextView) convertView.findViewById(R.id.player_list_row_episodeName);
             holder.podcastTitle = (TextView) convertView.findViewById(R.id.player_list_row_podcastName);
             holder.elapsedTimeBar = (ProgressBar) convertView.findViewById(R.id.player_list_row_elapsed_progressBar);
@@ -119,7 +120,7 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
         {
             // Get the ViewHolder back to get fast access to the TextView
             // and the ImageView.
-            holder = (ViewHolderItem) convertView.getTag();
+            holder = (PlaylistAdapterViewHolder) convertView.getTag();
         }
 
         Episode currentEpisode = this.playList.get(position);
@@ -210,9 +211,9 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 	{
 		if (((MainActivity)context).podService != null)
 		{
-			if (((MainActivity)context).podService.currentEpisode != null)
+			if (((MainActivity)context).podService.mCurrentEpisode != null)
 			{
-				return this.findEpisodeInPlaylist(((MainActivity)context).podService.currentEpisode);
+				return this.findEpisodeInPlaylist(((MainActivity)context).podService.mCurrentEpisode);
 			}
 		}
 		return -1;
@@ -220,12 +221,7 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
     
     //This is to improve ListView performance. See link for details.
   	//http://developer.android.com/training/improving-layouts/smooth-scrolling.html
-  	static class ViewHolderItem {	
-  	    TextView episodeTitle;
-  	    TextView podcastTitle;
-  	    ProgressBar elapsedTimeBar;
-  	    ImageView currentEpisodeIndicator;
-  	}
+  	
 
 	public void onRemove(int which) {
 //		if (which < 0 || which > this.playList.size()) return;		

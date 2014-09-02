@@ -5,6 +5,8 @@
     android:orientation="vertical"
     android:paddingBottom="5dp"
     android:paddingTop="5dp"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
 	android:background="?android:attr/activatedBackgroundIndicator">
 	<RelativeLayout
 	    android:layout_width="match_parent"
@@ -29,8 +31,8 @@
 		        android:id="@+id/list_episode_row_episodeName"
 		        android:layout_width="wrap_content"
 		        android:layout_height="match_parent"
-		        android:textColor="@color/fragment_latest_list_episode_title"
-		        android:textSize="@dimen/fragment_latest_list_episode_title"
+		        android:textColor="@color/episode_list_row_title"
+		        android:textSize="@dimen/fragment_latest_list_episode_row"
 		        android:textStyle="bold"
 	        android:fontFamily="sans-serif-light"
 		        android:maxLines="1"
@@ -40,8 +42,8 @@
 		        android:id="@+id/list_episode_row_feedName"
 		        android:layout_width="wrap_content"
 		        android:layout_height="match_parent"
-		        android:textColor="@color/fragment_latest_list_feed_title"
-		        android:textSize="@dimen/fragment_latest_list_feed_title"
+		        android:textColor="@color/episode_list_row_title"
+		        android:textSize="@dimen/fragment_latest_list_episode_row"
 		        android:textStyle="bold"
 	        android:fontFamily="sans-serif-light"
 		        android:maxLines="1"
@@ -56,15 +58,15 @@
 			        android:layout_width="match_parent"
 			        android:layout_height="match_parent"
 		        android:fontFamily="sans-serif-light"
-			        android:textColor="@color/fragment_latest_list_episode_age"
-			        android:textSize="@dimen/fragment_latest_list_episode_age"/>
+			        android:textColor="@color/episode_list_row_subtitle"
+			        android:textSize="@dimen/fragment_latest_list_episode_row"/>
 			    <TextView
 			        android:id="@+id/list_episode_row_new"
 			        android:layout_width="wrap_content"
 			        android:layout_height="match_parent"
 			        android:layout_marginLeft="5dp"
-			        android:textColor="@color/fragment_latest_list_row_new"
-			        android:textSize="@dimen/fragment_latest_list_row_new"
+			        android:textColor="@color/episode_list_row_notification"
+			        android:textSize="@dimen/fragment_latest_list_episode_row"
 			        android:textStyle="bold"
 		        android:fontFamily="sans-serif-light"
 			        android:maxLines="1"
@@ -86,18 +88,7 @@
 	        android:layout_marginTop="10dip"
 	        android:layout_marginRight="20dip"
 	    android:fontFamily="sans-serif-light"
-	        android:textColor="@color/fragment_latest_list_episode_description"
-	        android:textSize="@dimen/fragment_latest_list_episode_description"/>
-		<!-- <ProgressBar
-	        android:id="@+id/list_episode_row_elapsed_progressBar"
-	        style="?android:attr/progressBarStyleHorizontal"
-	        android:layout_width="40dp"
-	        android:layout_height="40dp"
-	        android:layout_marginLeft="5dp"
-	        android:layout_marginRight="5dp"
-	        android:layout_alignParentRight="true"
-	        android:rotation="-90.0"
-	        android:indeterminate="false"
-	        android:progressDrawable="@drawable/circular_progress_bar"/> -->
+	        android:textColor="@color/episode_list_row_subtitle"
+	        android:textSize="@dimen/fragment_latest_list_episode_row"/>
 	</LinearLayout>
 </LinearLayout>

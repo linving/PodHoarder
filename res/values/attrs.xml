@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PullRefreshLayout">
+       <attr name="ignoreScrollMotions" format="boolean" />
+   </declare-styleable>
+    <declare-styleable name="ToggleImageButton">
+       <attr name="checkedDrawable" format="integer" />
+       <attr name="unCheckedDrawable" format="integer" />
+   </declare-styleable>
+</resources>

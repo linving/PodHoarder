@@ -39,12 +39,12 @@ public class ServiceNotification
     _backwardIntent.setAction("backward");
     _backwardPendingIntent = PendingIntent.getService($context, 0, _backwardIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     
-    Feed currentFeed = $context.helper.getFeed($context.currentEpisode.getFeedId());
+    Feed currentFeed = $context.mHelper.getFeed($context.mCurrentEpisode.getFeedId());
     
     _smallView = new RemoteViews($context.getPackageName(), R.layout.service_notification);
     _smallView.setOnClickPendingIntent(R.id.service_notification_playpausebutton, _playPendingIntent);
     _smallView.setImageViewBitmap(R.id.service_notification_image, currentFeed.getFeedImage().imageObject());
-    _smallView.setTextViewText(R.id.service_notification_title, $context.currentEpisode.getTitle());
+    _smallView.setTextViewText(R.id.service_notification_title, $context.mCurrentEpisode.getTitle());
     _smallView.setTextViewText(R.id.service_notification_subtitle, currentFeed.getTitle());
 
     _bigView = new RemoteViews($context.getPackageName(), R.layout.service_notification_expanded);
@@ -52,7 +52,7 @@ public class ServiceNotification
     _bigView.setOnClickPendingIntent(R.id.service_notification_forwardbutton, _forwardPendingIntent);
     _bigView.setOnClickPendingIntent(R.id.service_notification_backwardbutton, _backwardPendingIntent);
     _bigView.setImageViewBitmap(R.id.service_notification_image, currentFeed.getFeedImage().imageObject());
-    _bigView.setTextViewText(R.id.service_notification_title, $context.currentEpisode.getTitle());
+    _bigView.setTextViewText(R.id.service_notification_title, $context.mCurrentEpisode.getTitle());
     _bigView.setTextViewText(R.id.service_notification_subtitle, currentFeed.getTitle());
     //_bigView.setTextViewText(R.id.service_notification_apptitle, "by " + $context.getText(R.string.app_name));
 

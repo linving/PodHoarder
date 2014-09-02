@@ -2,88 +2,48 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     
     <!-- General -->
-    <color name="fragment_separator">#323a45</color>
     <color name="list_separator">#b6c2d1</color>
     <color name="list_image_stroke">#323a45</color>
-    <color name="app_background">#e8e9eb</color>
+    <color name="app_background">#FFFFFF</color>
+    
+    <color name="app_blue_accent">#33b5e5</color>
+    <color name="app_blue_accent_bright">#33b5e5</color>
     
     <!-- Tabs -->
-    <color name="actionbar_title">#323a45</color>
-    <color name="actionbar_background">#e8e9eb</color>
-    <color name="tab_background">#323a45</color>
-    <color name="tab_text">#8c8c8c</color>
-    
-    <!-- Circular Progress Bar -->
-    <color name="circular_progress_bar_foreground">#ff33b5e5</color>
-    <!-- <color name="circular_progress_bar_background">#323232</color> -->
-    <color name="circular_progress_bar_background">#c1cfd9</color>
+    <color name="actionbar_title">#FFFFFF</color>
+    <color name="actionbar_background">#33b5e5</color>
     
     <!-- Player Fragment -->
-    <color name="fragment_player_podcast_title">#323a45</color>
-    <color name="fragment_player_podcast_episode">#323a45</color>
-    <color name="fragment_player_elapsed_time">#323a45</color>
-    <color name="fragment_player_total_time">#323a45</color>
-    <color name="fragment_player_seek_bar">#323a45</color>
-    <color name="fragment_player_next_button">#323a45</color>
-    <color name="fragment_player_next_button_pressed">#323a45</color>
-    <color name="fragment_player_play_button">#323a45</color>
-    <color name="fragment_player_play_button_pressed">#323a45</color>
-    <color name="fragment_player_previous_button">#323a45</color>
-    <color name="fragment_player_previous_button_pressed">#323a45</color>
+    <color name="fragment_player_podcast_text">#000000</color>
     
     <!-- Player Fragment List -->
-    <color name="fragment_player_playlist_header">#b6c2d1</color>
-    <color name="fragment_player_playlist_row_episode_title">#323a45</color>
-    <color name="fragment_player_playlist_row_podcast_title">#323a45</color>
     <color name="fragment_player_playlist_row_background_ondrag">#b6c2d1</color>
     
     <!-- Feeds Fragment -->
-    
-    <!-- Feeds Fragment Grid -->
     <color name="fragment_feeds_grid_item_title">#FFFFFF</color>
     <color name="fragment_feeds_grid_item_notification_text">#FFFFFF</color>
     <color name="fragment_feeds_grid_item_notification_background">#ff5a5f</color>
     <color name="fragment_feeds_grid_item_image_tint">#15FFFFFF</color>
     
     <!-- Feed Details Fragment -->
-    <color name="fragment_feed_details_title">#323a45</color>
-    <color name="fragment_feed_details_author">#323a45</color>
-    <color name="fragment_feed_details_category">#323a45</color>
-    <color name="fragment_feed_details_description">#323a45</color>
-    <color name="fragment_feed_details_swipe_up_hint">#323a45</color>
-    <color name="fragment_feed_details_swipe_down_hint">#323a45</color>
+    <color name="fragment_feed_details_title">#000000</color>
+    <color name="fragment_feed_details_text">#8d979e</color>
+    <color name="fragment_feed_details_hint">#323a45</color>
     
     <!-- Latest Episodes Fragment-->
     
     <!-- Latest Episodes Fragment List -->
-    <color name="fragment_latest_list_episode_title">#616161</color>
-    <color name="fragment_latest_list_feed_title">#616161</color>
-    <color name="fragment_latest_list_episode_status">#2e3641</color>
-    <color name="fragment_latest_list_episode_age">#c1cfd9</color>
-    <color name="fragment_latest_list_episode_description">#2e3641</color>
-    <color name="fragment_latest_list_row_new">#ff5a5f</color>
+	<color name="episode_list_row_title">#000000</color>
+	<color name="episode_list_row_title_listened">#9aa4ad</color>
+    <color name="episode_list_row_subtitle">#8d979e</color>
+    <color name="episode_list_row_subtitle_listened">#a6b1ba</color>
+    <color name="episode_list_row_notification">#ff5a5f</color>
     
     <!-- Search Fragment -->
-    <color name="search_list_feed_title">#616161</color>
-    <color name="search_list_feed_author">#616161</color>
-    <color name="search_list_feed_last_updated">#c1cfd9</color>
+    <color name="search_list_row_title">#000000</color>
+    <color name="search_list_row_subtitle">#8d979e</color>
     
-    <!-- Add Feed Popup Window -->
-    <color name="popup_add_feed_searchbar_textfield_foreground">#323a45</color>
-    <color name="popup_add_feed_searchbar_textfield_background">#FFFFFF</color>
-    <color name="popup_add_feed_searchresults_list_row_title">#323a45</color>
-    <color name="popup_add_feed_searchresults_list_row_description">#323a45</color>
-    
-    <!-- Service Notification -->
-    <color name="service_notification_title">#FFFFFF</color>
-	<color name="service_notification_subtitle">#FFFFFF</color>
-	<color name="service_notification_apptitle">#FFFFFF</color>
-	
-    <!-- Settings -->
-    
-    <!-- Refreshing Bar -->
-    <color name="refresh_bar_blue">#74b4da</color>
-    <color name="refresh_bar_green">#1fbba6</color>
-    <color name="refresh_bar_orange">#ffbb33</color>
-    <color name="refresh_bar_red">#ff5a5f</color>
+    <!-- Circular Progress Bar -->
+    <color name="circular_progress_bar_foreground">#ff33b5e5</color>
+    <color name="circular_progress_bar_background">#c1cfd9</color>
 </resources>

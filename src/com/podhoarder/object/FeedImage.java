@@ -19,22 +19,27 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.ThumbnailUtils;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 public class FeedImage 
 {
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.FeedImage";
 	
-	private int		feedId;
-	private String 	imageURL;
-	private Bitmap 	imageObject;
-	private Bitmap  thumbnail;
+	private int mImageSize;
+	private int mThumbnailSize;
 	
-	private ImageDownloadListener downloadListener;
+	private int		mFeedId;
+	private String 	mImageURL;
+	private Bitmap 	mImageObject;
+	private Bitmap  mThumbnail;
 	
-	private Context	ctx;
+	private ImageDownloadListener mDownloadListener;
+	
+	private Context	mContext;
 	
 	/**
      * Creates a new FeedImage object. Image will be downloaded and stored locally upon creation using the supplied URL.
@@ -45,12 +50,13 @@ public class FeedImage
      */
 	public FeedImage(int feedId, String onlineURL, boolean shouldCreateImage, Context ctx)
 	{
-		this.feedId = feedId;
-		this.imageURL = onlineURL;
-		this.imageObject = null;
-		this.thumbnail = null;
-		this.ctx = ctx;
-		if (this.feedId > 0 && shouldCreateImage)
+		this.mFeedId = feedId;
+		this.mImageURL = onlineURL;
+		this.mImageObject = null;
+		this.mThumbnail = null;
+		this.mContext = ctx;
+		setupImageDimensions();
+		if (this.mFeedId > 0 && shouldCreateImage)
 		{
 			this.loadImage(onlineURL);
 		}
@@ -62,22 +68,22 @@ public class FeedImage
 	 */
 	public BitmapDrawable imageObjectDrawable()
 	{
-		return new BitmapDrawable(this.ctx.getResources(),this.imageObject);
+		return new BitmapDrawable(this.mContext.getResources(),this.mImageObject);
 	}
 	
 	public BitmapDrawable thumbnailDrawable()
 	{
-		return new BitmapDrawable(this.ctx.getResources(),this.thumbnail);
+		return new BitmapDrawable(this.mContext.getResources(),this.mThumbnail);
 	}
 	
 	public Bitmap imageObject()
 	{
-		return this.imageObject;
+		return this.mImageObject;
 	}
 	
 	public Bitmap thumbnail()
 	{
-		return this.thumbnail;
+		return this.mThumbnail;
 	}
 	
 	/**
@@ -85,12 +91,12 @@ public class FeedImage
 	 */
 	private void saveImage() 
 	{
-		String fName = this.feedId + ".jpg";
-		File file = new File(ctx.getFilesDir(), fName);
+		String fName = this.mFeedId + ".jpg";
+		File file = new File(mContext.getFilesDir(), fName);
 	    try 
 	    {
 	    	FileOutputStream out = new FileOutputStream(file);
-	    	this.imageObject.compress(Bitmap.CompressFormat.JPEG, 50, out);
+	    	this.mImageObject.compress(Bitmap.CompressFormat.JPEG, 100, out);
 	    	out.flush();
 	    	out.close();
 	    	Log.d(LOG_TAG, "File downloaded from URL.");
@@ -99,9 +105,9 @@ public class FeedImage
 	    {
 	    	Log.e(LOG_TAG, "Error when saving image " + fName, e);
 	    }
-	    this.imageObject = decodeSampledBitmap(this.feedId + ".jpg", 100, 100);
-	    this.thumbnail = decodeSampledBitmap(this.feedId + ".jpg", 50, 50);
-	    if (this.downloadListener != null) this.downloadListener.downloadFinished(this.feedId);
+	    this.mImageObject = decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize);
+	    this.mThumbnail = decodeSampledBitmap(this.mFeedId + ".jpg", mThumbnailSize, mThumbnailSize);
+	    if (this.mDownloadListener != null) this.mDownloadListener.downloadFinished(this.mFeedId);
 	}
 	
 	/**
@@ -111,9 +117,22 @@ public class FeedImage
 	 */
 	private void loadImage(String url)
 	{
-		this.imageObject = decodeSampledBitmap(this.feedId + ".jpg", 100, 100);
-		this.thumbnail = decodeSampledBitmap(this.feedId + ".jpg", 50, 50);
+		this.mImageObject = decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize);
+		
+		this.mThumbnail = ThumbnailUtils.extractThumbnail(mImageObject, mThumbnailSize, mThumbnailSize);
+		//decodeSampledBitmap(this.mFeedId + ".jpg", mThumbnailSize, mThumbnailSize);
 		Log.d(LOG_TAG, "File loaded from local storage.");
+	}
+	
+	/**
+	 * Loads a scaled version of the saved Bitmap file.
+	 * @param width Desired width.
+	 * @param height Desired height.
+	 * @return A properly scaled Bitmap object.
+	 */
+	public Bitmap loadScaledImage(int width, int height)
+	{
+		return decodeSampledBitmap(this.mFeedId + ".jpg", width, height);
 	}
 
 	 /**
@@ -125,7 +144,7 @@ public class FeedImage
 
         public BitmapDownloaderTask() 
         {
-        	imageObject = null;;
+        	mImageObject = null;;
         }
 
         /**
@@ -153,7 +172,7 @@ public class FeedImage
             }
             else
             {
-            	imageObject = bitmap;
+            	mImageObject = bitmap;
             	saveImage();
             }
         }
@@ -222,9 +241,19 @@ public class FeedImage
 
     public String getImageURL()
     {
-    	return this.imageURL;
+    	return this.mImageURL;
     }
 
+    /**
+     * Defines Image and Thumbnail dimensions relative to screen size.
+     */
+    private void setupImageDimensions()
+    {
+    	DisplayMetrics displayMetrics = mContext.getResources().getDisplayMetrics();
+        this.mImageSize = displayMetrics.widthPixels / 2;
+        this.mThumbnailSize = this.mImageSize / 2;
+    }
+    
     private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) 
 	{
 	    // Raw height and width of image
@@ -258,7 +287,7 @@ public class FeedImage
             
             options.inJustDecodeBounds = true;
             
-			BitmapFactory.decodeStream(ctx.openFileInput(fileName), null, options);
+			BitmapFactory.decodeStream(mContext.openFileInput(fileName), null, options);
 			
 			// Calculate inSampleSize
 	        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
@@ -266,11 +295,11 @@ public class FeedImage
 	        // Decode bitmap with inSampleSize set
 	        options.inJustDecodeBounds = false;
 	        
-	        return BitmapFactory.decodeStream(ctx.openFileInput(fileName), null, options);
+	        return BitmapFactory.decodeStream(mContext.openFileInput(fileName), null, options);
 		} 
         catch (FileNotFoundException e)
 		{
-			new BitmapDownloaderTask().execute(this.imageURL);
+			new BitmapDownloaderTask().execute(this.mImageURL);
 			return null;
 		}
 
@@ -279,7 +308,7 @@ public class FeedImage
 
     public void setImageDownloadListener(ImageDownloadListener listener)
     {
-    	this.downloadListener = listener;
+    	this.mDownloadListener = listener;
     }
     
     public interface ImageDownloadListener 

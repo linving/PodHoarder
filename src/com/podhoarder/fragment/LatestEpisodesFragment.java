@@ -2,8 +2,6 @@ package com.podhoarder.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,15 +21,13 @@ import com.podhoarderproject.podhoarder.R;
  * @author Emil Almrot
  * 2014-05-21
  */
-public class LatestEpisodesFragment extends Fragment implements OnRefreshListener
+public class LatestEpisodesFragment extends Fragment
 {
 	
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.LatestEpisodesFragment";
 	
 	public ListView mainListView;
-	
-	private SwipeRefreshLayout swipeLayout;
 	
 	private View view;
 	private PodcastHelper helper;
@@ -44,7 +40,6 @@ public class LatestEpisodesFragment extends Fragment implements OnRefreshListene
 		
 		setupHelper();
 		setupListView();
-		setupRefreshControls();
 		
 		return view;
     }
@@ -95,20 +90,6 @@ public class LatestEpisodesFragment extends Fragment implements OnRefreshListene
     {
     	this.helper = ((com.podhoarder.activity.MainActivity)this.getActivity()).helper;
     }
-    
-    private void setupRefreshControls()
-    {
-    	swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
-        swipeLayout.setOnRefreshListener(this);
-        swipeLayout.setColorScheme(R.color.refresh_bar_blue, R.color.refresh_bar_green, R.color.refresh_bar_orange, R.color.refresh_bar_red);
-    }
-
-	@Override
-	public void onRefresh()
-	{
-		this.helper.setRefreshLayout(swipeLayout);	//Set the layout that should be updated once the Refresh task is done executing.
-		this.helper.refreshFeeds();	//Start the refresh process.
-	}
 
 	public EpisodeMultiChoiceModeListener getListSelectionListener()
 	{

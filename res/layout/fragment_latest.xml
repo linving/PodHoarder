@@ -4,22 +4,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/episodesFragment_container">
-
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_container"
+    <ListView
+        android:id="@+id/mainListView"
         android:layout_width="fill_parent"
-	    android:layout_height="match_parent"
-	    android:layout_gravity="center"
-	    android:layout_centerHorizontal="true">
-	    <ListView
-	        android:id="@+id/mainListView"
-	        android:layout_width="fill_parent"
-	        android:layout_height="fill_parent"
-	    	android:paddingLeft="5dp"
-	    	android:paddingRight="5dp"
-	        android:dividerHeight="1px"
-	        android:clickable="true"
-	        android:longClickable="true"
-		    android:fastScrollEnabled="true"/>
-	</android.support.v4.widget.SwipeRefreshLayout>
+        android:layout_height="fill_parent"
+    	android:paddingTop="1dp"
+    	android:clipToPadding="false"
+        android:dividerHeight="1px"
+        android:clickable="true"
+        android:longClickable="true"
+	    android:fastScrollEnabled="true"
+        android:fastScrollAlwaysVisible="true"/>
 </RelativeLayout>

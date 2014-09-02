@@ -1,107 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:podhoarder="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp">
-    <LinearLayout android:id="@+id/player_controls_text_container"
+    android:layout_marginBottom="10dp"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/player_controls_seekbar_container"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="25dp"
-        android:orientation="vertical">
-        <TextView android:id="@+id/player_controls_episode_title"
-	        android:layout_width="fill_parent" 
-	        android:layout_height="wrap_content" 
-    		android:focusable="true" 
-	        android:gravity="center_horizontal"
-	        android:textSize="@dimen/fragment_player_podcast_episode"
-	        android:textColor="@color/fragment_player_podcast_episode"
-	        android:fontFamily="sans-serif-light"
-	        android:singleLine="true" 
-        	android:ellipsize="marquee"
-        	android:marqueeRepeatLimit="marquee_forever"
-        	android:scrollHorizontally="true"/>
-    </LinearLayout>
-	<LinearLayout android:id="@+id/player_controls_button_container"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_marginBottom="10dp"
-        android:layout_marginTop="15dp"
-	    android:layout_below="@id/player_controls_text_container"
-	    android:orientation="horizontal"
-	    android:layout_centerHorizontal="true">
-	    <ImageButton android:id="@+id/player_controls_button_skip_backwards"
-	        android:layout_width="95dp"
-	        android:layout_height="65dp"
-	        android:paddingTop="15dp"
-	        android:paddingBottom="15dp"
-	        android:paddingRight="25dp"
-	        android:paddingLeft="25dp"
-	        android:scaleType="fitXY"
-	        android:src="@drawable/dark_player_backward"
-	        android:background="@null"
-	        android:alpha=".9"/>
-	    <ToggleButton android:id="@+id/player_controls_button_playpause"
-	        android:layout_width="65dp"
-	        android:layout_height="65dp"
-	        android:paddingLeft="25dp"
-	        android:paddingRight="25dp"
-	        android:layout_marginLeft="15dp"
-	        android:layout_marginRight="15dp"
-	        android:scaleType="fitXY"
-	        android:background="@drawable/player_button_playpause"
-	        android:textOff=""
-			android:textOn="" 
-	        android:alpha=".9"/>
-	    <ProgressBar
-	    	android:id="@+id/player_controls_loading_circle"
-	        android:layout_width="65dp"
-	        android:layout_height="65dp"
-	    	android:indeterminate="true"
-	    	style="?android:attr/progressBarStyle"
-	    	android:visibility="gone"/>
-	    <ImageButton android:id="@+id/player_controls_button_skip_forward"
-	        android:layout_width="95dp"
-	        android:layout_height="65dp"
-	        android:paddingTop="15dp"
-	        android:paddingBottom="15dp"
-	        android:paddingLeft="25dp"
-	        android:paddingRight="25dp"
-	        android:scaleType="fitXY"
-	        android:src="@drawable/dark_player_forward"
-	        android:background="@null"
-	        android:alpha=".9"/>
-	</LinearLayout>
-	
-	<RelativeLayout android:id="@+id/player_controls_seekbar_container"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="10dp"
-        android:layout_below="@id/player_controls_button_container">
-	    <RelativeLayout android:id="@+id/player_controls_seekbar_text_container"
-	        android:layout_width="fill_parent"
-        	android:layout_height="wrap_content"
-        	android:layout_marginLeft="10dp"
-        	android:layout_marginRight="10dp">
-	        <TextView android:id="@+id/player_controls_elapsed_time"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_alignParentLeft="true"
-	        android:fontFamily="sans-serif-light"
-		        android:textSize="@dimen/fragment_player_elapsed_time"/>
-		    <TextView android:id="@+id/player_controls_total_time"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_alignParentRight="true"
-	        android:fontFamily="sans-serif-light"
-		        android:textSize="@dimen/fragment_player_total_time"/>
-	    </RelativeLayout>
-	    <SeekBar android:id="@+id/player_controls_seekbar"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/player_controls_seekbar_text_container"
-	        android:visibility="invisible"/>
+        android:layout_height="0dp"
+        android:layout_weight="4">
+
+        <!-- <SeekBar -->
+        <!-- android:id="@+id/player_controls_seekbar" -->
+        <!-- android:layout_width="fill_parent" -->
+        <!-- android:layout_height="wrap_content" -->
+        <!-- android:visibility="invisible" /> -->
+
+        <com.podhoarder.component.CircularSeekBar
+            android:id="@+id/player_controls_seekbar"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_centerInParent="true" />
+
+        <RelativeLayout
+            android:id="@+id/player_controls_seekbar_text_container"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/player_controls_elapsed_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:fontFamily="sans-serif-light"
+                android:textColor="@color/fragment_player_podcast_text"
+                android:textSize="@dimen/fragment_player_time" />
+
+            <TextView
+                android:id="@+id/player_controls_total_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:fontFamily="sans-serif-light"
+                android:textColor="@color/fragment_player_podcast_text"
+                android:textSize="@dimen/fragment_player_time" />
+        </RelativeLayout>
     </RelativeLayout>
-</RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/player_controls_text_container"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/player_controls_episode_title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center_horizontal"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:textColor="@color/fragment_player_podcast_text"
+            android:textSize="@dimen/fragment_player_podcast_episode" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/player_controls_button_container"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="40dp"
+        android:layout_weight="1"
+        android:divider="?android:listDivider"
+        android:dividerPadding="12dip"
+        android:orientation="horizontal"
+        android:showDividers="middle" >
+
+        <ImageButton
+            android:id="@+id/player_controls_button_skip_backwards"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:alpha=".9"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="35dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/dark_player_backward" />
+
+        <com.podhoarder.component.ToggleImageButton
+            android:id="@+id/player_controls_button_playpause"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:alpha=".9"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="25dp"
+            android:scaleType="centerInside"
+            podhoarder:checkedDrawable="@drawable/dark_player_pause"
+            podhoarder:unCheckedDrawable="@drawable/dark_player_play"/>
+
+        <ProgressBar
+            android:id="@+id/player_controls_loading_circle"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/player_controls_button_skip_forward"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:alpha=".9"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="35dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/dark_player_forward" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- File created by the Android Action Bar Style Generator
+<!--
+     File created by the Android Action Bar Style Generator
 
      Copyright (C) 2011 The Android Open Source Project
      Copyright (C) 2012 readyState Software Ltd
@@ -21,21 +22,41 @@
 
     <style name="Theme.Podhoarder" parent="@android:style/Theme.Holo.Light">
         <item name="android:windowActionBar">true</item>
-		<item name="android:actionBarTabBarStyle">@style/TabBar</item>
-		<item name="android:actionBarTabStyle">@style/TabView</item>
-		<item name="android:actionModeCloseDrawable">@drawable/ic_action_remove</item>
+        <item name="android:actionBarTabBarStyle">@style/TabBar</item>
+        <item name="android:actionBarTabStyle">@style/TabView</item>
+        <item name="android:actionBarStyle">@style/ActionBar</item>
+        <item name="android:actionModeCloseDrawable">@drawable/ic_action_remove</item>
+        <item name="android:actionOverflowButtonStyle">@style/ActionBar.OverflowButtonStyle</item>
     </style>
 
-    
+    <style name="ActionBar" parent="@android:style/Widget.ActionBar">
+        <item name="android:background">@color/actionbar_background</item>
+        <item name="android:icon">@android:color/transparent</item>
+        <item name="android:titleTextStyle">@style/ActionBar.TitleTextStyle</item>
+    </style>
+
+    <style name="ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/actionbar_title</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="ActionBar.OverflowButtonStyle" parent="android:style/Widget.Holo.ActionButton.Overflow">
+        <item name="android:src">@drawable/ic_action_overflow</item>
+    </style>
+
     <style name="TabBar" parent="@android:style/Widget.ActionBar.TabBar">
-	    <item name="android:visibility">invisible</item>
-	    <item name="android:height">1sp</item>
-	    <item name="android:background">#000000</item>
-	</style>
-	
+        <item name="android:visibility">invisible</item>
+        <item name="android:height">1sp</item>
+        <item name="android:background">#000000</item>
+    </style>
+
     <style name="TabView" parent="@android:style/Widget.ActionBar.TabView">
         <item name="android:visibility">invisible</item>
-	    <item name="android:background">#000000</item>
-	    <item name="android:height">1sp</item>
+        <item name="android:background">#000000</item>
+        <item name="android:height">1sp</item>
     </style>
+
 </resources>

@@ -12,7 +12,6 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.Episode;
-import com.podhoarder.object.Feed;
 import com.podhoarderproject.podhoarder.R;
 
 public class PopupMenuUtils

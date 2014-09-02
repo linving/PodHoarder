@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.podhoarder.json.SearchResultItem;
 import com.podhoarder.util.ImageUtils;
+import com.podhoarder.util.ViewHolders.SearchResultsAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
 public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
@@ -73,7 +74,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
-		ViewHolderItem viewHolder;
+		SearchResultsAdapterViewHolder viewHolder;
 		
 		if (convertView == null)
 		{
@@ -82,7 +83,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 			convertView = inflater.inflate(R.layout.fragment_search_list_row, null);
 			
 			// Set up the ViewHolder
-	        viewHolder = new ViewHolderItem();
+	        viewHolder = new SearchResultsAdapterViewHolder();
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.search_list_feed_title);
 	        viewHolder.feedAuthor = (TextView) convertView.findViewById(R.id.search_list_feed_author);
 	        viewHolder.lastUpdated = (TextView) convertView.findViewById(R.id.search_list_feed_last_updated);
@@ -93,7 +94,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 		}
 		else
 		{
-			viewHolder = (ViewHolderItem) convertView.getTag();
+			viewHolder = (SearchResultsAdapterViewHolder) convertView.getTag();
 		}
 		
 		
@@ -127,13 +128,5 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 		return convertView;
 	}
 	
-	//This is to improve ListView performance. See link for details.
-	//http://developer.android.com/training/improving-layouts/smooth-scrolling.html
-	static class ViewHolderItem {	
-	    TextView 			feedTitle;
-	    TextView 			feedAuthor;
-	    TextView 			lastUpdated;
-	    ImageView 			explicitIndicator;
-	    ImageView 	feedImage;
-	}
+	
 }

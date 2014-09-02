@@ -4,7 +4,7 @@
     <!-- Background Drawable -->
     <item android:id="@android:id/background">
 	    <shape
-	        android:thickness="@dimen/circular_progress_bar_background"
+	        android:thickness="@dimen/circular_progress_bar_thickness"
 	        android:shape="ring"
 	        android:useLevel="false">
 	        	<solid android:color="@color/circular_progress_bar_background"/>
@@ -14,9 +14,9 @@
   	<!-- Progress/Foreground Drawable -->
 	<item android:id="@android:id/progress">
 	    <shape
-	        android:thickness="@dimen/circular_progress_bar_foreground"
+	        android:thickness="@dimen/circular_progress_bar_thickness"
 	        android:shape="ring">
-	  			<solid android:color="@android:color/holo_blue_light"/>  
+	  			<solid android:color="@color/app_blue_accent"/>  
 		</shape>
 	</item>
 	

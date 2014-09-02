@@ -18,19 +18,29 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.telephony.TelephonyManager;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
 
 import com.podhoarder.adapter.TabFragmentsAdapter;
+import com.podhoarder.component.PullRefreshLayout;
+import com.podhoarder.fragment.FeedDetailsFragment;
+import com.podhoarder.fragment.FeedFragment;
+import com.podhoarder.fragment.LatestEpisodesFragment;
+import com.podhoarder.fragment.SearchFragment;
 import com.podhoarder.object.Episode;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.HardwareIntentReceiver;
 import com.podhoarder.util.PodcastHelper;
-import com.podhoarder.fragment.*;
 import com.podhoarderproject.podhoarder.R;
 import com.viewpagerindicator.CirclePageIndicator;
 
@@ -39,7 +49,7 @@ import com.viewpagerindicator.CirclePageIndicator;
  * @author Sebastian Andersson
  * 2013-04-17
  */
-public class MainActivity extends FragmentActivity implements ActionBar.TabListener
+public class MainActivity extends FragmentActivity implements ActionBar.TabListener, OnRefreshListener
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.MainActivity";
@@ -52,6 +62,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     //Podcast Helper
     public PodcastHelper helper;
     
+    //Refresh Layout
+    private PullRefreshLayout swipeRefreshLayout;
     //Playback service
     public PodHoarderService podService;
 	
@@ -98,6 +110,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     {	
     	super.onCreate(savedInstanceState);
         // Initialisation
+        setupActionBar();
         setContentView(R.layout.activity_main);
         this.helper = new PodcastHelper(this);
         if (!this.musicBound)
@@ -114,7 +127,49 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     private void fragmentSetup()
     {
         doTabSetup();
+        setupRefreshControls();
 	    setInitialTab();
+    }
+    
+    private void setupActionBar()
+    {
+    	int titleId = 0;
+
+        titleId = getResources().getIdentifier("action_bar_title", "id", "android");
+
+        // Final check for non-zero invalid id
+        if (titleId > 0)
+        {
+            TextView titleTextView = (TextView) findViewById(titleId);
+
+            DisplayMetrics metrics = getResources().getDisplayMetrics();
+
+            // Fetch layout parameters of titleTextView (LinearLayout.LayoutParams : Info from HierarchyViewer)
+            LinearLayout.LayoutParams txvPars = (LayoutParams) titleTextView.getLayoutParams();
+            txvPars.gravity = Gravity.CENTER_HORIZONTAL;
+            txvPars.width = metrics.widthPixels;
+            titleTextView.setLayoutParams(txvPars);
+
+            titleTextView.setGravity(Gravity.CENTER);
+        }
+//    	this.getActionBar().setDisplayShowCustomEnabled(true);
+//    	this.getActionBar().setDisplayShowTitleEnabled(false);
+//    	
+//    	LayoutInflater inflater = LayoutInflater.from(this);
+//    	View v = inflater.inflate(R.layout.actionbar, null);
+//    	
+//    	TextView titleTextView = ((TextView)v.findViewById(R.id.actionbar_title));
+//        
+//        titleTextView.setAllCaps(true);
+//        titleTextView.setTextColor(getResources().getColor(R.color.actionbar_title));
+//        titleTextView.setTextSize(getResources().getDimension(R.dimen.default_title_indicator_text_size));
+//        titleTextView.setText(getString(R.string.app_name));
+//
+//        // Fetch layout parameters of titleTextView (LinearLayout.LayoutParams : Info from HierarchyViewer)
+//        RelativeLayout.LayoutParams txvPars = (LayoutParams) titleTextView.getLayoutParams();
+//        txvPars.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+//        titleTextView.setLayoutParams(txvPars);        
+//        this.getActionBar().setCustomView(v);
     }
     
     @Override
@@ -173,8 +228,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
         mPager.setAdapter(mAdapter);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setDisplayShowHomeEnabled(true);
         
         //Bind the title indicator to the adapter
         mTabIndicator = (CirclePageIndicator)findViewById(R.id.tabIndicator);
@@ -251,6 +304,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             public void onPageScrollStateChanged(int arg0) {  }
         });
     }
+    
+    private void setupRefreshControls()
+    {
+    	this.swipeRefreshLayout = (PullRefreshLayout) this.findViewById(R.id.swipe_container);
+    	this.swipeRefreshLayout.setOnRefreshListener(this);
+    	this.swipeRefreshLayout.setColorScheme(R.color.app_blue_accent, R.color.app_background, R.color.app_blue_accent, R.color.app_background);
+    }
 
 
     public void downloadEpisode(Episode ep)
@@ -293,7 +353,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	
 	public void setInitialTab()
 	{
-		switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString(SettingsActivity.SETTINGS_KEY_STARTTAB, ""+Constants.FEEDS_TAB_POSITION)))
+		switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.SETTINGS_KEY_STARTTAB, ""+Constants.FEEDS_TAB_POSITION)))
 		{
 			case Constants.FEEDS_TAB_POSITION:
                 setTab(Constants.FEEDS_TAB_POSITION);
@@ -428,5 +488,22 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     public void setTab(int pos) 
     {
     	this.mPager.setCurrentItem(pos);
+    }
+    
+    @Override
+	public void onRefresh()
+	{
+		this.helper.setRefreshLayout(this.swipeRefreshLayout);	//Set the layout that should be updated once the Refresh task is done executing.
+		this.helper.refreshFeeds();	//Start the refresh process.
+	}
+    
+    public void disableRefresh()
+    {
+    	this.swipeRefreshLayout.setEnabled(false);
+    }
+    
+    public void enableRefresh()
+    {
+    	this.swipeRefreshLayout.setEnabled(true);
     }
 }

@@ -33,4 +33,7 @@
         android:entries="@array/pref_startTab_entries"
         android:entryValues="@array/pref_startTab_values"
         android:defaultValue="2" />
+    <Preference
+        android:key="pref_lastEpisode"
+        android:defaultValue="-1"/>
 </PreferenceScreen>

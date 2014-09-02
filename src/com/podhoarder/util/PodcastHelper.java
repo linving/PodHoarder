@@ -150,11 +150,11 @@ public class PodcastHelper
 			{
 				Log.w(LOG_TAG, "Feed Image not found! No delete necessary.");
 			}
-			if (this.feedDetailsListAdapter.feed != null)
+			if (this.feedDetailsListAdapter.mFeed != null)
 			{
-				if (this.feedDetailsListAdapter.feed.getFeedId() == feedId)	//If we are removing the current active Feed in the FeedDetailsPage we need to set it to null.
+				if (this.feedDetailsListAdapter.mFeed.getFeedId() == feedId)	//If we are removing the current active Feed in the FeedDetailsPage we need to set it to null.
 				{
-					this.feedDetailsListAdapter.feed = null;	//This will prevent the refreshLists() from trying to get a Feed that's no longer in the db.
+					this.feedDetailsListAdapter.mFeed = null;	//This will prevent the refreshLists() from trying to get a Feed that's no longer in the db.
 				}	
 			}
 		}
@@ -223,8 +223,7 @@ public class PodcastHelper
 			// in order for this if to run, you must use the android 3.2 to compile your app
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) 
 			{
-			    request.allowScanningByMediaScanner();
-			    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+			    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
 			}
 			//TODO: If there is no sdcard, DownloadManager will throw an exception because it cannot save to a non-existing directory. Make sure the directory is valid or something.
 			request.setDestinationInExternalPublicDir(this.storagePath, FileUtils.sanitizeFileName(ep.getTitle())  + ".mp3");
@@ -838,12 +837,22 @@ public class PodcastHelper
 	/**
 	 * Retrieves a Feed object using a Feed ID as parameter.
 	 * @param feedId ID of the Feed to retrieve.
-	 * @return A feed object.
+	 * @return A Feed object.
 	 */
 	public Feed getFeed(int feedId)
 	{
 		int index = this.getFeedPositionWithId(feedId);
 		return this.feedsListAdapter.mItems.get(index);
+	}
+	
+	/**
+	 * Retrieves an Episode object using Episode ID as parameter.
+	 * @param episodeId ID of the Episode to retrieve.
+	 * @return An Episode object.
+	 */
+	public Episode getEpisode(int episodeId)
+	{
+		return this.eph.getEpisode(episodeId);
 	}
 	
 	public BitmapDrawable getFeedImage(int feedId)
@@ -1002,9 +1011,9 @@ public class PodcastHelper
 				this.feedsListAdapter = new GridListAdapter(this.fDbH.getAllFeeds(), this.context);
 			
 			//Feed Details List
-			if (this.feedDetailsListAdapter != null && this.feedDetailsListAdapter.feed != null)
+			if (this.feedDetailsListAdapter != null && this.feedDetailsListAdapter.mFeed != null)
 			{
-				this.feedDetailsListAdapter.replaceItems(this.fDbH.getFeed(this.feedDetailsListAdapter.feed.getFeedId()).getEpisodes());
+				this.feedDetailsListAdapter.replaceItems(this.fDbH.getFeed(this.feedDetailsListAdapter.mFeed.getFeedId()).getEpisodes());
 				this.feedDetailsListAdapter.notifyDataSetChanged();
 			}
 			else if (this.feedDetailsListAdapter == null)
@@ -1086,9 +1095,9 @@ public class PodcastHelper
         	this.latestEpisodes = eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT);
         	this.playlist = eph.getPlaylistEpisodes();
         	this.feeds = fDbH.getAllFeeds();
-        	if (feedDetailsListAdapter != null && feedDetailsListAdapter.feed != null)
+        	if (feedDetailsListAdapter != null && feedDetailsListAdapter.mFeed != null)
     		{
-    			this.feedDetailsEpisodes = fDbH.getFeed(feedDetailsListAdapter.feed.getFeedId()).getEpisodes();
+    			this.feedDetailsEpisodes = fDbH.getFeed(feedDetailsListAdapter.mFeed.getFeedId()).getEpisodes();
     		}
         	
         	//Replace and reload the Feeds Grid List.
@@ -1101,7 +1110,7 @@ public class PodcastHelper
         	playlistAdapter.replaceItems(this.playlist);
         	
         	//Replace and reload the Feed Details List only when a feed is selected.
-        	if (feedDetailsListAdapter != null && feedDetailsListAdapter.feed != null)
+        	if (feedDetailsListAdapter != null && feedDetailsListAdapter.mFeed != null)
         	{
         		feedDetailsListAdapter.replaceItems(feedDetailsEpisodes);
         	}	

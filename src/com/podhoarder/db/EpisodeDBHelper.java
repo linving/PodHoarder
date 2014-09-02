@@ -7,9 +7,6 @@ package com.podhoarder.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.podhoarder.object.Episode;
-import com.podhoarder.object.EpisodePointer;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -17,6 +14,9 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
+
+import com.podhoarder.object.Episode;
+import com.podhoarder.object.EpisodePointer;
 
 public class EpisodeDBHelper
 {
@@ -202,8 +202,8 @@ public class EpisodeDBHelper
 		Episode ep = new Episode();
 		this.db = this.dbHelper.getWritableDatabase();
 		Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + id, null, null, null, null);
-		this.db.close();
 		cursor.moveToFirst();
+		this.db.close();
 		ep = cursorToEpisode(cursor);
 		return ep;
 	}
@@ -338,15 +338,23 @@ public class EpisodeDBHelper
 	    values.put(columns[6], updatedEpisode.getElapsedTime());
 	    values.put(columns[7], updatedEpisode.getTotalTime());
 	    values.put(columns[8], updatedEpisode.getFeedId());
+	    try
+	    {
+	    	this.db = this.dbHelper.getWritableDatabase();
+		    this.db.update(TABLE_NAME, values, columns[0] + " = " + updatedEpisode.getEpisodeId(), null);
+		    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + updatedEpisode.getEpisodeId(), null, null, null, null);
+		    Log.w(LOG_TAG,"Updated Episode with id: " + updatedEpisode.getEpisodeId());
+		    cursor.moveToFirst();
+		    this.db.close();
+		    ep = cursorToEpisode(cursor);
+			return ep;
+	    }
+	    catch (IllegalStateException e)
+	    {
+	    	Log.e(LOG_TAG, "Failed to update Episode with id: " + updatedEpisode.getEpisodeId() + "!");
+	    	return updatedEpisode;
+	    }
 	    
-	    this.db = this.dbHelper.getWritableDatabase();
-	    this.db.update(TABLE_NAME, values, columns[0] + " = " + updatedEpisode.getEpisodeId(), null);
-	    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + updatedEpisode.getEpisodeId(), null, null, null, null);
-	    Log.w(LOG_TAG,"Updated Episode with id: " + updatedEpisode.getEpisodeId());
-	    cursor.moveToFirst();
-	    ep = cursorToEpisode(cursor);
-	    this.db.close();
-		return ep;
 	}
 	
 	/**

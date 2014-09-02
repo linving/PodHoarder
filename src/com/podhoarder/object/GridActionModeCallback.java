@@ -17,6 +17,7 @@ import android.widget.ImageView;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.GridListAdapter;
+import com.podhoarder.component.CheckableRelativeLayout;
 import com.podhoarderproject.podhoarder.R;
 
 public class GridActionModeCallback implements ActionMode.Callback

@@ -6,8 +6,6 @@ import java.util.List;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +18,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.podhoarder.activity.MainActivity;
-import com.podhoarder.object.CheckableRelativeLayout;
+import com.podhoarder.component.CheckableRelativeLayout;
 import com.podhoarder.object.GridActionModeCallback;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.PodcastHelper;
@@ -31,15 +29,13 @@ import com.podhoarderproject.podhoarder.R;
  * @author Sebastian Andersson
  * 2013-04-17
  */
-public class FeedFragment extends Fragment implements OnRefreshListener
+public class FeedFragment extends Fragment
 {
 
 	@SuppressWarnings("unused")
 	private static final String 				LOG_TAG = "com.podhoarderproject.podhoarder.FeedFragment";
 	
 	public 	GridView 			mainGridView;
-	
-	private SwipeRefreshLayout 	swipeLayout;
 	
 	private View 				view;
 	private PodcastHelper 		helper;
@@ -68,7 +64,6 @@ public class FeedFragment extends Fragment implements OnRefreshListener
 		
 		setupHelper();
 		setupGridView();
-		setupRefreshControls();
 		return view;
     }
     
@@ -164,22 +159,5 @@ public class FeedFragment extends Fragment implements OnRefreshListener
     	}
     	return views;
     }
-    
-    private void setupRefreshControls()
-    {
-    	swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
-        swipeLayout.setOnRefreshListener(this);
-        swipeLayout.setColorScheme(R.color.refresh_bar_blue, 
-        		R.color.refresh_bar_green, 
-        		R.color.refresh_bar_orange, 
-                R.color.refresh_bar_red);
-    }
-    
-    @Override
-	public void onRefresh()
-	{
-		this.helper.setRefreshLayout(swipeLayout);	//Set the layout that should be updated once the Refresh task is done executing.
-		this.helper.refreshFeeds();	//Start the refresh process.
-	}
     
 }

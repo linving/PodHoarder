@@ -16,15 +16,15 @@ import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import com.ericharlow.DragNDrop.DragListener;
 import com.ericharlow.DragNDrop.DragNDropListView;
 import com.ericharlow.DragNDrop.DropListener;
 import com.podhoarder.adapter.DragNDropAdapter;
+import com.podhoarder.component.CircularSeekBar;
+import com.podhoarder.component.CircularSeekBar.OnSeekChangeListener;
+import com.podhoarder.component.ToggleImageButton;
 import com.podhoarder.object.Episode;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.util.PodcastHelper;
@@ -38,8 +38,7 @@ import com.podhoarderproject.podhoarder.R;
  */
 public class PlayerFragment extends Fragment
 {
-	@SuppressWarnings("unused")
-	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PlayFragment";
+	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PlayerFragment";
 	
 	public ListView mainListView;
 	
@@ -49,14 +48,14 @@ public class PlayerFragment extends Fragment
 	private PodHoarderService podService;
 	
 	//UI Elements
-	public ToggleButton playPauseButton;
+	public ToggleImageButton playPauseButton;
 	public ProgressBar	loadingCircle;
 	public ImageButton forwardButton;
 	public ImageButton backwardButton;
 	public TextView episodeTitle;
 	public TextView elapsedTime;
 	public TextView totalTime;
-	public SeekBar seekBar;
+	public CircularSeekBar seekBar;
 	public ProgressBar elapsedTimeBar;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -67,7 +66,8 @@ public class PlayerFragment extends Fragment
     	setupListView();
     	setupMediaControls();
     	
-    	if (this.podService != null && this.podService.isPlaying())	playPauseButton.setChecked(false);
+    	if (this.podService != null && this.podService.isPlaying())	
+			this.playPauseButton.setChecked(false);
     	return this.view;
     }
     
@@ -83,7 +83,7 @@ public class PlayerFragment extends Fragment
     
     private void setupMediaControls()
     {
-    	this.playPauseButton = (ToggleButton)view.findViewById(R.id.player_controls_button_playpause);
+    	this.playPauseButton = (ToggleImageButton)view.findViewById(R.id.player_controls_button_playpause);
     	this.playPauseButton.setOnClickListener(mPlayPauseClickListener);
     	
     	this.loadingCircle = (ProgressBar)view.findViewById(R.id.player_controls_loading_circle);
@@ -100,9 +100,10 @@ public class PlayerFragment extends Fragment
     	    	
     	this.totalTime = (TextView)view.findViewById(R.id.player_controls_total_time);
     	
-    	this.seekBar = (SeekBar)view.findViewById(R.id.player_controls_seekbar);
-    	this.seekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
+    	this.seekBar = (CircularSeekBar)view.findViewById(R.id.player_controls_seekbar);
+    	this.seekBar.setSeekBarChangeListener(mSeekBarChangeListener);
     }
+
     
 	@Override
 	public void onStart()
@@ -113,8 +114,14 @@ public class PlayerFragment extends Fragment
 		{
 			this.podService.setUIElements(playPauseButton, loadingCircle, episodeTitle, elapsedTime, totalTime, seekBar, helper);
 		}
-		if (this.podService != null && this.podService.currentEpisode != null) this.podService.updateUI();
-		else if (this.podService != null && this.podService.currentEpisode == null) this.podService.resetUI();
+		if (this.podService != null && this.podService.mCurrentEpisode != null) 
+		{
+			if (this.podService.isPlaying())
+				this.podService.updateUI();
+			else
+				this.podService.setUI();
+		}
+		else if (this.podService != null && this.podService.mCurrentEpisode == null) this.podService.loadLastPlayedEpisode();
 	}
     
     private void setupListView()
@@ -175,6 +182,7 @@ public class PlayerFragment extends Fragment
 			start(epPos);
 		}
 	}
+
 	
 	//UI Logic
 	//List Listeners
@@ -287,24 +295,30 @@ public class PlayerFragment extends Fragment
 
         @Override
         public void onClick(View view) {
-            if(((ToggleButton)view).isChecked())
+            if(!((ToggleImageButton)view).isChecked())
             {
                 //Button is ON
                 // Do Something 
-            	if (podService.getPlaylistSize() > 0)	//First we have to make sure that there are any episodes in the list.
+            	if (podService.mCurrentEpisode != null)
             	{
-            		if (podService.currentEpisode == null)	//If there is no current episode assigned, we do it manually and set it to the first item in the playlist.
+            		if (podService.isCurrentTrackLoaded())
+            			resume();
+            		else
+            			podService.playEpisode(podService.mCurrentEpisode);
+            	}
+            	else
+            	{
+            		if (podService.getPlaylistSize() > 0)	//First we have to make sure that there are any episodes in the list.
                 	{
-                		podService.playEpisode(0);
-                	}
-                	else resume();
+            			podService.playEpisode(0);
+                	}	
             	}
             }
             else
             {
             	//Button is OFF
                 // Do Something
-            	if (podService.currentEpisode != null)
+            	if (podService.mCurrentEpisode != null)
             	{
             		pause();	
             	}
@@ -336,29 +350,36 @@ public class PlayerFragment extends Fragment
     };
 
     //Seekbar Listener
-    private OnSeekBarChangeListener mSeekBarChangeListener = new OnSeekBarChangeListener() {    
+    private CircularSeekBar.OnSeekChangeListener mSeekBarChangeListener = new OnSeekChangeListener() {    
 
-        @Override       
-        public void onStopTrackingTouch(SeekBar seekBar) {
-        	//Let the service go back to updating the seekBar position.
-        	podService.setUpdateBlocked(false);
-        }       
+//        @Override       
+//        public void onStopTrackingTouch(SeekBar seekBar) {
+//        	//Let the service go back to updating the seekBar position.
+//        	podService.setUpdateBlocked(false);
+//        }       
+//
+//        @Override       
+//        public void onStartTrackingTouch(SeekBar seekBar) {  
+//        	//This prevents the PodService tasks to update and set the seekBar position while the user has "grabbed" it.
+//            podService.setUpdateBlocked(true);    
+//        }       
+//
+//        @Override       
+//        public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+//        	//fromUser makes sure that it's user input that triggers the seekBar position change.
+//        	if (fromUser)
+//        	{
+//        		podService.seek(progress);
+//        	}
+//        }
 
-        @Override       
-        public void onStartTrackingTouch(SeekBar seekBar) {  
-        	//This prevents the PodService tasks to update and set the seekBar position while the user has "grabbed" it.
-            podService.setUpdateBlocked(true);    
-        }       
-
-        @Override       
-        public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
-        	//fromUser makes sure that it's user input that triggers the seekBar position change.
-        	if (fromUser)
-        	{
-        		podService.seek(progress);
-        	}
-        }       
+		@Override
+		public void onProgressChange(CircularSeekBar view, int newProgress, boolean fromTouch)
+		{
+    		//podService.seek(newProgress);
+			if (fromTouch)
+				podService.seek(newProgress);
+		}       
     };
-    
-	
+
 }

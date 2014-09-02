@@ -7,26 +7,30 @@ package com.podhoarder.adapter;
 import java.text.ParseException;
 import java.util.List;
 
-import com.podhoarder.object.Episode;
-import com.podhoarder.object.Feed;
-import com.podhoarder.util.PodcastHelper;
-import com.podhoarderproject.podhoarder.R;
-
 import android.content.Context;
+import android.content.res.Resources;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+
+import com.podhoarder.activity.MainActivity;
+import com.podhoarder.object.Episode;
+import com.podhoarder.object.Feed;
+import com.podhoarder.util.PodcastHelper;
+import com.podhoarder.util.ViewHolders.FeedDetailsAdapterViewHolder;
+import com.podhoarderproject.podhoarder.R;
 
 public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.FeedDetailsListAdapter";
-	public 	Feed feed;
-	private Context context;
+	public 	Feed mFeed;
+	private Context mContext;
 
 	/**
 	 * Creates a LatestEpisodesListAdapter (Constructor).
@@ -39,7 +43,7 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 	 */
 	public FeedDetailsListAdapter(Context context)
 	{
-		this.context = context;
+		this.mContext = context;
 	}
 	
 	/**
@@ -48,20 +52,20 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 	 */
 	public void replaceItems(List<Episode> newItemCollection)
 	{
-		this.feed.getEpisodes().clear();
-		this.feed.getEpisodes().addAll(newItemCollection);
+		this.mFeed.getEpisodes().clear();
+		this.mFeed.getEpisodes().addAll(newItemCollection);
 	}
 	
 	public void setFeed(Feed feedToSet)
 	{
-		this.feed = feedToSet;
+		this.mFeed = feedToSet;
 		this.notifyDataSetChanged();
 	}
 
 	@Override
 	public int getCount()
 	{
-		return this.feed.getEpisodes().size();
+		return this.mFeed.getEpisodes().size();
 	}
 
 	@Override
@@ -79,31 +83,31 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 	@Override
 	public Object getItem(int position)
 	{
-		return this.feed.getEpisodes().get(position);
+		return this.mFeed.getEpisodes().get(position);
 	}
 
 	@Override
 	public long getItemId(int position)
 	{
-		return this.feed.getEpisodes().get(position).getEpisodeId();
+		return this.mFeed.getEpisodes().get(position).getEpisodeId();
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
-		ViewHolderItem viewHolder;
+		FeedDetailsAdapterViewHolder viewHolder;
 		
 		if (convertView == null)
 		{
 			//Inflate
-			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			LayoutInflater inflater = (LayoutInflater) this.mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			convertView = inflater.inflate(R.layout.fragment_feed_details_list_row, null);
 			
 			// Set up the ViewHolder
-	        viewHolder = new ViewHolderItem();
+	        viewHolder = new FeedDetailsAdapterViewHolder();
 	        viewHolder.episodeTitle = (TextView) convertView.findViewById(R.id.list_episode_row_episodeName);
-	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.list_episode_row_feedName);
 	        viewHolder.episodeAge = (TextView) convertView.findViewById(R.id.list_episode_row_episodeAge);
+	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.list_episode_row_feed_image);
 	        viewHolder.newNotification = (TextView) convertView.findViewById(R.id.list_episode_row_new);
 	        viewHolder.episodeDescription = (TextView) convertView.findViewById(R.id.list_episode_row_expandableTextView);
 	        
@@ -112,17 +116,15 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 		}
 		else
 		{
-			viewHolder = (ViewHolderItem) convertView.getTag();
+			viewHolder = (FeedDetailsAdapterViewHolder) convertView.getTag();
 		}
 		
 		
-		Episode currentEpisode = this.feed.getEpisodes().get(position);
+		Episode currentEpisode = this.mFeed.getEpisodes().get(position);
 		
 		if(currentEpisode != null) {
 			//Set Episode Title
 			viewHolder.episodeTitle.setText(currentEpisode.getTitle());	
-			//Set Feed Title
-			viewHolder.feedTitle.setText(this.feed.getTitle());
 			//Set Episode Description
 			viewHolder.episodeDescription.setText(currentEpisode.getDescription());	
 			//Set Episode Timestamp.
@@ -143,28 +145,54 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 				viewHolder.newNotification.setVisibility(View.VISIBLE);
 			else
 				viewHolder.newNotification.setVisibility(View.GONE);
+
+			viewHolder.feedImage.setImageBitmap(mFeed.getFeedImage().thumbnail());
 			
-			if (currentEpisode.isListened())
-			{
-				convertView.setAlpha(.5f);
-			}
-			else
-			{
-				convertView.setAlpha(1f);
-			}
-			
+			setRowListened(mContext, viewHolder, currentEpisode.isListened());			
 		}
 		
 		return convertView;
 	}
 
-	//This is to improve ListView performance. See link for details.
-	//http://developer.android.com/training/improving-layouts/smooth-scrolling.html
-	static class ViewHolderItem {	
-	    TextView episodeTitle;
-	    TextView feedTitle;
-	    TextView episodeAge;
-	    TextView newNotification;
-	    TextView episodeDescription;
+	public static void setRowListened(Context ctx, View row, boolean listened)
+	{
+		Resources res = ctx.getResources();
+		if (listened)
+		{
+			row.findViewById(R.id.list_episode_row_feed_image).setAlpha(.5f);
+			((TextView)row.findViewById(R.id.list_episode_row_episodeName)).setTextColor(res.getColor(R.color.episode_list_row_title_listened));
+			((TextView)row.findViewById(R.id.list_episode_row_expandableTextView)).setTextColor(res.getColor(R.color.episode_list_row_title_listened));
+			((TextView)row.findViewById(R.id.list_episode_row_episodeAge)).setTextColor(res.getColor(R.color.episode_list_row_subtitle_listened));
+			if (((TextView)row.findViewById(R.id.list_episode_row_new)).getVisibility() == View.VISIBLE) ((TextView)row.findViewById(R.id.list_episode_row_new)).setVisibility(View.GONE);
+		}
+		else
+		{
+			row.findViewById(R.id.list_episode_row_feed_image).setAlpha(1f);
+			((TextView)row.findViewById(R.id.list_episode_row_episodeName)).setTextColor(res.getColor(R.color.episode_list_row_title));
+			((TextView)row.findViewById(R.id.list_episode_row_expandableTextView)).setTextColor(res.getColor(R.color.episode_list_row_title));
+			((TextView)row.findViewById(R.id.list_episode_row_episodeAge)).setTextColor(res.getColor(R.color.episode_list_row_subtitle));
+		}
+		
+	}
+	
+	public static void setRowListened(Context ctx, FeedDetailsAdapterViewHolder row, boolean listened)
+	{
+		Resources res = ctx.getResources();
+		if (listened)
+		{
+			row.feedImage.setAlpha(.5f);
+			row.episodeTitle.setTextColor(res.getColor(R.color.episode_list_row_title_listened));
+			row.episodeAge.setTextColor(res.getColor(R.color.episode_list_row_subtitle_listened));
+			row.episodeDescription.setTextColor(res.getColor(R.color.episode_list_row_subtitle_listened));
+			if (row.newNotification.getVisibility() == View.VISIBLE) row.newNotification.setVisibility(View.GONE);
+		}
+		else
+		{
+			row.feedImage.setAlpha(1f);
+			row.episodeTitle.setTextColor(res.getColor(R.color.episode_list_row_title));
+			row.episodeAge.setTextColor(res.getColor(R.color.episode_list_row_subtitle));
+			row.episodeDescription.setTextColor(res.getColor(R.color.episode_list_row_subtitle));
+		}
+		
 	}
 }

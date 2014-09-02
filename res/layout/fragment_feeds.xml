@@ -4,26 +4,22 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/feedFragment_container">
-	
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_container"
+
+    <GridView 
+        android:id="@+id/mainGridView"
         android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:layout_centerInParent="true"
-	    android:layout_gravity="center">
-	    <GridView 
-	        android:id="@+id/mainGridView"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:paddingLeft="2dp"
-	    	android:paddingTop="2dp"
-	    	android:layout_gravity="center"
-	        android:columnWidth="@dimen/fragment_feeds_grid_item"
-		    android:numColumns="auto_fit"
-		    android:verticalSpacing="2dp"
-		    android:horizontalSpacing="2dp"
-		    android:stretchMode="none"
-		    android:clickable="true"
-		    android:longClickable="true"/>
-	 </android.support.v4.widget.SwipeRefreshLayout>
+        android:layout_height="match_parent"
+        android:paddingLeft="2dp"
+    	android:paddingTop="2dp"
+    	android:paddingBottom="2dp"
+    	android:clipToPadding="false"
+    	android:layout_gravity="center"
+        android:columnWidth="@dimen/fragment_feeds_grid_item"
+	    android:numColumns="auto_fit"
+	    android:verticalSpacing="2dp"
+	    android:horizontalSpacing="2dp"
+	    android:stretchMode="none"
+	    android:clickable="true"
+	    android:longClickable="true"/>
+    
 </RelativeLayout>

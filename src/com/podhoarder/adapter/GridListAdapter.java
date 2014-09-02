@@ -18,11 +18,13 @@ import android.widget.TextView;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.activity.SettingsActivity;
-import com.podhoarder.object.CheckableRelativeLayout;
+import com.podhoarder.component.CheckableRelativeLayout;
 import com.podhoarder.object.Feed;
 import com.podhoarder.object.FeedImage.ImageDownloadListener;
 import com.podhoarder.object.GridActionModeCallback;
 import com.podhoarder.util.Constants;
+import com.podhoarder.util.ImageUtils;
+import com.podhoarder.util.ViewHolders.FeedsAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
 public class GridListAdapter extends BaseAdapter implements ImageDownloadListener
@@ -143,7 +145,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     
     public View getView(int position, View convertView, ViewGroup parent) {
     	
-    	FeedViewHolderItem viewHolder;
+    	FeedsAdapterViewHolder viewHolder;
     	
     	if (position == 0)
     	{
@@ -160,6 +162,9 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     		if (position == getCount()-1)
     			return mFooterView;
     	}
+    	
+    	if (position >= mItems.size())
+    		return null;
 
     	if (convertView != null && convertView.findViewById(R.id.fragment_feeds_grid_loading_item) != null) 
     	{ 
@@ -174,19 +179,21 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 		if (convertView == null)
 		{
 			//Inflate
-			LayoutInflater inflater = (LayoutInflater) this.mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = inflater.inflate(R.layout.fragment_feeds_grid_item, null);
-			convertView.setMinimumHeight(mGridItemSize);
-			convertView.setMinimumWidth(mGridItemSize);
+			convertView = this.mInflater.inflate(R.layout.fragment_feeds_grid_item, null);
+//			convertView.setMinimumHeight(mGridItemSize);
+//			convertView.setMinimumWidth(mGridItemSize);
 			
 			
 			// Set up the ViewHolder
-	        viewHolder = new FeedViewHolderItem();
+	        viewHolder = new FeedsAdapterViewHolder();
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.feeds_grid_item_text);
 	        viewHolder.feedNumberOfEpisodes = (TextView) convertView.findViewById(R.id.feeds_grid_item_notification);
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.feeds_grid_item_image);
+	        
 	        viewHolder.feedImage.setMinimumHeight(mGridItemSize);
 	        viewHolder.feedImage.setMinimumWidth(mGridItemSize);
+	        viewHolder.feedImage.setMaxHeight(mGridItemSize);
+	        viewHolder.feedImage.setMaxWidth(mGridItemSize);
 	        viewHolder.checkableLayout = (CheckableRelativeLayout) convertView.findViewById(R.id.feeds_grid_item_checkableLayout);
 	        
 	        // Store the holder with the view.
@@ -194,7 +201,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 		}
 		else
 		{
-			viewHolder = (FeedViewHolderItem) convertView.getTag();
+			viewHolder = (FeedsAdapterViewHolder) convertView.getTag();
 		}
 		
 		
@@ -204,7 +211,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 		{
 			try
 			{
-				if (PreferenceManager.getDefaultSharedPreferences(this.mContext).getBoolean(SettingsActivity.SETTINGS_KEY_GRIDSHOWTITLE, true))
+				if (PreferenceManager.getDefaultSharedPreferences(this.mContext).getBoolean(Constants.SETTINGS_KEY_GRIDSHOWTITLE, true))
 				{
 					viewHolder.feedTitle.setText(currentFeed.getTitle());	//Set Feed Title
 				}
@@ -221,7 +228,8 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 					viewHolder.feedNumberOfEpisodes.setVisibility(View.GONE);
 				}
     			
-    			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().imageObject());
+    			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().loadScaledImage(mGridItemSize, mGridItemSize));
+    			ImageUtils.scaleImage(mContext, viewHolder.feedImage, mGridItemSize);
     			viewHolder.feedImage.setColorFilter(mContext.getResources().getColor(R.color.fragment_feeds_grid_item_image_tint));
     			
     			final int pos = position;
@@ -273,16 +281,9 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 
         this.mScreenHeight = displayMetrics.heightPixels / displayMetrics.density;
         this.mScreenWidth = displayMetrics.widthPixels / displayMetrics.density;
-        
         this.mGridItemSize = Math.round(((mScreenWidth/2) - 4f) * displayMetrics.density);	//The 4f is added padding.
     }
     
-    static class FeedViewHolderItem {	
-	    TextView feedTitle;
-	    TextView feedNumberOfEpisodes;
-	    ImageView feedImage;
-	    CheckableRelativeLayout checkableLayout;
-	}
 
 	@Override
 	public void downloadFinished(int feedId)

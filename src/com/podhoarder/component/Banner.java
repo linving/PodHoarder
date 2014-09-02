@@ -1,4 +1,4 @@
-package com.podhoarder.object;
+package com.podhoarder.component;
 
 import android.content.Context;
 import android.util.AttributeSet;

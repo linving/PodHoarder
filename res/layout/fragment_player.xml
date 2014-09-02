@@ -1,66 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/playerFragment_container"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-	android:paddingLeft="10dp"
-	android:paddingRight="10dp"
-    android:orientation="vertical" 
-    android:id="@+id/playerFragment_container">
-    <LinearLayout 
-        android:id="@+id/player_controls_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="20dp"
-        android:orientation="vertical">
-        
-        <include layout="@layout/player_controls"
-            android:id="@+id/player_controls"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"/>
-        
-    </LinearLayout>
+    android:orientation="vertical">
     
-    <RelativeLayout
-        android:id="@+id/player_loading_container"
+
+    <include
+        android:id="@+id/player_controls"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:visibility="gone">
-        <ProgressBar
-		   android:id="@+id/progress"
-		   style="?android:attr/progressBarStyleLarge"
-		   android:layout_width="wrap_content"
-		   android:layout_height="fill_parent"
-		   android:layout_gravity="center_vertical|center_horizontal"
-		   android:visibility="gone" />
-    </RelativeLayout>
-      
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:paddingTop="20dip"
+        layout="@layout/player_controls" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:paddingTop="30dp"
-        android:orientation="vertical">
-		<TextView android:id="@+id/playlist_header"
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:layout_marginLeft="10dp"
-		    android:maxLines="1"
-		    android:textSize="@dimen/fragment_player_playlist_header"
-		    android:textColor="@color/fragment_player_playlist_header"
-		    android:fontFamily="sans-serif-light"
-		    android:text="@string/fragment_player_playlist_header"/>
-		<ImageView android:id="@+id/playlist_header_underline"
-		    android:layout_width="match_parent"
-		    android:layout_height="1px"
-		    android:layout_marginLeft="10dp"
-		    android:layout_marginBottom="10dp"
-		    android:background="?android:attr/listDivider"/>
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/playlist_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:fontFamily="sans-serif-light"
+            android:maxLines="1"
+            android:text="@string/fragment_player_playlist_header"
+            android:textColor="@color/fragment_player_podcast_text"
+            android:textSize="@dimen/fragment_player_playlist_header" />
+
+        <ImageView
+            android:id="@+id/playlist_header_underline"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:background="?android:attr/listDivider" />
+
         <com.ericharlow.DragNDrop.DragNDropListView
             android:id="@+id/playlist"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:divider="@null">
+            android:divider="@null" >
         </com.ericharlow.DragNDrop.DragNDropListView>
-        
     </LinearLayout>
-    
+
 </LinearLayout>

@@ -1,21 +1,17 @@
 package com.podhoarder.activity;
 
-import com.podhoarderproject.podhoarder.R;
-
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
+
+import com.podhoarder.util.Constants;
+import com.podhoarderproject.podhoarder.R;
 
 public class SettingsActivity extends PreferenceActivity
 {
-	public static String SETTINGS_KEY_DELETELISTENED = "pref_deleteListened";
-	public static String SETTINGS_KEY_PLAYNEXTFILE = "pref_playNextFile";
-	public static String SETTINGS_KEY_STARTTAB = "pref_startTab";
-	public static String SETTINGS_KEY_GRIDSHOWTITLE = "pref_gridShowTitle";
-	
-	public static String SETTINGS_GROUP_KEY_PLAYER = "pref_player";
-	public static String SETTINGS_GROUP_KEY_UI = "pref_ui";
 	
 	
 	@Override
@@ -33,6 +29,9 @@ public class SettingsActivity extends PreferenceActivity
         {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
+            Preference somePreference = findPreference(Constants.SETTINGS_KEY_LASTEPISODE);
+            PreferenceScreen preferenceScreen = getPreferenceScreen();
+            preferenceScreen.removePreference(somePreference);
         }
     }
 }

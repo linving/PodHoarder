@@ -11,9 +11,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -38,7 +36,6 @@ import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.SearchResultsAdapter;
 import com.podhoarder.json.SearchResult;
 import com.podhoarder.json.SearchResultItem;
-import com.podhoarder.object.EpisodeMultiChoiceModeListener;
 import com.podhoarder.object.SearchResultMultiChoiceModeListener;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.DialogUtils;
