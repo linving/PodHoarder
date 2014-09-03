@@ -180,8 +180,6 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 		{
 			//Inflate
 			convertView = this.mInflater.inflate(R.layout.fragment_feeds_grid_item, null);
-//			convertView.setMinimumHeight(mGridItemSize);
-//			convertView.setMinimumWidth(mGridItemSize);
 			
 			
 			// Set up the ViewHolder

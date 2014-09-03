@@ -443,13 +443,12 @@ public class CircularSeekBar extends View {
 	 * @param color
 	 *            the new back ground color
 	 */
-	public void setBackGround(Bitmap drawable) 
+	public void setBackground(Bitmap drawable) 
 	{
 		backgroundBitmap = ImageUtils.getCircularBitmap(drawable);
 		backgroundPaint = new Paint();
 		backgroundPaint.setAntiAlias(true);
 		backgroundPaint.setDither(true);
-		//this.measure(MeasureSpec.AT_MOST, MeasureSpec.AT_MOST);
 	}
 
 	/**

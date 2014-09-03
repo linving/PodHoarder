@@ -36,6 +36,7 @@ public class FeedImage
 	
 	private int		mFeedId;
 	private String 	mImageURL;
+	private	Bitmap 	mLargeImage;
 	private Bitmap 	mImageObject;
 	private Bitmap  mThumbnail;
 	
@@ -83,6 +84,11 @@ public class FeedImage
 		return this.mImageObject;
 	}
 	
+	public Bitmap largeImage()
+	{
+		return mLargeImage;
+	}
+
 	public Bitmap thumbnail()
 	{
 		return this.mThumbnail;
@@ -107,7 +113,7 @@ public class FeedImage
 	    {
 	    	Log.e(LOG_TAG, "Error when saving image " + fName, e);
 	    }
-	    this.mImageObject = decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize);
+	    this.mImageObject = ImageUtils.scaleImage(mContext, decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize), mImageSize);
 	    this.mThumbnail = decodeSampledBitmap(this.mFeedId + ".jpg", mThumbnailSize, mThumbnailSize);
 	    if (this.mDownloadListener != null) this.mDownloadListener.downloadFinished(this.mFeedId);
 	}
@@ -119,7 +125,9 @@ public class FeedImage
 	 */
 	private void loadImage(String url)
 	{
-		this.mImageObject = ImageUtils.scaleImage(mContext, decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize), mImageSize);
+		this.mLargeImage = decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize);
+		
+		this.mImageObject = ImageUtils.scaleImage(mContext, this.mLargeImage, mImageSize);
 		
 		this.mThumbnail = ThumbnailUtils.extractThumbnail(mImageObject, mThumbnailSize, mThumbnailSize);
 		//decodeSampledBitmap(this.mFeedId + ".jpg", mThumbnailSize, mThumbnailSize);

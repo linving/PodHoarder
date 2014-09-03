@@ -84,7 +84,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void onCompletion(MediaPlayer arg0)
 	{
 		this.mCurrentTrackLoaded = false;
-		if (this.mCurrentEpisode != null && isPlaying())
+		if (this.mCurrentEpisode != null)
 		{
 			this.mCurrentEpisode.setElapsedTime(this.mCurrentEpisode.getTotalTime());	//Set elapsed time to total time (100% of the Episode)
 			this.mCurrentEpisode = mHelper.updateEpisodeNoRefresh(this.mCurrentEpisode);	//Update the db object.
@@ -201,7 +201,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		{
 			this.mSeekBar.setMaxProgress(this.mCurrentEpisode.getTotalTime());
 			this.mSeekBar.setProgress(this.mCurrentEpisode.getElapsedTime());
-			this.mSeekBar.setBackGround(this.mHelper.getFeed(this.mCurrentEpisode.getFeedId()).getFeedImage().imageObject());
+			this.mSeekBar.setBackground(this.mHelper.getFeed(this.mCurrentEpisode.getFeedId()).getFeedImage().largeImage());
 			this.mSeekBar.invalidate();
 		}
 		if (isLoading())
@@ -234,7 +234,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		{
 			this.mSeekBar.setMaxProgress(this.mCurrentEpisode.getTotalTime());
 			this.mSeekBar.setProgress(this.mCurrentEpisode.getElapsedTime());
-			this.mSeekBar.setBackGround(this.mHelper.getFeed(this.mCurrentEpisode.getFeedId()).getFeedImage().imageObject());
+			this.mSeekBar.setBackground(this.mHelper.getFeed(this.mCurrentEpisode.getFeedId()).getFeedImage().largeImage());
 			this.mSeekBar.invalidate();
 		}
 	}
