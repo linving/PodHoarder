@@ -375,8 +375,31 @@ public class ImageUtils
 
 		return BitmapFactory.decodeFile(filePath, options);
 	}
+	
+	public static Bitmap scaleImage(Context ctx, Bitmap bitmap, int boundBoxInDp)
+	{
+	    // Get current dimensions
+	    int width = bitmap.getWidth();
+	    int height = bitmap.getHeight();
 
-	public static void scaleImage(Context ctx, ImageView view, int boundBoxInDp)
+	    // Determine how much to scale: the dimension requiring less scaling is
+	    // closer to the its side. This way the image always stays inside your
+	    // bounding box AND either x/y axis touches it.
+	    float xScale = ((float) boundBoxInDp) / width;
+	    float yScale = ((float) boundBoxInDp) / height;
+	    float scale = (xScale <= yScale) ? xScale : yScale;
+
+	    // Create a matrix for the scaling and add the scaling data
+	    Matrix matrix = new Matrix();
+	    matrix.postScale(scale, scale);
+
+	    // Create a new bitmap and convert it to a format understood by the ImageView
+	    Bitmap scaledBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+
+	    return scaledBitmap;
+	}
+
+	public static void scaleImageView(Context ctx, ImageView view, int boundBoxInDp)
 	{
 	    // Get the ImageView and its bitmap
 	    Drawable drawing = view.getDrawable();

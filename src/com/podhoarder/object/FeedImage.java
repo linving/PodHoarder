@@ -15,6 +15,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 
+import com.podhoarder.util.ImageUtils;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -117,7 +119,7 @@ public class FeedImage
 	 */
 	private void loadImage(String url)
 	{
-		this.mImageObject = decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize);
+		this.mImageObject = ImageUtils.scaleImage(mContext, decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize), mImageSize);
 		
 		this.mThumbnail = ThumbnailUtils.extractThumbnail(mImageObject, mThumbnailSize, mThumbnailSize);
 		//decodeSampledBitmap(this.mFeedId + ".jpg", mThumbnailSize, mThumbnailSize);

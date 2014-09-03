@@ -228,8 +228,8 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 					viewHolder.feedNumberOfEpisodes.setVisibility(View.GONE);
 				}
     			
-    			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().loadScaledImage(mGridItemSize, mGridItemSize));
-    			ImageUtils.scaleImage(mContext, viewHolder.feedImage, mGridItemSize);
+    			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().imageObject());
+    			//ImageUtils.scaleImageView(mContext, viewHolder.feedImage, mGridItemSize);
     			viewHolder.feedImage.setColorFilter(mContext.getResources().getColor(R.color.fragment_feeds_grid_item_image_tint));
     			
     			final int pos = position;
@@ -291,7 +291,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 		removeLoadingItem();
 		if (isLoading())
 		{
-			((MainActivity)this.mContext).helper.refreshListsAsync();
+			((MainActivity)this.mContext).helper.forceRefreshListsAsync();
 		}
 	}
 }

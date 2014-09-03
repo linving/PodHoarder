@@ -85,6 +85,45 @@ public class FeedDBHelper
 		return feeds;
 	}
 
+	public List<Feed> refreshFeedData(List<Feed> feeds, boolean reloadBitmaps)
+	{
+		List<Feed> updatedFeeds = new ArrayList<Feed>();
+		long startTime = System.currentTimeMillis();
+		if (!reloadBitmaps)
+		{
+			updatedFeeds = getAllFeeds(false);
+			if (updatedFeeds.size() == feeds.size())
+			{
+				for (int i = 0; i<feeds.size(); i++)
+				{
+					updatedFeeds.get(i).setFeedImage(feeds.get(i).getFeedImage());
+				}
+			}
+			else
+			{
+				for (int i = 0; i<updatedFeeds.size(); i++)
+				{
+					Feed currentFeed = updatedFeeds.get(i);
+					if (i >= feeds.size()) //The feeds collection that was returned from db is bigger than the one we sent in as a parameter. A Feed has been added.
+					{
+						currentFeed = this.getFeed(currentFeed.getFeedId());	//We need to load the new Feed and the corresponding Bitmap directly from the db.
+					}
+					else if (currentFeed.getFeedId() == feeds.get(i).getFeedId())
+					{
+						currentFeed.setFeedImage(feeds.get(i).getFeedImage());	//Transfer the Feed image from the "old" Feed to the updated one, that currently does not have a Feed image (for performance reasons)
+					}
+				}
+			}
+		}
+		else
+		{
+			updatedFeeds = getAllFeeds();
+		}
+		long endTime = System.currentTimeMillis();
+		Log.d(LOG_TAG, "Feeds updated in " + (endTime - startTime) + " ms with reloadBitmaps set to: " + reloadBitmaps);
+		return updatedFeeds;
+	}
+	
 	/**
 	 * 
 	 * Retrieves a Feed from the SQLite database.

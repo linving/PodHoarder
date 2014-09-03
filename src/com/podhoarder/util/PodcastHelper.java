@@ -1086,7 +1086,7 @@ public class PodcastHelper
         }
 
         /**
-         * Actual download method.
+         * Actual refresh method.
          * This function does all the work "in the background". (In this case it gets all the new data from the db)
          */
         @Override
@@ -1094,7 +1094,7 @@ public class PodcastHelper
         {
         	this.latestEpisodes = eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT);
         	this.playlist = eph.getPlaylistEpisodes();
-        	this.feeds = fDbH.getAllFeeds();
+        	this.feeds = fDbH.refreshFeedData(feedsListAdapter.mItems, false);
         	if (feedDetailsListAdapter != null && feedDetailsListAdapter.mFeed != null)
     		{
     			this.feedDetailsEpisodes = fDbH.getFeed(feedDetailsListAdapter.mFeed.getFeedId()).getEpisodes();
