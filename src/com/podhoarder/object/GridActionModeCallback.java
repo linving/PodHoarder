@@ -74,7 +74,7 @@ public class GridActionModeCallback implements ActionMode.Callback
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         // Inflate the menu for the CAB
         MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.feed_menu, menu);
+        inflater.inflate(R.menu.contextual_menu_feed, menu);
         this.mActionMode = mode;
 		this.mActive = true;
         return true;
@@ -197,11 +197,11 @@ public class GridActionModeCallback implements ActionMode.Callback
 
     private int getSelectedItemColor()
     {
-    	int color = mContext.getResources().getColor(android.R.color.holo_blue_light);
-    	int red = Color.red(color);
-        int green = Color.green(color);
-        int blue = Color.blue(color);
-        return Color.argb(135, red, green, blue);
+    	int color = mContext.getResources().getColor(R.color.app_accent);
+    	int red = Color.red(color) + 30;
+        int green = Color.green(color) + 30;
+        int blue = Color.blue(color) + 30;
+        return Color.argb(125, red, green, blue);
     }
     
     /**

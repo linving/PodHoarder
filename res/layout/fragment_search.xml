@@ -1,37 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/searchFragment_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical"
     android:clickable="true">
-    <com.podhoarder.component.ClearableEditText 
-        android:id="@+id/search_text_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-   		android:hint="@string/search_hint"
-   		android:imeOptions="actionSearch"
-        android:maxLines="1"
-        android:maxLength="100"
-     	android:inputType="textCapWords"/>
-    <ProgressBar android:id="@+id/search_progressBar"
-        android:layout_width="25dip"
-        android:layout_height="25dip"
-        android:layout_marginTop="5dip"
-        android:layout_marginRight="5dip"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-		android:indeterminate="true"
-        android:visibility="invisible"/>
     <ListView
         android:id="@+id/mainListView"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_below="@id/search_text_input"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
     	android:paddingLeft="5dp"
     	android:paddingRight="5dp"
         android:dividerHeight="1px"
         android:clickable="true"
         android:longClickable="true"/>
-</RelativeLayout>
+</LinearLayout>

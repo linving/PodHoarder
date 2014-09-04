@@ -141,7 +141,7 @@ public class CircularSeekBar extends View {
 		circleRing = new Paint();
 		innerColor = new Paint();
 
-		circleColor.setColor(getResources().getColor(R.color.app_blue_accent)); // Set default
+		circleColor.setColor(getResources().getColor(R.color.app_accent)); // Set default
 		// progress
 		// color to holo
 		// blue.

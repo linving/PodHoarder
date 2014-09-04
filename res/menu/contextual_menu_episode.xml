@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- <item android:id="@+id/menu_episode_play_now"
-          android:title="@string/menu_episode_play_now"
-          android:icon="@drawable/ic_action_play" /> -->
     <item android:id="@+id/menu_episode_add_playlist"
           android:title="@string/menu_episode_add_playlist" 
           android:icon="@drawable/ic_action_add_to_queue"/>
@@ -12,7 +9,4 @@
     <item android:id="@+id/menu_episode_available_offline"
           android:title="@string/menu_episode_available_offline"
           android:icon="@drawable/ic_action_make_available_offline" />
-    <!-- <item android:id="@+id/menu_episode_deleteFile"
-          android:title="@string/menu_episode_deleteFile"
-          android:icon="@drawable/ic_action_discard" /> -->
 </menu>

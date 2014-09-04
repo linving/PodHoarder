@@ -72,7 +72,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         // Inflate the menu for the CAB
         MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.episode_menu, menu);
+        inflater.inflate(R.menu.contextual_menu_episode, menu);
         this.mActionMode = mode;
         this.mSelectedItems = new ArrayList<Integer>();
         this.mActive = true;

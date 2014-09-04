@@ -2,6 +2,7 @@
 <resources>
     <declare-styleable name="PullRefreshLayout">
        <attr name="ignoreScrollMotions" format="boolean" />
+       <attr name="handleHeight" format="dimension" />
    </declare-styleable>
     <declare-styleable name="ToggleImageButton">
        <attr name="checkedDrawable" format="integer" />

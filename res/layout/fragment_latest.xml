@@ -14,5 +14,6 @@
         android:clickable="true"
         android:longClickable="true"
 	    android:fastScrollEnabled="true"
-        android:fastScrollAlwaysVisible="true"/>
+        android:fastScrollAlwaysVisible="true"
+        android:listSelector="@drawable/list_selector"/>
 </RelativeLayout>

@@ -22,7 +22,7 @@ public class PopupMenuUtils
 	{
 		final PopupMenu actionMenu = new PopupMenu(context, anchorView);
 		MenuInflater inflater = actionMenu.getMenuInflater();
-		inflater.inflate(R.menu.playlist_row_menu, actionMenu.getMenu());
+		inflater.inflate(R.menu.contextual_menu_playlist_row, actionMenu.getMenu());
 		
 		if (!NetworkUtils.isOnline(context)) 	//Phone is not connected
 		{

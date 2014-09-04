@@ -20,6 +20,7 @@
 	    android:horizontalSpacing="2dp"
 	    android:stretchMode="none"
 	    android:clickable="true"
-	    android:longClickable="true"/>
+	    android:longClickable="true"
+        android:listSelector="@drawable/list_selector"/>
     
 </RelativeLayout>

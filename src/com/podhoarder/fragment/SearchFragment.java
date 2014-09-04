@@ -11,25 +11,23 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.content.Context;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
 import com.google.gson.Gson;
 import com.podhoarder.activity.MainActivity;
@@ -41,7 +39,7 @@ import com.podhoarder.util.Constants;
 import com.podhoarder.util.DialogUtils;
 import com.podhoarderproject.podhoarder.R;
 
-public class SearchFragment extends Fragment
+public class SearchFragment extends Fragment implements OnQueryTextListener
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.SearchFragment";
@@ -52,6 +50,7 @@ public class SearchFragment extends Fragment
 	
 	private String baseURL = "http://itunes.apple.com/search?media=podcast&entity=podcast&attribute=titleTerm&limit=" + Constants.SEARCH_RESULT_LIMIT + "&term=";	//Just append the search term to this string and you will receive the 25 most relevant results.
 	private String searchTerm = "";
+    private SearchView mSearchView;
 	
 	private ProgressBar	progressBar;
 	
@@ -64,11 +63,45 @@ public class SearchFragment extends Fragment
 		this.view = inflater.inflate(R.layout.fragment_search, container, false);
 
 		setupListView();
-		setupSearch();
-		
+		setHasOptionsMenu(true);
 		return this.view;
 	}
 	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+	{
+		
+		inflater = getActivity().getMenuInflater();
+		inflater.inflate(R.menu.search_menu, menu);
+		mSearchView =
+	            (SearchView) menu.findItem(R.id.action_search).getActionView();
+	    mSearchView.setQueryHint(getString(R.string.search_hint));
+
+	    mSearchView.setEnabled(true);
+	    
+	    mSearchView.setOnQueryTextListener(this);
+
+	    SearchView.SearchAutoComplete searchAutoComplete = (SearchView.SearchAutoComplete)mSearchView.findViewById(R.id.search_src_text);
+	    searchAutoComplete.setHintTextColor(Color.WHITE);
+	    searchAutoComplete.setTextColor(Color.WHITE);
+
+	    View searchplate = (View)mSearchView.findViewById(R.id.search_plate);
+	    searchplate.setBackgroundResource(R.drawable.abc_textfield_search_default_holo_dark);
+
+	    ImageView searchCloseIcon = (ImageView)mSearchView.findViewById(R.id.search_close_btn);
+	    searchCloseIcon.setImageResource(R.drawable.ic_action_remove);
+
+	    ImageView voiceIcon = (ImageView)mSearchView.findViewById(R.id.search_voice_btn);
+	    voiceIcon.setImageResource(R.drawable.abc_ic_voice_search);
+
+	    ImageView searchIcon = (ImageView)mSearchView.findViewById(R.id.search_mag_icon);
+	    searchIcon.setImageResource(R.drawable.abc_ic_search);
+	    
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+	
+	
+
 	private void doSearch(String searchString)
 	{
 		this.searchTerm = Normalizer.normalize(searchString, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
@@ -88,47 +121,6 @@ public class SearchFragment extends Fragment
 		{
 			this.searchTask = new SearchTask().execute(this.baseURL + this.searchTerm.replace(" ", "%20"));
 		}
-	}
-		
-	private void setupSearch()
-	{
-		this.progressBar = (ProgressBar) this.view.findViewById(R.id.search_progressBar);
-		
-		final InputMethodManager keyboard = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        
-		final EditText editText = (EditText) this.view.findViewById(R.id.search_text_input);
-		final RelativeLayout container = (RelativeLayout) this.view.findViewById(R.id.searchFragment_container);
-		editText.setOnEditorActionListener(new OnEditorActionListener() {
-		    @Override
-		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) 
-		    {
-		        boolean handled = false;
-		        if (actionId == EditorInfo.IME_ACTION_SEARCH) 
-		        {
-		            doSearch(v.getText().toString());
-		            handled = true;
-		            getActivity().getCurrentFocus().clearFocus();
-		            getActivity().getCurrentFocus().setSelected(false);
-		            container.requestFocus();
-		            container.setSelected(true);
-		            keyboard.hideSoftInputFromWindow(v.getWindowToken(), 0);
-		            //editText.clearFocus();
-		            //container.requestFocus(View.FOCUS_DOWN);
-		        }
-		        return handled;
-		    }
-		});
-		
-		editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-
-		    @Override
-		    public void onFocusChange(View v, boolean hasFocus) 
-		    {
-		    	if (hasFocus) keyboard.showSoftInput(v, 0);
-		    	else keyboard.hideSoftInputFromWindow(v.getWindowToken(), 0);
-		    }
-		});
-		editText.requestFocus();
 	}
 
 	private void setupListView()
@@ -160,7 +152,7 @@ public class SearchFragment extends Fragment
 		@Override
 		protected void onPreExecute()
 		{
-			progressBar.setVisibility(View.VISIBLE);		//Show progressbar
+			//progressBar.setVisibility(View.VISIBLE);		//Show progressbar
 		}
 		
 		@Override
@@ -229,7 +221,7 @@ public class SearchFragment extends Fragment
 		@Override
 		protected void onPostExecute(Void nothing) 
 		{
-			progressBar.setVisibility(View.INVISIBLE);	//Hide progressbar
+			//progressBar.setVisibility(View.INVISIBLE);	//Hide progressbar
 		};
 		
 		@Override
@@ -245,5 +237,19 @@ public class SearchFragment extends Fragment
 	public SearchResultMultiChoiceModeListener getListSelectionListener()
 	{
 		return mListSelectionListener;
+	}
+
+	@Override
+	public boolean onQueryTextChange(String arg0)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean onQueryTextSubmit(String arg0)
+	{
+		doSearch(arg0);
+		return false;
 	}
 }

@@ -6,11 +6,13 @@
     <color name="list_image_stroke">#323a45</color>
     <color name="app_background">#FFFFFF</color>
     
+    <color name="app_accent">#33b5e5</color>
     <color name="app_blue_accent">#33b5e5</color>
+    <color name="app_green_accent">#33bf9b</color>
+    <color name="app_red_accent">#ff5a5f</color>
     
     <!-- Tabs -->
     <color name="actionbar_title">#FFFFFF</color>
-    <color name="actionbar_background">#33b5e5</color>
     
     <!-- Player Fragment -->
     <color name="fragment_player_podcast_text">#000000</color>
@@ -38,6 +40,7 @@
     <color name="episode_list_row_notification">#ff5a5f</color>
     
     <!-- Search Fragment -->
+    <color name="search_view_selected_text">#FFFFFF</color>
     <color name="search_list_row_title">#000000</color>
     <color name="search_list_row_subtitle">#8d979e</color>
     

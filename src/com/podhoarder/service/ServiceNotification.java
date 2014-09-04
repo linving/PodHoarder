@@ -77,8 +77,8 @@ public class ServiceNotification
 
   public void showNotify(Service $context)
   {
-	  _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.white_ic_action_pause);
-	  _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.white_ic_action_pause);
+	  _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_action_pause);
+	  _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_action_pause);
 
     _playIntent.setAction("pause");
     _playPendingIntent = PendingIntent.getService($context, 0, _playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -91,8 +91,8 @@ public class ServiceNotification
 
   public void pauseNotify(Service $context)
   {
-	  _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.white_ic_action_play);
-	  _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.white_ic_action_play);
+	  _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_action_play);
+	  _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_action_play);
 
     _playIntent.setAction("play");
     _playPendingIntent = PendingIntent.getService($context, 0, _playIntent, PendingIntent.FLAG_UPDATE_CURRENT);

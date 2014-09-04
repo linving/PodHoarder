@@ -12,13 +12,7 @@
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="4">
-
-        <!-- <SeekBar -->
-        <!-- android:id="@+id/player_controls_seekbar" -->
-        <!-- android:layout_width="fill_parent" -->
-        <!-- android:layout_height="wrap_content" -->
-        <!-- android:visibility="invisible" /> -->
-
+        
         <com.podhoarder.component.CircularSeekBar
             android:id="@+id/player_controls_seekbar"
             android:layout_width="300dp"

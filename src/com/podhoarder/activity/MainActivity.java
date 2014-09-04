@@ -309,7 +309,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     {
     	this.swipeRefreshLayout = (PullRefreshLayout) this.findViewById(R.id.swipe_container);
     	this.swipeRefreshLayout.setOnRefreshListener(this);
-    	this.swipeRefreshLayout.setColorScheme(R.color.app_blue_accent, R.color.app_background, R.color.app_blue_accent, R.color.app_background);
+    	this.swipeRefreshLayout.setColorSchemeResources(R.color.app_accent, R.color.app_background, R.color.app_accent, R.color.app_background);
     }
 
 
@@ -321,7 +321,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft)
 	{
-		// TODO Auto-generated method stub
 		
 	}
 

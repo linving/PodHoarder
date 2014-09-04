@@ -49,6 +49,7 @@
         android:fastScrollEnabled="true"
         android:fastScrollAlwaysVisible="true"
         android:longClickable="true"
-        android:paddingTop="5dp" />
+        android:paddingTop="5dp"
+        android:listSelector="@drawable/list_selector" />
 
 </LinearLayout>

@@ -1,42 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-     File created by the Android Action Bar Style Generator
-
-     Copyright (C) 2011 The Android Open Source Project
-     Copyright (C) 2012 readyState Software Ltd
-
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-  
-          http://www.apache.org/licenses/LICENSE-2.0
-  
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
--->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.Podhoarder" parent="@android:style/Theme.Holo.Light">
+    <style name="Theme.Podhoarder" parent="@android:style/Theme.Holo.Light.DarkActionBar">
         <item name="android:windowBackground">@color/app_background</item>
         <item name="android:colorBackground">@color/app_background</item>
+        <item name="android:actionModeBackground">@color/app_accent</item>
         <item name="android:windowActionBar">true</item>
         <item name="android:actionBarTabBarStyle">@style/TabBar</item>
         <item name="android:actionBarTabStyle">@style/TabView</item>
         <item name="android:actionBarStyle">@style/ActionBar</item>
+    	<item name="android:actionBarWidgetTheme">@style/ActionBarWidget</item>
         <item name="android:actionModeCloseDrawable">@drawable/ic_action_remove</item>
         <item name="android:actionOverflowButtonStyle">@style/ActionBar.OverflowButtonStyle</item>
+        <item name="android:activatedBackgroundIndicator">@drawable/list_row_background</item>
+		<item name="android:selectableItemBackground">@drawable/bar_selector</item>
+		<item name="android:actionBarItemBackground">@drawable/bar_selector</item> 
+		<item name="android:actionMenuTextColor">@color/actionbar_title</item>
     </style>
 
     <style name="ActionBar" parent="@android:style/Widget.ActionBar">
-        <item name="android:background">@color/actionbar_background</item>
+        <item name="android:background">@color/app_accent</item>
         <item name="android:icon">@android:color/transparent</item>
         <item name="android:titleTextStyle">@style/ActionBar.TitleTextStyle</item>
     </style>
 
+    <style name="ActionBarWidget" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- SearchView customization-->
+        <item name="searchViewSearchIcon">@drawable/ic_action_search</item>
+        <item name="searchViewCloseIcon">@drawable/ic_action_remove</item>
+        <item name="searchViewTextField">@drawable/abc_textfield_search_default_holo_light</item>
+        <item name="searchViewAutoCompleteTextView">@style/AutoCompleteTextView</item>
+    </style>
+ 
+    <style name="AutoCompleteTextView" parent="Widget.AppCompat.Light.AutoCompleteTextView">
+        <item name="android:textColor">@color/actionbar_title</item>
+        <item name="android:textCursorDrawable">@null</item>
+        <item name="android:textColorHighlight">@color/search_view_selected_text</item>
+    </style>
+    
     <style name="ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
         <item name="android:textColor">@color/actionbar_title</item>
         <item name="android:textStyle">bold</item>

@@ -10,17 +10,18 @@ import com.podhoarderproject.podhoarder.R;
 
 public class PullRefreshLayout extends SwipeRefreshLayout
 {
-	/** Used to keep track of whether the current motion event is a valid refresh gesture.**/
 	private boolean mIsRefreshGesture;
+	private int mHandleHeight;
 	
-	/** When this is enabled, swipe to the right side of the screen will not be detected. **/
+	/** When this is enabled, swipes to the right side of the screen will not be detected. **/
 	private boolean mIgnoreScrollMotions;
 
 	public PullRefreshLayout(Context context)
 	{
 		super(context);
-		this.mIsRefreshGesture = false;
+		this.mHandleHeight = 0;
 		this.mIgnoreScrollMotions = false;
+		this.mIsRefreshGesture = false;
 	}
 
 	public PullRefreshLayout(Context context, AttributeSet attrs)
@@ -29,63 +30,62 @@ public class PullRefreshLayout extends SwipeRefreshLayout
 		loadAttributeSet(context, attrs);
 		this.mIsRefreshGesture = false;
 	}
+
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) 
 	{
-		if (!this.mIsRefreshGesture)
+		if (event.getAction() == MotionEvent.ACTION_UP)
 		{
-			int action = event.getAction();
-			switch (action)
-			{
-				case MotionEvent.ACTION_DOWN:
-					if (this.mIgnoreScrollMotions)
-					{
-						this.mIsRefreshGesture = ((event.getY() < this.getContext().getResources().getDisplayMetrics().heightPixels / 6) 
-								&& (event.getX() < (this.getContext().getResources().getDisplayMetrics().widthPixels / 6)*5));
-					}
-					else
-						this.mIsRefreshGesture = (event.getY() < this.getContext().getResources().getDisplayMetrics().heightPixels / 6);	//Check if the start location of the touch event is in the hotspot.
-					break;
-				case MotionEvent.ACTION_UP:
-					this.mIsRefreshGesture = false;
-					break;
-				case MotionEvent.ACTION_MOVE:
-					if (this.mIsRefreshGesture)
-						return super.onTouchEvent(event);
-					else
-						return false;
-			}
+			this.mIsRefreshGesture = false;
 		}
-		else if (this.isRefreshing())
+        return super.onTouchEvent(event);
+	}
+	
+	@Override
+	public boolean onInterceptTouchEvent(MotionEvent event) 
+	{
+		processMotionEvent(event);
+		return this.mIsRefreshGesture;
+	}
+	
+	private void processMotionEvent(MotionEvent event)
+	{
+		if (event.getAction() == MotionEvent.ACTION_DOWN)
 		{
-			return false;
+			float x = event.getX(), y = event.getY();
+			this.mIsRefreshGesture = isValidRefreshGesture(x,y); //If the touch event starts at a valid location on the screen, we will intercept all further touch events until MotionEvent.UP in onTouchEvent.
 		}
-		else
-		{
-			int action = event.getAction();
-			switch (action)
-			{
-				case MotionEvent.ACTION_UP:
-					this.mIsRefreshGesture = false;
-					break;
-				default:
-					return super.onTouchEvent(event);
-			}
-		}
-		return super.onTouchEvent(event);
 	}
 
+	
+	private boolean isValidRefreshGesture(float x, float y)
+	{
+		boolean ret = false;
+		if (this.isRefreshing())
+			return ret;
+		
+		if (this.mIgnoreScrollMotions)
+		{
+			ret = ((y < this.mHandleHeight) 
+					&& (x < (this.getContext().getResources().getDisplayMetrics().widthPixels / 6)*5));
+		}
+		else
+		{					
+			ret = (y < this.mHandleHeight);	//Check if the start location of the touch event is in the hotspot.				
+		}
+		return ret;
+	}
+
+	
 	private void loadAttributeSet(Context context, AttributeSet attrs)
 	{
-		TypedArray a = context.getTheme().obtainStyledAttributes(
-		        attrs,
-		        R.styleable.PullRefreshLayout,
-		        0, 0);
+		TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PullRefreshLayout, 0, 0);
 
 		   try 
 		   {
 			   mIgnoreScrollMotions = a.getBoolean(R.styleable.PullRefreshLayout_ignoreScrollMotions, false);
+			   mHandleHeight = a.getDimensionPixelOffset(R.styleable.PullRefreshLayout_handleHeight, 25);
 		   } 
 		   finally 
 		   {
