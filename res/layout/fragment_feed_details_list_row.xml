@@ -20,7 +20,7 @@
             android:layout_height="75dp"
             android:layout_centerVertical="true"
             android:alpha=".85"
-            android:background="@drawable/list_image" />
+            android:background="@drawable/list_image" android:contentDescription="TODO"/>
 
         <LinearLayout
             android:id="@+id/list_episode_row_text_container"

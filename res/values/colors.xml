@@ -7,7 +7,6 @@
     <color name="app_background">#FFFFFF</color>
     
     <color name="app_blue_accent">#33b5e5</color>
-    <color name="app_blue_accent_bright">#33b5e5</color>
     
     <!-- Tabs -->
     <color name="actionbar_title">#FFFFFF</color>
@@ -28,7 +27,6 @@
     <!-- Feed Details Fragment -->
     <color name="fragment_feed_details_title">#000000</color>
     <color name="fragment_feed_details_text">#8d979e</color>
-    <color name="fragment_feed_details_hint">#323a45</color>
     
     <!-- Latest Episodes Fragment-->
     
@@ -44,6 +42,5 @@
     <color name="search_list_row_subtitle">#8d979e</color>
     
     <!-- Circular Progress Bar -->
-    <color name="circular_progress_bar_foreground">#ff33b5e5</color>
     <color name="circular_progress_bar_background">#c1cfd9</color>
 </resources>

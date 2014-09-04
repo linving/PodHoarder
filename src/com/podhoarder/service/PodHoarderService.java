@@ -180,6 +180,11 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			{
 				this.skipBackward();
 			}
+			else if (intent.getAction().equals("close"))
+			{
+				this.pause();
+				this.stopForeground(true);
+			}
 		}
 		return super.onStartCommand(intent, flags, startId);
 	}

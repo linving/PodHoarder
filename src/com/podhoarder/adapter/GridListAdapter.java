@@ -17,13 +17,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.podhoarder.activity.MainActivity;
-import com.podhoarder.activity.SettingsActivity;
 import com.podhoarder.component.CheckableRelativeLayout;
 import com.podhoarder.object.Feed;
 import com.podhoarder.object.FeedImage.ImageDownloadListener;
 import com.podhoarder.object.GridActionModeCallback;
 import com.podhoarder.util.Constants;
-import com.podhoarder.util.ImageUtils;
 import com.podhoarder.util.ViewHolders.FeedsAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
 

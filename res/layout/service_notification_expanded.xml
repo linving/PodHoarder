@@ -35,6 +35,7 @@
                 style="@android:style/TextAppearance.StatusBar.EventContent.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="16dp"
                 android:ellipsize="end"
                 android:maxLines="1" />
 
@@ -62,7 +63,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:alpha=".9"
                 android:background="?android:attr/selectableItemBackground"
                 android:padding="5dp"
                 android:scaleType="centerInside"
@@ -73,7 +73,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:alpha=".9"
                 android:background="?android:attr/selectableItemBackground"
                 android:padding="10dp"
                 android:scaleType="centerInside" />
@@ -83,7 +82,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:alpha=".9"
                 android:background="?android:attr/selectableItemBackground"
                 android:padding="5dp"
                 android:scaleType="centerInside"
@@ -91,4 +89,13 @@
         </LinearLayout>
     </LinearLayout>
 
+    <ImageButton android:id="@+id/service_notification_closeButton"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_action_remove"
+        android:background="?android:attr/selectableItemBackground"
+        android:scaleType="centerInside"/>
 </RelativeLayout>

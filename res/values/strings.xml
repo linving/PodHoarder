@@ -4,23 +4,11 @@
     <!-- General -->
     <string name="app_name">PodHoarder</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_main">MainActivity</string>
     
     <!-- Player tab -->
-    <string name="player_tab">Player</string>
     <string name="fragment_player_playlist_header">Playlist</string>
     
-    <!-- Feed tab -->
-    <string name="feed_tab">Podcasts</string>
-    <string name="fragment_feed_list_add_row">Add New Podcast</string>
-    <string name="fragment_feeds_list_feed_row_deleteBtn">Delete</string>
-    
-    <!-- Feed Details Fragment -->
-    <string name="fragment_feed_details_swipe_up_hint">Swipe up for Podcast episodes.</string>
-    <string name="fragment_feed_details_swipe_down_hint">Swipe down for Podcast details.</string>
-    
     <!-- Latest Episodes tab -->
-    <string name="episodes_tab">Episodes</string>
     <string name="fragment_latest_list_row_new">NEW!</string>
     
     <!-- Search Fragment -->
@@ -29,8 +17,6 @@
     <string name="search_list_feed_last_updated_unknown">unknown</string>
     
     <!-- Settings -->
-    <string name="settings_title">Settings</string>
-    
     <string name="pref_group_player_title">Player Settings</string>
     
     <string name="pref_deleteListened_title">Delete Finished Episodes</string>
@@ -55,8 +41,6 @@
     <!-- Episode Context Menu -->
     <string name="menu_episode_add_playlist">Add To Playlist</string>
     <string name="menu_episode_available_offline">Make Available Offline</string>
-    <string name="menu_episode_play_now">Play Now</string>
-    <string name="menu_episode_deleteFile">Delete File</string>
     <string name="menu_episode_markAsListened">Mark As Listened</string>
     
     <!-- Playlist Context Menu -->
@@ -77,8 +61,6 @@
     
     <!--  Notifications -->
     <string name="notification_download_in_progress">Downloading</string>
-    <string name="notification_playing">Playing</string>
-    <string name="notification_paused">Paused</string>
     <string name="notification_by">by</string>
     
     <!-- Toast Notifications -->
@@ -91,10 +73,6 @@
     <string name="toast_add_feed_failed">Failed To Add Podcast!</string>
     
     <!-- Contextual Action Mode Bar-->
-    <string name="contextual_action_mode_single_podcast_selected">podcast selected.</string>
-    <string name="contextual_action_mode_multiple_podcasts_selected">podcasts selected.</string>
-    <string name="contextual_action_mode_single_episode_selected">episode selected.</string>
-    <string name="contextual_action_mode_multiple_episodes_selected">episodes selected.</string>
     <string name="contextual_action_mode_selected">selected.</string>
     
 </resources>

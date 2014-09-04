@@ -20,8 +20,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.podhoarderproject.podhoarder.R;
-
 public class ImageUtils
 {
 	public static Bitmap getCircularBitmap(Bitmap bitmap)
@@ -311,15 +309,6 @@ public class ImageUtils
 		overlay = fastblur(overlay, (int) radius);
 
 		view.setBackground(new BitmapDrawable(view.getResources(), overlay));
-	}
-
-	public static Bitmap buildBackground(Context ctx)
-	{
-		final BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inSampleSize = 2;
-		Bitmap blurTemplate = BitmapFactory.decodeResource(ctx.getResources(),
-				R.drawable.g645rwe37jv96vljg, options);
-		return blurTemplate;
 	}
 
 	public static class DownloadImageTask extends

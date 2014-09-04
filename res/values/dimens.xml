@@ -8,8 +8,6 @@
     <!-- Feed Details Fragment -->
     <dimen name="fragment_feed_details_title">22sp</dimen>
     <dimen name="fragment_feed_details_subtitle">14sp</dimen>
-    <dimen name="fragment_feed_details_text">18sp</dimen>
-    <dimen name="fragment_feed_details_hint">12sp</dimen>
     
     <!-- Latest Episodes Fragment -->
     
