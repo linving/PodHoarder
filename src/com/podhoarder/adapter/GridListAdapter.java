@@ -285,7 +285,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 	public void downloadFinished(int feedId)
 	{
 		removeLoadingItem();
-		if (isLoading())
+		if (!isLoading())
 		{
 			((MainActivity)this.mContext).helper.forceRefreshListsAsync();
 		}

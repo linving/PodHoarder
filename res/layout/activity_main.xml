@@ -30,7 +30,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="15dip"
         app:centered="true"
-        app:fillColor="@color/app_accent_bright"
+        app:fillColor="@color/almost_white"
         app:radius="4dp"
         app:snap="true"
         app:strokeColor="@color/almost_white" />

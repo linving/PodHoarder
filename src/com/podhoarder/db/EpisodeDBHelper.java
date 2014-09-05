@@ -10,6 +10,7 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
@@ -204,8 +205,15 @@ public class EpisodeDBHelper
 		Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + id, null, null, null, null);
 		cursor.moveToFirst();
 		this.db.close();
-		ep = cursorToEpisode(cursor);
-		return ep;
+		try
+		{
+			ep = cursorToEpisode(cursor);
+			return ep;
+		}
+		catch (CursorIndexOutOfBoundsException ex) //If the cursor is empty it means there is no episode with that ID. Return null instead.
+		{
+			return null;
+		}
 	}
 	
 	/**

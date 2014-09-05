@@ -106,7 +106,8 @@ public class FeedDBHelper
 					Feed currentFeed = updatedFeeds.get(i);
 					if (i >= feeds.size()) //The feeds collection that was returned from db is bigger than the one we sent in as a parameter. A Feed has been added.
 					{
-						currentFeed = this.getFeed(currentFeed.getFeedId());	//We need to load the new Feed and the corresponding Bitmap directly from the db.
+						Feed tempFeed = this.getFeed(currentFeed.getFeedId());
+						currentFeed.setFeedImage(tempFeed.getFeedImage()); //We need to load the new Feed and the corresponding Bitmap directly from the db.
 					}
 					else if (currentFeed.getFeedId() == feeds.get(i).getFeedId())
 					{

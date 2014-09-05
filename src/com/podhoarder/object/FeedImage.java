@@ -113,8 +113,9 @@ public class FeedImage
 	    {
 	    	Log.e(LOG_TAG, "Error when saving image " + fName, e);
 	    }
-	    this.mImageObject = ImageUtils.scaleImage(mContext, decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize), mImageSize);
-	    this.mThumbnail = decodeSampledBitmap(this.mFeedId + ".jpg", mThumbnailSize, mThumbnailSize);
+		this.mLargeImage = decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize);
+	    this.mImageObject = ImageUtils.scaleImage(mContext, this.mLargeImage, mImageSize);
+	    this.mThumbnail = ThumbnailUtils.extractThumbnail(mImageObject, mThumbnailSize, mThumbnailSize);
 	    if (this.mDownloadListener != null) this.mDownloadListener.downloadFinished(this.mFeedId);
 	}
 	
@@ -125,13 +126,17 @@ public class FeedImage
 	 */
 	private void loadImage(String url)
 	{
-		this.mLargeImage = decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize);
-		
-		this.mImageObject = ImageUtils.scaleImage(mContext, this.mLargeImage, mImageSize);
-		
-		this.mThumbnail = ThumbnailUtils.extractThumbnail(mImageObject, mThumbnailSize, mThumbnailSize);
-		//decodeSampledBitmap(this.mFeedId + ".jpg", mThumbnailSize, mThumbnailSize);
-		Log.d(LOG_TAG, "File loaded from local storage.");
+		try
+		{
+			this.mLargeImage = decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize);
+			this.mImageObject = ImageUtils.scaleImage(mContext, this.mLargeImage, mImageSize);
+			this.mThumbnail = ThumbnailUtils.extractThumbnail(mImageObject, mThumbnailSize, mThumbnailSize);
+			Log.d(LOG_TAG, "File loaded from local storage.");
+		}
+		catch (NullPointerException ex)
+		{
+			Log.d(LOG_TAG,"Couldn't load file from local storage. Downloading.");
+		}
 	}
 	
 	/**
