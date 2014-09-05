@@ -113,7 +113,7 @@ public class CircularSeekBar extends View {
 	 * both sides of the progress bar, allowing touch events to be processed
 	 * more user friendly (yes, I know that's not a word)
 	 */
-	private float adjustmentFactor = 100;
+	private float adjustmentFactor = 0;
 
 	/** The flag to see if view is pressed */
 	private boolean IS_PRESSED = false;

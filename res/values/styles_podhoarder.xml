@@ -17,6 +17,8 @@
 		<item name="android:selectableItemBackground">@drawable/bar_selector</item>
 		<item name="android:actionBarItemBackground">@drawable/bar_selector</item> 
 		<item name="android:actionMenuTextColor">@color/actionbar_title</item>
+		<item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb</item>
+		<item name="android:scrollbarThumbVertical">@drawable/scroll_thumb</item>
     </style>
 
     <style name="ActionBar" parent="@android:style/Widget.ActionBar">

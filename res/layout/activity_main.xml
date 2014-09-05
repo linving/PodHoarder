@@ -30,9 +30,9 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="15dip"
         app:centered="true"
-        app:fillColor="#FFFFFF"
+        app:fillColor="@color/app_accent_bright"
         app:radius="4dp"
         app:snap="true"
-        app:strokeColor="@color/circular_progress_bar_background" />
+        app:strokeColor="@color/almost_white" />
 
 </RelativeLayout>

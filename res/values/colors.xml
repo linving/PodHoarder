@@ -5,6 +5,7 @@
     <color name="list_separator">#b6c2d1</color>
     <color name="list_image_stroke">#323a45</color>
     <color name="app_background">#FFFFFF</color>
+    <color name="almost_white">#DDDDDD</color>
     
     <color name="app_accent">#33bf9b</color>
     <color name="app_accent_bright">#85e4cc</color>
@@ -51,5 +52,5 @@
     <color name="search_list_row_subtitle">#8d979e</color>
     
     <!-- Circular Progress Bar -->
-    <color name="circular_progress_bar_background">#c1cfd9</color>
+    <color name="circular_progress_bar_background">#9aa4ad</color>
 </resources>

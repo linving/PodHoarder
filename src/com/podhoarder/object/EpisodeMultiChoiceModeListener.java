@@ -15,6 +15,7 @@ import android.widget.AbsListView.OnScrollListener;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.LatestEpisodesListAdapter;
+import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ToastMessages;
 import com.podhoarderproject.podhoarder.R;
 
@@ -73,6 +74,8 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
         // Inflate the menu for the CAB
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate(R.menu.contextual_menu_episode, menu);
+        if (!NetworkUtils.isOnline(mContext))
+        	menu.findItem(R.id.menu_episode_available_offline).setVisible(false);
         this.mActionMode = mode;
         this.mSelectedItems = new ArrayList<Integer>();
         this.mActive = true;
