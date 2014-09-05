@@ -130,8 +130,8 @@ public class GridActionModeCallback implements ActionMode.Callback
     	
     	if (this.mSelectedItems.size() == 0)	//If the last item was deselected we finish the actionMode.
     		this.mActionMode.finish();
-    	else
-    		this.updateTitle();
+//    	else
+//    		this.updateTitle();
 	}
 	
 
@@ -197,10 +197,10 @@ public class GridActionModeCallback implements ActionMode.Callback
 
     private int getSelectedItemColor()
     {
-    	int color = mContext.getResources().getColor(R.color.app_accent);
-    	int red = Color.red(color) + 30;
-        int green = Color.green(color) + 30;
-        int blue = Color.blue(color) + 30;
+    	int color = mContext.getResources().getColor(R.color.app_accent_bright);
+    	int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
         return Color.argb(125, red, green, blue);
     }
     

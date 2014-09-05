@@ -95,7 +95,7 @@
         android:padding="2dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:src="@drawable/ic_action_remove"
+        android:src="@drawable/ic_action_close"
         android:background="?android:attr/selectableItemBackground"
         android:scaleType="centerInside"/>
 </RelativeLayout>

@@ -118,7 +118,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     		this.mSelectedItems.add(position);	//save the list position of the selected view.
     	else
     		this.mSelectedItems.remove((Object)position);	//remove the list position of the unselected view.
-    	this.updateTitle();
+//    	this.updateTitle();
 	}
 	
 

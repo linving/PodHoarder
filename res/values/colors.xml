@@ -6,7 +6,13 @@
     <color name="list_image_stroke">#323a45</color>
     <color name="app_background">#FFFFFF</color>
     
-    <color name="app_accent">#33b5e5</color>
+    <color name="app_accent">#33bf9b</color>
+    <color name="app_accent_bright">#85e4cc</color>
+    <color name="app_accent_primary_complement">#ffb844</color>
+    <color name="app_accent_primary_complement_bright">#ffd796</color>
+    <color name="app_accent_secondary_complement">#f44161</color>
+    <color name="app_accent_secondary_complement_bright">#fa93a5</color>
+    
     <color name="app_blue_accent">#33b5e5</color>
     <color name="app_green_accent">#33bf9b</color>
     <color name="app_red_accent">#ff5a5f</color>
