@@ -11,7 +11,9 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -23,6 +25,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
@@ -68,6 +72,13 @@ public class SearchFragment extends Fragment implements OnQueryTextListener
 	}
 	
 	@Override
+	public void onStart()
+	{
+		super.onStart();
+	}
+	
+	
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
 		
@@ -76,9 +87,6 @@ public class SearchFragment extends Fragment implements OnQueryTextListener
 		mSearchView =
 	            (SearchView) menu.findItem(R.id.action_search).getActionView();
 	    mSearchView.setQueryHint(getString(R.string.search_hint));
-
-	    mSearchView.setEnabled(true);
-	    
 	    mSearchView.setOnQueryTextListener(this);
 
 	    SearchView.SearchAutoComplete searchAutoComplete = (SearchView.SearchAutoComplete)mSearchView.findViewById(R.id.search_src_text);
@@ -95,12 +103,15 @@ public class SearchFragment extends Fragment implements OnQueryTextListener
 	    voiceIcon.setImageResource(R.drawable.abc_ic_voice_search);
 
 	    ImageView searchIcon = (ImageView)mSearchView.findViewById(R.id.search_mag_icon);
-	    searchIcon.setImageResource(R.drawable.abc_ic_search);
+	    searchIcon.setImageResource(R.drawable.ic_action_search);
+	    
+	    mSearchView.setIconifiedByDefault(false);	//Automatically expand the Search View instead of waiting for the user to expand it manually.
+	    mSearchView.requestFocus();
+	    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE); //Toggle the soft keyboard to let the user search instantly.
+	    imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,0);
 	    
 		super.onCreateOptionsMenu(menu, inflater);
 	}
-	
-	
 
 	private void doSearch(String searchString)
 	{

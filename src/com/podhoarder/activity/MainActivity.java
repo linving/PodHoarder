@@ -136,6 +136,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     	int titleId = 0;
 
         titleId = getResources().getIdentifier("action_bar_title", "id", "android");
+        
+        getActionBar().setDisplayShowHomeEnabled(false);
 
         // Final check for non-zero invalid id
         if (titleId > 0)
@@ -215,6 +217,10 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	        case R.id.action_settings:
 	        	startActivity(new Intent(this, SettingsActivity.class));
 	        	return true;
+	        case R.id.action_add:
+				mAdapter.setSearchPageEnabled(true);
+				setTab(Constants.BONUS_TAB_POSITION);
+				return true;
 	        default:
 	        	return super.onOptionsItemSelected(item);
 	    }
