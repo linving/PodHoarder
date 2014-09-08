@@ -179,21 +179,6 @@ public class GridActionModeCallback implements ActionMode.Callback
     	}
 		
     }
-    
-    private void updateTitle()
-    {
-    	String titleString = ""+this.mSelectedItems.size();
-    	if (this.mSelectedItems.size() == 1)
-    	{
-    		titleString += " " + this.mContext.getString(R.string.contextual_action_mode_selected);
-    	}
-    	else
-    	{
-    		titleString += " " + this.mContext.getString(R.string.contextual_action_mode_selected);
-        	
-    	}
-    	this.mActionMode.setTitle(titleString);
-    }
 
     private int getSelectedItemColor()
     {

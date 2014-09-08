@@ -6,13 +6,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.podhoarder.activity.MainActivity;
+import com.podhoarder.adapter.LatestEpisodesListAdapter;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.EpisodeMultiChoiceModeListener;
+import com.podhoarder.object.OnItemDoubleClickListener;
 import com.podhoarder.util.Constants;
+import com.podhoarder.util.ExpandAnimation;
 import com.podhoarder.util.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
  
@@ -56,23 +59,20 @@ public class LatestEpisodesFragment extends Fragment
     	if (!this.helper.latestEpisodesListAdapter.isEmpty())
     	{
     		this.mainListView.setAdapter(this.helper.latestEpisodesListAdapter);
-    		//Normal clicks should just expand the description container.
-    		this.mainListView.setOnItemClickListener(new OnItemClickListener()
+    		this.mainListView.setOnItemClickListener(new OnItemDoubleClickListener()
 			{
-
 				@Override
-				public void onItemClick(AdapterView<?> parent, View v, int pos, long id)
+				public void onSingleClick(AdapterView<?> parent, View v, int pos, long id)
 				{
-//					LinearLayout episodeDescription = (LinearLayout)v.findViewById(R.id.list_episode_row_expandable_container);
-//	   				 
-//    		        // Creating the expand animation for the item
-//    		        ExpandAnimation expandAni = new ExpandAnimation(episodeDescription, 100);
-//    		 
-//    		        // Start the animation on the toolbar
-//    		        episodeDescription.startAnimation(expandAni);
-					
 					((MainActivity)getActivity()).podService.playEpisode((Episode)mainListView.getItemAtPosition(pos));
 					((MainActivity)getActivity()).setTab(Constants.PLAYER_TAB_POSITION);
+					
+				}
+
+				@Override
+				public void onDoubleClick(AdapterView<?> parent, View v, int pos, long id)
+				{
+					((LatestEpisodesListAdapter)mainListView.getAdapter()).toggleRowExpanded(v);
 				}
 			});
     		

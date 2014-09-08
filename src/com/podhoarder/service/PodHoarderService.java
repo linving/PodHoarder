@@ -221,7 +221,8 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			if (isPlaying() && this.mPlayPauseButton != null) 
 				this.mPlayPauseButton.setChecked(true);
 		}
-		this.mHelper.playlistAdapter.notifyDataSetChanged();
+		if (this.mHelper != null)
+			this.mHelper.playlistAdapter.notifyDataSetChanged();
 		this.mHandler.post(UpdateRunnable);
 	}
 

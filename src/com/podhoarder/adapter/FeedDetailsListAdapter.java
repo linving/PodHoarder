@@ -15,11 +15,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
+import com.podhoarder.util.ExpandAnimation;
 import com.podhoarder.util.PodcastHelper;
 import com.podhoarder.util.ViewHolders.FeedDetailsAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
@@ -29,6 +31,7 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.FeedDetailsListAdapter";
 	public 	Feed mFeed;
+	private View mExpanded;
 	private Context mContext;
 
 	/**
@@ -43,6 +46,7 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 	public FeedDetailsListAdapter(Context context)
 	{
 		this.mContext = context;
+		this.mExpanded = null;
 	}
 	
 	/**
@@ -193,5 +197,32 @@ public class FeedDetailsListAdapter extends BaseAdapter implements ListAdapter
 			row.episodeDescription.setTextColor(res.getColor(R.color.episode_list_row_subtitle));
 		}
 		
+	}
+
+	public void toggleRowExpanded(View v)
+	{
+		if (mExpanded == null)	//This means there is no row that's currently expanded, so we can just expand the one that was clicked.
+		{
+			expand(v);
+	        mExpanded = v;
+		}
+		else if (mExpanded == v)	//If we click the one view that has been expanded already, we simply collapse it.
+		{
+			expand(mExpanded);
+	        mExpanded = null;
+		}
+		else	//This means there is a row that is expanded. Collapse that one and then call this method again, to expand the new one.
+		{
+			expand(mExpanded);
+	        mExpanded = null;
+	        toggleRowExpanded(v);
+		}
+	}
+	
+	private void expand(View v)
+	{
+		LinearLayout episodeDescription = (LinearLayout)v.findViewById(R.id.list_episode_row_expandable_container); 
+        ExpandAnimation expandAni = new ExpandAnimation(episodeDescription, 100);	// Creating the expand animation for the item
+        episodeDescription.startAnimation(expandAni);
 	}
 }

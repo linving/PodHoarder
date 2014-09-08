@@ -5,6 +5,7 @@
     <color name="list_separator">#b6c2d1</color>
     <color name="list_image_stroke">#323a45</color>
     <color name="app_background">#FFFFFF</color>
+    <color name="app_background_almost">#FCFCFC</color>
     <color name="page_indicator_stroke">#555555</color>
     <color name="page_indicator_fill">#9aa4ad</color>
     <color name="page_indicator_currentPage_fill">#474e58</color>

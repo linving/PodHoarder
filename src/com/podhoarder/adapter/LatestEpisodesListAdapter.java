@@ -15,12 +15,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
+import com.podhoarder.util.ExpandAnimation;
 import com.podhoarder.util.PodcastHelper;
 import com.podhoarder.util.ViewHolders.LatestEpisodesAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
@@ -29,8 +32,9 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.LatestEpisodesListAdapter";
-	public 	List<Episode> latestEpisodes;
-	private Context context;
+	public 	List<Episode> mLatestEpisodes;
+	private View mExpanded;
+	private Context mContext;
 
 	/**
 	 * Creates a LatestEpisodesListAdapter (Constructor).
@@ -43,8 +47,9 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 	 */
 	public LatestEpisodesListAdapter(List<Episode> latestEpisodes, Context context)
 	{
-		this.latestEpisodes = latestEpisodes;
-		this.context = context;
+		this.mLatestEpisodes = latestEpisodes;
+		this.mContext = context;
+		this.mExpanded = null;
 	}
 	
 	/**
@@ -53,14 +58,14 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 	 */
 	public void replaceItems(List<Episode> newItemCollection)
 	{
-		this.latestEpisodes.clear();
-		this.latestEpisodes.addAll(newItemCollection);
+		this.mLatestEpisodes.clear();
+		this.mLatestEpisodes.addAll(newItemCollection);
 	}
 
 	@Override
 	public int getCount()
 	{
-		return this.latestEpisodes.size();
+		return this.mLatestEpisodes.size();
 	}
 
 	@Override
@@ -78,13 +83,13 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 	@Override
 	public Object getItem(int position)
 	{
-		return this.latestEpisodes.get(position);
+		return this.mLatestEpisodes.get(position);
 	}
 
 	@Override
 	public long getItemId(int position)
 	{
-		return this.latestEpisodes.get(position).getEpisodeId();
+		return this.mLatestEpisodes.get(position).getEpisodeId();
 	}
 
 	@Override
@@ -95,7 +100,7 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 		if (convertView == null)
 		{
 			//Inflate
-			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			LayoutInflater inflater = (LayoutInflater) this.mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			convertView = inflater.inflate(R.layout.fragment_latest_list_row, null);
 			
 			// Set up the ViewHolder
@@ -116,8 +121,8 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 		}
 		
 		
-		Episode currentEpisode = this.latestEpisodes.get(position);
-		Feed currentFeed = ((MainActivity)context).helper.getFeed(currentEpisode.getFeedId());
+		Episode currentEpisode = this.mLatestEpisodes.get(position);
+		Feed currentFeed = ((MainActivity)mContext).helper.getFeed(currentEpisode.getFeedId());
 		
 		if(currentEpisode != null) {
 			//Set Episode Title
@@ -146,7 +151,7 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 			
 			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().thumbnail());
 			
-			setRowListened(context, viewHolder, currentEpisode.isListened());
+			setRowListened(mContext, viewHolder, currentEpisode.isListened());
 			
 		}
 		
@@ -195,5 +200,30 @@ public class LatestEpisodesListAdapter extends BaseAdapter implements ListAdapte
 		
 	}
 
+	public void toggleRowExpanded(View v)
+	{
+		if (mExpanded == null)	//This means there is no row that's currently expanded, so we can just expand the one that was clicked.
+		{
+			expand(v);
+	        mExpanded = v;
+		}
+		else if (mExpanded == v)	//If we click the one view that has been expanded already, we simply collapse it.
+		{
+			expand(mExpanded);
+	        mExpanded = null;
+		}
+		else	//This means there is a row that is expanded. Collapse that one and then call this method again, to expand the new one.
+		{
+			expand(mExpanded);
+	        mExpanded = null;   
+	        toggleRowExpanded(v);
+		}
+	}
 	
+	private void expand(View v)
+	{
+		LinearLayout episodeDescription = (LinearLayout)v.findViewById(R.id.list_episode_row_expandable_container); 
+        ExpandAnimation expandAni = new ExpandAnimation(episodeDescription, 100);	// Creating the expand animation for the item
+        episodeDescription.startAnimation(expandAni);
+	}
 }

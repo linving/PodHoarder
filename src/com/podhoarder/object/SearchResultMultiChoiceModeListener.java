@@ -138,21 +138,6 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
     	}
     	DialogUtils.addFeedsDialog(mContext, selectedItems);
     }
-    
-    private void updateTitle()
-    {
-    	String titleString = ""+this.mSelectedItems.size();
-    	if (this.mSelectedItems.size() == 1)
-    	{
-    		titleString += " " + this.mContext.getString(R.string.contextual_action_mode_selected);
-    	}
-    	else
-    	{
-    		titleString += " " + this.mContext.getString(R.string.contextual_action_mode_selected);
-        	
-    	}
-    	this.mActionMode.setTitle(titleString);
-    }
 
     /**
      * Finds the position of a View, relative to the currently visible subset.

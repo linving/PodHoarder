@@ -12,8 +12,10 @@ import android.widget.TextView;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.FeedDetailsListAdapter;
+import com.podhoarder.adapter.LatestEpisodesListAdapter;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.EpisodeMultiChoiceModeListener;
+import com.podhoarder.object.OnItemDoubleClickListener;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
@@ -85,22 +87,20 @@ public class FeedDetailsFragment extends Fragment
         	{
         		this.mEpisodesListView.setAdapter(this.mHelper.feedDetailsListAdapter);
         		//Normal clicks should just expand the description container.
-        		this.mEpisodesListView.setOnItemClickListener(new OnItemClickListener()
+        		this.mEpisodesListView.setOnItemClickListener(new OnItemDoubleClickListener()
     			{
+    				@Override
+    				public void onSingleClick(AdapterView<?> parent, View v, int pos, long id)
+    				{
+    					((MainActivity)getActivity()).podService.playEpisode((Episode)mEpisodesListView.getItemAtPosition(pos));
+    					((MainActivity)getActivity()).setTab(Constants.PLAYER_TAB_POSITION);
+    					
+    				}
 
     				@Override
-    				public void onItemClick(AdapterView<?> parent, View v, int pos, long id)
+    				public void onDoubleClick(AdapterView<?> parent, View v, int pos, long id)
     				{
-//    					LinearLayout episodeDescription = (LinearLayout)v.findViewById(R.id.list_episode_row_expandable_container);
-//    	   				 
-//        		        // Creating the expand animation for the item
-//        		        ExpandAnimation expandAni = new ExpandAnimation(episodeDescription, 100);
-//        		 
-//        		        // Start the animation on the toolbar
-//        		        episodeDescription.startAnimation(expandAni);
-        		        
-        		        ((MainActivity)getActivity()).podService.playEpisode((Episode)mEpisodesListView.getItemAtPosition(pos));
-    					((MainActivity)getActivity()).setTab(Constants.PLAYER_TAB_POSITION);
+    					((FeedDetailsListAdapter)mEpisodesListView.getAdapter()).toggleRowExpanded(v);
     				}
     			});
         		
