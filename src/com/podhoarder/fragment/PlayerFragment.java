@@ -16,6 +16,9 @@ import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SlidingDrawer;
+import android.widget.SlidingDrawer.OnDrawerCloseListener;
+import android.widget.SlidingDrawer.OnDrawerOpenListener;
 import android.widget.TextView;
 
 import com.ericharlow.DragNDrop.DragListener;
@@ -29,6 +32,7 @@ import com.podhoarder.object.Episode;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.util.PodcastHelper;
 import com.podhoarder.util.PopupMenuUtils;
+import com.podhoarder.activity.MainActivity;
 import com.podhoarderproject.podhoarder.R;
 
 /**
@@ -40,7 +44,9 @@ public class PlayerFragment extends Fragment
 {
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PlayerFragment";
 	
-	public ListView mainListView;
+	public DragNDropListView mainListView;
+	@SuppressWarnings("deprecation")
+	public SlidingDrawer mPlaylistDrawer;
 	
 	private View view;
 	private PodcastHelper helper;
@@ -124,15 +130,20 @@ public class PlayerFragment extends Fragment
 		else if (this.podService != null && this.podService.mCurrentEpisode == null) this.podService.loadLastPlayedEpisode();
 	}
     
-    private void setupListView()
+    @SuppressWarnings("deprecation")
+	private void setupListView()
     {
-    	this.mainListView = (ListView) view.findViewById(R.id.playlist);
+    	this.mainListView = (DragNDropListView) view.findViewById(R.id.playlist);
+    	this.mPlaylistDrawer = (SlidingDrawer) view.findViewById(R.id.drawer);
     	
     	this.mainListView.setAdapter(this.helper.playlistAdapter);
-		((DragNDropListView) this.mainListView).setDropListener(mDropListener);
-    	((DragNDropListView) this.mainListView).setDragListener(mDragListener);
-    	((DragNDropListView) this.mainListView).setOnItemClickListener(mOnClickListener);
-    	((DragNDropListView) this.mainListView).setOnItemLongClickListener(mOnLongClickListener);
+		this.mainListView.setDropListener(mDropListener);
+    	this.mainListView.setDragListener(mDragListener);
+    	this.mainListView.setOnItemClickListener(mOnClickListener);
+    	this.mainListView.setOnItemLongClickListener(mOnLongClickListener);
+    	
+    	this.mPlaylistDrawer.setOnDrawerOpenListener(onDrawerOpenListener);
+    	this.mPlaylistDrawer.setOnDrawerCloseListener(onDrawerCloseListener);
     }
        
     private void setupHelper()
@@ -382,4 +393,25 @@ public class PlayerFragment extends Fragment
 		}       
     };
 
+    @SuppressWarnings("deprecation")
+	private SlidingDrawer.OnDrawerOpenListener onDrawerOpenListener = new OnDrawerOpenListener()
+	{
+		
+		@Override
+		public void onDrawerOpened()
+		{
+			((MainActivity)getActivity()).disableRefresh();
+		}
+	};
+    
+	@SuppressWarnings("deprecation")
+	private SlidingDrawer.OnDrawerCloseListener onDrawerCloseListener = new OnDrawerCloseListener()
+	{
+		
+		@Override
+		public void onDrawerClosed()
+		{
+			((MainActivity)getActivity()).enableRefresh();
+		}
+	};
 }

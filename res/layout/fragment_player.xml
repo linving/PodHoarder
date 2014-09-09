@@ -1,52 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/playerFragment_container"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
-    
+    android:orientation="vertical" >
 
     <include
         android:id="@+id/player_controls"
         android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:paddingTop="20dip"
-        layout="@layout/player_controls" />
+        android:layout_height="fill_parent"
+        layout="@layout/player_controls"
+        android:paddingTop="20dip" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingTop="30dp"
-        android:visibility="gone" >
-
-        <TextView
-            android:id="@+id/playlist_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:fontFamily="sans-serif-light"
-            android:maxLines="1"
-            android:text="@string/fragment_player_playlist_header"
-            android:textColor="@color/fragment_player_podcast_text"
-            android:textSize="@dimen/fragment_player_playlist_header" />
+    <SlidingDrawer
+        android:id="@+id/drawer"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:content="@+id/playlist"
+        android:handle="@+id/handle"
+        android:animateOnClick="true" >
 
         <ImageView
-            android:id="@+id/playlist_header_underline"
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="10dp"
-            android:background="?android:attr/listDivider" />
+            android:id="@id/handle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/app_background"
+            android:src="@drawable/mid_playlist_drag" />
 
         <com.ericharlow.DragNDrop.DragNDropListView
             android:id="@+id/playlist"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
+            android:background="@color/app_background"
             android:divider="@null" >
         </com.ericharlow.DragNDrop.DragNDropListView>
-    </LinearLayout>
+    </SlidingDrawer>
 
-</LinearLayout>
+</RelativeLayout>

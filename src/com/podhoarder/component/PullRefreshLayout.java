@@ -46,7 +46,7 @@ public class PullRefreshLayout extends SwipeRefreshLayout
 	public boolean onInterceptTouchEvent(MotionEvent event) 
 	{
 		processMotionEvent(event);
-		return this.mIsRefreshGesture;
+		return this.isEnabled() && this.mIsRefreshGesture;
 	}
 	
 	private void processMotionEvent(MotionEvent event)
