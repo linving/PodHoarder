@@ -18,10 +18,8 @@
             android:layout_centerHorizontal="true"
             android:layout_alignParentTop="true"
             android:ellipsize="end"
-            android:fontFamily="sans-serif-light"
             android:maxLines="2"
-            android:textColor="@color/fragment_feed_details_title"
-            android:textSize="@dimen/fragment_feed_details_title" />
+            style="@style/Podhoarder.Text.Header"/>
 
         <TextView
             android:id="@+id/feed_details_author"
@@ -31,10 +29,8 @@
             android:layout_below="@id/feed_details_title"
             android:layout_centerHorizontal="true"
             android:ellipsize="end"
-            android:fontFamily="sans-serif-light"
             android:maxLines="1"
-            android:textColor="@color/fragment_feed_details_text"
-            android:textSize="@dimen/fragment_feed_details_subtitle" />
+            style="@style/Podhoarder.Text.Primary" />
     </RelativeLayout>
 
     <ListView

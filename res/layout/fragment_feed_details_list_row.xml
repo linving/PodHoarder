@@ -2,75 +2,57 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="75dp"
-	android:background="?android:attr/activatedBackgroundIndicator"
+    android:background="?android:attr/activatedBackgroundIndicator"
     android:orientation="vertical"
     android:paddingBottom="5dp"
-    android:paddingTop="5dp"
-    android:paddingLeft="5dp"
-    android:paddingRight="5dp">
+    android:paddingRight="5dp"
+    android:paddingTop="5dp" >
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal" >
 
+        <View
+        	android:id="@+id/row_indicator"
+            android:layout_width="@dimen/indicator_width"
+            android:layout_height="75dp"
+        	android:layout_alignParentLeft="true"
+            android:background="@color/indicator_unavailable" />
+
         <ImageView
             android:id="@+id/list_episode_row_feed_image"
             android:layout_width="75dp"
             android:layout_height="75dp"
+        	android:layout_toRightOf="@id/row_indicator"
             android:layout_centerVertical="true"
             android:alpha=".85"
-            android:background="@drawable/list_image" android:contentDescription="TODO"/>
+            android:background="@drawable/list_image" />
 
         <LinearLayout
             android:id="@+id/list_episode_row_text_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-	        android:layout_toRightOf="@id/list_episode_row_feed_image"
-	        android:layout_marginLeft="5dp"
-            android:layout_marginRight="25dp"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="25dp"
+            android:layout_toRightOf="@id/list_episode_row_feed_image"
             android:orientation="vertical" >
 
             <TextView
                 android:id="@+id/list_episode_row_episodeName"
+                style="@style/Podhoarder.Text.Primary"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:ellipsize="end"
-                android:fontFamily="sans-serif-light"
                 android:maxLines="2"
-                android:maxWidth="320dp"
-                android:textColor="@color/episode_list_row_title"
-                android:textSize="@dimen/fragment_latest_list_episode_row"
-                android:textStyle="bold" />
+                android:maxWidth="320dp" />
 
-            <LinearLayout
-                android:id="@+id/list_episode_row_age_container"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal" >
-
-                <TextView
+            <TextView
                     android:id="@+id/list_episode_row_episodeAge"
+                    style="@style/Podhoarder.Text.Secondary"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:fontFamily="sans-serif-light"
-                    android:textColor="@color/episode_list_row_subtitle"
-                    android:textSize="@dimen/fragment_latest_list_episode_row" />
-
-                <TextView
-                    android:id="@+id/list_episode_row_new"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:fontFamily="sans-serif-light"
-                    android:maxLines="1"
-                    android:text="@string/latest_list_row_new"
-                    android:textColor="@color/episode_list_row_notification"
-                    android:textSize="@dimen/fragment_latest_list_episode_row"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-            </LinearLayout>
+                    android:layout_height="match_parent" />
         </LinearLayout>
     </RelativeLayout>
 
@@ -81,19 +63,21 @@
         android:layout_marginBottom="-50dip"
         android:orientation="horizontal"
         android:visibility="gone" >
-        <View android:layout_width="2dip"
+
+        <View
+            android:id="@+id/row_indicator_extension"
+            android:layout_width="@dimen/indicator_width"
             android:layout_height="match_parent"
-            android:layout_marginTop="10dip"
-            android:background="@color/app_accent"/>
+            android:background="@color/app_accent" />
+
         <TextView
             android:id="@+id/list_episode_row_expandableTextView"
+            style="@style/Podhoarder.Text.Primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dip"
             android:layout_marginRight="20dip"
-            android:paddingLeft="5dip"
-            android:fontFamily="sans-serif-light"
-            android:textColor="@color/episode_list_row_subtitle"
-            android:textSize="@dimen/fragment_latest_list_episode_row" />
+            android:layout_marginTop="10dip"
+            android:paddingLeft="5dip" />
     </LinearLayout>
+
 </LinearLayout>

@@ -13,8 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/feeds_grid_image"
-        android:scaleType="fitXY"
-        android:tint="@color/fragment_feeds_grid_item_image_tint">
+        android:scaleType="fitXY">
     </ImageView>
  
     <TextView
@@ -24,11 +23,9 @@
         android:layout_marginBottom="5dp"
         android:layout_alignParentBottom="true"
         android:gravity="center"
-        android:textSize="@dimen/fragment_feeds_grid_item_text"
-        android:maxWidth="@dimen/fragment_feeds_grid_item"
         android:maxLines="1"
         android:ellipsize="end"
-        android:textColor="@color/fragment_feeds_grid_item_title"
+        android:textColor="@color/text_inverse"
 		android:background="#80000000"/>
     
     <TextView android:id="@+id/feeds_grid_item_notification"
@@ -38,9 +35,6 @@
         android:layout_alignParentRight="true"
         android:layout_margin="5dp"
         android:maxLines="1"
-        android:textColor="@color/fragment_feeds_grid_item_notification_text"
-        android:textSize="@dimen/fragment_feeds_grid_item_notification_text"
-        android:textStyle="bold"
-        android:gravity="center"
+        style="@style/Podhoarder.Text.gridNotification"
         android:background="@drawable/feeds_grid_notification_shape"/>
 </com.podhoarder.component.CheckableRelativeLayout>

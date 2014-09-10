@@ -30,8 +30,9 @@ import com.ericharlow.DragNDrop.DropListener;
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
+import com.podhoarder.util.EpisodeRowUtils;
 import com.podhoarder.util.NetworkUtils;
-import com.podhoarder.util.ViewHolders.PlaylistAdapterViewHolder;
+import com.podhoarder.util.ViewHolders.PlaylistRowViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
 public final class DragNDropAdapter extends BaseAdapter implements DropListener{
@@ -97,7 +98,7 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
     public View getView(int position, View convertView, ViewGroup parent) {
         // A ViewHolder keeps references to children views to avoid unneccessary calls
         // to findViewById() on each row.
-    	PlaylistAdapterViewHolder holder;
+    	PlaylistRowViewHolder holder;
 
         // When convertView is not null, we can reuse it directly, there is no need
         // to reinflate it. We only inflate a new View when the convertView supplied
@@ -110,11 +111,12 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 
             // Creates a ViewHolder and store references to the two children views
             // we want to bind data to.
-            holder = new PlaylistAdapterViewHolder();
+            holder = new PlaylistRowViewHolder();
             holder.episodeTitle = (TextView) convertView.findViewById(R.id.player_list_row_episodeName);
             holder.feedTitle = (TextView) convertView.findViewById(R.id.player_list_row_feedName);
             holder.timeListened = (TextView) convertView.findViewById(R.id.player_list_row_timeListened);
             holder.feedImage = (ImageView) convertView.findViewById(R.id.player_list_row_feedImage);
+            holder.indicator = (View) convertView.findViewById(R.id.row_indicator);
             holder.handle = (ImageView) convertView.findViewById(R.id.player_list_row_handle);
 
             convertView.setTag(holder);
@@ -123,7 +125,7 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
         {
             // Get the ViewHolder back to get fast access to the TextView
             // and the ImageView.
-            holder = (PlaylistAdapterViewHolder) convertView.getTag();
+            holder = (PlaylistRowViewHolder) convertView.getTag();
         }
 
         Episode currentEpisode = this.mPlayList.get(position);
@@ -151,9 +153,7 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 				holder.feedImage.setBackgroundResource(R.drawable.list_image);
 			}
 			
-			
-			if (!currentEpisode.isDownloaded() && !NetworkUtils.isOnline(mContext)) convertView.setAlpha(.5f);	//If we don't have network access and the episode is to be streamed we make it look "disabled"
-			else 	convertView.setAlpha(1f);
+			EpisodeRowUtils.setRowIndicator(mContext, holder, currentEpisode);
 		}		
         return convertView;
     }

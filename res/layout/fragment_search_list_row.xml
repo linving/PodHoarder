@@ -34,28 +34,21 @@
 	        android:id="@+id/search_list_feed_title"
 	        android:layout_width="wrap_content"
 	        android:layout_height="match_parent"
-	        android:textColor="@color/search_list_row_title"
-	        android:textSize="@dimen/search_list_row"
-	        android:textStyle="bold"
-        android:fontFamily="sans-serif-light"
+		    style="@style/Podhoarder.Text.Primary"
 	        android:maxLines="1"
    			android:ellipsize="end"/>
 	    <TextView 	
 		    android:id="@+id/search_list_feed_author"
 		    android:layout_width="wrap_content"
 	        android:layout_height="match_parent"
-	    android:fontFamily="sans-serif-light"
-	        android:textColor="@color/search_list_row_title"
-	        android:textSize="@dimen/search_list_row"
+		    style="@style/Podhoarder.Text.Primary"
 	        android:maxLines="1"
    			android:ellipsize="end"/>
 	    <TextView
 	        android:id="@+id/search_list_feed_last_updated"
 	        android:layout_width="wrap_content"
 	        android:layout_height="match_parent"
-        android:fontFamily="sans-serif-light"
 	        android:maxLines="1"
-	        android:textColor="@color/search_list_row_subtitle"
-	        android:textSize="@dimen/search_list_row"/>
+		    style="@style/Podhoarder.Text.Secondary"/>
     </LinearLayout>
 </RelativeLayout>

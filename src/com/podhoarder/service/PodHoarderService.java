@@ -15,7 +15,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.podhoarder.component.CircularSeekBar;
 import com.podhoarder.component.ToggleImageButton;
@@ -46,9 +45,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	//Fragment UI Elements
 	private 	ToggleImageButton		mPlayPauseButton;
 	private		ProgressBar		mLoadingCircle;
-	private 	TextView 		mEpisodeTitle;
-	private 	TextView 		mElapsedTime;
-	private 	TextView 		mTotalTime;
 	private 	CircularSeekBar	mSeekBar;
 	
 	
@@ -195,13 +191,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void updateUI()
 	{
 		//Update the UI Elements in the Player Fragment.
-		if (this.mEpisodeTitle != null) 
-		{
-			this.mEpisodeTitle.setText(this.mCurrentEpisode.getTitle());
-			this.mEpisodeTitle.setSelected(true);
-		}
-		if (this.mTotalTime != null)this.mTotalTime.setText(millisToTime(this.mCurrentEpisode.getTotalTime()));
-		if (this.mElapsedTime != null) this.mElapsedTime.setText(millisToTime(this.mCurrentEpisode.getElapsedTime()));
 		if (this.mSeekBar != null) 
 		{
 			this.mSeekBar.setMaxProgress(this.mCurrentEpisode.getTotalTime());
@@ -229,13 +218,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void setUI()
 	{
 		//Update the UI Elements in the Player Fragment.
-		if (this.mEpisodeTitle != null) 
-		{
-			this.mEpisodeTitle.setText(this.mCurrentEpisode.getTitle());
-			this.mEpisodeTitle.setSelected(true);
-		}
-		if (this.mTotalTime != null)this.mTotalTime.setText(millisToTime(this.mCurrentEpisode.getTotalTime()));
-		if (this.mElapsedTime != null) this.mElapsedTime.setText(millisToTime(this.mCurrentEpisode.getElapsedTime()));
 		if (this.mSeekBar != null) 
 		{
 			this.mSeekBar.setMaxProgress(this.mCurrentEpisode.getTotalTime());
@@ -247,9 +229,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	
 	public void resetUI()
 	{
-		this.mEpisodeTitle.setText("");
-		this.mTotalTime.setText("");
-		this.mElapsedTime.setText("");
 		this.mLoadingCircle.setVisibility(View.GONE);
 		this.mPlayPauseButton.setVisibility(View.VISIBLE);
 		this.mPlayPauseButton.setChecked(false);
@@ -319,13 +298,10 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		this.mPlayer.prepareAsync();
 	}
 	
-	public void setUIElements(ToggleImageButton playPauseButton, ProgressBar loadingCircle, TextView episodeTitle, TextView elapsedTime, TextView totalTime, CircularSeekBar seekBar, PodcastHelper helper)
+	public void setUIElements(ToggleImageButton playPauseButton, ProgressBar loadingCircle, CircularSeekBar seekBar, PodcastHelper helper)
 	{
 		this.mPlayPauseButton = playPauseButton;
 		this.mLoadingCircle = loadingCircle;
-		this.mEpisodeTitle = episodeTitle;
-		this.mTotalTime = totalTime;
-		this.mElapsedTime = elapsedTime;
 		this.mSeekBar = seekBar;
 		this.mHelper = helper;
 	}
@@ -369,7 +345,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
             	}
                 if (isPlaying()) 
                 {
-                	mElapsedTime.setText(millisToTime(getPosn()));	// update progress bar using getCurrentPosition()
                 	mHandler.postDelayed(UpdateRunnable, 350);
                 }
         	}
@@ -396,7 +371,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
             		mSeekBar.setProgress(getPosn());
             		mSeekBar.invalidate();
             	}
-            	if (isPlaying())mElapsedTime.setText(millisToTime(getPosn()));	// update progress bar using getCurrentPosition()
         	}
         }
     };

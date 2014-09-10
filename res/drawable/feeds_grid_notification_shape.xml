@@ -3,7 +3,7 @@
     android:shape="oval">
     <padding android:left="2px" android:right="2px" android:top="2px" android:bottom="2px"/>
      <solid
-    	android:color="@color/fragment_feeds_grid_item_notification_background" />
+    	android:color="@color/text_notification" />
      <stroke 
          android:color="#FFFFFF" android:width="1dp"/>
 </shape>

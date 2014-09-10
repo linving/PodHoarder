@@ -2,58 +2,33 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     
     <!-- General -->
+    <color name="actionbar_title">#FFFFFF</color>
+    
     <color name="list_separator">#b6c2d1</color>
     <color name="list_image_stroke">#323a45</color>
+    
     <color name="app_background">#FFFFFF</color>
-    <color name="app_background_almost">#FCFCFC</color>
-    <color name="app_menu">#2c3e50</color>
+    <color name="app_menu">#3f51b5</color>
+    <color name="app_accent">#e91e63</color>
+    <color name="app_accent_bright">#f48fb1</color>
+    
     <color name="page_indicator_stroke">#555555</color>
     <color name="page_indicator_fill">#9aa4ad</color>
     <color name="page_indicator_currentPage_fill">#474e58</color>
     
+    <!-- Text -->
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#000000</color>
+    <color name="text_inverse">#FFFFFF</color>
+    <color name="text_notification">#e91e63</color>
     
-    <color name="app_accent">#1abc9c</color>
-    <color name="app_accent_bright">#66D8C2</color>
-    <color name="app_accent_primary_complement">#ffb844</color>
-    <color name="app_accent_primary_complement_bright">#ffd796</color>
-    <color name="app_accent_secondary_complement">#f44161</color>
-    <color name="app_accent_secondary_complement_bright">#fa93a5</color>
-    
-    <color name="app_blue_accent">#3498db</color>
-    <color name="app_green_accent">#33bf9b</color>
-    <color name="app_red_accent">#ff5a5f</color>
-    
-    <!-- Tabs -->
-    <color name="actionbar_title">#FFFFFF</color>
-    
-    <!-- Player Fragment -->
-    <color name="fragment_player_podcast_text">#000000</color>
-    
-    <!-- Player Fragment List -->
-    <color name="fragment_player_playlist_row_background_ondrag">#b6c2d1</color>
-    <color name="fragment_player_playlist_handle">#474e58</color>
+    <!-- Episode Row Indicators -->
+    <color name="indicator_new">#e91e63</color>
+    <color name="indicator_stream">#3f51b5</color>
+    <color name="indicator_downloaded">#009688</color>
+    <color name="indicator_unavailable">#9aa4ad</color>
     
     <!-- Feeds Fragment -->
-    <color name="fragment_feeds_grid_item_title">#FFFFFF</color>
-    <color name="fragment_feeds_grid_item_notification_text">#FFFFFF</color>
-    <color name="fragment_feeds_grid_item_notification_background">#ff5a5f</color>
     <color name="fragment_feeds_grid_item_image_tint">#15FFFFFF</color>
     
-    <!-- Feed Details Fragment -->
-    <color name="fragment_feed_details_title">#000000</color>
-    <color name="fragment_feed_details_text">#8d979e</color>
-    
-    <!-- Latest Episodes Fragment-->
-    
-    <!-- Latest Episodes Fragment List -->
-	<color name="episode_list_row_title">#000000</color>
-	<color name="episode_list_row_title_listened">#9aa4ad</color>
-    <color name="episode_list_row_subtitle">#8d979e</color>
-    <color name="episode_list_row_subtitle_listened">#a6b1ba</color>
-    <color name="episode_list_row_notification">#ff5a5f</color>
-    
-    <!-- Search Fragment -->
-    <color name="search_view_selected_text">#FFFFFF</color>
-    <color name="search_list_row_title">#000000</color>
-    <color name="search_list_row_subtitle">#8d979e</color>
 </resources>

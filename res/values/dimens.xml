@@ -1,32 +1,13 @@
 <resources>
     
+    <dimen name="actionbar_title">20sp</dimen>
+    
+    <dimen name="text_header">20sp</dimen>
+    <dimen name="text_primary">14sp</dimen>
+    <dimen name="text_secondary">14sp</dimen>
+    
+    <dimen name="indicator_width">5dip</dimen>
+    
 	<!-- Feeds Fragment -->
     <dimen name="fragment_feeds_grid_item">150dp</dimen>
-    <dimen name="fragment_feeds_grid_item_text">14sp</dimen>
-    <dimen name="fragment_feeds_grid_item_notification_text">15sp</dimen>
-    
-    <!-- Feed Details Fragment -->
-    <dimen name="fragment_feed_details_title">22sp</dimen>
-    <dimen name="fragment_feed_details_subtitle">14sp</dimen>
-    
-    <!-- Latest Episodes Fragment -->
-    
-    <!-- Latest Episodes Fragment List -->
-    <dimen name="fragment_latest_list_episode_row">14sp</dimen>
-    
-    <!-- Player Fragment -->
-    <dimen name="fragment_player_podcast_title">12sp</dimen>
-    <dimen name="fragment_player_podcast_episode">22sp</dimen>
-    <dimen name="fragment_player_time">12sp</dimen>
-    
-    <!-- Player List -->
-    <dimen name="fragment_player_playlist_header">36sp</dimen>
-    <dimen name="fragment_player_playlist_row_episode_title">16sp</dimen>
-    <dimen name="fragment_player_playlist_row_podcast_title">12sp</dimen>
-    
-    <!-- Search Fragment -->
-    <dimen name="search_list_row">14sp</dimen>
-    
-    <!-- Circular Progress Bar -->
-    <dimen name="circular_progress_bar_thickness">5dp</dimen>
 </resources>

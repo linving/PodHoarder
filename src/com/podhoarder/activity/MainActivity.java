@@ -34,6 +34,7 @@ import com.podhoarder.component.PullRefreshLayout;
 import com.podhoarder.fragment.FeedDetailsFragment;
 import com.podhoarder.fragment.FeedFragment;
 import com.podhoarder.fragment.LatestEpisodesFragment;
+import com.podhoarder.fragment.PlayerFragment;
 import com.podhoarder.fragment.SearchFragment;
 import com.podhoarder.object.Episode;
 import com.podhoarder.service.PodHoarderService;
@@ -422,6 +423,16 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	{
 		switch (fragmentPos)
 		{
+			case Constants.PLAYER_TAB_POSITION:
+				PlayerFragment playerFragment = ((PlayerFragment)mAdapter.getItem(Constants.PLAYER_TAB_POSITION));
+				if (playerFragment != null && playerFragment.getListSelectionListener() != null && playerFragment.getListSelectionListener().getActionMode() != null)
+				{
+					if (playerFragment.getListSelectionListener().isActive())
+					{
+						playerFragment.getListSelectionListener().getActionMode().finish();
+					}
+				}
+				break;
 			case Constants.LATEST_TAB_POSITION:
 				LatestEpisodesFragment latestEpisodesFragment = ((LatestEpisodesFragment)mAdapter.getItem(Constants.LATEST_TAB_POSITION));
             	if (latestEpisodesFragment != null && latestEpisodesFragment.getListSelectionListener() != null && latestEpisodesFragment.getListSelectionListener().getActionMode() != null)

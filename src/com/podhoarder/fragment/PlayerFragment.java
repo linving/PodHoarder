@@ -19,7 +19,6 @@ import android.widget.ProgressBar;
 import android.widget.SlidingDrawer;
 import android.widget.SlidingDrawer.OnDrawerCloseListener;
 import android.widget.SlidingDrawer.OnDrawerOpenListener;
-import android.widget.TextView;
 
 import com.ericharlow.DragNDrop.DragListener;
 import com.ericharlow.DragNDrop.DragNDropListView;
@@ -60,11 +59,7 @@ public class PlayerFragment extends Fragment
 	public ProgressBar	loadingCircle;
 	public ImageButton forwardButton;
 	public ImageButton backwardButton;
-	public TextView episodeTitle;
-	public TextView elapsedTime;
-	public TextView totalTime;
 	public CircularSeekBar seekBar;
-	public ProgressBar elapsedTimeBar;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -102,12 +97,6 @@ public class PlayerFragment extends Fragment
     	this.backwardButton = (ImageButton)view.findViewById(R.id.player_controls_button_skip_backwards);
     	this.backwardButton.setOnClickListener(mBackwardClickListener);
     	
-    	this.episodeTitle = (TextView)view.findViewById(R.id.player_controls_episode_title);
-    	
-    	this.elapsedTime = (TextView)view.findViewById(R.id.player_controls_elapsed_time);
-    	    	
-    	this.totalTime = (TextView)view.findViewById(R.id.player_controls_total_time);
-    	
     	this.seekBar = (CircularSeekBar)view.findViewById(R.id.player_controls_seekbar);
     	this.seekBar.setSeekBarChangeListener(mSeekBarChangeListener);
     }
@@ -120,7 +109,7 @@ public class PlayerFragment extends Fragment
 		setServiceVars();
 		if (this.podService != null)
 		{
-			this.podService.setUIElements(playPauseButton, loadingCircle, episodeTitle, elapsedTime, totalTime, seekBar, helper);
+			this.podService.setUIElements(playPauseButton, loadingCircle, seekBar, helper);
 		}
 		if (this.podService != null && this.podService.mCurrentEpisode != null) 
 		{
@@ -200,6 +189,12 @@ public class PlayerFragment extends Fragment
 	}
 
 	
+	public PlaylistMultiChoiceModeListener getListSelectionListener()
+	{
+		return mListSelectionListener;
+	}
+
+
 	//UI Logic
 	//List Listeners
 	private DropListener mDropListener = new DropListener() 

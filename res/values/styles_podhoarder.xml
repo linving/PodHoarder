@@ -39,17 +39,53 @@
     <style name="AutoCompleteTextView" parent="Widget.AppCompat.Light.AutoCompleteTextView">
         <item name="android:textColor">@color/actionbar_title</item>
         <item name="android:textCursorDrawable">@null</item>
-        <item name="android:textColorHighlight">@color/search_view_selected_text</item>
+        <item name="android:textColorHighlight">@color/app_accent_bright</item>
     </style>
     
     <style name="ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
         <item name="android:textColor">@color/actionbar_title</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/actionbar_title</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:textAllCaps">true</item>
-        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    
+    <style name="Podhoarder.Text.Header" parent="@android:style/TextAppearance.Large">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/text_header</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    
+    <style name="Podhoarder.Text.Primary" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/text_primary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    
+    <style name="Podhoarder.Text.Secondary" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/text_secondary</item>
+        <item name="android:fontFamily">sans-serif-regular</item>
     </style>
 
+    <style name="Podhoarder.Text.gridNotification" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@color/text_inverse</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/text_primary</item>
+        <item name="android:fontFamily">sans-serif-regular</item>
+    </style>
+    
+    <style name="Podhoarder.Text.textNotification" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@color/text_notification</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/text_primary</item>
+        <item name="android:fontFamily">sans-serif-regular</item>
+    </style>
+    
     <style name="ActionBar.OverflowButtonStyle" parent="android:style/Widget.Holo.ActionButton.Overflow">
         <item name="android:src">@drawable/ic_action_overflow</item>
     </style>

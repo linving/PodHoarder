@@ -146,7 +146,7 @@ public class CircularSeekBar extends View {
 		// color to holo
 		// blue.
 		// black
-		circleRing.setColor(getResources().getColor(R.color.app_background_almost));// Set default background color to Gray
+		circleRing.setColor(getResources().getColor(R.color.app_background));// Set default background color to Gray
 		
 		innerColor.setColor(getResources().getColor(R.color.app_background));
 
