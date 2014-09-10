@@ -137,7 +137,7 @@ public class DragNDropListView extends ListView {
 		if (item == null) return;
 		this.defaultBackgroundColor =  item.getDrawingCacheBackgroundColor();	//Store the background color of the item
 		
-    	int color = getResources().getColor(R.color.app_accent_bright);
+    	int color = getResources().getColor(R.color.app_detail);
     	int red = Color.red(color);
         int green = Color.green(color);
         int blue = Color.blue(color);

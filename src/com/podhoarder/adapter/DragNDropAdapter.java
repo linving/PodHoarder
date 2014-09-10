@@ -31,7 +31,6 @@ import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.util.EpisodeRowUtils;
-import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ViewHolders.PlaylistRowViewHolder;
 import com.podhoarderproject.podhoarder.R;
 

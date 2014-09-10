@@ -116,7 +116,7 @@ public class EpisodeRowUtils
             } else {
                 if (child != null) {
                     // DO SOMETHING WITH VIEW
-                	if (listened && child.getId() != R.id.row_indicator) child.setAlpha(ALPHA_LISTENED);
+                	if (listened && child.getId() != R.id.row_indicator && child.getId() != R.id.row_indicator_extension) child.setAlpha(ALPHA_LISTENED);
                 	else	child.setAlpha(ALPHA_NORMAL);
                 }
             }

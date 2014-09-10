@@ -9,8 +9,11 @@
     
     <color name="app_background">#FFFFFF</color>
     <color name="app_menu">#1abc9c</color>
-    <color name="app_accent">#e91e63</color>
-    <color name="app_accent_bright">#e91e63</color>
+    <color name="app_accent">#1abc9c</color>
+    <color name="app_accent_bright">#66D8C2</color>
+    <color name="app_detail">#66D8C2</color>
+    
+    <color name="seekbar_background">#FFFFFF</color>
     
     <color name="page_indicator_stroke">#555555</color>
     <color name="page_indicator_fill">#9aa4ad</color>
@@ -24,8 +27,8 @@
     
     <!-- Episode Row Indicators -->
     <color name="indicator_new">#e91e63</color>
-    <color name="indicator_stream">#3f51b5</color>
-    <color name="indicator_downloaded">#009688</color>
+    <color name="indicator_stream">#719BDA</color>
+    <color name="indicator_downloaded">#1abc9c</color>
     <color name="indicator_unavailable">#9aa4ad</color>
     
     <!-- Feeds Fragment -->

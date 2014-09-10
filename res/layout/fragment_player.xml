@@ -24,7 +24,9 @@
             android:id="@id/handle"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@color/app_menu"
+            android:paddingBottom="10dip"
+            android:scaleType="centerInside"
+            android:background="@android:color/transparent"
             android:src="@drawable/ic_action_collapse" />
 
         <com.ericharlow.DragNDrop.DragNDropListView

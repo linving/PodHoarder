@@ -15,6 +15,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.podhoarder.object.FeedImage;
 import com.podhoarder.util.ImageUtils;
 import com.podhoarderproject.podhoarder.R;
 
@@ -37,6 +38,9 @@ public class CircularSeekBar extends View {
 	
 	/** Paint used to paint the background Bitmap. **/
 	private Paint	backgroundPaint;
+	
+	/** FeedImage object that contains the bitmap to show. **/
+	private FeedImage img;
 	
 	/** The background Bitmap to show in the middle of the seekbar.**/
 	private Bitmap 	backgroundBitmap;
@@ -146,12 +150,15 @@ public class CircularSeekBar extends View {
 		// color to holo
 		// blue.
 		// black
-		circleRing.setColor(getResources().getColor(R.color.app_background));// Set default background color to Gray
+		circleRing.setColor(getResources().getColor(R.color.seekbar_background));// Set default background color to Gray
 		
 		innerColor.setColor(getResources().getColor(R.color.app_background));
 
 		circleColor.setAntiAlias(true);
 		circleRing.setAntiAlias(true);
+		
+		circleColor.setDither(true);
+		circleRing.setDither(true);
 
 		circleColor.setStrokeWidth(50);
 		circleRing.setStrokeWidth(50);
@@ -252,11 +259,16 @@ public class CircularSeekBar extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 
+
 		canvas.drawCircle(cx, cy, outerRadius, circleRing);
 		canvas.drawArc(rect, startAngle, angle, true, circleColor);
 		
-
 		bitmapRect.set(((int)rect.left+barWidth),((int)rect.top+barWidth),((int)rect.right-barWidth),((int)rect.bottom-barWidth));
+		
+		if (backgroundBitmap == null)
+			backgroundBitmap = ImageUtils.getCircularBitmap(img.largeImage());
+		backgroundPaint.setAntiAlias(true);
+		
 		if (backgroundBitmap != null) canvas.drawBitmap(backgroundBitmap, null, bitmapRect, backgroundPaint);
 		else canvas.drawCircle(cx, cy, innerRadius, innerColor);
 
@@ -443,12 +455,11 @@ public class CircularSeekBar extends View {
 	 * @param color
 	 *            the new back ground color
 	 */
-	public void setBackground(Bitmap drawable) 
+	public void setBackground(FeedImage img) 
 	{
-		backgroundBitmap = ImageUtils.getCircularBitmap(drawable);
-		backgroundPaint = new Paint();
-		backgroundPaint.setAntiAlias(true);
-		backgroundPaint.setDither(true);
+		this.img = img;
+		this.backgroundBitmap = null;
+		this.backgroundPaint = new Paint();
 	}
 
 	/**

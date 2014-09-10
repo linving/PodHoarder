@@ -195,7 +195,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		{
 			this.mSeekBar.setMaxProgress(this.mCurrentEpisode.getTotalTime());
 			this.mSeekBar.setProgress(this.mCurrentEpisode.getElapsedTime());
-			this.mSeekBar.setBackground(this.mHelper.getFeed(this.mCurrentEpisode.getFeedId()).getFeedImage().largeImage());
+			this.mSeekBar.setBackground(this.mHelper.getFeed(this.mCurrentEpisode.getFeedId()).getFeedImage());
 			this.mSeekBar.invalidate();
 		}
 		if (isLoading())
@@ -222,7 +222,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		{
 			this.mSeekBar.setMaxProgress(this.mCurrentEpisode.getTotalTime());
 			this.mSeekBar.setProgress(this.mCurrentEpisode.getElapsedTime());
-			this.mSeekBar.setBackground(this.mHelper.getFeed(this.mCurrentEpisode.getFeedId()).getFeedImage().largeImage());
+			this.mSeekBar.setBackground(this.mHelper.getFeed(this.mCurrentEpisode.getFeedId()).getFeedImage());
 			this.mSeekBar.invalidate();
 		}
 	}
@@ -312,6 +312,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		if (lastEpisodeId != -1)
 		{
 			this.mCurrentEpisode = this.mHelper.getEpisode(lastEpisodeId);
+			setUI();
 		}
 	}
 	

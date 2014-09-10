@@ -3,8 +3,8 @@
    android:enterFadeDuration="@android:integer/config_shortAnimTime" 
    android:exitFadeDuration="@android:integer/config_shortAnimTime">
 
-   <item android:drawable="@color/app_accent_bright" android:state_pressed="true"/>
-   <item android:drawable="@color/app_accent_bright" android:state_selected="true"/>
-   <item android:drawable="@color/app_accent_bright" android:state_activated="true"/>
+   <item android:drawable="@color/app_detail" android:state_pressed="true"/>
+   <item android:drawable="@color/app_detail" android:state_selected="true"/>
+   <item android:drawable="@color/app_detail" android:state_activated="true"/>
 
 </selector>

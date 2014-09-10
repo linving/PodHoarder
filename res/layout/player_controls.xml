@@ -15,60 +15,12 @@
         
         <com.podhoarder.component.CircularSeekBar
             android:id="@+id/player_controls_seekbar"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_margin="25dip"
             android:layout_centerInParent="true" />
-
-<!--         <RelativeLayout -->
-<!--             android:id="@+id/player_controls_seekbar_text_container" -->
-<!--             android:layout_width="fill_parent" -->
-<!--             android:layout_height="wrap_content" -->
-<!--             android:layout_marginLeft="10dp" -->
-<!--             android:layout_marginRight="10dp" -->
-<!--             android:visibility="gone" > -->
-
-<!--             <TextView -->
-<!--                 android:id="@+id/player_controls_elapsed_time" -->
-<!--                 android:layout_width="wrap_content" -->
-<!--                 android:layout_height="wrap_content" -->
-<!--                 android:layout_alignParentLeft="true" -->
-<!--                 android:fontFamily="sans-serif-regular" -->
-<!--                 android:textColor="@color/fragment_player_podcast_text" -->
-<!--                 android:textSize="@dimen/fragment_player_time" /> -->
-
-<!--             <TextView -->
-<!--                 android:id="@+id/player_controls_total_time" -->
-<!--                 android:layout_width="wrap_content" -->
-<!--                 android:layout_height="wrap_content" -->
-<!--                 android:layout_alignParentRight="true" -->
-<!--                 android:fontFamily="sans-serif-regular" -->
-<!--                 android:textColor="@color/fragment_player_podcast_text" -->
-<!--                 android:textSize="@dimen/fragment_player_time" /> -->
-<!--         </RelativeLayout> -->
     </RelativeLayout>
 
-<!--     <LinearLayout -->
-<!--         android:id="@+id/player_controls_text_container" -->
-<!--         android:layout_width="fill_parent" -->
-<!--         android:layout_height="0dp" -->
-<!--         android:layout_weight="1" -->
-<!--         android:orientation="vertical" -->
-<!--         android:visibility="gone" > -->
-
-<!--         <TextView -->
-<!--             android:id="@+id/player_controls_episode_title" -->
-<!--             android:layout_width="fill_parent" -->
-<!--             android:layout_height="wrap_content" -->
-<!--             android:ellipsize="marquee" -->
-<!--             android:focusable="true" -->
-<!--             android:fontFamily="sans-serif-regular" -->
-<!--             android:gravity="center_horizontal" -->
-<!--             android:marqueeRepeatLimit="marquee_forever" -->
-<!--             android:scrollHorizontally="true" -->
-<!--             android:singleLine="true" -->
-<!--             android:textColor="@color/fragment_player_podcast_text" -->
-<!--             android:textSize="@dimen/fragment_player_podcast_episode" /> -->
-<!--     </LinearLayout> -->
 
     <LinearLayout
         android:id="@+id/player_controls_button_container"
