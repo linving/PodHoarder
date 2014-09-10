@@ -3,10 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="75dp" 
     android:orientation="vertical"
-    android:paddingBottom="5dp"
-    android:paddingTop="5dp"
-    android:paddingLeft="5dp"
-    android:paddingRight="5dp"
+    android:padding="5dp"
 	android:background="?android:attr/activatedBackgroundIndicator">
 	<RelativeLayout
 	    android:layout_width="match_parent"
@@ -70,7 +67,7 @@
 			        android:textStyle="bold"
 		        android:fontFamily="sans-serif-light"
 			        android:maxLines="1"
-	    			android:text="@string/fragment_latest_list_row_new"
+	    			android:text="@string/latest_list_row_new"
 	    			android:visibility="gone"/>
 		    </LinearLayout>
 	    </LinearLayout>

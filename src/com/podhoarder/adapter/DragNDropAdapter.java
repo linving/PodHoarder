@@ -24,12 +24,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ericharlow.DragNDrop.DropListener;
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.Episode;
+import com.podhoarder.object.Feed;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ViewHolders.PlaylistAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
@@ -39,13 +39,15 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.DragNDropAdapter";
 	
-	public 	List<Episode> playList;
-	private Context context;
+	public 	List<Episode> mPlayList;
+	private Context mContext;
 
+	private boolean mReorderingEnabled;
     
     public DragNDropAdapter(List<Episode> playList, Context context) {
-    	this.context = context;
-    	this.playList = playList;
+    	this.mContext = context;
+    	this.mPlayList = playList;
+    	this.mReorderingEnabled = true;
     }
     
     /**
@@ -54,8 +56,8 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 	 */
 	public void replaceItems(List<Episode> newItemCollection)
 	{
-		this.playList.clear();
-		this.playList.addAll(newItemCollection);
+		this.mPlayList.clear();
+		this.mPlayList.addAll(newItemCollection);
 	}
 	
     /**
@@ -63,7 +65,7 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
      * @see android.widget.ListAdapter#getCount()
      */
     public int getCount() {
-        return this.playList.size();
+        return this.mPlayList.size();
     }
 
     /**
@@ -75,7 +77,7 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
      * @see android.widget.ListAdapter#getItem(int)
      */
     public Episode getItem(int position) {
-        return this.playList.get(position);
+        return this.mPlayList.get(position);
     }
 
     /**
@@ -103,16 +105,17 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
         if (convertView == null) 
         {
         	//Inflate
-			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			LayoutInflater inflater = (LayoutInflater) this.mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.fragment_player_list_row, null);
 
             // Creates a ViewHolder and store references to the two children views
             // we want to bind data to.
             holder = new PlaylistAdapterViewHolder();
             holder.episodeTitle = (TextView) convertView.findViewById(R.id.player_list_row_episodeName);
-            holder.podcastTitle = (TextView) convertView.findViewById(R.id.player_list_row_podcastName);
-            holder.elapsedTimeBar = (ProgressBar) convertView.findViewById(R.id.player_list_row_elapsed_progressBar);
-            holder.currentEpisodeIndicator = (ImageView) convertView.findViewById(R.id.player_list_row_currentEpisode);
+            holder.feedTitle = (TextView) convertView.findViewById(R.id.player_list_row_feedName);
+            holder.timeListened = (TextView) convertView.findViewById(R.id.player_list_row_timeListened);
+            holder.feedImage = (ImageView) convertView.findViewById(R.id.player_list_row_feedImage);
+            holder.handle = (ImageView) convertView.findViewById(R.id.player_list_row_handle);
 
             convertView.setTag(holder);
         } 
@@ -123,44 +126,59 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
             holder = (PlaylistAdapterViewHolder) convertView.getTag();
         }
 
-        Episode currentEpisode = this.playList.get(position);
+        Episode currentEpisode = this.mPlayList.get(position);
+        Feed currentFeed = ((MainActivity)mContext).helper.getFeed(currentEpisode.getFeedId());
         
 		if(currentEpisode != null) 
 		{ 	
+			if (mReorderingEnabled) holder.handle.setVisibility(View.VISIBLE);
+			else	holder.handle.setVisibility(View.INVISIBLE);
 			holder.episodeTitle.setText(currentEpisode.getTitle());	//Set Episode Title	
-			holder.podcastTitle.setText(((MainActivity)context).helper.getFeed(currentEpisode.getFeedId()).getTitle()); //Set Podcast title.
+			holder.feedTitle.setText(currentFeed.getTitle()); //Set Podcast title.
+			int percent = (int) Math.round(((double)currentEpisode.getElapsedTime()/1000) / ((double)currentEpisode.getTotalTime()/1000) * 100.0);
+			holder.timeListened.setText(percent + "% " + mContext.getString(R.string.playlist_listened));
 			
 			if (position == findCurrentEpisodeIndex())
 			{
-				holder.currentEpisodeIndicator.setVisibility(View.VISIBLE);
-				holder.elapsedTimeBar.setVisibility(View.INVISIBLE);
+				holder.feedImage.setImageResource(R.drawable.dark_player_play);
+				holder.feedImage.setPadding(15, 15, 15, 15);
+				holder.feedImage.setBackgroundColor(mContext.getResources().getColor(android.R.color.transparent));
 			}
 			else
 			{
-				//Set up Circular progress bar that shows the elapsed time of each episode.
-				holder.currentEpisodeIndicator.setVisibility(View.GONE);
-				holder.elapsedTimeBar.setVisibility(View.VISIBLE);
-				holder.elapsedTimeBar.setMax(currentEpisode.getTotalTime());	//Set the max value (total runtime of each episode in milliseconds)
-				holder.elapsedTimeBar.setProgress(currentEpisode.getElapsedTime());	//Set the elapsed time of each episode (in milliseconds)
+				holder.feedImage.setImageBitmap(currentFeed.getFeedImage().thumbnail());
+				holder.feedImage.setPadding(0,0,0,0);
+				holder.feedImage.setBackgroundResource(R.drawable.list_image);
 			}
 			
 			
-			if (!currentEpisode.isDownloaded() && !NetworkUtils.isOnline(context)) convertView.setAlpha(.5f);	//If we don't have network access and the episode is to be streamed we make it look "disabled"
+			if (!currentEpisode.isDownloaded() && !NetworkUtils.isOnline(mContext)) convertView.setAlpha(.5f);	//If we don't have network access and the episode is to be streamed we make it look "disabled"
 			else 	convertView.setAlpha(1f);
 		}		
         return convertView;
     }
     
-    /**
+    public boolean isReorderingEnabled()
+	{
+		return mReorderingEnabled;
+	}
+
+	public void setReorderingEnabled(boolean enabled)
+	{
+		this.mReorderingEnabled = enabled;
+		this.notifyDataSetChanged();
+	}
+
+	/**
      * Finds out whether an Episode is in the Playlist.
      * @param ep Episode to find.
      * @return True if ep is in the playlist, false otherwise.
      */
     public boolean hasEpisode(Episode ep)
     {
-    	for (int i=0; i<this.playList.size(); i++)
+    	for (int i=0; i<this.mPlayList.size(); i++)
 		{
-			if (ep.getEpisodeId() == this.playList.get(i).getEpisodeId())
+			if (ep.getEpisodeId() == this.mPlayList.get(i).getEpisodeId())
 			{
 				return true;
 			}
@@ -171,8 +189,8 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
     
     public void addToPlaylist(Episode ep)
     {
-    	this.playList.add(ep);
-    	((MainActivity)context).helper.plDbH.savePlaylist(this.playList);
+    	this.mPlayList.add(ep);
+    	((MainActivity)mContext).helper.plDbH.savePlaylist(this.mPlayList);
     	this.notifyDataSetChanged();
     }
     
@@ -183,10 +201,10 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
     	int index = this.findEpisodeInPlaylist(ep);
     	if (index >= 0)
     	{
-    		this.playList.remove(index);
-    		((MainActivity)context).helper.plDbH.deleteEntry(ep.getEpisodeId());
+    		this.mPlayList.remove(index);
+    		((MainActivity)mContext).helper.plDbH.deleteEntry(ep.getEpisodeId());
     	}
-    	((MainActivity)context).helper.plDbH.savePlaylist(this.playList);
+    	((MainActivity)mContext).helper.plDbH.savePlaylist(this.mPlayList);
     	this.notifyDataSetChanged();
     }
     
@@ -197,9 +215,9 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 	 */
 	public int findEpisodeInPlaylist(Episode ep)
 	{
-		for (int i=0; i<this.playList.size(); i++)
+		for (int i=0; i<this.mPlayList.size(); i++)
 		{
-			if (ep.getEpisodeId() == this.playList.get(i).getEpisodeId())
+			if (ep.getEpisodeId() == this.mPlayList.get(i).getEpisodeId())
 			{
 				return i;
 			}
@@ -209,29 +227,23 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 	
 	public int findCurrentEpisodeIndex()
 	{
-		if (((MainActivity)context).podService != null)
+		if (((MainActivity)mContext).podService != null)
 		{
-			if (((MainActivity)context).podService.mCurrentEpisode != null)
+			if (((MainActivity)mContext).podService.mCurrentEpisode != null)
 			{
-				return this.findEpisodeInPlaylist(((MainActivity)context).podService.mCurrentEpisode);
+				return this.findEpisodeInPlaylist(((MainActivity)mContext).podService.mCurrentEpisode);
 			}
 		}
 		return -1;
 	}
     
-    //This is to improve ListView performance. See link for details.
-  	//http://developer.android.com/training/improving-layouts/smooth-scrolling.html
-  	
-
-	public void onRemove(int which) {
-//		if (which < 0 || which > this.playList.size()) return;		
-//		this.playList.remove(which);
-	}
+	public void onRemove(int which) 
+	{	}
 
 	public void onDrop(int from, int to) {
-		Episode temp = this.playList.get(from);
-		this.playList.remove(from);
-		this.playList.add(to,temp);
-		((MainActivity)context).helper.plDbH.savePlaylist(this.playList);
+		Episode temp = this.mPlayList.get(from);
+		this.mPlayList.remove(from);
+		this.mPlayList.add(to,temp);
+		((MainActivity)mContext).helper.plDbH.savePlaylist(this.mPlayList);
 	}
 }

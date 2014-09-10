@@ -1,10 +1,9 @@
 package com.podhoarder.util;
 
-import com.podhoarder.component.CheckableRelativeLayout;
-
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.podhoarder.component.CheckableRelativeLayout;
 
 /**
  * This is to improve ListView performance. See link for details.
@@ -41,9 +40,10 @@ public class ViewHolders
 		
 		public static class PlaylistAdapterViewHolder {	
 			public TextView episodeTitle;
-			public TextView podcastTitle;
-			public ProgressBar elapsedTimeBar;
-			public ImageView currentEpisodeIndicator;
+			public TextView feedTitle;
+			public TextView	timeListened;
+			public ImageView feedImage;
+			public ImageView handle;
 	  	}
 		
 		public static class SearchResultsAdapterViewHolder {	

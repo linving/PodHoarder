@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" 
-    android:orientation="horizontal"
-    android:paddingBottom="5dp">
-	    <ImageView android:id="@+id/player_list_row_currentEpisode"
-	        android:layout_width="35dp"
-	        android:layout_height="35dp"
-	        android:padding="5dp"
-	        android:layout_centerInParent="true"  
+    android:layout_height="75dp" 
+    android:orientation="vertical"
+    android:padding="5dp"
+	android:background="?android:attr/activatedBackgroundIndicator">
+	    <ImageView android:id="@+id/player_list_row_feedImage"
+	        android:layout_width="75dp"
+	        android:layout_height="75dp"
+	        android:layout_centerVertical="true"  
 	        android:layout_alignParentLeft="true"
-	        android:layout_marginLeft="5dp"
-	        android:layout_marginRight="5dp"
 	        android:alpha=".85"
+	        android:scaleType="centerInside"
 	        android:src="@drawable/dark_player_play"
-	        android:visibility="gone"/>
-    	<ProgressBar
-        android:id="@+id/player_list_row_elapsed_progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_centerInParent="true"  
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:rotation="-90.0"
-        android:indeterminate="false"
-        android:progressDrawable="@drawable/circular_progress_bar"/>
+	    	android:background="@drawable/list_image"/>d
 	    <LinearLayout 
 	        android:orientation="vertical"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_toRightOf="@id/player_list_row_elapsed_progressBar"
-	        android:layout_marginRight="25dp">
+	        android:layout_marginRight="45dp"
+	        android:layout_marginLeft="5dp"
+	        android:layout_toRightOf="@id/player_list_row_feedImage"
+	        android:layout_centerVertical="true">
 		    <TextView
 		        android:id="@+id/player_list_row_episodeName"
 		        android:layout_width="wrap_content"
 		        android:layout_height="match_parent"
-		        android:textColor="@color/fragment_player_podcast_text"
-		        android:textSize="@dimen/fragment_player_playlist_row_episode_title"
+		        android:textColor="@color/episode_list_row_title"
+		        android:textSize="@dimen/fragment_latest_list_episode_row"
 	        android:fontFamily="sans-serif-light"
 		        android:maxLines="1"
     			android:ellipsize="end"/>
 		    <TextView
-		        android:id="@+id/player_list_row_podcastName"
+		        android:id="@+id/player_list_row_feedName"
 		        android:layout_width="match_parent"
 		        android:layout_height="match_parent"
-		        android:textColor="@color/fragment_player_podcast_text"
+		        android:textColor="@color/episode_list_row_title"
+		        android:textSize="@dimen/fragment_latest_list_episode_row"
 	        android:fontFamily="sans-serif-light"
-		        android:textSize="@dimen/fragment_player_playlist_row_podcast_title"/>
+		        android:maxLines="1"
+    			android:ellipsize="end"/>
+		    <TextView
+		        android:id="@+id/player_list_row_timeListened"
+		        android:layout_width="wrap_content"
+		        android:layout_height="match_parent"
+		        android:textColor="@color/episode_list_row_subtitle"
+		        android:textSize="@dimen/fragment_latest_list_episode_row"
+	        android:fontFamily="sans-serif-light"
+		        android:maxLines="1"
+    			android:ellipsize="end"/>
 	    </LinearLayout>
 	    <ImageView
-	        android:id="@+id/player_list_row_grabber"
-	        android:layout_width="25dp"
-	        android:layout_height="25dp"
+	        android:id="@+id/player_list_row_handle"
+	        android:layout_width="45dp"
+	        android:layout_height="45dp"
+	        android:scaleType="centerInside"
 	        android:layout_alignParentRight="true"
 	        android:layout_centerVertical="true"
-	        android:layout_marginRight="5dp"
 			android:src="@drawable/mid_playlist_drag"/>
 </RelativeLayout>

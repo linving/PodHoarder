@@ -6,19 +6,20 @@
     <color name="list_image_stroke">#323a45</color>
     <color name="app_background">#FFFFFF</color>
     <color name="app_background_almost">#FCFCFC</color>
+    <color name="app_menu">#2c3e50</color>
     <color name="page_indicator_stroke">#555555</color>
     <color name="page_indicator_fill">#9aa4ad</color>
     <color name="page_indicator_currentPage_fill">#474e58</color>
     
     
-    <color name="app_accent">#33bf9b</color>
-    <color name="app_accent_bright">#85e4cc</color>
+    <color name="app_accent">#1abc9c</color>
+    <color name="app_accent_bright">#66D8C2</color>
     <color name="app_accent_primary_complement">#ffb844</color>
     <color name="app_accent_primary_complement_bright">#ffd796</color>
     <color name="app_accent_secondary_complement">#f44161</color>
     <color name="app_accent_secondary_complement_bright">#fa93a5</color>
     
-    <color name="app_blue_accent">#33b5e5</color>
+    <color name="app_blue_accent">#3498db</color>
     <color name="app_green_accent">#33bf9b</color>
     <color name="app_red_accent">#ff5a5f</color>
     
@@ -30,6 +31,7 @@
     
     <!-- Player Fragment List -->
     <color name="fragment_player_playlist_row_background_ondrag">#b6c2d1</color>
+    <color name="fragment_player_playlist_handle">#474e58</color>
     
     <!-- Feeds Fragment -->
     <color name="fragment_feeds_grid_item_title">#FFFFFF</color>
@@ -54,7 +56,4 @@
     <color name="search_view_selected_text">#FFFFFF</color>
     <color name="search_list_row_title">#000000</color>
     <color name="search_list_row_subtitle">#8d979e</color>
-    
-    <!-- Circular Progress Bar -->
-    <color name="circular_progress_bar_background">#9aa4ad</color>
 </resources>

@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.podhoarder.activity.MainActivity;
@@ -15,7 +14,6 @@ import com.podhoarder.object.Episode;
 import com.podhoarder.object.EpisodeMultiChoiceModeListener;
 import com.podhoarder.object.OnItemDoubleClickListener;
 import com.podhoarder.util.Constants;
-import com.podhoarder.util.ExpandAnimation;
 import com.podhoarder.util.PodcastHelper;
 import com.podhoarderproject.podhoarder.R;
  

@@ -7,10 +7,10 @@
     <string name="action_add">Add Podcast</string>
     
     <!-- Player tab -->
-    <string name="fragment_player_playlist_header">Playlist</string>
+    <string name="playlist_listened">listened</string>
     
     <!-- Latest Episodes tab -->
-    <string name="fragment_latest_list_row_new">NEW!</string>
+    <string name="latest_list_row_new">NEW!</string>
     
     <!-- Search Fragment -->
     <string name="search_hint">Search</string>
@@ -46,7 +46,6 @@
     
     <!-- Playlist Context Menu -->
     <string name="menu_playlist_delete">Remove From Playlist</string>
-    <string name="menu_playlist_startOver">Play From Beginning</string>
     <string name="menu_playlist_available_offline">Make Available Offline</string>
     
     <!-- Search Context Menu -->
@@ -71,9 +70,5 @@
     <string name="toast_feeds_refreshed_failed">Refresh failed!</string>
     <string name="toast_player_playback_failed">Playback failed!</string>
     <string name="toast_download_failed">Download failed!</string>
-    <string name="toast_add_feed_failed">Failed To Add Podcast!</string>
-    
-    <!-- Contextual Action Mode Bar-->
-    <string name="contextual_action_mode_selected">selected.</string>
-    
+    <string name="toast_add_feed_failed">Failed To Add Podcast!</string>    
 </resources>

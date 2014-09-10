@@ -23,6 +23,7 @@ import com.podhoarderproject.podhoarder.R;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -135,7 +136,13 @@ public class DragNDropListView extends ListView {
 		View item = getChildAt(itemIndex);
 		if (item == null) return;
 		this.defaultBackgroundColor =  item.getDrawingCacheBackgroundColor();	//Store the background color of the item
-		item.setBackgroundColor(getResources().getColor(R.color.fragment_player_playlist_row_background_ondrag));	//Set the background color.
+		
+    	int color = getResources().getColor(R.color.app_accent_bright);
+    	int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        
+		item.setBackgroundColor(Color.argb(125, red, green, blue));	//Set the background color.
 		item.setDrawingCacheEnabled(true);
 		
 		if (mDragListener != null)
@@ -171,8 +178,8 @@ public class DragNDropListView extends ListView {
         mDragView = v;
         
         DragNDropAdapter ad = (DragNDropAdapter) getAdapter();
-        this.tempEpisode = ad.playList.get(itemIndex);
-        ad.playList.remove(itemIndex);
+        this.tempEpisode = ad.mPlayList.get(itemIndex);
+        ad.mPlayList.remove(itemIndex);
         item.setBackgroundColor(defaultBackgroundColor);	//Reset background color.
         invalidateViews();
 	}
@@ -183,7 +190,7 @@ public class DragNDropListView extends ListView {
 			if (this.tempEpisode != null)
 			{
 				DragNDropAdapter ad = (DragNDropAdapter) getAdapter();
-				ad.playList.add(itemIndex, this.tempEpisode);
+				ad.mPlayList.add(itemIndex, this.tempEpisode);
 				invalidateViews();
 				this.tempEpisode = null;
 			}

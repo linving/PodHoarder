@@ -82,7 +82,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		    //get service
 		    podService = binder.getService();
 		    //pass list
-		    podService.setList(helper.playlistAdapter.playList);
+		    podService.setList(helper.playlistAdapter.mPlayList);
 		    musicBound = true;
 		    
 		    //Initialise the headphone jack listener / intent receiver.

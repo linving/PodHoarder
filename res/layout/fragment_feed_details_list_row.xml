@@ -65,7 +65,7 @@
                     android:layout_marginLeft="5dp"
                     android:fontFamily="sans-serif-light"
                     android:maxLines="1"
-                    android:text="@string/fragment_latest_list_row_new"
+                    android:text="@string/latest_list_row_new"
                     android:textColor="@color/episode_list_row_notification"
                     android:textSize="@dimen/fragment_latest_list_episode_row"
                     android:textStyle="bold"

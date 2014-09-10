@@ -6,13 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.FeedDetailsListAdapter;
-import com.podhoarder.adapter.LatestEpisodesListAdapter;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.EpisodeMultiChoiceModeListener;
 import com.podhoarder.object.OnItemDoubleClickListener;

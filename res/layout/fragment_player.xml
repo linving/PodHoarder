@@ -24,14 +24,16 @@
             android:id="@id/handle"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@color/app_background"
-            android:src="@drawable/mid_playlist_drag" />
+            android:background="@color/app_menu"
+            android:src="@drawable/ic_action_collapse" />
 
         <com.ericharlow.DragNDrop.DragNDropListView
             android:id="@+id/playlist"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:background="@color/app_background"
+        android:dividerHeight="1px"
+            android:listSelector="@drawable/list_selector"
             android:divider="@null" >
         </com.ericharlow.DragNDrop.DragNDropListView>
     </SlidingDrawer>

@@ -3,9 +3,6 @@
     <item android:id="@+id/menu_playlist_available_offline"
           android:title="@string/menu_playlist_available_offline"
           android:icon="@drawable/ic_action_download" />
-    <item android:id="@+id/menu_playlist_startOver"
-          android:title="@string/menu_playlist_startOver"
-          android:icon="@drawable/ic_action_replay" />
     <item android:id="@+id/menu_playlist_delete"
           android:title="@string/menu_playlist_delete"
           android:icon="@drawable/ic_action_discard" />

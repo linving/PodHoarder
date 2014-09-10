@@ -11,8 +11,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -24,15 +24,14 @@ import android.widget.TextView;
 import com.ericharlow.DragNDrop.DragListener;
 import com.ericharlow.DragNDrop.DragNDropListView;
 import com.ericharlow.DragNDrop.DropListener;
+import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.DragNDropAdapter;
 import com.podhoarder.component.CircularSeekBar;
 import com.podhoarder.component.CircularSeekBar.OnSeekChangeListener;
 import com.podhoarder.component.ToggleImageButton;
-import com.podhoarder.object.Episode;
+import com.podhoarder.object.PlaylistMultiChoiceModeListener;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.util.PodcastHelper;
-import com.podhoarder.util.PopupMenuUtils;
-import com.podhoarder.activity.MainActivity;
 import com.podhoarderproject.podhoarder.R;
 
 /**
@@ -40,6 +39,7 @@ import com.podhoarderproject.podhoarder.R;
  * @author Emil Almrot
  * 2014-05-25
  */
+@SuppressWarnings("deprecation")
 public class PlayerFragment extends Fragment
 {
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PlayerFragment";
@@ -50,6 +50,8 @@ public class PlayerFragment extends Fragment
 	
 	private View view;
 	private PodcastHelper helper;
+	
+	private PlaylistMultiChoiceModeListener mListSelectionListener;
 	
 	private PodHoarderService podService;
 	
@@ -140,7 +142,10 @@ public class PlayerFragment extends Fragment
 		this.mainListView.setDropListener(mDropListener);
     	this.mainListView.setDragListener(mDragListener);
     	this.mainListView.setOnItemClickListener(mOnClickListener);
-    	this.mainListView.setOnItemLongClickListener(mOnLongClickListener);
+    	
+    	this.mainListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		this.mListSelectionListener = new PlaylistMultiChoiceModeListener(getActivity(), this.mainListView);
+		this.mainListView.setMultiChoiceModeListener(this.mListSelectionListener);
     	
     	this.mPlaylistDrawer.setOnDrawerOpenListener(onDrawerOpenListener);
     	this.mPlaylistDrawer.setOnDrawerCloseListener(onDrawerCloseListener);
@@ -286,20 +291,9 @@ public class PlayerFragment extends Fragment
 		public void onItemClick(AdapterView<?> arg0, View listRow, int position, long id)
 		{
 			start(position);
+    		if (mPlaylistDrawer.isOpened()) mPlaylistDrawer.animateClose();
 		}
     };
-    
-    private OnItemLongClickListener mOnLongClickListener = new OnItemLongClickListener()
-	{
-		@Override
-		public boolean onItemLongClick(AdapterView<?> arg0, View listRow, int position, long id)
-		{
-			final Episode currentEp = (Episode)mainListView.getItemAtPosition(position);
-			PopupMenuUtils.buildPlaylistContextMenu(getActivity(), listRow, currentEp, true).show();
-			return true;
-		}
-    	
-	};
     
     //Button Listeners
     private OnClickListener mPlayPauseClickListener = new OnClickListener() {
@@ -363,26 +357,6 @@ public class PlayerFragment extends Fragment
     //Seekbar Listener
     private CircularSeekBar.OnSeekChangeListener mSeekBarChangeListener = new OnSeekChangeListener() {    
 
-//        @Override       
-//        public void onStopTrackingTouch(SeekBar seekBar) {
-//        	//Let the service go back to updating the seekBar position.
-//        	podService.setUpdateBlocked(false);
-//        }       
-//
-//        @Override       
-//        public void onStartTrackingTouch(SeekBar seekBar) {  
-//        	//This prevents the PodService tasks to update and set the seekBar position while the user has "grabbed" it.
-//            podService.setUpdateBlocked(true);    
-//        }       
-//
-//        @Override       
-//        public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
-//        	//fromUser makes sure that it's user input that triggers the seekBar position change.
-//        	if (fromUser)
-//        	{
-//        		podService.seek(progress);
-//        	}
-//        }
 
 		@Override
 		public void onProgressChange(CircularSeekBar view, int newProgress, boolean fromTouch)
@@ -401,6 +375,7 @@ public class PlayerFragment extends Fragment
 		public void onDrawerOpened()
 		{
 			((MainActivity)getActivity()).disableRefresh();
+			((ImageView)mPlaylistDrawer.getHandle()).setImageResource(R.drawable.ic_action_expand);
 		}
 	};
     
@@ -412,6 +387,9 @@ public class PlayerFragment extends Fragment
 		public void onDrawerClosed()
 		{
 			((MainActivity)getActivity()).enableRefresh();
+			((ImageView)mPlaylistDrawer.getHandle()).setImageResource(R.drawable.ic_action_collapse);
+			if (mListSelectionListener.isActive())
+				mListSelectionListener.getActionMode().finish();
 		}
 	};
 }
