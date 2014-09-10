@@ -75,8 +75,9 @@
     <style name="Podhoarder.Text.gridNotification" parent="@android:style/TextAppearance.Medium">
         <item name="android:textColor">@color/text_inverse</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/text_primary</item>
+        <item name="android:textSize">@dimen/text_grid_notification</item>
         <item name="android:fontFamily">sans-serif-regular</item>
+        <item name="android:gravity">center</item>
     </style>
     
     <style name="Podhoarder.Text.textNotification" parent="@android:style/TextAppearance.Medium">

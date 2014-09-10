@@ -5,6 +5,7 @@
     <dimen name="text_header">20sp</dimen>
     <dimen name="text_primary">14sp</dimen>
     <dimen name="text_secondary">14sp</dimen>
+    <dimen name="text_grid_notification">16sp</dimen>
     
     <dimen name="indicator_width">5dip</dimen>
     

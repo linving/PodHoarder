@@ -8,9 +8,9 @@
     <color name="list_image_stroke">#323a45</color>
     
     <color name="app_background">#FFFFFF</color>
-    <color name="app_menu">#3f51b5</color>
+    <color name="app_menu">#1abc9c</color>
     <color name="app_accent">#e91e63</color>
-    <color name="app_accent_bright">#f48fb1</color>
+    <color name="app_accent_bright">#e91e63</color>
     
     <color name="page_indicator_stroke">#555555</color>
     <color name="page_indicator_fill">#9aa4ad</color>
