@@ -200,8 +200,10 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		}
 		if (isLoading())
 		{
-			if (this.mPlayPauseButton != null && this.mPlayPauseButton.getVisibility() == View.VISIBLE)	this.mPlayPauseButton.setVisibility(View.GONE);
-			if (this.mLoadingCircle != null && this.mLoadingCircle.getVisibility() == View.GONE) this.mLoadingCircle.setVisibility(View.VISIBLE);
+			if (this.mPlayPauseButton != null || this.mPlayPauseButton.getVisibility() == View.VISIBLE)	
+				this.mPlayPauseButton.setVisibility(View.GONE);
+			if (this.mLoadingCircle != null || this.mLoadingCircle.getVisibility() == View.GONE) 
+				this.mLoadingCircle.setVisibility(View.VISIBLE);
 		}
 		else
 		{
@@ -225,13 +227,38 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			this.mSeekBar.setBackground(this.mHelper.getFeed(this.mCurrentEpisode.getFeedId()).getFeedImage());
 			this.mSeekBar.invalidate();
 		}
+		if (this.mPlayPauseButton != null && this.mLoadingCircle != null)
+		{
+			if (isLoading())
+			{
+				this.mPlayPauseButton.setVisibility(View.GONE);
+				this.mLoadingCircle.setVisibility(View.VISIBLE);
+			}
+			else
+			{
+				this.mPlayPauseButton.setVisibility(View.VISIBLE);
+				this.mLoadingCircle.setVisibility(View.GONE);
+			}
+		}
 	}
 	
 	public void resetUI()
 	{
-		this.mLoadingCircle.setVisibility(View.GONE);
-		this.mPlayPauseButton.setVisibility(View.VISIBLE);
-		this.mPlayPauseButton.setChecked(false);
+		if (this.mPlayPauseButton != null && this.mLoadingCircle != null)
+		{
+			if (isLoading())
+			{
+				this.mLoadingCircle.setVisibility(View.GONE);
+				this.mPlayPauseButton.setVisibility(View.VISIBLE);
+				this.mPlayPauseButton.setChecked(false);
+			}
+			else
+			{
+				this.mLoadingCircle.setVisibility(View.VISIBLE);
+				this.mPlayPauseButton.setVisibility(View.GONE);
+				this.mPlayPauseButton.setChecked(false);
+			}
+		}
 	}
 	
 	@Override
@@ -247,17 +274,25 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	
 	public void playEpisode(Episode ep)
 	{
-		this.mCurrentEpisode = ep;
+		
 		if (ep.isDownloaded())
 		{
+			this.mCurrentEpisode = ep;
 			this.startEpisode(ep);
 		}
 		else
 		{
 			if (!NetworkUtils.isOnline(getApplicationContext()))
+			{
+				this.mCurrentEpisode = ep;
 				playNext();
+			}
+				
 			else
+			{
+				this.mCurrentEpisode = ep;
 				this.streamEpisode(ep);
+			}
 		}
 	}
 	
@@ -492,11 +527,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			return;
 		}
 	}
-	
-	public void playNext(int previousIndex)
-	{
-		
-	}
+
 	
 	public boolean shouldSaveElapsedTime()
 	{

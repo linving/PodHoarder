@@ -14,7 +14,9 @@ import com.podhoarder.object.Episode;
 import com.podhoarder.object.EpisodeMultiChoiceModeListener;
 import com.podhoarder.object.OnItemDoubleClickListener;
 import com.podhoarder.util.Constants;
+import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.PodcastHelper;
+import com.podhoarder.util.ToastMessages;
 import com.podhoarderproject.podhoarder.R;
  
 /**
@@ -62,9 +64,14 @@ public class LatestEpisodesFragment extends Fragment
 				@Override
 				public void onSingleClick(AdapterView<?> parent, View v, int pos, long id)
 				{
-					((MainActivity)getActivity()).podService.playEpisode((Episode)mainListView.getItemAtPosition(pos));
-					((MainActivity)getActivity()).setTab(Constants.PLAYER_TAB_POSITION);
-					
+					Episode currentEp = (Episode)mainListView.getItemAtPosition(pos);
+					if (currentEp.isDownloaded() || NetworkUtils.isOnline(getActivity()))
+					{
+						((MainActivity)getActivity()).podService.playEpisode((Episode)mainListView.getItemAtPosition(pos));
+						((MainActivity)getActivity()).setTab(Constants.PLAYER_TAB_POSITION);
+					}
+					else
+						ToastMessages.PlaybackFailed(getActivity());
 				}
 
 				@Override

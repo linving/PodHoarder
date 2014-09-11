@@ -31,6 +31,7 @@ public class ImageUtils
 				TileMode.CLAMP);
 		Paint paint = new Paint();
 		paint.setAntiAlias(true);
+		paint.setDither(true);
 		paint.setShader(shader);
 
 		Canvas c = new Canvas(circleBitmap);

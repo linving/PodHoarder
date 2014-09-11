@@ -64,7 +64,12 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
      * The number of items in the list
      * @see android.widget.ListAdapter#getCount()
      */
-    public int getCount() {
+    public int getCount() 
+    {
+    	if (this.mPlayList.size() < 2)
+    		this.mReorderingEnabled = false;
+    	else
+    		this.mReorderingEnabled = true;
         return this.mPlayList.size();
     }
 
