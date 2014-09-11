@@ -39,7 +39,7 @@
     <style name="AutoCompleteTextView" parent="Widget.AppCompat.Light.AutoCompleteTextView">
         <item name="android:textColor">@color/actionbar_title</item>
         <item name="android:textCursorDrawable">@null</item>
-        <item name="android:textColorHighlight">@color/app_accent_bright</item>
+        <item name="android:textColorHighlight">@color/app_detail</item>
     </style>
     
     <style name="ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">

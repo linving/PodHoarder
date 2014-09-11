@@ -30,7 +30,7 @@
             android:layout_centerHorizontal="true"
             android:ellipsize="end"
             android:maxLines="1"
-            style="@style/Podhoarder.Text.Primary" />
+            style="@style/Podhoarder.Text.Secondary" />
     </RelativeLayout>
 
     <ListView
@@ -40,8 +40,8 @@
         android:layout_weight="5"
         android:clickable="true"
         android:clipToPadding="false"
-        android:divider="@drawable/list_divider"
-        android:dividerHeight="1px"
+        android:divider="@null"
+        android:dividerHeight="0px"
         android:fastScrollEnabled="true"
         android:fastScrollAlwaysVisible="true"
         android:longClickable="true"

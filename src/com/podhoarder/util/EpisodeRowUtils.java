@@ -80,8 +80,16 @@ public class EpisodeRowUtils
 	{
 		if (ep.isNew())
 		{
-			row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
-			if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
+			if (NetworkUtils.isOnline(ctx))
+			{
+				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
+				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
+			}
+			else
+			{
+				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
+				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
+			}
 		} 
 		else
 		{

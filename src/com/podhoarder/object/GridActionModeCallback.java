@@ -182,7 +182,7 @@ public class GridActionModeCallback implements ActionMode.Callback
 
     private int getSelectedItemColor()
     {
-    	int color = mContext.getResources().getColor(R.color.app_accent_bright);
+    	int color = mContext.getResources().getColor(R.color.app_detail);
     	int red = Color.red(color);
         int green = Color.green(color);
         int blue = Color.blue(color);

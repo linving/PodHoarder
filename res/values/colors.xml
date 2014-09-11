@@ -8,10 +8,14 @@
     <color name="list_image_stroke">#323a45</color>
     
     <color name="app_background">#FFFFFF</color>
-    <color name="app_menu">#1abc9c</color>
-    <color name="app_accent">#1abc9c</color>
-    <color name="app_accent_bright">#66D8C2</color>
-    <color name="app_detail">#66D8C2</color>
+    <!-- App Action bar -->
+    <color name="app_menu">#1e4287</color>
+    
+    <!-- Used for components such as scroll bars. -->
+    <color name="app_accent">#1e4287</color>
+    
+    <!--  This is used for details that should be the focus of attention, such as circular seek bar. -->
+    <color name="app_detail">#ef4d80</color>
     
     <color name="seekbar_background">#FFFFFF</color>
     
@@ -27,8 +31,8 @@
     
     <!-- Episode Row Indicators -->
     <color name="indicator_new">#e91e63</color>
-    <color name="indicator_stream">#719BDA</color>
-    <color name="indicator_downloaded">#1abc9c</color>
+    <color name="indicator_stream">#08bed5</color>
+    <color name="indicator_downloaded">#00AD82</color>
     <color name="indicator_unavailable">#9aa4ad</color>
     
     <!-- Feeds Fragment -->
