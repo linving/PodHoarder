@@ -6,7 +6,8 @@
         <item name="android:windowBackground">@color/app_background</item>
         <item name="android:colorBackground">@color/app_background</item>
         <item name="android:actionModeBackground">@color/app_menu</item>
-        <item name="android:windowActionBar">true</item>
+        <item name="android:windowActionBar">false</item>
+		<item name="android:windowTitleSize">0dp</item>
         <item name="android:actionBarTabBarStyle">@style/TabBar</item>
         <item name="android:actionBarTabStyle">@style/TabView</item>
         <item name="android:actionBarStyle">@style/ActionBar</item>

@@ -266,8 +266,11 @@ public class CircularSeekBar extends View {
 		bitmapRect.set(((int)rect.left+barWidth),((int)rect.top+barWidth),((int)rect.right-barWidth),((int)rect.bottom-barWidth));
 		
 		if (backgroundBitmap == null)
-			backgroundBitmap = ImageUtils.getCircularBitmap(img.largeImage());
-		backgroundPaint.setAntiAlias(true);
+		{
+			backgroundBitmap = ImageUtils.getCircularBitmap(img.loadScaledImage(bitmapRect.width(), bitmapRect.height()));
+			backgroundPaint.setAntiAlias(true);
+			backgroundPaint.setDither(true);
+		}
 		
 		if (backgroundBitmap != null) canvas.drawBitmap(backgroundBitmap, null, bitmapRect, backgroundPaint);
 		else canvas.drawCircle(cx, cy, innerRadius, innerColor);

@@ -25,6 +25,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
@@ -111,8 +112,11 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     {	
     	super.onCreate(savedInstanceState);
         // Initialisation
+    	getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+        getActionBar().hide();
         setupActionBar();
         setContentView(R.layout.activity_main);
+        getActionBar().show();
         this.helper = new PodcastHelper(this);
         if (!this.musicBound)
     	{
@@ -155,24 +159,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
             titleTextView.setGravity(Gravity.CENTER);
         }
-//    	this.getActionBar().setDisplayShowCustomEnabled(true);
-//    	this.getActionBar().setDisplayShowTitleEnabled(false);
-//    	
-//    	LayoutInflater inflater = LayoutInflater.from(this);
-//    	View v = inflater.inflate(R.layout.actionbar, null);
-//    	
-//    	TextView titleTextView = ((TextView)v.findViewById(R.id.actionbar_title));
-//        
-//        titleTextView.setAllCaps(true);
-//        titleTextView.setTextColor(getResources().getColor(R.color.actionbar_title));
-//        titleTextView.setTextSize(getResources().getDimension(R.dimen.default_title_indicator_text_size));
-//        titleTextView.setText(getString(R.string.app_name));
-//
-//        // Fetch layout parameters of titleTextView (LinearLayout.LayoutParams : Info from HierarchyViewer)
-//        RelativeLayout.LayoutParams txvPars = (LayoutParams) titleTextView.getLayoutParams();
-//        txvPars.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-//        titleTextView.setLayoutParams(txvPars);        
-//        this.getActionBar().setCustomView(v);
     }
     
     @Override
