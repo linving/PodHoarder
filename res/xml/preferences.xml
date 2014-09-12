@@ -3,20 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <PreferenceCategory 
-        android:title="@string/pref_group_player_title"
-        android:key="pref_player">
-	    <CheckBoxPreference
-	        android:key="pref_deleteListened"
-	        android:title="@string/pref_deleteListened_title"
-	        android:summary="@string/pref_deleteListened_summary"
-	        android:defaultValue="true" />
-	    <CheckBoxPreference
-	        android:key="pref_playNextFile"
-	        android:title="@string/pref_playNextFile_title"
-	        android:summary="@string/pref_playNextFile_summary"
-	        android:defaultValue="true" />
-    </PreferenceCategory>
-    <PreferenceCategory 
         android:title="@string/pref_group_ui_title"
         android:key="pref_ui">
 	    <CheckBoxPreference

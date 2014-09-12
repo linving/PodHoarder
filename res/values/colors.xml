@@ -8,6 +8,7 @@
     <color name="list_image_stroke">#323a45</color>
     
     <color name="app_background">#FFFFFF</color>
+    <color name="app_background_almost">#DDDDDD</color>
     <!-- App Action bar -->
     <color name="app_menu">#1e4287</color>
     

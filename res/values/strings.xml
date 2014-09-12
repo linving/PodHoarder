@@ -17,15 +17,7 @@
     <string name="search_list_feed_last_updated">Last update</string>
     <string name="search_list_feed_last_updated_unknown">unknown</string>
     
-    <!-- Settings -->
-    <string name="pref_group_player_title">Player Settings</string>
-    
-    <string name="pref_deleteListened_title">Delete Finished Episodes</string>
-    <string name="pref_deleteListened_summary">Automatically delete downloaded episodes once you have listened to their full duration.</string>
-    
-    <string name="pref_playNextFile_title">Play Next File</string>
-    <string name="pref_playNextFile_summary">Enable to keep playing through the playlist once an episode has ended.</string>
-    
+    <!-- Settings -->    
     <string name="pref_group_ui_title">UI Options</string>
     
     <string name="pref_gridShowTitle_title">Show Podcast Titles In Grid</string>

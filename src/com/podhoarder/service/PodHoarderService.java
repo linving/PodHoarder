@@ -87,23 +87,16 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			final Episode lastEp = this.mCurrentEpisode;
 			int indexToDelete = this.mHelper.playlistAdapter.findEpisodeInPlaylist(this.mCurrentEpisode);
 			boolean wasStreaming = this.mStreaming;
-			if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.SETTINGS_KEY_PLAYNEXTFILE, true))
-			{
-				playNext();	//Play
-			}
-			else this.stop();
 			
-			if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.SETTINGS_KEY_DELETELISTENED, true) && indexToDelete != -1)	
+			playNext();	//Play
+			
+			if (!wasStreaming)
 			{
-				if (!wasStreaming)
-				{
-					this.mHelper.deleteEpisodeFile(lastEp);
-					this.mHelper.playlistAdapter.removeFromPlaylist(this.mPlayList.get(indexToDelete));
-				}
-				else
-				{
-					this.mHelper.playlistAdapter.removeFromPlaylist(this.mPlayList.get(indexToDelete));
-				}
+				this.mHelper.deleteEpisodeFile(lastEp);
+			}
+			if (indexToDelete != -1)	
+			{
+				this.mHelper.playlistAdapter.removeFromPlaylist(this.mPlayList.get(indexToDelete));
 			}
 			this.mHelper.refreshListsAsync();
 		}
@@ -248,14 +241,14 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		{
 			if (isLoading())
 			{
-				this.mLoadingCircle.setVisibility(View.GONE);
-				this.mPlayPauseButton.setVisibility(View.VISIBLE);
+				this.mLoadingCircle.setVisibility(View.VISIBLE);
+				this.mPlayPauseButton.setVisibility(View.GONE);
 				this.mPlayPauseButton.setChecked(false);
 			}
 			else
 			{
-				this.mLoadingCircle.setVisibility(View.VISIBLE);
-				this.mPlayPauseButton.setVisibility(View.GONE);
+				this.mLoadingCircle.setVisibility(View.GONE);
+				this.mPlayPauseButton.setVisibility(View.VISIBLE);
 				this.mPlayPauseButton.setChecked(false);
 			}
 		}

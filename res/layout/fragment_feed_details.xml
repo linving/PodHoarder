@@ -39,13 +39,11 @@
         android:layout_height="0dp"
         android:layout_weight="5"
         android:clickable="true"
-        android:clipToPadding="false"
         android:divider="@null"
         android:dividerHeight="0px"
         android:fastScrollEnabled="true"
         android:fastScrollAlwaysVisible="true"
         android:longClickable="true"
-        android:paddingTop="5dp"
         android:listSelector="@drawable/list_selector" />
 
 </LinearLayout>
