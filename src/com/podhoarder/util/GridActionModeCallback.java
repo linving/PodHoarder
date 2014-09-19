@@ -1,4 +1,4 @@
-package com.podhoarder.object;
+package com.podhoarder.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +10,7 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.GridView;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.GridListAdapter;
 import com.podhoarder.component.CheckableRelativeLayout;
+import com.podhoarder.object.Feed;
 import com.podhoarderproject.podhoarder.R;
 
 public class GridActionModeCallback implements ActionMode.Callback
@@ -62,7 +64,10 @@ public class GridActionModeCallback implements ActionMode.Callback
 							CheckableRelativeLayout item = (CheckableRelativeLayout)view.getChildAt(i);
 							item.setChecked(true);
 							ImageView img = ((ImageView)item.findViewById(R.id.feeds_grid_item_image));
-							img.setColorFilter(getSelectedItemColor());
+							img.setSelected(true);
+							ImageView checkmark = ((ImageView)item.findViewById(R.id.feeds_grid_item_checkmark));
+							checkmark.setVisibility(View.VISIBLE);
+							//img.setBackgroundResource(R.drawable.feeds_grid_image_selected);
 						}
 					}
 				}
@@ -114,14 +119,12 @@ public class GridActionModeCallback implements ActionMode.Callback
 		{
 			CheckableRelativeLayout view = (CheckableRelativeLayout)this.mParentListView.getChildAt(i);
 			ImageView img = ((ImageView)view.findViewById(R.id.feeds_grid_item_image));
+			img.setSelected(checked);
+			ImageView checkmark = ((ImageView)view.findViewById(R.id.feeds_grid_item_checkmark));
 			if (checked)
-			{
-				img.setColorFilter(getSelectedItemColor());
-			}
+				checkmark.setVisibility(View.VISIBLE);
 			else
-			{
-				img.setColorFilter(mContext.getResources().getColor(R.color.fragment_feeds_grid_item_image_tint));
-			}
+				checkmark.setVisibility(View.INVISIBLE);
 		}
     	if (checked)
     		this.mSelectedItems.add(position);	//save the list position of the selected view.
@@ -130,8 +133,6 @@ public class GridActionModeCallback implements ActionMode.Callback
     	
     	if (this.mSelectedItems.size() == 0)	//If the last item was deselected we finish the actionMode.
     		this.mActionMode.finish();
-//    	else
-//    		this.updateTitle();
 	}
 	
 

@@ -1,5 +1,6 @@
 package com.podhoarder.util;
 
+import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ public class ViewHolders
 		public TextView feedTitle;
 		public TextView feedNumberOfEpisodes;
 		public ImageView feedImage;
+		public ImageView checkmark;
 		public CheckableRelativeLayout checkableLayout;
 	}
 	
@@ -60,5 +62,6 @@ public class ViewHolders
 		public TextView lastUpdated;
 		public ImageView explicitIndicator;
 		public ImageView feedImage;
+		public Bitmap bitmap;
 	}
 }

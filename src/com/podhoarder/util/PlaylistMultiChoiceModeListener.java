@@ -1,6 +1,7 @@
-package com.podhoarder.object;
+package com.podhoarder.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
@@ -12,11 +13,12 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AbsListView.OnScrollListener;
 
-import com.podhoarder.json.SearchResultItem;
-import com.podhoarder.util.DialogUtils;
+import com.podhoarder.activity.MainActivity;
+import com.podhoarder.object.Episode;
 import com.podhoarderproject.podhoarder.R;
+import com.podhoarder.adapter.DragNDropAdapter;
 
-public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListener
+public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
 {
 	private AbsListView mParentListView;
 	private Context mContext;
@@ -24,7 +26,7 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
 	private ActionMode mActionMode;
 	private boolean mActive = false;
 	
-	public SearchResultMultiChoiceModeListener(Context context, AbsListView parent)
+	public PlaylistMultiChoiceModeListener(Context context, AbsListView parent)
 	{
 		this.mContext = context;
 		this.mParentListView = parent;
@@ -70,10 +72,12 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         // Inflate the menu for the CAB
         MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.contextual_menu_search, menu);
+        inflater.inflate(R.menu.contextual_menu_playlist_row, menu);
         this.mActionMode = mode;
         this.mSelectedItems = new ArrayList<Integer>();
         this.mActive = true;
+        ((DragNDropAdapter)this.mParentListView.getAdapter()).setReorderingEnabled(false);
+        
         return true;
     }
 
@@ -88,11 +92,16 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) 
     {
         // Respond to clicks on the actions in the CAB
-        switch (item.getItemId()) {
-            case R.id.menu_search_add:
-            	addSelectedPodcasts();
-                mode.finish(); // Action picked, so close the CAB
-                return true;
+        switch (item.getItemId()) 
+        {
+            case R.id.menu_playlist_delete:
+            	removeSelectedItemsFromPlaylist();
+            	mode.finish();
+            	return true;
+            case R.id.menu_playlist_available_offline:
+            	downloadSelectedItems();
+            	mode.finish();
+            	return true;
             default:
                 return false;
         }
@@ -108,7 +117,18 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
     		this.mSelectedItems.add(position);	//save the list position of the selected view.
     	else
     		this.mSelectedItems.remove((Object)position);	//remove the list position of the unselected view.
-//    	this.updateTitle();
+
+    	boolean canDownload = false;
+    	for (int it : this.mSelectedItems)
+    	{
+    		if (!((Episode)this.mParentListView.getItemAtPosition(it)).isDownloaded())
+    			canDownload = true;
+    	}
+    	
+    	if (!NetworkUtils.isOnline(mContext))
+    		canDownload = false;
+    	
+    	this.mActionMode.getMenu().findItem(R.id.menu_playlist_available_offline).setVisible(canDownload);
 	}
 	
 
@@ -127,16 +147,37 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
     	this.mSelectedItems = null;
     	this.mActive = false;
     	this.mActionMode = null;
+        ((DragNDropAdapter)this.mParentListView.getAdapter()).setReorderingEnabled(true);
     }
-	
-	private void addSelectedPodcasts()
+    
+    private void removeSelectedItemsFromPlaylist()
     {
-		List<SearchResultItem> selectedItems = new ArrayList<SearchResultItem>();
+		Collections.sort(this.mSelectedItems);
+		Collections.reverse(this.mSelectedItems);
+		for (int i : this.mSelectedItems)
+		{
+			Episode ep = (Episode) this.mParentListView.getItemAtPosition(i);
+			((MainActivity)this.mContext).podService.deletingEpisode(ep.getEpisodeId());
+        	if (ep.isDownloaded())
+        		((MainActivity)this.mContext).helper.deleteEpisodeFile(ep);
+        	((MainActivity)this.mContext).helper.playlistAdapter.removeFromPlaylist(ep);
+		}
+    	((MainActivity)this.mContext).helper.refreshPlayList();
+    }
+    
+    private void downloadSelectedItems()
+    {
+    	List<Episode> eps = new ArrayList<Episode>();
     	for (int i : this.mSelectedItems)
     	{
-    		selectedItems.add(((SearchResultItem) this.mParentListView.getItemAtPosition(i)));
+    		Episode ep = (Episode) this.mParentListView.getItemAtPosition(i);
+    		if (!ep.isDownloaded())
+    			eps.add(ep);
     	}
-    	DialogUtils.addFeedsDialog(mContext, selectedItems);
+    	for (Episode ep : eps)
+    	{
+    		((MainActivity)this.mContext).helper.downloadEpisode(ep);
+    	}
     }
 
     /**

@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import com.podhoarder.component.CircularSeekBar;
 import com.podhoarder.component.ToggleImageButton;
 import com.podhoarder.object.Episode;
+import com.podhoarder.object.Feed;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.PodcastHelper;
@@ -213,24 +214,37 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void setUI()
 	{
 		//Update the UI Elements in the Player Fragment.
-		if (this.mSeekBar != null) 
+		if (this.mCurrentEpisode != null)
 		{
-			this.mSeekBar.setMaxProgress(this.mCurrentEpisode.getTotalTime());
-			this.mSeekBar.setProgress(this.mCurrentEpisode.getElapsedTime());
-			this.mSeekBar.setBackground(this.mHelper.getFeed(this.mCurrentEpisode.getFeedId()).getFeedImage());
-			this.mSeekBar.invalidate();
-		}
-		if (this.mPlayPauseButton != null && this.mLoadingCircle != null)
-		{
-			if (isLoading())
+			Feed currentFeed = this.mHelper.getFeed(this.mCurrentEpisode.getFeedId());
+			if (currentFeed != null)
 			{
-				this.mPlayPauseButton.setVisibility(View.GONE);
-				this.mLoadingCircle.setVisibility(View.VISIBLE);
+				if (this.mSeekBar != null) 
+				{
+					this.mSeekBar.setMaxProgress(this.mCurrentEpisode.getTotalTime());
+					this.mSeekBar.setProgress(this.mCurrentEpisode.getElapsedTime());
+					this.mSeekBar.setBackground(currentFeed.getFeedImage());
+					this.mSeekBar.invalidate();
+				}
+				if (this.mPlayPauseButton != null && this.mLoadingCircle != null)
+				{
+					if (isLoading())
+					{
+						this.mPlayPauseButton.setVisibility(View.GONE);
+						this.mLoadingCircle.setVisibility(View.VISIBLE);
+					}
+					else
+					{
+						this.mPlayPauseButton.setVisibility(View.VISIBLE);
+						this.mLoadingCircle.setVisibility(View.GONE);
+					}
+				}
 			}
 			else
 			{
-				this.mPlayPauseButton.setVisibility(View.VISIBLE);
-				this.mLoadingCircle.setVisibility(View.GONE);
+				this.mCurrentEpisode = null;
+				this.mPlayer.reset();
+				resetUI();
 			}
 		}
 	}

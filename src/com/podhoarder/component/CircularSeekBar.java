@@ -257,24 +257,25 @@ public class CircularSeekBar extends View {
 	 * @see android.view.View#onDraw(android.graphics.Canvas)
 	 */
 	@Override
-	protected void onDraw(Canvas canvas) {
-
-
-		canvas.drawCircle(cx, cy, outerRadius, circleRing);
-		canvas.drawArc(rect, startAngle, angle, true, circleColor);
-		
-		bitmapRect.set(((int)rect.left+barWidth),((int)rect.top+barWidth),((int)rect.right-barWidth),((int)rect.bottom-barWidth));
-		
-		if (backgroundBitmap == null)
+	protected void onDraw(Canvas canvas) 
+	{
+		if (img != null)
 		{
-			backgroundBitmap = ImageUtils.getCircularBitmap(img.loadScaledImage(bitmapRect.width(), bitmapRect.height()));
-			backgroundPaint.setAntiAlias(true);
-			backgroundPaint.setDither(true);
+			canvas.drawCircle(cx, cy, outerRadius, circleRing);
+			canvas.drawArc(rect, startAngle, angle, true, circleColor);
+			
+			bitmapRect.set(((int)rect.left+barWidth),((int)rect.top+barWidth),((int)rect.right-barWidth),((int)rect.bottom-barWidth));
+			
+			if (backgroundBitmap == null)
+			{
+				backgroundBitmap = ImageUtils.getCircularBitmap(img.loadScaledImage(bitmapRect.width(), bitmapRect.height()));
+				backgroundPaint.setAntiAlias(true);
+				backgroundPaint.setDither(true);
+			}
+			
+			if (backgroundBitmap != null) canvas.drawBitmap(backgroundBitmap, null, bitmapRect, backgroundPaint);
+			else canvas.drawCircle(cx, cy, innerRadius, innerColor);
 		}
-		
-		if (backgroundBitmap != null) canvas.drawBitmap(backgroundBitmap, null, bitmapRect, backgroundPaint);
-		else canvas.drawCircle(cx, cy, innerRadius, innerColor);
-
 		super.onDraw(canvas);
 	}
 

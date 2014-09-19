@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/com.podhoarderproject.podhoarder"
     android:id="@+id/searchFragment_container"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:clickable="true">
+    <com.podhoarder.component.ButteryProgressBar 
+        android:id="@+id/search_progressBar"
+        android:layout_width="fill_parent"
+        android:layout_height="5dp"
+        android:visibility="invisible"
+        app:barColor="@color/app_detail"/>
     <ListView
         android:id="@+id/mainListView"
         android:layout_width="match_parent"

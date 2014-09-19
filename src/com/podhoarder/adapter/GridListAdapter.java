@@ -20,8 +20,8 @@ import com.podhoarder.activity.MainActivity;
 import com.podhoarder.component.CheckableRelativeLayout;
 import com.podhoarder.object.Feed;
 import com.podhoarder.object.FeedImage.ImageDownloadListener;
-import com.podhoarder.object.GridActionModeCallback;
 import com.podhoarder.util.Constants;
+import com.podhoarder.util.GridActionModeCallback;
 import com.podhoarder.util.ViewHolders.FeedsAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
@@ -185,6 +185,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.feeds_grid_item_text);
 	        viewHolder.feedNumberOfEpisodes = (TextView) convertView.findViewById(R.id.feeds_grid_item_notification);
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.feeds_grid_item_image);
+	        viewHolder.checkmark = (ImageView) convertView.findViewById(R.id.feeds_grid_item_checkmark);
 	        
 	        viewHolder.feedImage.setMinimumHeight(mGridItemSize);
 	        viewHolder.feedImage.setMinimumWidth(mGridItemSize);
@@ -225,8 +226,8 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 				}
     			
     			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().imageObject());
-    			//ImageUtils.scaleImageView(mContext, viewHolder.feedImage, mGridItemSize);
-    			viewHolder.feedImage.setColorFilter(mContext.getResources().getColor(R.color.fragment_feeds_grid_item_image_tint));
+    			viewHolder.feedImage.setSelected(viewHolder.checkableLayout.isSelected());
+    			viewHolder.checkmark.setVisibility(View.INVISIBLE);
     			
     			final int pos = position;
     			

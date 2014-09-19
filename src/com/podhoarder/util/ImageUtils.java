@@ -1,6 +1,8 @@
 package com.podhoarder.util;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -316,33 +318,35 @@ public class ImageUtils
 			AsyncTask<String, Void, Bitmap>
 	{
 		ImageView feedImage;
-
-		public DownloadImageTask(ImageView feedImage)
+		Bitmap bitmap;
+		
+		public DownloadImageTask(ImageView feedImage, Bitmap bitmap)
 		{
 			this.feedImage = feedImage;
+			this.bitmap = bitmap;
 		}
-
 		@Override
 		protected Bitmap doInBackground(String... urls)
 		{
 			String urldisplay = urls[0];
-			Bitmap mIcon11 = null;
+			Bitmap bitmap = null;
 			try
 			{
-				InputStream in = new java.net.URL(urldisplay).openStream();
-				mIcon11 = BitmapFactory.decodeStream(in);
-			} catch (Exception e)
+				bitmap = downloadScaledBitmap(urldisplay, this.feedImage.getMaxWidth(), this.feedImage.getMaxHeight());
+			} 
+			catch (Exception e)
 			{
 				Log.e("Error", e.getMessage());
 				e.printStackTrace();
 			}
-			return mIcon11;
+			return bitmap;
 		}
 
 		@Override
 		protected void onPostExecute(Bitmap result)
 		{
 			this.feedImage.setImageBitmap(result);
+			this.bitmap = result;
 		}
 	}
 
@@ -364,6 +368,47 @@ public class ImageUtils
 		options.inJustDecodeBounds = false;
 
 		return BitmapFactory.decodeFile(filePath, options);
+	}
+	
+	public static Bitmap downloadScaledBitmap(String url, int width, int height)
+	{
+		int reqHeight = width;
+		int reqWidth = height;
+		
+		try
+		{
+			BitmapFactory.Options options = new BitmapFactory.Options();
+
+			// First decode with inJustDecodeBounds=true to check dimensions
+			options.inJustDecodeBounds = true;
+			InputStream in;
+			
+			in = new java.net.URL(url).openStream();
+			
+			BitmapFactory.decodeStream(in, null, options);
+
+			in.close();
+			
+			// Calculate inSampleSize
+			options.inSampleSize = calculateInSampleSize(options, reqWidth,
+					reqHeight);
+
+			// Decode bitmap with inSampleSize set
+			options.inJustDecodeBounds = false;
+
+			in = new java.net.URL(url).openStream();
+			return BitmapFactory.decodeStream(in, null, options);
+			
+		} catch (MalformedURLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static Bitmap scaleImage(Context ctx, Bitmap bitmap, int boundBoxInDp)
@@ -426,7 +471,7 @@ public class ImageUtils
 	    view.setLayoutParams(params);
 	}
 	
-	private static int calculateInSampleSize(BitmapFactory.Options options,
+	public static int calculateInSampleSize(BitmapFactory.Options options,
 			int reqWidth, int reqHeight)
 	{
 

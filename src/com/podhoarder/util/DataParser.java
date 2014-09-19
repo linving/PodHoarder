@@ -23,6 +23,7 @@ public class DataParser
 	private static final	String[]					podcastDescriptionTagNames = {"description"};
 	private static final	String[]					podcastAuthorTagNames = {"itunes:author"};
 	private static final	String[]					podcastCategoryTagNames = {"itunes:category"};
+	private static final	String[]					podcastPubdateTagNames = {"pubDate"};
 	private static final	String[]					podcastImageTagNames = {"itunes:image"};
 	
 	private static final	String[]					episodeTitleTagNames = {"title"};
@@ -64,7 +65,15 @@ public class DataParser
 			{
 				continue;																//We didn't find anything by using the current descriptionTag, so we try the next one.
 			}
-			description = descriptionElement.item(0).getChildNodes().item(0).getNodeValue();
+			try
+			{
+				description = descriptionElement.item(0).getChildNodes().item(0).getNodeValue();
+			}
+			catch (NullPointerException e)
+			{
+				continue;
+			}
+			
 			if (!description.isEmpty()) break;											//If we have found a value for title, we can break here. No need to keep looping.
 		}
 		return description;
@@ -87,6 +96,44 @@ public class DataParser
 		return author;
 	}
 	
+	public static String parsePodcastPubDate(NodeList itemLst)
+	{
+		String pubDate = "";
+		Element element = (Element) itemLst.item(0);
+		try
+		{
+			for (String pubdateTag : podcastPubdateTagNames)							//Loop through all the alternatives
+			{
+				NodeList pubdateNode = element.getElementsByTagName(pubdateTag);
+				if (pubdateNode.equals(null) || pubdateNode.getLength() < 1)			//If the pubdateNode has no children or is null there are no elements with the current tag.
+				{
+					continue;																	//We didn't find anything by using the current pubdateTag, so we try the next one.
+				}
+				pubDate = pubdateNode.item(0).getChildNodes().item(0).getNodeValue();
+				if (!pubDate.isEmpty()) break;											//If we have found a value for pubdate, we can break here. No need to keep looping.
+			}
+			
+			try
+			{
+				Date date = xmlFormat.parse(pubDate);									//Try to parse the date tag into the format the app handles.
+				return correctFormat.format(date);										//Return the correctly formatted string.
+			}
+			
+			catch (ParseException e)
+			{
+				Log.e(LOG_TAG, "ParseException when parsing Podcast Publish date.");
+				e.printStackTrace();
+				return "";																//If we encounter something that we can't parse, we just return an empty string.
+			}
+		}
+		catch (NullPointerException e)
+		{
+			Log.e(LOG_TAG, "NullPointerException when parsing Episode Pubdate.");
+			e.printStackTrace();
+			return pubDate;
+		}
+	}
+	
 	public static String parsePodcastCategory(NodeList itemLst)
 	{
 		String category = "";
@@ -104,6 +151,11 @@ public class DataParser
 					category = categoryElement.item(0).getAttributes().item(0).getNodeValue();
 			}
 			catch (NullPointerException e)
+			{
+				e.printStackTrace();
+				break;
+			}
+			catch (IndexOutOfBoundsException e)
 			{
 				e.printStackTrace();
 				break;

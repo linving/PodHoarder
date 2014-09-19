@@ -49,6 +49,7 @@ import com.podhoarder.db.FeedDBHelper;
 import com.podhoarder.db.PlaylistDBHelper;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
+import com.podhoarder.object.SearchResultRow;
 import com.podhoarderproject.podhoarder.R;
 
 /**
@@ -110,8 +111,8 @@ public class PodcastHelper
 	 * Adds a feed with the specified url to the database. Automatically
 	 * downloads all data(except individual episodes) & an image.
 	 * 
-	 * @param urlOfFeedToAdd
-	 *            Should point to an XML-formatted podcast feed.
+	 * @param urls
+	 *            Should point to XML-formatted podcast feeds.
 	 */
 	public void addFeed(List<String> urls)
 	{
@@ -120,7 +121,29 @@ public class PodcastHelper
 			for (String url : urls)
 			{
 				this.feedsListAdapter.addLoadingItem();
-				new FeedReaderTask().execute(url);
+				new AddFeedFromURLTask().execute(url);
+			}
+		}
+			
+		else
+			ToastMessages.AddFeedFailed(this.context).show();
+	}
+	
+	/**
+	 * Adds a Feed from a Search Result Row. Automatically
+	 * downloads all data(except individual episode files) & an image.
+	 * 
+	 * @param itemsToAdd
+	 *            A list of the search result objects that you want to add.
+	 */
+	public void addSearchResults(List<SearchResultRow> itemsToAdd)
+	{
+		if (NetworkUtils.isOnline(context))
+		{
+			for (SearchResultRow row : itemsToAdd)
+			{
+				this.feedsListAdapter.addLoadingItem();
+				new AddFeedFromSearchTask().execute(row);
 			}
 		}
 			
@@ -481,7 +504,7 @@ public class PodcastHelper
 	 * @author Emil
 	 *
 	 */
-	private class FeedReaderTask extends AsyncTask<String, Integer, Feed>
+	private class AddFeedFromURLTask extends AsyncTask<String, Integer, Feed>
 	{
 		private Feed newFeed;
 		private int progressPercent;
@@ -557,6 +580,99 @@ public class PodcastHelper
 			}
 			this.newFeed = new Feed(this.title, this.author, this.description,
 					this.link, this.category, this.img, false, eps, context);
+			
+			//Insert all the data into the db.
+			try
+			{
+				this.newFeed = fDbH.insertFeed(this.newFeed);
+				if (this.newFeed != null)
+				{
+					this.newFeed.getFeedImage().setImageDownloadListener(feedsListAdapter);	
+					return newFeed;
+				}
+				else
+				{
+					return null;
+				}
+			} 
+			catch (SQLiteConstraintException e)
+			{
+				Log.e(LOG_TAG,
+						"NOT A UNIQUE LINK. FEED ALREADY EXISTS IN THE DATABASE?");
+				throw e;
+			}
+			
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... progress)
+		{
+			setProgressPercent(progress[0]);
+		}
+
+		protected void onPostExecute(Feed result)
+		{
+			if (result != null)
+				Log.i(LOG_TAG, "Added Feed: " + result.getTitle());
+			else
+			{
+				feedsListAdapter.resetLoading();
+				ToastMessages.AddFeedFailed(context);
+				Log.e(LOG_TAG, "Couldn't Add Feed!");
+			}
+		}
+
+		@SuppressWarnings("unused")
+		public int getProgressPercent()
+		{
+			return progressPercent;
+		}
+
+		public void setProgressPercent(int progressPercent)
+		{
+			this.progressPercent = progressPercent;
+		}
+	}
+	
+	/**
+	 * Task used for parsing an XML file that contains podcast data.
+	 * @author Emil
+	 *
+	 */
+	private class AddFeedFromSearchTask extends AsyncTask<SearchResultRow, Integer, Feed>
+	{
+		private Feed newFeed;
+		private int progressPercent;
+
+		protected Feed doInBackground(SearchResultRow... result)
+		{
+			SearchResultRow data = result[0];
+			newFeed = new Feed();
+			double percentIncrement;
+			List<Episode> eps = new ArrayList<Episode>();
+			try
+			{
+				
+					// This is the root node of each section you want to parse
+					NodeList itemLst = data.getXml().getElementsByTagName("item");
+					
+					// Loop through the XML passing the data to the arrays
+					percentIncrement = (itemLst.getLength() / 100);
+					for (int i = 0; i < itemLst.getLength(); i++)
+					{
+						
+						Episode ep = DataParser.parseNewEpisode(itemLst.item(i));
+						publishProgress((int) percentIncrement);
+						eps.add(ep);
+					}
+
+			} 
+			catch (SQLiteConstraintException e)
+			{
+				cancel(true);
+			}
+			this.newFeed = new Feed(data.getTitle(), data.getAuthor(), data.getDescription(),
+					data.getLink(), data.getCategory(), data.getImageUrl(), false, eps, context);
 			
 			//Insert all the data into the db.
 			try
@@ -842,7 +958,10 @@ public class PodcastHelper
 	public Feed getFeed(int feedId)
 	{
 		int index = this.getFeedPositionWithId(feedId);
-		return this.feedsListAdapter.mItems.get(index);
+		if (index == -1)
+			return null;
+		else
+			return this.feedsListAdapter.mItems.get(index);
 	}
 	
 	/**

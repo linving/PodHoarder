@@ -1,4 +1,4 @@
-package com.podhoarder.object;
+package com.podhoarder.util;
 
 import android.os.Handler;
 import android.view.View;

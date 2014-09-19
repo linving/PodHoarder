@@ -1,7 +1,6 @@
 package com.podhoarder.adapter;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,18 +14,19 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import com.podhoarder.json.SearchResultItem;
-import com.podhoarder.util.ImageUtils;
+import com.podhoarder.object.SearchResultRow;
+import com.podhoarder.util.BitmapManager;
+import com.podhoarder.util.PodcastHelper;
 import com.podhoarder.util.ViewHolders.SearchResultsAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
 public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 {
 	@SuppressWarnings("unused")
-	private static final 	String 								LOG_TAG = "com.podhoarderproject.podhoarder.SearchResultsAdapter";
-	public 	static final 	SimpleDateFormat 					itFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-	public 					List<SearchResultItem> 				results;
+	private static final 	String 								LOG_TAG = "com.podhoarder.adapter.SearchResultsAdapter";
+	private 				List<SearchResultRow> 				results;
 	private 				Context 							context;
+	private					BitmapManager						mBitmapManager;
 
 	/**
 	 * Creates a LatestEpisodesListAdapter (Constructor).
@@ -39,15 +39,16 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 	 */
 	public SearchResultsAdapter(Context context)
 	{
-		this.results = new ArrayList<SearchResultItem>();
+		this.results = new ArrayList<SearchResultRow>();
 		this.context = context;
+		this.mBitmapManager = new BitmapManager();
 	}
 	
 	/**
 	 * Replaces the item collection behind the adapter to force an update.
 	 * @param newItemCollection The new collection.
 	 */
-	public void replaceItems(List<SearchResultItem> newItemCollection)
+	public void replaceItems(List<SearchResultRow> newItemCollection)
 	{
 		this.results.clear();
 		this.results.addAll(newItemCollection);
@@ -88,6 +89,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 	        viewHolder.feedAuthor = (TextView) convertView.findViewById(R.id.search_list_feed_author);
 	        viewHolder.lastUpdated = (TextView) convertView.findViewById(R.id.search_list_feed_last_updated);
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.search_list_feed_image);
+	        viewHolder.bitmap = null;
 	        
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
@@ -98,19 +100,20 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 		}
 		
 		
-		SearchResultItem currentResult = this.results.get(position);
+		SearchResultRow currentResult = this.results.get(position);
 		
 		if(currentResult != null) 
 		{
 			//Set Feed Title
-			viewHolder.feedTitle.setText(currentResult.getCollectionName());
+			viewHolder.feedTitle.setText(currentResult.getTitle());
 			//Set Feed Description
-			viewHolder.feedAuthor.setText(this.context.getString(R.string.notification_by) + " " + currentResult.getArtistName());
+			viewHolder.feedAuthor.setText(this.context.getString(R.string.notification_by) + " " + currentResult.getAuthor());
 			//Set Last Updated string
 			try
 			{
 					viewHolder.lastUpdated.setText(context.getString(R.string.search_list_feed_last_updated) + " " + 
-							DateUtils.getRelativeTimeSpanString(itFormat.parse(currentResult.getReleaseDate()).getTime()));	//Set a time stamp since Episode publication.
+							DateUtils.getRelativeTimeSpanString(
+									PodcastHelper.correctFormat.parse(currentResult.getLastUpdated()).getTime()));	//Set a time stamp since Episode publication.
 			} 
 			catch (ParseException e)
 			{
@@ -122,11 +125,22 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 				viewHolder.lastUpdated.setText(context.getString(R.string.search_list_feed_last_updated) + " " + context.getString(R.string.search_list_feed_last_updated_unknown));	//Set a time stamp since Episode publication.
 			}
 			//Set Bitmap Image
-			new ImageUtils.DownloadImageTask(viewHolder.feedImage).execute(currentResult.getArtworkUrl60());
+			if (mBitmapManager.isCached(currentResult.getImageUrl()))
+				viewHolder.feedImage.setImageBitmap(mBitmapManager.fetchBitmap(currentResult.getImageUrl(), viewHolder.feedImage.getMaxWidth()));
+			else
+				mBitmapManager.fetchBitmapOnThread(currentResult.getImageUrl(), viewHolder.feedImage);
 		}
 		
 		return convertView;
 	}
 	
+	public void add(SearchResultRow row)
+	{
+		this.results.add(row);
+	}
 	
+	public void clear()
+	{
+		this.results.clear();
+	}
 }

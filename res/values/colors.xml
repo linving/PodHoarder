@@ -9,13 +9,15 @@
     
     <color name="app_background">#FFFFFF</color>
     <color name="app_background_almost">#DDDDDD</color>
+    <color name="app_background_almost_tint">#33DDDDDD</color>
+    
     <!-- App Action bar -->
     <color name="app_menu">#1e4287</color>
     
     <!-- Used for components such as scroll bars. -->
     <color name="app_accent">#1e4287</color>
     
-    <!--  This is used for details that should be the focus of attention, such as circular seek bar. -->
+    <!--  This is used for details that should be the focus of attention, such as circular seek bar track, selected item backgrounds etc -->
     <color name="app_detail">#ef4d80</color>
     
     <color name="seekbar_background">#FFFFFF</color>
@@ -35,8 +37,5 @@
     <color name="indicator_stream">#08bed5</color>
     <color name="indicator_downloaded">#00AD82</color>
     <color name="indicator_unavailable">#9aa4ad</color>
-    
-    <!-- Feeds Fragment -->
-    <color name="fragment_feeds_grid_item_image_tint">#15FFFFFF</color>
     
 </resources>

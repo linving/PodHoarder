@@ -25,13 +25,16 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.podhoarder.adapter.TabFragmentsAdapter;
 import com.podhoarder.component.PullRefreshLayout;
+import com.podhoarder.component.SmoothScrollingViewPager;
 import com.podhoarder.fragment.FeedDetailsFragment;
 import com.podhoarder.fragment.FeedFragment;
 import com.podhoarder.fragment.LatestEpisodesFragment;
@@ -57,7 +60,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.MainActivity";
 	//UI Elements
 	private CirclePageIndicator mTabIndicator;
-    private ViewPager mPager;
+    private SmoothScrollingViewPager mPager;
     public TabFragmentsAdapter mAdapter;
     public ActionBar actionBar;
     
@@ -215,7 +218,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     
     private void doTabSetup()
     {
-    	mPager = (ViewPager) findViewById(R.id.pager);
+    	mPager = (SmoothScrollingViewPager) findViewById(R.id.pager);
+    	mPager.setScrollDurationFactor(2); // make the animation twice as slow
         actionBar = getActionBar();
         mAdapter = new TabFragmentsAdapter(getSupportFragmentManager());
 
@@ -278,7 +282,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             {
                 for (int i : adjacentFragmentIndexes(position))
                 {
-                	finishActionModeIfActive(i);
+                	onNavigatedFrom(i);
                 }
                 if (position < 3)	//Disables the rightmost page once the user leaves it. 	
                 {
@@ -402,10 +406,10 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	}
 	
 	/**
-	 * A really bad solution for checking if the Fragment at fragmentPos currently has an active ActionMode going, and finishing it if true.
-	 * @param fragmentPos Position of the fragment to check for ActionMode.
+	 * A function for doing the necessary operations once the user navigates from a fragment.
+	 * @param fragmentPos Position of the fragment that was navigated from.
 	 */
-	private void finishActionModeIfActive(int fragmentPos)
+	private void onNavigatedFrom(int fragmentPos)
 	{
 		switch (fragmentPos)
 		{
@@ -454,7 +458,9 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 				}
 				else if ( fragment instanceof SearchFragment) 
 				{
+        			hideKeyboard();
 					SearchFragment searchFragment = (SearchFragment) fragment;
+					searchFragment.getSearchManager().cancelSearch();
 					if (searchFragment != null && searchFragment.getListSelectionListener() != null && searchFragment.getListSelectionListener().getActionMode() != null)
 	            	{
 	            		if (searchFragment.getListSelectionListener().isActive())
@@ -483,13 +489,25 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         }
     }
 	
+	public void hideKeyboard() 
+	{
+	    InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+	    // check if no view has focus:
+	    View view = this.getCurrentFocus();
+	    if (view != null) {
+	        inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+	    }
+	}
+	
+	
 	/**
      * Navigates to the desired tab position. Use Constants for reliable values.
      * @param pos Position of the tab to navigate to.
      */
     public void setTab(int pos) 
     {
-    	this.mPager.setCurrentItem(pos);
+    	this.mPager.setCurrentItem(pos, true);
     }
     
     @Override

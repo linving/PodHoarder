@@ -70,7 +70,7 @@
 
         <TextView
             android:id="@+id/list_episode_row_expandableTextView"
-            style="@style/Podhoarder.Text.Primary"
+            style="@style/Podhoarder.Text.Secondary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="20dip"

@@ -8,4 +8,12 @@
        <attr name="checkedDrawable" format="integer" />
        <attr name="unCheckedDrawable" format="integer" />
    </declare-styleable>
+   <declare-styleable name="TintableImageView">
+        <attr name="tint" format="reference|color" />
+   </declare-styleable>
+   <declare-styleable name="ButteryProgressBar">
+        <attr name="barColor" format="reference|color" />
+        <attr name="barHeight" format="dimension" />
+        <attr name="detentWidth" format="dimension" />
+    </declare-styleable>
 </resources>
