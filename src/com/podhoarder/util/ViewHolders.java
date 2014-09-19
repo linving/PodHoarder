@@ -60,8 +60,7 @@ public class ViewHolders
 		public TextView feedTitle;
 		public TextView feedAuthor;
 		public TextView lastUpdated;
-		public ImageView explicitIndicator;
+		public TextView feedDescription;
 		public ImageView feedImage;
-		public Bitmap bitmap;
 	}
 }

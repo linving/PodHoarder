@@ -10,9 +10,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.ImageView;
 
 public class BitmapManager {
+	@SuppressWarnings("unused")
+	private static final String LOG_TAG = "com.podhoarder.util.BitmapManager";
+	
     private final Map<String, Bitmap> BitmapMap;
 
     public BitmapManager() {
@@ -46,7 +50,13 @@ public class BitmapManager {
 			options.inJustDecodeBounds = false;
 
 			in = new java.net.URL(urlString).openStream();
-			return BitmapFactory.decodeStream(in, null, options);
+			
+			Bitmap img = BitmapFactory.decodeStream(in, null, options);
+			if (img != null)
+				this.BitmapMap.put(urlString, img);
+			else
+				Log.w(LOG_TAG, "Failed to get thumbnail!");
+			return img;
 			
 		} catch (MalformedURLException e)
 		{
@@ -64,24 +74,27 @@ public class BitmapManager {
         if (BitmapMap.containsKey(urlString)) {
             imageView.setImageBitmap(BitmapMap.get(urlString));
         }
+        else
+        {
+        	final Handler handler = new Handler() {
+                @Override
+                public void handleMessage(Message message) {
+                    imageView.setImageBitmap((Bitmap) message.obj);
+                }
+            };
 
-        final Handler handler = new Handler() {
-            @Override
-            public void handleMessage(Message message) {
-                imageView.setImageBitmap((Bitmap) message.obj);
-            }
-        };
-
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                //TODO : set imageView to a "pending" image
-                Bitmap bitmap = fetchBitmap(urlString, imageView.getMaxWidth());
-                Message message = handler.obtainMessage(1, bitmap);
-                handler.sendMessage(message);
-            }
-        };
-        thread.start();
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                    //TODO : set imageView to a "pending" image
+                    Bitmap bitmap = fetchBitmap(urlString, imageView.getMaxWidth());
+                    Message message = handler.obtainMessage(1, bitmap);
+                    handler.sendMessage(message);
+                }
+            };
+            thread.start();
+        }
+        
     }
 
     public boolean isCached(final String urlString)

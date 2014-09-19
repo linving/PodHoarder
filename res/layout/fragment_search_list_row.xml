@@ -17,9 +17,9 @@
         android:maxHeight="75dp"
         android:minHeight="75dp"
         android:minWidth="75dp"
-        android:layout_centerVertical="true"
+        android:layout_alignParentTop="true"
 		android:src="@drawable/list_image"
-		android:background="@null"
+		android:background="@drawable/list_image"
         android:alpha=".85"/>
     <LinearLayout 
         android:id="@+id/search_list_feed_text_container"
@@ -29,26 +29,33 @@
         android:layout_toRightOf="@id/search_list_feed_image"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_centerVertical="true">
+        android:gravity="center_vertical">
 	    <TextView
 	        android:id="@+id/search_list_feed_title"
 	        android:layout_width="wrap_content"
-	        android:layout_height="match_parent"
+	        android:layout_height="wrap_content"
 		    style="@style/Podhoarder.Text.Primary"
 	        android:maxLines="1"
    			android:ellipsize="end"/>
 	    <TextView 	
 		    android:id="@+id/search_list_feed_author"
 		    android:layout_width="wrap_content"
-	        android:layout_height="match_parent"
+	        android:layout_height="wrap_content"
 		    style="@style/Podhoarder.Text.Primary"
 	        android:maxLines="1"
    			android:ellipsize="end"/>
 	    <TextView
 	        android:id="@+id/search_list_feed_last_updated"
 	        android:layout_width="wrap_content"
-	        android:layout_height="match_parent"
+	        android:layout_height="wrap_content"
 	        android:maxLines="1"
 		    style="@style/Podhoarder.Text.Secondary"/>
     </LinearLayout>
+    <TextView android:id="@+id/search_list_feed_description"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/search_list_feed_image"
+	        android:maxLines="4"
+   			android:ellipsize="end"
+		    style="@style/Podhoarder.Text.Secondary"/>
 </RelativeLayout>

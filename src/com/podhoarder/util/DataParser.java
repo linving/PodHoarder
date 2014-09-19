@@ -172,14 +172,22 @@ public class DataParser
 		Element element = (Element) itemLst.item(0);
 		for (String imageTag : podcastImageTagNames)									//Loop through all the alternatives
 		{
-			NodeList imageElement = element.getElementsByTagName(imageTag);
-			if (imageElement.equals(null) || imageElement.getLength() < 1)				//If the imageElement has no children or is null there are no elements with the current tag.
+			try
 			{
-				continue;																//We didn't find anything by using the current imageTag, so we try the next one.
+				NodeList imageElement = element.getElementsByTagName(imageTag);
+				if (imageElement.equals(null) || imageElement.getLength() < 1)				//If the imageElement has no children or is null there are no elements with the current tag.
+				{
+					continue;																//We didn't find anything by using the current imageTag, so we try the next one.
+				}
+				if (imageTag.equals(podcastImageTagNames[0]))
+					imageURL = imageElement.item(0).getAttributes().item(0).getNodeValue();
+				if (!imageURL.isEmpty()) break;												//If we have found a value for title, we can break here. No need to keep looping.
 			}
-			if (imageTag.equals(podcastImageTagNames[0]))
-				imageURL = imageElement.item(0).getAttributes().item(0).getNodeValue();
-			if (!imageURL.isEmpty()) break;												//If we have found a value for title, we can break here. No need to keep looping.
+			catch (IndexOutOfBoundsException e)
+			{
+				e.printStackTrace();
+				break;
+			}
 		}
 		return imageURL;
 	}

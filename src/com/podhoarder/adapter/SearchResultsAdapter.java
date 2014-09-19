@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.text.Html;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,8 +89,8 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.search_list_feed_title);
 	        viewHolder.feedAuthor = (TextView) convertView.findViewById(R.id.search_list_feed_author);
 	        viewHolder.lastUpdated = (TextView) convertView.findViewById(R.id.search_list_feed_last_updated);
+	        viewHolder.feedDescription = (TextView) convertView.findViewById(R.id.search_list_feed_description);
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.search_list_feed_image);
-	        viewHolder.bitmap = null;
 	        
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
@@ -106,8 +107,13 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 		{
 			//Set Feed Title
 			viewHolder.feedTitle.setText(currentResult.getTitle());
-			//Set Feed Description
+			//Set Feed Author
 			viewHolder.feedAuthor.setText(this.context.getString(R.string.notification_by) + " " + currentResult.getAuthor());
+			//Set Feed Description
+			if (currentResult == null || !currentResult.getDescription().isEmpty())
+				viewHolder.feedDescription.setText(Html.fromHtml(currentResult.getDescription()).toString());
+			else
+				viewHolder.feedDescription.setText(this.context.getString(R.string.search_list_feed_no_description));
 			//Set Last Updated string
 			try
 			{
@@ -129,6 +135,8 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 				viewHolder.feedImage.setImageBitmap(mBitmapManager.fetchBitmap(currentResult.getImageUrl(), viewHolder.feedImage.getMaxWidth()));
 			else
 				mBitmapManager.fetchBitmapOnThread(currentResult.getImageUrl(), viewHolder.feedImage);
+			
+			viewHolder.feedImage.invalidate();
 		}
 		
 		return convertView;

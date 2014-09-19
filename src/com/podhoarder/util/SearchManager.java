@@ -86,16 +86,17 @@ public class SearchManager
     
     private class SearchTask extends AsyncTask<String, Void, Void >
 	{
-    	private List<AsyncTask<String, Void, SearchResultRow >> subtasks;
-		private SearchResult		results;
-		private int					timeOutInc = 0;
+    	private List<AsyncTask<String, Void, SearchResultRow >> mSubtasks;
+		private SearchResult		mResults;
+		private int					mTimeOutInc = 0;
+		public int					mFailedTasks = 0;
 		
 		@Override
 		protected void onPreExecute()
 		{
 			fadeInAnimation(mProgressBar, 1000);
 			//mProgressBar.setVisibility(View.VISIBLE);		//Show progressbar
-			this.subtasks = new ArrayList<AsyncTask<String, Void, SearchResultRow >> ();
+			this.mSubtasks = new ArrayList<AsyncTask<String, Void, SearchResultRow >> ();
 		}
 		
 		@Override
@@ -115,11 +116,11 @@ public class SearchManager
 				{
 					InputStream input = url.openStream();
 					Reader reader = new InputStreamReader(input, "UTF-8");
-					this.results = new Gson().fromJson(reader, SearchResult.class);
-					while (results == null && timeOutInc < Constants.SEARCH_TIMEOUT && !this.isCancelled())
+					this.mResults = new Gson().fromJson(reader, SearchResult.class);
+					while (mResults == null && mTimeOutInc < Constants.SEARCH_TIMEOUT && !this.isCancelled())
 					{
 						Thread.sleep(100);
-						this.timeOutInc++;
+						this.mTimeOutInc++;
 					}
 				}
 			} 
@@ -137,13 +138,13 @@ public class SearchManager
 				e.printStackTrace();
 			}
 
-			for (SearchResultItem result : results.getResults())
+			for (SearchResultItem result : mResults.getResults())
 			{
 				if (!((MainActivity)mContext).helper.feedExists(result.getFeedUrl()) && !this.isCancelled())
 				{
 					AsyncTask<String, Void, SearchResultRow > tempTask = new FeedParseTask();
 					tempTask.execute(result.getFeedUrl());
-					this.subtasks.add(tempTask);
+					this.mSubtasks.add(tempTask);
 				}
 			}
 			
@@ -171,7 +172,7 @@ public class SearchManager
 		@Override
 		protected void onPostExecute(Void result)
 		{
-			if (this.subtasks.isEmpty())
+			if (this.mSubtasks.isEmpty())
 	    		cancel();
 		}
 		
@@ -179,11 +180,12 @@ public class SearchManager
 		{
 			//Clear results and notify list adapter.
 	    	Log.i(LOG_TAG, "Search cancelled!");
-	    	mProgressBar.setVisibility(View.INVISIBLE);
-			this.results = null;
+	    	fadeOutAnimation(mProgressBar , 500);
+			this.mResults = null;
+			this.mFailedTasks = 0;
 			mListAdapter.clear();
 			mListAdapter.notifyDataSetChanged();
-			for (AsyncTask<String, Void, SearchResultRow > task : this.subtasks)
+			for (AsyncTask<String, Void, SearchResultRow > task : this.mSubtasks)
 			{
 				task.cancel(true);
 			}
@@ -228,9 +230,8 @@ public class SearchManager
 					feed.setImageUrl(DataParser.parsePodcastImageLocation(channelNodeList));
 					feed.setXml(doc);
 					feed.setLastUpdated(DataParser.parsePodcastPubDate(channelNodeList));
+					return feed;
 				}
-				
-				return feed;
 			}
 			catch (MalformedURLException e)
 			{
@@ -262,9 +263,14 @@ public class SearchManager
 		@Override
 		protected void onPostExecute(SearchResultRow result) 
 		{
-			mListAdapter.add(result);
-			publishProgress();
-			if (mSearchTask.subtasks.size() == mListAdapter.getCount())	//The last subtask has been completed.
+			if (result != null)
+			{
+				mListAdapter.add(result);
+				publishProgress();
+			}
+			else
+				mSearchTask.mFailedTasks++;
+			if ((mSearchTask.mSubtasks.size() - mSearchTask.mFailedTasks) == mListAdapter.getCount())	//The last subtask has been completed.
 			{
 				fadeOutAnimation(mProgressBar, 1000);	//Fade out the progress indicator.
 			}

@@ -16,6 +16,7 @@
     <string name="search_hint">Search</string>
     <string name="search_list_feed_last_updated">Last update</string>
     <string name="search_list_feed_last_updated_unknown">unknown</string>
+    <string name="search_list_feed_no_description">No description available.</string>
     
     <!-- Settings -->    
     <string name="pref_group_ui_title">UI Options</string>
