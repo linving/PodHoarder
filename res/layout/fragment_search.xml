@@ -10,13 +10,15 @@
         android:id="@+id/search_progressBar"
         android:layout_width="fill_parent"
         android:layout_height="5dp"
+        android:layout_marginBottom="-5dp"
         android:visibility="invisible"
+        android:background="@android:color/transparent"
         app:barColor="@color/app_detail"/>
     <ListView
         android:id="@+id/mainListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-    	android:paddingTop="1dp"
+    	android:paddingTop="5dp"
     	android:clipToPadding="false"
         android:dividerHeight="1px"
         android:clickable="true"

@@ -44,7 +44,6 @@ public class FeedDetailsFragment extends Fragment
     	setupHelper();
 		if (mHelper.feedDetailsListAdapter.mFeed != null)
 		{
-			setupFeedDetails();
 	    	setupListView();
 		}
 		return mView;
@@ -62,19 +61,6 @@ public class FeedDetailsFragment extends Fragment
     public void onStart()
     {
     	super.onStart();
-    }
-
-    
-    private void setupFeedDetails()
-    {
-    	if (this.mHelper.feedDetailsListAdapter.mFeed != null)
-    	{
-    		TextView title = (TextView) mView.findViewById(R.id.feed_details_title);
-    		TextView author = (TextView) mView.findViewById(R.id.feed_details_author);
-    		
-    		title.setText(this.mHelper.feedDetailsListAdapter.mFeed.getTitle());
-    		author.setText(getActivity().getString(R.string.notification_by) + " " + this.mHelper.feedDetailsListAdapter.mFeed.getAuthor());
-    	}
     }
     
     private void setupListView()

@@ -5,15 +5,18 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -69,8 +72,17 @@ public class SearchFragment extends Fragment implements OnQueryTextListener
 		
 		inflater = getActivity().getMenuInflater();
 		inflater.inflate(R.menu.search_menu, menu);
-		mSearchView =
-	            (SearchView) menu.findItem(R.id.action_search).getActionView();
+		mSearchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+		final Point p = new Point();
+
+        getActivity().getWindowManager().getDefaultDisplay().getSize(p);
+
+        // Create LayoutParams with width set to screen's width
+        LayoutParams params = new LayoutParams(p.x, LayoutParams.MATCH_PARENT);
+
+        mSearchView.setLayoutParams(params);
+        mSearchView.setMaxWidth(p.x);
+        
 	    mSearchView.setQueryHint(getString(R.string.search_hint));
 	    mSearchView.setOnQueryTextListener(this);
 

@@ -103,14 +103,22 @@ public class EpisodeDBHelper
 		this.db = this.dbHelper.getWritableDatabase();
 		Cursor cursor = this.db.query(TABLE_NAME, columns, null, null, null, null, DBHelper.colEpisodePubDate + " DESC", ""+nrOfEpisodes);
 		List<Episode> episodes = new ArrayList<Episode>();
-		if (cursor.moveToFirst())
+		try
 		{
-			do
+			if (cursor.moveToFirst())
 			{
-				episodes.add(cursorToEpisode(cursor));
-			} while (cursor.moveToNext());
+				do
+				{
+					episodes.add(cursorToEpisode(cursor));
+				} while (cursor.moveToNext());
+			}
+			this.db.close();
 		}
-		this.db.close();
+		catch (IllegalStateException e)
+		{
+			Log.d(LOG_TAG, "Cursor caused IllegalStateException on getLatestEpisodes!");
+			e.printStackTrace();
+		}
 		return episodes;	
 	}
 	

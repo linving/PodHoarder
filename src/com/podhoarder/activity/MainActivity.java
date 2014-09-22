@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -219,7 +220,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     private void doTabSetup()
     {
     	mPager = (SmoothScrollingViewPager) findViewById(R.id.pager);
-    	mPager.setScrollDurationFactor(2); // make the animation twice as slow
+    	mPager.setScrollDurationFactor(3); // make the animation twice as slow
         actionBar = getActionBar();
         mAdapter = new TabFragmentsAdapter(getSupportFragmentManager());
 
@@ -306,7 +307,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     {
     	this.swipeRefreshLayout = (PullRefreshLayout) this.findViewById(R.id.swipe_container);
     	this.swipeRefreshLayout.setOnRefreshListener(this);
-    	this.swipeRefreshLayout.setColorSchemeResources(R.color.app_accent, R.color.app_background, R.color.app_accent, R.color.app_background);
+    	this.swipeRefreshLayout.setColorSchemeResources(R.color.app_detail, R.color.app_background, R.color.app_detail, R.color.app_background);
     }
 
 

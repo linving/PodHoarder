@@ -5,34 +5,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <RelativeLayout
-        android:id="@+id/feed_details_container"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/app_background" >
-        <TextView
-            android:id="@+id/feed_details_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_centerHorizontal="true"
-            android:layout_alignParentTop="true"
-            android:ellipsize="end"
-            android:maxLines="2"
-            style="@style/Podhoarder.Text.Header"/>
-
-        <TextView
-            android:id="@+id/feed_details_author"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_below="@id/feed_details_title"
-            android:layout_centerHorizontal="true"
-            android:ellipsize="end"
-            android:maxLines="1"
-            style="@style/Podhoarder.Text.Secondary" />
-    </RelativeLayout>
-
     <ListView
         android:id="@+id/episodesListView"
         android:layout_width="fill_parent"
