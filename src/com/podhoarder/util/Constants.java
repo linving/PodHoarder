@@ -15,6 +15,7 @@ public class Constants
 	public static final int SEARCH_RESULT_LIMIT = 10;
 	
 	public static final int SEARCH_TIMEOUT = 100;
+	public static final int SEARCH_TIMEOUT_MILLIS = 10000;
 	
 	//SETTINGS
 	public static String SETTINGS_KEY_DELETELISTENED = "pref_deleteListened";

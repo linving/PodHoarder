@@ -123,8 +123,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 			} 
 			catch (ParseException e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				viewHolder.lastUpdated.setText(context.getString(R.string.search_list_feed_last_updated) + " " + context.getString(R.string.search_list_feed_last_updated_unknown));	//Set a time stamp since Episode publication.
 			}
 			catch (NullPointerException ex)
 			{

@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class SearchManager
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarder.util.SearchManager";
 	
-	private String baseURL = "http://itunes.apple.com/search?media=podcast&entity=podcast&attribute=titleTerm&limit=" + Constants.SEARCH_RESULT_LIMIT + "&term=";	//Just append the search term to this string and you will receive the 25 most relevant results.
+	private String baseURL = "http://itunes.apple.com/search?media=podcast&entity=podcast&limit=" + Constants.SEARCH_RESULT_LIMIT + "&term=";	//Just append the search term to this string and you will receive the 25 most relevant results.
 
     private SearchResultsAdapter mListAdapter;
 	private ButteryProgressBar mProgressBar;
@@ -68,7 +69,7 @@ public class SearchManager
 		//Start the asynchronous search task.
 		if (this.mSearchTask != null)
 		{
-			this.mSearchTask.cancel(true);
+			this.mSearchTask.cancel();
 			this.mSearchTask = (SearchTask) new SearchTask().execute(this.baseURL + searchTerm.replace(" ", "%20"));
 			
 		}
@@ -208,6 +209,8 @@ public class SearchManager
 
 				// Setup the connection
 				this.conn = (HttpURLConnection) url.openConnection();
+				
+				this.conn.setConnectTimeout(Constants.SEARCH_TIMEOUT_MILLIS);
 
 				// Connect
 				if (this.conn.getResponseCode() == HttpURLConnection.HTTP_OK && !this.isCancelled())
@@ -256,7 +259,7 @@ public class SearchManager
 			} catch (SQLiteConstraintException e)
 			{
 				cancel(true);
-			}
+			} 
 			return null;
 		}
 		
