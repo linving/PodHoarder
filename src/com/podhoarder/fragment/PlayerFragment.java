@@ -7,13 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SlidingDrawer;
@@ -22,7 +19,6 @@ import android.widget.SlidingDrawer.OnDrawerOpenListener;
 
 import com.ericharlow.DragNDrop.DragListener;
 import com.ericharlow.DragNDrop.DragNDropListView;
-import com.ericharlow.DragNDrop.DropListener;
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.DragNDropAdapter;
 import com.podhoarder.component.CircularSeekBar;
@@ -43,7 +39,8 @@ public class PlayerFragment extends Fragment
 {
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.PlayerFragment";
 	
-	public DragNDropListView mainListView;
+	public DragNDropListView mListView;
+	
 	@SuppressWarnings("deprecation")
 	public SlidingDrawer mPlaylistDrawer;
 	
@@ -124,17 +121,16 @@ public class PlayerFragment extends Fragment
     @SuppressWarnings("deprecation")
 	private void setupListView()
     {
-    	this.mainListView = (DragNDropListView) view.findViewById(R.id.playlist);
+    	this.mListView = (DragNDropListView) view.findViewById(R.id.playlist);
     	this.mPlaylistDrawer = (SlidingDrawer) view.findViewById(R.id.drawer);
     	
-    	this.mainListView.setAdapter(this.helper.playlistAdapter);
-		this.mainListView.setDropListener(mDropListener);
-    	this.mainListView.setDragListener(mDragListener);
-    	this.mainListView.setOnItemClickListener(mOnClickListener);
+    	this.mListView.setAdapter(this.helper.playlistAdapter);
+    	this.mListView.setDragListener(mDragListener);
+    	this.mListView.setOnItemClickListener(mOnClickListener);
     	
-    	this.mainListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-		this.mListSelectionListener = new PlaylistMultiChoiceModeListener(getActivity(), this.mainListView);
-		this.mainListView.setMultiChoiceModeListener(this.mListSelectionListener);
+    	this.mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		this.mListSelectionListener = new PlaylistMultiChoiceModeListener(getActivity(), this.mListView);
+		this.mListView.setMultiChoiceModeListener(this.mListSelectionListener);
     	
     	this.mPlaylistDrawer.setOnDrawerOpenListener(onDrawerOpenListener);
     	this.mPlaylistDrawer.setOnDrawerCloseListener(onDrawerCloseListener);
@@ -197,86 +193,48 @@ public class PlayerFragment extends Fragment
 
 	//UI Logic
 	//List Listeners
-	private DropListener mDropListener = new DropListener() 
-    {
-        public void onDrop(int from, int to) 
-        {
-        	ListAdapter adapter = mainListView.getAdapter();
-        	if (adapter instanceof DragNDropAdapter) 
-        	{
-        		//podService.setEpisode(to);
-        		((DragNDropAdapter)adapter).onDrop(from, to);
-        		mainListView.invalidateViews();
-        	}
-        }
-    };
         
     private DragListener mDragListener = new DragListener() 
     {
-    	int index = -1, originalCount = -1;
+    	int index;
+    	DragNDropAdapter adapter;
     	
-		public void onDrag(int x, int y, ListView listView) 
+		public void onDrag(int x, int y, DragNDropListView listView) 
 		{
-			if (listView.getChildCount() < originalCount)												//This means the grabbed row has been removed, and the list now contains 1 row less.
+			
+			int pos = listView.pointToPosition(x, y);
+			if (pos == -1)
 			{
-				if (index != listView.pointToPosition(x, y) && listView.pointToPosition(x, y) != -1)	//Only animate if the view is dragged onto a new index in the list.
+				if (index == adapter.getCount())
 				{
-					resetAnimations();																	//Reset all the rows to their initial locations. (before they were animated)
 					
-					for (int i = listView.pointToPosition(x, y); i<listView.getChildCount(); i++)		//Iterate through all rows from the one we're hovering to the end.
-					{
-						try
-						{
-							slideAnimation(listView.getChildAt(i), R.anim.slide_out_bottom);			//Animate them moving down one row (we don't actually move any objects/indexes, just pixels)
-						}
-						catch (NullPointerException e)
-						{
-							Log.e(LOG_TAG, "NullPointerException at index: " + i);
-							e.printStackTrace();
-						}
-					}
 				}
-				else if (index != listView.pointToPosition(x, y) && listView.pointToPosition(x, y) == -1)//Reset all animations if we are outside the list.
+				else if (index == 0)
 				{
-					resetAnimations();
+					
 				}
 			}
-			index = listView.pointToPosition(x, y);														//Store the index of where we're currently hovering.
-		}
-
-		public void onStartDrag(View itemView) 
-		{
-			originalCount = mainListView.getChildCount();
-		}
-
-		public void onStopDrag(View itemView) 
-		{
-			resetAnimations();		//Reset all the rows to their initial locations. (before they were animated)
-		}
-		
-		/**
-		 * Does an animation on the selected View object. Animations will persist after they are completed, so you have to manually clear animations afterwards if you want to reset their position.
-		 * @param viewToSlide	View to slide.
-		 * @param anim	Animation resource identifier.
-		 */
-		private void slideAnimation(View viewToSlide, int anim)
-	    {
-	    	Animation animation = AnimationUtils.loadAnimation(getActivity(), anim);
-	    	animation.setDuration(100);
-	    	animation.setFillEnabled(true);
-	    	animation.setFillAfter(true);
-	    	viewToSlide.startAnimation(animation);
-	    }
-		
-		/**
-		 * Goes through all the rows in the list and resets/clears their animations.
-		 */
-		private void resetAnimations()
-		{
-			for (int i=0; i<mainListView.getChildCount(); i++)	//Go through all the rows in the list.	
+			else if (index != pos && pos > -1 && index > -1)	//Only animate if the view is dragged onto a new index in the list.
 			{
-				mainListView.getChildAt(i).clearAnimation();	//Cancel any animation (reset their location in this case)
+				listView.animateMove(index, pos);
+				adapter.move(index, pos);
+				Log.i("View", "moved to: " + pos);
 			}
+			index = pos;														//Store the index of where we're currently hovering.
+			//Log.i(LOG_TAG, "New index: " + index);
+		}
+
+		public void onStartDrag() 
+		{
+			index = -1;
+			adapter = (DragNDropAdapter) mListView.getAdapter();
+		}
+
+		public void onStopDrag() 
+		{
+			((MainActivity)getActivity()).helper.plDbH.savePlaylist(adapter.mPlayList);
+			index = -1;
+			adapter.notifyDataSetChanged();
 		}
     };
     

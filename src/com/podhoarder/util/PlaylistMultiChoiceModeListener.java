@@ -76,7 +76,7 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
         this.mActionMode = mode;
         this.mSelectedItems = new ArrayList<Integer>();
         this.mActive = true;
-        ((DragNDropAdapter)this.mParentListView.getAdapter()).setReorderingEnabled(false);
+        ((MainActivity)this.mContext).helper.playlistAdapter.setReorderingEnabled(false);
         
         return true;
     }
@@ -147,7 +147,7 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
     	this.mSelectedItems = null;
     	this.mActive = false;
     	this.mActionMode = null;
-        ((DragNDropAdapter)this.mParentListView.getAdapter()).setReorderingEnabled(true);
+    	((MainActivity)this.mContext).helper.playlistAdapter.setReorderingEnabled(true);
     }
     
     private void removeSelectedItemsFromPlaylist()

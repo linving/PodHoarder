@@ -19,6 +19,7 @@ package com.podhoarder.adapter;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ericharlow.DragNDrop.DropListener;
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
@@ -34,7 +34,7 @@ import com.podhoarder.util.EpisodeRowUtils;
 import com.podhoarder.util.ViewHolders.PlaylistRowViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
-public final class DragNDropAdapter extends BaseAdapter implements DropListener{
+public final class DragNDropAdapter extends BaseAdapter {
 
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.DragNDropAdapter";
@@ -68,8 +68,6 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
     {
     	if (this.mPlayList.size() < 2)
     		this.mReorderingEnabled = false;
-    	else
-    		this.mReorderingEnabled = true;
         return this.mPlayList.size();
     }
 
@@ -118,7 +116,6 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
             holder = new PlaylistRowViewHolder();
             holder.episodeTitle = (TextView) convertView.findViewById(R.id.player_list_row_episodeName);
             holder.feedTitle = (TextView) convertView.findViewById(R.id.player_list_row_feedName);
-            holder.timeListened = (TextView) convertView.findViewById(R.id.player_list_row_timeListened);
             holder.feedImage = (ImageView) convertView.findViewById(R.id.player_list_row_feedImage);
             holder.indicator = (View) convertView.findViewById(R.id.row_indicator);
             holder.handle = (ImageView) convertView.findViewById(R.id.player_list_row_handle);
@@ -137,12 +134,13 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
         
 		if(currentEpisode != null) 
 		{ 	
-			if (mReorderingEnabled) holder.handle.setVisibility(View.VISIBLE);
-			else	holder.handle.setVisibility(View.INVISIBLE);
+			if (mReorderingEnabled) 
+				holder.handle.setVisibility(View.VISIBLE);
+			else	
+				holder.handle.setVisibility(View.INVISIBLE);
+			 
 			holder.episodeTitle.setText(currentEpisode.getTitle());	//Set Episode Title	
 			holder.feedTitle.setText(currentFeed.getTitle()); //Set Podcast title.
-			int percent = (int) Math.round(((double)currentEpisode.getElapsedTime()/1000) / ((double)currentEpisode.getTotalTime()/1000) * 100.0);
-			holder.timeListened.setText(percent + "% " + mContext.getString(R.string.playlist_listened));
 			
 			if (position == findCurrentEpisodeIndex())
 			{
@@ -170,6 +168,7 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 	public void setReorderingEnabled(boolean enabled)
 	{
 		this.mReorderingEnabled = enabled;
+		Log.i(LOG_TAG, "Reordering set to: " + this.mReorderingEnabled);
 		this.notifyDataSetChanged();
 	}
 
@@ -189,7 +188,6 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 		}
 		return false;
     }
-
     
     public void addToPlaylist(Episode ep)
     {
@@ -197,9 +195,7 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
     	((MainActivity)mContext).helper.plDbH.savePlaylist(this.mPlayList);
     	this.notifyDataSetChanged();
     }
-    
-    
-    
+       
     public void removeFromPlaylist(Episode ep)
     {
     	int index = this.findEpisodeInPlaylist(ep);
@@ -240,14 +236,12 @@ public final class DragNDropAdapter extends BaseAdapter implements DropListener{
 		}
 		return -1;
 	}
-    
-	public void onRemove(int which) 
-	{	}
-
-	public void onDrop(int from, int to) {
+	
+	public void move(int from, int to)
+	{
 		Episode temp = this.mPlayList.get(from);
 		this.mPlayList.remove(from);
 		this.mPlayList.add(to,temp);
-		((MainActivity)mContext).helper.plDbH.savePlaylist(this.mPlayList);
+		this.notifyDataSetChanged();
 	}
 }

@@ -11,14 +11,14 @@
     <View
         android:id="@+id/row_indicator"
         android:layout_width="5dip"
-        android:layout_height="75dp"
+        android:layout_height="45dp"
         android:layout_alignParentLeft="true"
         android:background="@color/indicator_unavailable" />
 
     <ImageView
         android:id="@+id/player_list_row_feedImage"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
         android:layout_toRightOf="@id/row_indicator"
         android:layout_centerVertical="true"
         android:alpha=".85"
@@ -50,14 +50,6 @@
             android:layout_height="match_parent"
             android:maxLines="1" 
             android:ellipsize="end"/>
-
-        <TextView
-            android:id="@+id/player_list_row_timeListened"
-            style="@style/Podhoarder.Text.Secondary"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:ellipsize="end"
-            android:maxLines="1" />
     </LinearLayout>
 
     <ImageView
@@ -67,6 +59,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:scaleType="centerInside"
-        android:src="@drawable/mid_playlist_drag" />
+        android:src="@drawable/drag_handle"
+        android:visibility="invisible" />
 
 </RelativeLayout>

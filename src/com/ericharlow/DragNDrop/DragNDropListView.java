@@ -17,46 +17,27 @@
 package com.ericharlow.DragNDrop;
 
 
-import com.podhoarder.adapter.DragNDropAdapter;
-import com.podhoarder.object.Episode;
-import com.podhoarderproject.podhoarder.R;
-
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PixelFormat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.ImageView;
+import android.view.animation.TranslateAnimation;
 import android.widget.ListView;
+
+import com.podhoarder.adapter.DragNDropAdapter;
 
 public class DragNDropListView extends ListView {
 
 	boolean mDragMode;
-
-	int mStartPosition;
-	int mEndPosition;
-	int mDragPointOffset;		//Used to adjust drag view location
 	
-	ImageView mDragView;
 	GestureDetector mGestureDetector;
 	
-	DropListener mDropListener;
 	DragListener mDragListener;
-	
-	private Episode tempEpisode;
-	private int defaultBackgroundColor;
 	
 	public DragNDropListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-	}
-	
-	public void setDropListener(DropListener l) {
-		mDropListener = l;
 	}
 	
 	public void setDragListener(DragListener l) {
@@ -69,7 +50,7 @@ public class DragNDropListView extends ListView {
 		final int x = (int) ev.getX();
 		final int y = (int) ev.getY();	
 		
-		if (action == MotionEvent.ACTION_DOWN && ((DragNDropAdapter)this.getAdapter()).isReorderingEnabled() && x > ((this.getWidth()/4)*3.5)) {
+		if (action == MotionEvent.ACTION_DOWN && ((DragNDropAdapter)this.getAdapter()).isReorderingEnabled() && x > (this.getWidth()-75)) {
 			mDragMode = true;
 		}
 
@@ -77,132 +58,50 @@ public class DragNDropListView extends ListView {
 			return super.onTouchEvent(ev);
 		switch (action) {
 			case MotionEvent.ACTION_DOWN:
-				mStartPosition = pointToPosition(x,y);
-				if (mStartPosition != INVALID_POSITION) {
-					int mItemPosition = mStartPosition - getFirstVisiblePosition();
-                    mDragPointOffset = y - getChildAt(mItemPosition).getTop();
-                    mDragPointOffset -= ((int)ev.getRawY()) - y;
-					startDrag(mItemPosition,y);
-					drag(0,y);// replace 0 with x if desired
+				if (pointToPosition(0,y) != INVALID_POSITION) 
+				{
+					mDragListener.onStartDrag();
+					Log.i(VIEW_LOG_TAG, "Grabbed index: " + pointToPosition(0,y));
+					mDragListener.onDrag(0, y, this);
 				}	
 				break;
 			case MotionEvent.ACTION_MOVE:
-				drag(0,y);// replace 0 with x if desired
+				mDragListener.onDrag(0, y, this);
 				break;
 			case MotionEvent.ACTION_CANCEL:
 			case MotionEvent.ACTION_UP:
 			default:
+				Log.i(VIEW_LOG_TAG, "dropped at: " + pointToPosition(0,y));
+				mDragListener.onStopDrag();
 				mDragMode = false;
-				mEndPosition = pointToPosition(x,y);
-				stopDrag(mStartPosition - getFirstVisiblePosition());
-				
-				if (mDropListener != null && mStartPosition != INVALID_POSITION && mEndPosition != INVALID_POSITION) 
-	        		 mDropListener.onDrop(mStartPosition, mEndPosition);
-				else if (mDropListener != null && mStartPosition != INVALID_POSITION && mEndPosition == INVALID_POSITION && getChildCount() >= 1)
-				{
-					if (y < getChildAt(0).getTop())
-					{
-						mDropListener.onDrop(mStartPosition, 0);
-					}
-					else
-					{
-						mDropListener.onDrop(mStartPosition, getChildCount());
-					}
-				}
 				break;
 		}
 		return true;
-	}	
+	}
 	
-	// move the drag view
-	private void drag(int x, int y) {
-		if (mDragView != null) {
-			WindowManager.LayoutParams layoutParams = (WindowManager.LayoutParams) mDragView.getLayoutParams();
-			layoutParams.x = x;
-			layoutParams.y = y - mDragPointOffset;
-			WindowManager mWindowManager = (WindowManager) getContext()
-					.getSystemService(Context.WINDOW_SERVICE);
-			mWindowManager.updateViewLayout(mDragView, layoutParams);
+	public void animateMove(int from, int to)
+	{
+		View fromView = this.getChildAt(from);
+		View toView = this.getChildAt(to);
 
-			if (mDragListener != null)
-				mDragListener.onDrag(x, y, this);// change null to "this" when ready to use
+		if (from < to)
+		{
+			animateMotion(fromView, fromView.getHeight(), 0);
+			animateMotion(toView, -toView.getHeight(), 0);
 		}
-	}
-
-	// enable the drag view for dragging
-	private void startDrag(int itemIndex, int y) {
-		//stopDrag(itemIndex);
-		layoutChildren();	//This fixed a bug where the drawing cache would contain an outdated image (another list row in this case.)
-		View item = getChildAt(itemIndex);
-		if (item == null) return;
-		this.defaultBackgroundColor =  item.getDrawingCacheBackgroundColor();	//Store the background color of the item
+		else
+		{
+			animateMotion(fromView, -fromView.getHeight(), 0);
+			animateMotion(toView, toView.getHeight(), 0);
+		}
 		
-    	int color = getResources().getColor(R.color.app_detail);
-    	int red = Color.red(color);
-        int green = Color.green(color);
-        int blue = Color.blue(color);
-        
-		item.setBackgroundColor(Color.argb(125, red, green, blue));	//Set the background color.
-		item.setDrawingCacheEnabled(true);
-		
-		if (mDragListener != null)
-			mDragListener.onStartDrag(item);
-		
-        // Create a copy of the drawing cache so that it does not get recycled
-        // by the framework when the list tries to clean up memory
-        Bitmap bitmap = Bitmap.createBitmap(item.getDrawingCache());
-        //Log.i(VIEW_LOG_TAG, itemIndex + ". " + item.toString());
-        //Log.i(VIEW_LOG_TAG, itemIndex + ". " + ((Episode)this.getItemAtPosition(itemIndex)).getTitle());
-        
-        WindowManager.LayoutParams mWindowParams = new WindowManager.LayoutParams();
-        mWindowParams.gravity = Gravity.TOP;
-        mWindowParams.x = 0;
-        mWindowParams.y = y - mDragPointOffset;
-
-        mWindowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        mWindowParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
-        mWindowParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
-        mWindowParams.format = PixelFormat.TRANSLUCENT;
-        mWindowParams.windowAnimations = 0;
-        
-        Context context = getContext();
-        ImageView v = new ImageView(context);
-        v.setImageBitmap(bitmap);      
-
-        WindowManager mWindowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
-        mWindowManager.addView(v, mWindowParams);
-        mDragView = v;
-        
-        DragNDropAdapter ad = (DragNDropAdapter) getAdapter();
-        this.tempEpisode = ad.mPlayList.get(itemIndex);
-        ad.mPlayList.remove(itemIndex);
-        item.setBackgroundColor(defaultBackgroundColor);	//Reset background color.
-        invalidateViews();
-	}
-
-	// destroy drag view
-	private void stopDrag(int itemIndex) {
-		if (mDragView != null) {
-			if (this.tempEpisode != null)
-			{
-				DragNDropAdapter ad = (DragNDropAdapter) getAdapter();
-				ad.mPlayList.add(itemIndex, this.tempEpisode);
-				invalidateViews();
-				this.tempEpisode = null;
-			}
-			if (mDragListener != null)
-				mDragListener.onStopDrag(getChildAt(itemIndex));
-            mDragView.setVisibility(GONE);
-            WindowManager wm = (WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE);
-            wm.removeView(mDragView);
-            mDragView.setImageDrawable(null);
-            mDragView = null;
-        }
 	}
 	
-
+	private void animateMotion(View viewToAnimate, final float fromDeltaY ,final float toDeltaY)
+	{
+		TranslateAnimation anim = new TranslateAnimation(0, 0, fromDeltaY, toDeltaY);
+		anim.setDuration(100);
+		//anim.setFillAfter(true);
+		viewToAnimate.startAnimation(anim);
+	}
 }
