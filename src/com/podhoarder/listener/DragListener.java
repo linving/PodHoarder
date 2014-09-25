@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.ericharlow.DragNDrop;
+package com.podhoarder.listener;
 
-import android.view.View;
-import android.widget.ListView;
+import com.podhoarder.view.DragNDropListView;
+
 
 /**
  * Implement to handle an item being dragged.

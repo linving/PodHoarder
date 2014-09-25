@@ -10,6 +10,11 @@ import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarderproject.podhoarder.R;
 
+/**
+ * Provides static convenience methods for showing various dialog windows from one place.
+ * @author Emil Almrot
+ *
+ */
 public class DialogUtils
 {
 	public static void addFeedsDialog(final Context ctx, final List<SearchResultRow> selectedResults)

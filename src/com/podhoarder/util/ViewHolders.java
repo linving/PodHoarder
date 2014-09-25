@@ -1,11 +1,10 @@
 package com.podhoarder.util;
 
-import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.podhoarder.component.CheckableRelativeLayout;
+import com.podhoarder.view.CheckableRelativeLayout;
 
 /**
  * This is to improve ListView performance. See link for details.
@@ -24,7 +23,6 @@ public class ViewHolders
 		public TextView feedTitle;
 		public TextView feedNumberOfEpisodes;
 		public ImageView feedImage;
-		public ImageView checkmark;
 		public CheckableRelativeLayout checkableLayout;
 	}
 	

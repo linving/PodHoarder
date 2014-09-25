@@ -13,7 +13,7 @@
         android:layout_height="0dp"
         android:layout_weight="4">
         
-        <com.podhoarder.component.CircularSeekBar
+        <com.podhoarder.view.CircularSeekBar
             android:id="@+id/player_controls_seekbar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
             android:scaleType="centerInside"
             android:src="@drawable/dark_player_backward" />
 
-        <com.podhoarder.component.ToggleImageButton
+        <com.podhoarder.view.ToggleImageButton
             android:id="@+id/player_controls_button_playpause"
             android:layout_width="0dp"
             android:layout_height="match_parent"

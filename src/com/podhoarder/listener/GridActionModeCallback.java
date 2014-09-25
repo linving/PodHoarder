@@ -1,4 +1,4 @@
-package com.podhoarder.util;
+package com.podhoarder.listener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,8 +18,9 @@ import android.widget.ImageView;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.GridListAdapter;
-import com.podhoarder.component.CheckableRelativeLayout;
 import com.podhoarder.object.Feed;
+import com.podhoarder.util.AnimUtils;
+import com.podhoarder.view.CheckableRelativeLayout;
 import com.podhoarderproject.podhoarder.R;
 
 public class GridActionModeCallback implements ActionMode.Callback
@@ -65,9 +66,6 @@ public class GridActionModeCallback implements ActionMode.Callback
 							item.setChecked(true);
 							ImageView img = ((ImageView)item.findViewById(R.id.feeds_grid_item_image));
 							img.setSelected(true);
-							ImageView checkmark = ((ImageView)item.findViewById(R.id.feeds_grid_item_checkmark));
-							checkmark.setVisibility(View.VISIBLE);
-							//img.setBackgroundResource(R.drawable.feeds_grid_image_selected);
 						}
 					}
 				}
@@ -120,11 +118,7 @@ public class GridActionModeCallback implements ActionMode.Callback
 			CheckableRelativeLayout view = (CheckableRelativeLayout)this.mParentListView.getChildAt(i);
 			ImageView img = ((ImageView)view.findViewById(R.id.feeds_grid_item_image));
 			img.setSelected(checked);
-			ImageView checkmark = ((ImageView)view.findViewById(R.id.feeds_grid_item_checkmark));
-			if (checked)
-				checkmark.setVisibility(View.VISIBLE);
-			else
-				checkmark.setVisibility(View.INVISIBLE);
+			AnimUtils.selectionAnimation(view);
 		}
     	if (checked)
     		this.mSelectedItems.add(position);	//save the list position of the selected view.

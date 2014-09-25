@@ -29,15 +29,15 @@
             android:background="@android:color/transparent"
             android:src="@drawable/ic_action_collapse" />
 
-        <com.ericharlow.DragNDrop.DragNDropListView
+        <com.podhoarder.view.DragNDropListView
             android:id="@+id/playlist"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:background="@color/app_background"
-        android:dividerHeight="1px"
             android:listSelector="@drawable/list_selector"
+        	android:dividerHeight="0px"
             android:divider="@null" >
-        </com.ericharlow.DragNDrop.DragNDropListView>
+        </com.podhoarder.view.DragNDropListView>
     </SlidingDrawer>
 
 </RelativeLayout>

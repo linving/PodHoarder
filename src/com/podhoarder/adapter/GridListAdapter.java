@@ -17,12 +17,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.podhoarder.activity.MainActivity;
-import com.podhoarder.component.CheckableRelativeLayout;
+import com.podhoarder.listener.GridActionModeCallback;
 import com.podhoarder.object.Feed;
 import com.podhoarder.object.FeedImage.ImageDownloadListener;
+import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.Constants;
-import com.podhoarder.util.GridActionModeCallback;
 import com.podhoarder.util.ViewHolders.FeedsAdapterViewHolder;
+import com.podhoarder.view.CheckableRelativeLayout;
 import com.podhoarderproject.podhoarder.R;
 
 public class GridListAdapter extends BaseAdapter implements ImageDownloadListener
@@ -185,7 +186,6 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.feeds_grid_item_text);
 	        viewHolder.feedNumberOfEpisodes = (TextView) convertView.findViewById(R.id.feeds_grid_item_notification);
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.feeds_grid_item_image);
-	        viewHolder.checkmark = (ImageView) convertView.findViewById(R.id.feeds_grid_item_checkmark);
 	        
 	        viewHolder.feedImage.setMinimumHeight(mGridItemSize);
 	        viewHolder.feedImage.setMinimumWidth(mGridItemSize);
@@ -227,7 +227,6 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     			
     			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().imageObject());
     			viewHolder.feedImage.setSelected(viewHolder.checkableLayout.isSelected());
-    			viewHolder.checkmark.setVisibility(View.INVISIBLE);
     			
     			final int pos = position;
     			
@@ -248,6 +247,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
         						}
         						else
         						{
+        							AnimUtils.selectionAnimation(v);
         							((MainActivity)mContext).helper.feedDetailsListAdapter.setFeed(currentFeed);
         	    					((MainActivity)mContext).mAdapter.setDetailsPageEnabled(true);
         	    					((MainActivity)mContext).setTab(Constants.BONUS_TAB_POSITION);

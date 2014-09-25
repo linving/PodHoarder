@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -25,19 +24,21 @@ import android.content.Context;
 import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 
 import com.google.gson.Gson;
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.SearchResultsAdapter;
-import com.podhoarder.component.ButteryProgressBar;
 import com.podhoarder.json.SearchResult;
 import com.podhoarder.json.SearchResultItem;
 import com.podhoarder.object.SearchResultRow;
-import com.podhoarderproject.podhoarder.R;
+import com.podhoarder.view.ButteryProgressBar;
 
+
+/**
+ * A helper class for doing podcast searches. Divides searches in subtasks and provides simple methods for searching, cancelling etc.
+ * @author Emil
+ *
+ */
 public class SearchManager
 {
 	@SuppressWarnings("unused")
@@ -50,15 +51,26 @@ public class SearchManager
 	private Context mContext;
 	private SearchTask mSearchTask;
     
-    public SearchManager(Context context, SearchResultsAdapter listAdapter)
+	/**
+	 * Create a new SearchManager object.
+	 * @param context	Application context.
+	 * @param listAdapter	ListAdapter to show search results in.
+	 * @param progressBar	ProgressBar to use when providing UI feedback.
+	 * @return A new SearchManager object.
+	 */
+    public SearchManager(Context context, SearchResultsAdapter listAdapter, ButteryProgressBar progressBar)
     {
     	this.mContext = context;
     	this.mListAdapter = listAdapter;
+    	this.mProgressBar = progressBar;
     }
     
-    public void doSearch(String searchString, ButteryProgressBar progressBar)
+    /**
+     * Perform a podcast search.
+     * @param searchString	The string to search for.
+     */
+    public void doSearch(String searchString)
     {
-    	this.mProgressBar = progressBar;
     	
     	String searchTerm = Normalizer.normalize(searchString, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
 		Log.d(LOG_TAG,"Search for: " + searchTerm);
@@ -78,13 +90,21 @@ public class SearchManager
 			this.mSearchTask = (SearchTask) new SearchTask().execute(this.baseURL + searchTerm.replace(" ", "%20"));
 		}
     }
-
+    
+	/**
+	 * Cancel the current Search operation, if one is running.
+	 */
     public void cancelSearch()
     {
     	if (this.mSearchTask != null)
     		this.mSearchTask.cancel();
     }
     
+    /**
+     * AsyncTask for performing podcast searches. Uses subtasks of type FeedParseTask to actually parse channel data.
+     * @author Emil
+     * @see FeedParseTask
+     */
     private class SearchTask extends AsyncTask<String, Void, Void >
 	{
     	private List<AsyncTask<String, Void, SearchResultRow >> mSubtasks;
@@ -95,7 +115,7 @@ public class SearchManager
 		@Override
 		protected void onPreExecute()
 		{
-			fadeInAnimation(mProgressBar, 1000);
+			AnimUtils.fadeInAnimation(mContext, mProgressBar, 500);
 			//mProgressBar.setVisibility(View.VISIBLE);		//Show progressbar
 			this.mSubtasks = new ArrayList<AsyncTask<String, Void, SearchResultRow >> ();
 		}
@@ -181,7 +201,7 @@ public class SearchManager
 		{
 			//Clear results and notify list adapter.
 	    	Log.i(LOG_TAG, "Search cancelled!");
-	    	fadeOutAnimation(mProgressBar , 500);
+	    	AnimUtils.fadeOutAnimation(mContext, mProgressBar , 500);
 			this.mResults = null;
 			this.mFailedTasks = 0;
 			mListAdapter.clear();
@@ -194,6 +214,11 @@ public class SearchManager
 		}
 	}
 	
+    /**
+     * AsyncTask for actually parsing Feed data. This is used for each individual search result to present channel name, image etc to users. Parses about half of the data needed to actually add a Search Result, which in turn makes adding faster.
+     * @author Emil
+     *
+     */
 	private class FeedParseTask extends AsyncTask<String, Void, SearchResultRow >
 	{
 		private HttpURLConnection conn;
@@ -275,7 +300,7 @@ public class SearchManager
 				mSearchTask.mFailedTasks++;
 			if ((mSearchTask.mSubtasks.size() - mSearchTask.mFailedTasks) == mListAdapter.getCount())	//The last subtask has been completed.
 			{
-				fadeOutAnimation(mProgressBar, 1000);	//Fade out the progress indicator.
+				AnimUtils.fadeOutAnimation(mContext, mProgressBar, 500);	//Fade out the progress indicator.
 			}
 		};
 		
@@ -294,68 +319,6 @@ public class SearchManager
 			super.onCancelled(result);
 		}
 	}
-
-	private void fadeOutAnimation(final View viewToFade, int duration)
-    {
-    	Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.fade_out);
-    	animation.setDuration(duration);
-    	animation.setFillEnabled(true);
-    	animation.setFillAfter(true);
-    	animation.setAnimationListener(new Animation.AnimationListener(){
-      
-    	    
-
-			@Override
-			public void onAnimationRepeat(Animation arg0)
-			{
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void onAnimationStart(Animation arg0)
-			{
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-    	    public void onAnimationEnd(Animation arg0) 
-			{
-				viewToFade.setVisibility(View.INVISIBLE);
-    	    }
-    	});
-    	viewToFade.startAnimation(animation);
-    }
 	
-	private void fadeInAnimation(final View viewToFade, int duration)
-    {
-    	Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.fade_in);
-    	animation.setDuration(duration);
-    	animation.setFillEnabled(true);
-    	animation.setFillAfter(true);
-    	animation.setAnimationListener(new Animation.AnimationListener(){
-      
-    	    
-
-			@Override
-			public void onAnimationRepeat(Animation arg0)
-			{
-				
-			}
-
-			@Override
-			public void onAnimationStart(Animation arg0)
-			{
-				viewToFade.setVisibility(View.VISIBLE);
-			}
-			
-			@Override
-    	    public void onAnimationEnd(Animation arg0) 
-			{
-				
-    	    }
-    	});
-    	viewToFade.startAnimation(animation);
-    }
+	
 }

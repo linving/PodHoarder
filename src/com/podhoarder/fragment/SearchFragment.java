@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,11 +24,11 @@ import android.widget.ListView;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.SearchResultsAdapter;
-import com.podhoarder.component.ButteryProgressBar;
+import com.podhoarder.listener.SearchResultMultiChoiceModeListener;
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.util.DialogUtils;
 import com.podhoarder.util.SearchManager;
-import com.podhoarder.util.SearchResultMultiChoiceModeListener;
+import com.podhoarder.view.ButteryProgressBar;
 import com.podhoarderproject.podhoarder.R;
 
 public class SearchFragment extends Fragment implements OnQueryTextListener
@@ -55,8 +54,8 @@ public class SearchFragment extends Fragment implements OnQueryTextListener
 
 		setupListView();
 		setHasOptionsMenu(true);
-		mSearchManager = new SearchManager(getActivity(),mListAdapter);
 		mProgressBar = (ButteryProgressBar)this.mView.findViewById(R.id.search_progressBar);
+		mSearchManager = new SearchManager(getActivity(),mListAdapter,mProgressBar);
 		return this.mView;
 	}
 	
@@ -151,7 +150,7 @@ public class SearchFragment extends Fragment implements OnQueryTextListener
 	@Override
 	public boolean onQueryTextSubmit(String text)
 	{
-		mSearchManager.doSearch(text, this.mProgressBar);
+		mSearchManager.doSearch(text);
 		((MainActivity)getActivity()).hideKeyboard();
 		mSearchView.clearFocus();
 		return false;

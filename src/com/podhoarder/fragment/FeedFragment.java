@@ -18,10 +18,10 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.podhoarder.activity.MainActivity;
-import com.podhoarder.component.CheckableRelativeLayout;
+import com.podhoarder.listener.GridActionModeCallback;
 import com.podhoarder.util.Constants;
-import com.podhoarder.util.GridActionModeCallback;
 import com.podhoarder.util.PodcastHelper;
+import com.podhoarder.view.CheckableRelativeLayout;
 import com.podhoarderproject.podhoarder.R;
  
 /**

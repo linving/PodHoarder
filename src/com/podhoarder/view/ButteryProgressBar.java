@@ -1,4 +1,4 @@
-package com.podhoarder.component;
+package com.podhoarder.view;
 
 import com.podhoarderproject.podhoarder.R;
 

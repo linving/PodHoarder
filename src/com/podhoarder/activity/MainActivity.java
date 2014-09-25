@@ -34,7 +34,6 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.podhoarder.adapter.TabFragmentsAdapter;
-import com.podhoarder.component.PullRefreshLayout;
 import com.podhoarder.fragment.FeedDetailsFragment;
 import com.podhoarder.fragment.FeedFragment;
 import com.podhoarder.fragment.LatestEpisodesFragment;
@@ -46,6 +45,7 @@ import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.HardwareIntentReceiver;
 import com.podhoarder.util.PodcastHelper;
+import com.podhoarder.view.PullRefreshLayout;
 import com.podhoarderproject.podhoarder.R;
 import com.viewpagerindicator.CirclePageIndicator;
 

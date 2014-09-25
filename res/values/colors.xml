@@ -9,7 +9,9 @@
     
     <color name="app_background">#FFFFFF</color>
     <color name="app_background_almost">#DDDDDD</color>
-    <color name="app_background_almost_tint">#33DDDDDD</color>
+    
+    <color name="grid_item_pressed">#33DDDDDD</color>
+    <color name="grid_item_selected">#55DDDDDD</color>
     
     <!-- App Action bar -->
     <color name="app_menu">#1e4287</color>

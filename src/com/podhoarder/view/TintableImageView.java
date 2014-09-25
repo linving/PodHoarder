@@ -1,4 +1,4 @@
-package com.podhoarder.component;
+package com.podhoarder.view;
 
 import android.content.Context;
 import android.content.res.ColorStateList;

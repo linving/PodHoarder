@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ericharlow.DragNDrop;
+package com.podhoarder.view;
 
 
 import android.content.Context;
@@ -23,10 +23,11 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.TranslateAnimation;
 import android.widget.ListView;
 
 import com.podhoarder.adapter.DragNDropAdapter;
+import com.podhoarder.listener.DragListener;
+import com.podhoarder.util.AnimUtils;
 
 public class DragNDropListView extends ListView {
 
@@ -86,22 +87,16 @@ public class DragNDropListView extends ListView {
 
 		if (from < to)
 		{
-			animateMotion(fromView, fromView.getHeight(), 0);
-			animateMotion(toView, -toView.getHeight(), 0);
+			AnimUtils.verticalTranslateAnimation(fromView, fromView.getHeight(), 0);
+			AnimUtils.verticalTranslateAnimation(toView, -toView.getHeight(), 0);
 		}
 		else
 		{
-			animateMotion(fromView, -fromView.getHeight(), 0);
-			animateMotion(toView, toView.getHeight(), 0);
+			AnimUtils.verticalTranslateAnimation(fromView, -fromView.getHeight(), 0);
+			AnimUtils.verticalTranslateAnimation(toView, toView.getHeight(), 0);
 		}
 		
 	}
 	
-	private void animateMotion(View viewToAnimate, final float fromDeltaY ,final float toDeltaY)
-	{
-		TranslateAnimation anim = new TranslateAnimation(0, 0, fromDeltaY, toDeltaY);
-		anim.setDuration(100);
-		//anim.setFillAfter(true);
-		viewToAnimate.startAnimation(anim);
-	}
+	
 }

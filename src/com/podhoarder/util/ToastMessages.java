@@ -7,7 +7,7 @@ import com.podhoarderproject.podhoarder.R;
 
 /**
  * Provides static convenience methods for showing various toast messages from one place.
- * @author Emil
+ * @author Emil Almrot
  *
  */
 public class ToastMessages

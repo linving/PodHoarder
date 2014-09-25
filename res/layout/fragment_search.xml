@@ -6,7 +6,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:clickable="true">
-    <com.podhoarder.component.ButteryProgressBar 
+    <com.podhoarder.view.ButteryProgressBar 
         android:id="@+id/search_progressBar"
         android:layout_width="fill_parent"
         android:layout_height="5dp"

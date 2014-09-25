@@ -17,16 +17,16 @@ import android.widget.SlidingDrawer;
 import android.widget.SlidingDrawer.OnDrawerCloseListener;
 import android.widget.SlidingDrawer.OnDrawerOpenListener;
 
-import com.ericharlow.DragNDrop.DragListener;
-import com.ericharlow.DragNDrop.DragNDropListView;
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.DragNDropAdapter;
-import com.podhoarder.component.CircularSeekBar;
-import com.podhoarder.component.CircularSeekBar.OnSeekChangeListener;
-import com.podhoarder.component.ToggleImageButton;
+import com.podhoarder.listener.DragListener;
+import com.podhoarder.listener.PlaylistMultiChoiceModeListener;
 import com.podhoarder.service.PodHoarderService;
-import com.podhoarder.util.PlaylistMultiChoiceModeListener;
 import com.podhoarder.util.PodcastHelper;
+import com.podhoarder.view.CircularSeekBar;
+import com.podhoarder.view.DragNDropListView;
+import com.podhoarder.view.ToggleImageButton;
+import com.podhoarder.view.CircularSeekBar.OnSeekChangeListener;
 import com.podhoarderproject.podhoarder.R;
 
 /**

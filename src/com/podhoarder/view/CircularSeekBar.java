@@ -3,7 +3,7 @@
  * @version 1
  * @date 26 January, 2013
  */
-package com.podhoarder.component;
+package com.podhoarder.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;

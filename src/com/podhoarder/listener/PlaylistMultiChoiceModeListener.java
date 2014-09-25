@@ -1,6 +1,7 @@
-package com.podhoarder.object;
+package com.podhoarder.listener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
@@ -8,19 +9,16 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AbsListView.OnScrollListener;
 
 import com.podhoarder.activity.MainActivity;
-import com.podhoarder.util.EpisodeRowUtils;
+import com.podhoarder.object.Episode;
 import com.podhoarder.util.NetworkUtils;
-import com.podhoarder.util.ToastMessages;
 import com.podhoarderproject.podhoarder.R;
 
-public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
+public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
 {
 	private AbsListView mParentListView;
 	private Context mContext;
@@ -28,7 +26,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
 	private ActionMode mActionMode;
 	private boolean mActive = false;
 	
-	public EpisodeMultiChoiceModeListener(Context context, AbsListView parent)
+	public PlaylistMultiChoiceModeListener(Context context, AbsListView parent)
 	{
 		this.mContext = context;
 		this.mParentListView = parent;
@@ -74,12 +72,12 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         // Inflate the menu for the CAB
         MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.contextual_menu_episode, menu);
-        if (!NetworkUtils.isOnline(mContext))
-        	menu.findItem(R.id.menu_episode_available_offline).setVisible(false);
+        inflater.inflate(R.menu.contextual_menu_playlist_row, menu);
         this.mActionMode = mode;
         this.mSelectedItems = new ArrayList<Integer>();
         this.mActive = true;
+        ((MainActivity)this.mContext).helper.playlistAdapter.setReorderingEnabled(false);
+        
         return true;
     }
 
@@ -94,16 +92,13 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) 
     {
         // Respond to clicks on the actions in the CAB
-        switch (item.getItemId()) {
-            case R.id.menu_episode_add_playlist:
-                addSelectedItemsToPlaylist();
-                mode.finish(); // Action picked, so close the CAB
-                return true;
-            case R.id.menu_episode_markAsListened:
-            	markSelectedItemsAsListened();
+        switch (item.getItemId()) 
+        {
+            case R.id.menu_playlist_delete:
+            	removeSelectedItemsFromPlaylist();
             	mode.finish();
             	return true;
-            case R.id.menu_episode_available_offline:
+            case R.id.menu_playlist_available_offline:
             	downloadSelectedItems();
             	mode.finish();
             	return true;
@@ -122,7 +117,18 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     		this.mSelectedItems.add(position);	//save the list position of the selected view.
     	else
     		this.mSelectedItems.remove((Object)position);	//remove the list position of the unselected view.
-//    	this.updateTitle();
+
+    	boolean canDownload = false;
+    	for (int it : this.mSelectedItems)
+    	{
+    		if (!((Episode)this.mParentListView.getItemAtPosition(it)).isDownloaded())
+    			canDownload = true;
+    	}
+    	
+    	if (!NetworkUtils.isOnline(mContext))
+    		canDownload = false;
+    	
+    	this.mActionMode.getMenu().findItem(R.id.menu_playlist_available_offline).setVisible(canDownload);
 	}
 	
 
@@ -141,35 +147,22 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     	this.mSelectedItems = null;
     	this.mActive = false;
     	this.mActionMode = null;
-    }
-	
-	private void addSelectedItemsToPlaylist()
-    {
-    	for (int i : this.mSelectedItems)
-    	{
-    		Episode ep = (Episode) this.mParentListView.getItemAtPosition(i);
-    		if (((MainActivity)this.mContext).helper.playlistAdapter.findEpisodeInPlaylist(ep) == -1)
-    			((MainActivity)this.mContext).helper.playlistAdapter.addToPlaylist(ep);	//We only add items that aren't already in the playlist.
-    	}
-    	((MainActivity)this.mContext).helper.refreshPlayList();
-    	ToastMessages.EpisodeAddedToPlaylist(this.mContext).show();
+    	((MainActivity)this.mContext).helper.playlistAdapter.setReorderingEnabled(true);
     }
     
-    private void markSelectedItemsAsListened()
+    private void removeSelectedItemsFromPlaylist()
     {
-		List<Episode> eps = new ArrayList<Episode>();
-    	for (int i : this.mSelectedItems)
-    	{
-    		View v = this.mParentListView.getChildAt(i);
-    		if (v != null)
-    		{
-    			EpisodeRowUtils.setRowListened((ViewGroup)v, true);
-    		}
-    		Episode ep = (Episode) this.mParentListView.getItemAtPosition(i);
-    		if (!ep.isListened())	//We only need to mark unlistened Episodes as listened. So we only add those that aren't already listened.
-    			eps.add(ep);
-    	}
-		((MainActivity)this.mContext).helper.markAsListenedAsync(eps);
+		Collections.sort(this.mSelectedItems);
+		Collections.reverse(this.mSelectedItems);
+		for (int i : this.mSelectedItems)
+		{
+			Episode ep = (Episode) this.mParentListView.getItemAtPosition(i);
+			((MainActivity)this.mContext).podService.deletingEpisode(ep.getEpisodeId());
+        	if (ep.isDownloaded())
+        		((MainActivity)this.mContext).helper.deleteEpisodeFile(ep);
+        	((MainActivity)this.mContext).helper.playlistAdapter.removeFromPlaylist(ep);
+		}
+    	((MainActivity)this.mContext).helper.refreshPlayList();
     }
     
     private void downloadSelectedItems()

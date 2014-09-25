@@ -16,14 +16,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.podhoarder.component.CircularSeekBar;
-import com.podhoarder.component.ToggleImageButton;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.PodcastHelper;
 import com.podhoarder.util.ToastMessages;
+import com.podhoarder.view.CircularSeekBar;
+import com.podhoarder.view.ToggleImageButton;
 
 public class PodHoarderService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener  
 {
