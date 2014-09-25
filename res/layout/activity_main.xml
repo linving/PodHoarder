@@ -15,7 +15,7 @@
         app:ignoreScrollMotions="true"
         app:handleHeight="30dip" >
 
-        <com.podhoarder.component.SmoothScrollingViewPager
+        <android.support.v4.view.SmoothScrollingViewPager
             android:id="@+id/pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

@@ -1,4 +1,4 @@
-package com.podhoarder.component;
+package android.support.v4.view;
 
 import java.lang.reflect.Field;
 
@@ -48,5 +48,9 @@ public class SmoothScrollingViewPager extends ViewPager {
     public void setScrollDurationFactor(double scrollFactor) {
         mScroller.setScrollDurationFactor(scrollFactor);
     }
-
+    
+    void smoothScrollTo(int x, int y, int velocity) {
+        super.smoothScrollTo(x, y, 1);
+    }
+    
 }

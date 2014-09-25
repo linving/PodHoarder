@@ -11,13 +11,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.SmoothScrollingViewPager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.telephony.TelephonyManager;
@@ -35,7 +35,6 @@ import android.widget.TextView;
 
 import com.podhoarder.adapter.TabFragmentsAdapter;
 import com.podhoarder.component.PullRefreshLayout;
-import com.podhoarder.component.SmoothScrollingViewPager;
 import com.podhoarder.fragment.FeedDetailsFragment;
 import com.podhoarder.fragment.FeedFragment;
 import com.podhoarder.fragment.LatestEpisodesFragment;
@@ -220,7 +219,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     private void doTabSetup()
     {
     	mPager = (SmoothScrollingViewPager) findViewById(R.id.pager);
-    	mPager.setScrollDurationFactor(3); // make the animation twice as slow
+    	mPager.setScrollDurationFactor(1); // make the animation twice as slow
         actionBar = getActionBar();
         mAdapter = new TabFragmentsAdapter(getSupportFragmentManager());
 
