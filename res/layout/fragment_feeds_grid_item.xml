@@ -41,4 +41,14 @@
         android:background="@drawable/feeds_grid_notification_shape"
         android:maxLines="1" />
 
+	<ImageView
+        android:id="@+id/feeds_grid_item_checkmark"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_margin="5dp"
+        android:src="@drawable/ic_action_accept"
+        android:scaleType="centerInside"
+        android:background="@drawable/feeds_grid_notification_shape"/>
 </com.podhoarder.view.CheckableRelativeLayout>

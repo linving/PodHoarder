@@ -185,6 +185,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 	        viewHolder = new FeedsAdapterViewHolder();
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.feeds_grid_item_text);
 	        viewHolder.feedNumberOfEpisodes = (TextView) convertView.findViewById(R.id.feeds_grid_item_notification);
+			viewHolder.checkmark = (ImageView) convertView.findViewById(R.id.feeds_grid_item_checkmark);
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.feeds_grid_item_image);
 	        
 	        viewHolder.feedImage.setMinimumHeight(mGridItemSize);
@@ -227,6 +228,12 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     			
     			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().imageObject());
     			viewHolder.feedImage.setSelected(viewHolder.checkableLayout.isSelected());
+
+    			if (viewHolder.checkableLayout.isSelected())
+    				viewHolder.checkmark.setVisibility(View.VISIBLE);
+    			else
+    				viewHolder.checkmark.setVisibility(View.GONE);
+
     			
     			final int pos = position;
     			
@@ -247,7 +254,6 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
         						}
         						else
         						{
-        							AnimUtils.selectionAnimation(v);
         							((MainActivity)mContext).helper.feedDetailsListAdapter.setFeed(currentFeed);
         	    					((MainActivity)mContext).mAdapter.setDetailsPageEnabled(true);
         	    					((MainActivity)mContext).setTab(Constants.BONUS_TAB_POSITION);

@@ -13,6 +13,7 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AbsListView.OnScrollListener;
 
 import com.podhoarder.object.SearchResultRow;
+import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.DialogUtils;
 import com.podhoarderproject.podhoarder.R;
 
@@ -103,6 +104,7 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
 	{
 		int i = getViewPosition(position);
 		if (i != -1)
+			AnimUtils.listSelectionAnimation(mParentListView.getChildAt(i));
 			mParentListView.getChildAt(i).setSelected(checked);	//Update the selected status of the View object if it is visible and not recycled.
     	if (checked)
     		this.mSelectedItems.add(position);	//save the list position of the selected view.

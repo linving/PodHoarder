@@ -328,6 +328,10 @@ public class PlayerFragment extends Fragment
 		public void onDrawerOpened()
 		{
 			((MainActivity)getActivity()).disableRefresh();
+			if (mListView.getAdapter().getCount() < 2)
+				((DragNDropAdapter)mListView.getAdapter()).setReorderingEnabled(false);
+			else
+				((DragNDropAdapter)mListView.getAdapter()).setReorderingEnabled(true);
 			((ImageView)mPlaylistDrawer.getHandle()).setImageResource(R.drawable.ic_action_expand);
 		}
 	};

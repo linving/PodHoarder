@@ -10,7 +10,7 @@ import com.podhoarder.view.CheckableRelativeLayout;
  * This is to improve ListView performance. See link for details.
  * 
  * @see http
- *      ://developer.android.com/training/improving-layouts/smooth-scrolling.
+ *      developer.android.com/training/improving-layouts/smooth-scrolling.
  *      html
  * @author Emil
  * 
@@ -23,6 +23,7 @@ public class ViewHolders
 		public TextView feedTitle;
 		public TextView feedNumberOfEpisodes;
 		public ImageView feedImage;
+		public ImageView	checkmark;
 		public CheckableRelativeLayout checkableLayout;
 	}
 	

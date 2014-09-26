@@ -66,8 +66,6 @@ public final class DragNDropAdapter extends BaseAdapter {
      */
     public int getCount() 
     {
-    	if (this.mPlayList.size() < 2)
-    		this.mReorderingEnabled = false;
         return this.mPlayList.size();
     }
 
@@ -168,7 +166,6 @@ public final class DragNDropAdapter extends BaseAdapter {
 	public void setReorderingEnabled(boolean enabled)
 	{
 		this.mReorderingEnabled = enabled;
-		Log.i(LOG_TAG, "Reordering set to: " + this.mReorderingEnabled);
 		this.notifyDataSetChanged();
 	}
 

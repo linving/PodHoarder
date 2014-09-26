@@ -66,6 +66,8 @@ public class GridActionModeCallback implements ActionMode.Callback
 							item.setChecked(true);
 							ImageView img = ((ImageView)item.findViewById(R.id.feeds_grid_item_image));
 							img.setSelected(true);
+							ImageView checkmark = ((ImageView)item.findViewById(R.id.feeds_grid_item_checkmark));
+							checkmark.setVisibility(View.VISIBLE);
 						}
 					}
 				}
@@ -118,7 +120,10 @@ public class GridActionModeCallback implements ActionMode.Callback
 			CheckableRelativeLayout view = (CheckableRelativeLayout)this.mParentListView.getChildAt(i);
 			ImageView img = ((ImageView)view.findViewById(R.id.feeds_grid_item_image));
 			img.setSelected(checked);
-			AnimUtils.selectionAnimation(view);
+			ImageView checkmark = ((ImageView)view.findViewById(R.id.feeds_grid_item_checkmark));
+			if (checked) checkmark.setVisibility(View.VISIBLE);
+			else checkmark.setVisibility(View.GONE);
+			AnimUtils.gridSelectionAnimation(view);
 		}
     	if (checked)
     		this.mSelectedItems.add(position);	//save the list position of the selected view.
@@ -175,15 +180,6 @@ public class GridActionModeCallback implements ActionMode.Callback
 		
     }
 
-    private int getSelectedItemColor()
-    {
-    	int color = mContext.getResources().getColor(R.color.app_detail);
-    	int red = Color.red(color);
-        int green = Color.green(color);
-        int blue = Color.blue(color);
-        return Color.argb(125, red, green, blue);
-    }
-    
     /**
      * Finds the position of a View, relative to the currently visible subset.
      * @param pos Position of the view to find.

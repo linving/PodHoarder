@@ -99,12 +99,24 @@ public class AnimUtils
 		anim.setDuration(100);
 		viewToAnimate.startAnimation(anim);
 	}
-
 	
-	public static void selectionAnimation(View viewToAnimate)
+	public static void gridSelectionAnimation(View viewToAnimate)
 	{
 		ScaleAnimation animation = new ScaleAnimation(1.0f, 0.95f, 1.0f, 0.95f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 		animation.setDuration(50);
 		viewToAnimate.startAnimation(animation);
+	}
+	
+	public static void listSelectionAnimation(final View viewToAnimate)
+	{
+		viewToAnimate.animate().scaleXBy(-0.05f).scaleYBy(-0.05f).setDuration(40).withEndAction(new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				viewToAnimate.animate().scaleXBy(0.05f).scaleYBy(0.05f).setDuration(0);
+			}
+		});
 	}
 }
