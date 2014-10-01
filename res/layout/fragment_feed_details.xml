@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/feedDetailsFragment_container"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
-
+    android:orientation="vertical"
+    android:id="@+id/feedDetailsFragment_container">
     <ListView
-        android:id="@+id/episodesListView"
+        android:id="@+id/mainListView"
         android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="5"
+        android:layout_height="fill_parent"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+    	android:clipToPadding="false"
+        android:dividerHeight="1px"
+        android:divider="@drawable/list_divider"
         android:clickable="true"
-        android:divider="@null"
-        android:dividerHeight="0px"
-        android:fastScrollEnabled="true"
-        android:fastScrollAlwaysVisible="true"
         android:longClickable="true"
-        android:listSelector="@drawable/list_selector" />
-
-</LinearLayout>
+	    android:fastScrollEnabled="true"
+        android:fastScrollAlwaysVisible="true"
+        android:listSelector="@drawable/list_selector"/>
+</RelativeLayout>

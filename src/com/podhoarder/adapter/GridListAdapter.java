@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,7 +21,6 @@ import com.podhoarder.activity.MainActivity;
 import com.podhoarder.listener.GridActionModeCallback;
 import com.podhoarder.object.Feed;
 import com.podhoarder.object.FeedImage.ImageDownloadListener;
-import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.ViewHolders.FeedsAdapterViewHolder;
 import com.podhoarder.view.CheckableRelativeLayout;
@@ -37,8 +37,6 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 	
     private Context mContext;
     
-    private View mFooterView;
-    
     private List<View> mLoadingViews;
     private int mLoadingItemsCount;
     
@@ -47,6 +45,8 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     
     private float mScreenWidth, mScreenHeight; 
     public int mGridItemSize;
+    
+    private boolean mSelectionEnabled;
 
     public GridListAdapter(List<Feed> feeds, Context c) 
     {
@@ -55,6 +55,8 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     	
     	this.mLoadingItemsCount = 0;
     	this.mLoadingViews = new ArrayList<View>();
+    	
+    	this.mSelectionEnabled = false;
     	
     	this.mInflater = (LayoutInflater) this.mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	
@@ -77,7 +79,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     	if (isLoading())
     		return (this.mItems.size() + this.getLoadingItemsCount());	//We return the items size plus the amount of loading views for the total
     	else
-    		return this.mItems.size() + 1;	//We return the items size plus one (for the "Add Podcast" view.
+    		return this.mItems.size();	//We return the items size.
     }
 
     public Object getItem(int position) {
@@ -87,15 +89,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     public long getItemId(int position) {
         return this.mItems.get(position).getFeedId();
     }
-   
-    public void setFooterView(View v) {
-    	v.findViewById(R.id.feeds_grid_item_image).setMinimumHeight(mGridItemSize);
-    	v.findViewById(R.id.feeds_grid_item_image).setMinimumWidth(mGridItemSize);
-    	v.setMinimumHeight(mGridItemSize);
-    	v.setMinimumWidth(mGridItemSize);
-    	this.mFooterView = v;
-    }
-    
+
     public void setLoadingViews(List<View> views)
     {
     	for (View v : views)
@@ -113,7 +107,18 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     	return (this.getLoadingItemsCount() > 0);
     }
     
-    /**
+    public boolean isSelectionEnabled()
+	{
+		return mSelectionEnabled;
+	}
+
+	public void setSelectionEnabled(boolean mSelectionEnabled)
+	{
+		this.mSelectionEnabled = mSelectionEnabled;
+		this.notifyDataSetChanged();
+	}
+
+	/**
      * Resets the loading status of this list to not loading.
      */
     public void resetLoading()
@@ -156,11 +161,6 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     		if (position >= (getCount() - this.mLoadingItemsCount))
     			return mLoadingViews.get(position - (this.mItems.size() - 1));
     	}
-    	else
-    	{
-    		if (position == getCount()-1)
-    			return mFooterView;
-    	}
     	
     	if (position >= mItems.size())
     		return null;
@@ -169,23 +169,18 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     	{ 
     		convertView = null; 
     	}
-    	
-    	if (convertView != null && convertView.findViewById(R.id.fragment_feeds_grid_add_item) != null) 
-    	{ 
-    		convertView = null; 
-    	}
+
     	
 		if (convertView == null)
 		{
 			//Inflate
 			convertView = this.mInflater.inflate(R.layout.fragment_feeds_grid_item, null);
 			
-			
 			// Set up the ViewHolder
 	        viewHolder = new FeedsAdapterViewHolder();
 	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.feeds_grid_item_text);
 	        viewHolder.feedNumberOfEpisodes = (TextView) convertView.findViewById(R.id.feeds_grid_item_notification);
-			viewHolder.checkmark = (ImageView) convertView.findViewById(R.id.feeds_grid_item_checkmark);
+			viewHolder.checkmark = (CheckBox) convertView.findViewById(R.id.feeds_grid_item_checkmark);
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.feeds_grid_item_image);
 	        
 	        viewHolder.feedImage.setMinimumHeight(mGridItemSize);
@@ -209,8 +204,9 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 		{
 			try
 			{
-				if (PreferenceManager.getDefaultSharedPreferences(this.mContext).getBoolean(Constants.SETTINGS_KEY_GRIDSHOWTITLE, true))
+				if (PreferenceManager.getDefaultSharedPreferences(this.mContext).getBoolean(Constants.SETTINGS_KEY_GRIDSHOWTITLE, true) || this.mSelectionEnabled)
 				{
+					viewHolder.feedTitle.setVisibility(View.VISIBLE);
 					viewHolder.feedTitle.setText(currentFeed.getTitle());	//Set Feed Title
 				}
 				else viewHolder.feedTitle.setVisibility(View.GONE);
@@ -229,11 +225,12 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().imageObject());
     			viewHolder.feedImage.setSelected(viewHolder.checkableLayout.isSelected());
 
-    			if (viewHolder.checkableLayout.isSelected())
+    			if (this.mSelectionEnabled)
     				viewHolder.checkmark.setVisibility(View.VISIBLE);
     			else
     				viewHolder.checkmark.setVisibility(View.GONE);
 
+    			viewHolder.checkmark.setChecked(viewHolder.checkableLayout.isSelected());
     			
     			final int pos = position;
     			
@@ -245,7 +242,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
     				{
     					if (mActionMode != null && mActionModeCallback != null)
     					{
-    						if (v.getId() != R.id.fragment_feeds_grid_add_item && v.getId() != R.id.fragment_feeds_grid_loading_item)	//We prevent the user from selecting the loading and add feed grid items
+    						if (v.getId() != R.id.fragment_feeds_grid_loading_item)	//We prevent the user from selecting the loading and add feed grid items
     						{
     							if (mActionModeCallback.isActive())
         						{
@@ -284,7 +281,7 @@ public class GridListAdapter extends BaseAdapter implements ImageDownloadListene
 
         this.mScreenHeight = displayMetrics.heightPixels / displayMetrics.density;
         this.mScreenWidth = displayMetrics.widthPixels / displayMetrics.density;
-        this.mGridItemSize = Math.round(((mScreenWidth/2) - 4f) * displayMetrics.density);	//The 4f is added padding.
+        this.mGridItemSize = Math.round(((mScreenWidth/2) - 6f) * displayMetrics.density);	//The 4f is added padding.
     }
     
 

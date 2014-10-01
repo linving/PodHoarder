@@ -5,16 +5,14 @@ import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.CheckBox;
 import android.widget.GridView;
-import android.widget.ImageView;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.GridListAdapter;
@@ -64,10 +62,8 @@ public class GridActionModeCallback implements ActionMode.Callback
 						{
 							CheckableRelativeLayout item = (CheckableRelativeLayout)view.getChildAt(i);
 							item.setChecked(true);
-							ImageView img = ((ImageView)item.findViewById(R.id.feeds_grid_item_image));
-							img.setSelected(true);
-							ImageView checkmark = ((ImageView)item.findViewById(R.id.feeds_grid_item_checkmark));
-							checkmark.setVisibility(View.VISIBLE);
+							CheckBox checkmark = ((CheckBox)item.findViewById(R.id.feeds_grid_item_checkmark));
+							checkmark.setChecked(true);
 						}
 					}
 				}
@@ -82,6 +78,7 @@ public class GridActionModeCallback implements ActionMode.Callback
         inflater.inflate(R.menu.contextual_menu_feed, menu);
         this.mActionMode = mode;
 		this.mActive = true;
+		((GridListAdapter)this.mParentListView.getAdapter()).setSelectionEnabled(true);
         return true;
     }
 
@@ -118,11 +115,9 @@ public class GridActionModeCallback implements ActionMode.Callback
 		if (i != -1)
 		{
 			CheckableRelativeLayout view = (CheckableRelativeLayout)this.mParentListView.getChildAt(i);
-			ImageView img = ((ImageView)view.findViewById(R.id.feeds_grid_item_image));
-			img.setSelected(checked);
-			ImageView checkmark = ((ImageView)view.findViewById(R.id.feeds_grid_item_checkmark));
-			if (checked) checkmark.setVisibility(View.VISIBLE);
-			else checkmark.setVisibility(View.GONE);
+			view.setChecked(checked);
+			CheckBox checkmark = ((CheckBox)view.findViewById(R.id.feeds_grid_item_checkmark));
+			checkmark.setChecked(checked);
 			AnimUtils.gridSelectionAnimation(view);
 		}
     	if (checked)
@@ -144,12 +139,16 @@ public class GridActionModeCallback implements ActionMode.Callback
     	{
     		i = getViewPosition(i);
     		if (i != -1)
+    		{
     			((CheckableRelativeLayout)this.mParentListView.getChildAt(i).findViewById(R.id.feeds_grid_item_checkableLayout)).setChecked(false);
+    			((CheckBox)this.mParentListView.getChildAt(i).findViewById(R.id.feeds_grid_item_checkmark)).setChecked(false);
+    		}
     	}
     	this.mSelectedItems.clear();
-    	this.mParentListView.invalidateViews();
+    	((GridListAdapter)this.mParentListView.getAdapter()).setSelectionEnabled(false);
     	this.mActive = false;
         this.mActionMode = null;
+        this.mParentListView.invalidateViews();
     }
 	
 	public boolean isActive()

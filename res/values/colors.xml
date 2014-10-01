@@ -4,20 +4,20 @@
     <!-- General -->
     <color name="actionbar_title">#FFFFFF</color>
     
-    <color name="list_separator">#b6c2d1</color>
+    <color name="list_separator">#cdcdcd</color>
     <color name="list_image_stroke">#323a45</color>
     
-    <color name="app_background">#FFFFFF</color>
-    <color name="app_background_almost">#DDDDDD</color>
+    <color name="app_background">#fafafa</color>
+    <color name="app_background_almost">#EEEEEEEE</color>
     
     <color name="grid_item_pressed">#33DDDDDD</color>
     <color name="grid_item_selected">#55DDDDDD</color>
     
     <!-- App Action bar -->
-    <color name="app_menu">#1e4287</color>
+    <color name="app_menu">#00796a</color>
     
     <!-- Used for components such as scroll bars. -->
-    <color name="app_accent">#1e4287</color>
+    <color name="app_accent">#00796a</color>
     
     <!--  This is used for details that should be the focus of attention, such as circular seek bar track, selected item backgrounds etc -->
     <color name="app_detail">#ef4d80</color>

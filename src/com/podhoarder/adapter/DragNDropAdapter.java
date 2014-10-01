@@ -19,7 +19,6 @@ package com.podhoarder.adapter;
 import java.util.List;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +29,6 @@ import android.widget.TextView;
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
-import com.podhoarder.util.EpisodeRowUtils;
 import com.podhoarder.util.ViewHolders.PlaylistRowViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
@@ -112,10 +110,9 @@ public final class DragNDropAdapter extends BaseAdapter {
             // Creates a ViewHolder and store references to the two children views
             // we want to bind data to.
             holder = new PlaylistRowViewHolder();
-            holder.episodeTitle = (TextView) convertView.findViewById(R.id.player_list_row_episodeName);
+            holder.title = (TextView) convertView.findViewById(R.id.player_list_row_episodeName);
             holder.feedTitle = (TextView) convertView.findViewById(R.id.player_list_row_feedName);
             holder.feedImage = (ImageView) convertView.findViewById(R.id.player_list_row_feedImage);
-            holder.indicator = (View) convertView.findViewById(R.id.row_indicator);
             holder.handle = (ImageView) convertView.findViewById(R.id.player_list_row_handle);
 
             convertView.setTag(holder);
@@ -137,7 +134,7 @@ public final class DragNDropAdapter extends BaseAdapter {
 			else	
 				holder.handle.setVisibility(View.INVISIBLE);
 			 
-			holder.episodeTitle.setText(currentEpisode.getTitle());	//Set Episode Title	
+			holder.title.setText(currentEpisode.getTitle());	//Set Episode Title	
 			holder.feedTitle.setText(currentFeed.getTitle()); //Set Podcast title.
 			
 			if (position == findCurrentEpisodeIndex())
@@ -153,7 +150,7 @@ public final class DragNDropAdapter extends BaseAdapter {
 				holder.feedImage.setBackgroundResource(R.drawable.list_image);
 			}
 			
-			EpisodeRowUtils.setRowIndicator(mContext, holder, currentEpisode);
+			//EpisodeRowUtils.setRowIndicator(mContext, holder, currentEpisode);
 		}		
         return convertView;
     }

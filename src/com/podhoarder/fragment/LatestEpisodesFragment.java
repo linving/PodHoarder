@@ -9,7 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.podhoarder.activity.MainActivity;
-import com.podhoarder.adapter.LatestEpisodesListAdapter;
+import com.podhoarder.adapter.EpisodesListAdapter;
 import com.podhoarder.listener.EpisodeMultiChoiceModeListener;
 import com.podhoarder.listener.OnItemDoubleClickListener;
 import com.podhoarder.object.Episode;
@@ -77,7 +77,7 @@ public class LatestEpisodesFragment extends Fragment
 				@Override
 				public void onDoubleClick(AdapterView<?> parent, View v, int pos, long id)
 				{
-					((LatestEpisodesListAdapter)mainListView.getAdapter()).toggleRowExpanded(v);
+					((EpisodesListAdapter)mainListView.getAdapter()).toggleRowExpanded(v);
 				}
 			});
     		

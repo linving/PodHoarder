@@ -9,7 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.podhoarder.activity.MainActivity;
-import com.podhoarder.adapter.FeedDetailsListAdapter;
+import com.podhoarder.adapter.FeedEpisodesListAdapter;
 import com.podhoarder.listener.EpisodeMultiChoiceModeListener;
 import com.podhoarder.listener.OnItemDoubleClickListener;
 import com.podhoarder.object.Episode;
@@ -66,8 +66,8 @@ public class FeedDetailsFragment extends Fragment
     {
     	if (this.mHelper.feedDetailsListAdapter.mFeed != null)
     	{
-    		this.mEpisodesListView = (ListView) mView.findViewById(R.id.episodesListView);
-    		if (this.mHelper.feedDetailsListAdapter == null) this.mHelper.feedDetailsListAdapter = new FeedDetailsListAdapter(getActivity());
+    		this.mEpisodesListView = (ListView) mView.findViewById(R.id.mainListView);
+    		if (this.mHelper.feedDetailsListAdapter == null) this.mHelper.feedDetailsListAdapter = new FeedEpisodesListAdapter(getActivity());
         	if (this.mHelper.feedDetailsListAdapter != null)
         	{
         		this.mEpisodesListView.setAdapter(this.mHelper.feedDetailsListAdapter);
@@ -90,7 +90,7 @@ public class FeedDetailsFragment extends Fragment
     				@Override
     				public void onDoubleClick(AdapterView<?> parent, View v, int pos, long id)
     				{
-    					((FeedDetailsListAdapter)mEpisodesListView.getAdapter()).toggleRowExpanded(v);
+    					((FeedEpisodesListAdapter)mEpisodesListView.getAdapter()).toggleRowExpanded(v);
     				}
     			});
         		

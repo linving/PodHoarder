@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader.TileMode;
@@ -24,23 +25,52 @@ import android.widget.RelativeLayout;
 
 public class ImageUtils
 {
+	public static Bitmap getCircularBitmapWithBorder(Bitmap bitmap, float borderWidth)
+	{
+		if (bitmap != null)
+		{
+			Bitmap circleBitmap = Bitmap.createBitmap(bitmap.getWidth(),
+					bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+
+			BitmapShader shader = new BitmapShader(bitmap, TileMode.CLAMP, TileMode.CLAMP);
+			Paint borderPaint = new Paint();
+			borderPaint.setAntiAlias(true);
+			borderPaint.setDither(true);
+			borderPaint.setColor(Color.argb(92, 0, 0, 0));
+			Paint paint = new Paint();
+			paint.setAntiAlias(true);
+			paint.setDither(true);
+				paint.setShader(shader);
+
+			Canvas c = new Canvas(circleBitmap);
+			c.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2, bitmap.getWidth() / 2, borderPaint);
+			c.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2, (bitmap.getWidth() / 2) - borderWidth, paint);
+			return circleBitmap;
+		}
+		else
+			return null;	//TODO: Implement a default Podcast image if one doesn't exist.
+	}
+	
 	public static Bitmap getCircularBitmap(Bitmap bitmap)
 	{
-		Bitmap circleBitmap = Bitmap.createBitmap(bitmap.getWidth(),
-				bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+		if (bitmap != null)
+		{
+			Bitmap circleBitmap = Bitmap.createBitmap(bitmap.getWidth(),
+					bitmap.getHeight(), Bitmap.Config.ARGB_8888);
 
-		BitmapShader shader = new BitmapShader(bitmap, TileMode.CLAMP,
-				TileMode.CLAMP);
-		Paint paint = new Paint();
-		paint.setAntiAlias(true);
-		paint.setDither(true);
-		paint.setShader(shader);
+			BitmapShader shader = new BitmapShader(bitmap, TileMode.CLAMP, TileMode.CLAMP);
+			Paint paint = new Paint();
+			paint.setAntiAlias(true);
+			paint.setDither(true);
+			paint.setShader(shader);
 
-		Canvas c = new Canvas(circleBitmap);
-		c.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
-				bitmap.getWidth() / 2, paint);
+			Canvas c = new Canvas(circleBitmap);
+			c.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2, bitmap.getWidth() / 2, paint);
 
-		return circleBitmap;
+			return circleBitmap;
+		}
+		else
+			return null;	//TODO: Implement a default Podcast image if one doesn't exist.
 	}
 
 	public static Bitmap fastblur(Bitmap sentBitmap, int radius)

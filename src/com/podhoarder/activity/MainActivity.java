@@ -141,27 +141,27 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     
     private void setupActionBar()
     {
-    	int titleId = 0;
-
-        titleId = getResources().getIdentifier("action_bar_title", "id", "android");
-        
-        getActionBar().setDisplayShowHomeEnabled(false);
-
-        // Final check for non-zero invalid id
-        if (titleId > 0)
-        {
-            TextView titleTextView = (TextView) findViewById(titleId);
-
-            DisplayMetrics metrics = getResources().getDisplayMetrics();
-
-            // Fetch layout parameters of titleTextView (LinearLayout.LayoutParams : Info from HierarchyViewer)
-            LinearLayout.LayoutParams txvPars = (LayoutParams) titleTextView.getLayoutParams();
-            txvPars.gravity = Gravity.CENTER_HORIZONTAL;
-            txvPars.width = metrics.widthPixels;
-            titleTextView.setLayoutParams(txvPars);
-
-            titleTextView.setGravity(Gravity.CENTER);
-        }
+//    	int titleId = 0;
+//
+//        titleId = getResources().getIdentifier("action_bar_title", "id", "android");
+//        
+//        getActionBar().setDisplayShowHomeEnabled(false);
+//
+//        // Final check for non-zero invalid id
+//        if (titleId > 0)
+//        {
+//            TextView titleTextView = (TextView) findViewById(titleId);
+//
+//            DisplayMetrics metrics = getResources().getDisplayMetrics();
+//
+//            // Fetch layout parameters of titleTextView (LinearLayout.LayoutParams : Info from HierarchyViewer)
+//            LinearLayout.LayoutParams txvPars = (LayoutParams) titleTextView.getLayoutParams();
+//            txvPars.gravity = Gravity.CENTER_HORIZONTAL;
+//            txvPars.width = metrics.widthPixels;
+//            titleTextView.setLayoutParams(txvPars);
+//
+//            titleTextView.setGravity(Gravity.CENTER);
+//        }
     }
     
     @Override
@@ -500,6 +500,21 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	    }
 	}
 	
+	private String getPageTitle(int pos)
+	{
+		switch (pos)
+    	{
+    		case Constants.LATEST_TAB_POSITION:
+    			return getString(R.string.tab_title_episodes);
+    		case Constants.FEEDS_TAB_POSITION:
+    			return getString(R.string.tab_title_podcasts);
+    		case Constants.PLAYER_TAB_POSITION:
+    			return getString(R.string.tab_title_player);
+    		default:
+    			return "";	
+    	}
+	}
+	
 	
 	/**
      * Navigates to the desired tab position. Use Constants for reliable values.
@@ -507,7 +522,9 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
      */
     public void setTab(int pos) 
     {
+    	
     	this.mPager.setCurrentItem(pos, true);
+    	setTitle(getPageTitle(pos));
     }
     
     @Override

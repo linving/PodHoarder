@@ -58,7 +58,6 @@ public class FeedDBHelper
 				feeds.add(cursorToFeed(cursor, true));
 			} while (cursor.moveToNext());
 		}
-		this.db.close();
 		return feeds;
 	}
 	
@@ -81,7 +80,6 @@ public class FeedDBHelper
 				feeds.add(cursorToFeed(cursor, createBitmaps));
 			} while (cursor.moveToNext());
 		}
-		this.db.close();
 		return feeds;
 	}
 
@@ -137,7 +135,6 @@ public class FeedDBHelper
 		this.db = this.dbHelper.getWritableDatabase();
 		Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + id, null, null, null, null);
 		cursor.moveToFirst();
-		this.db.close();
 		feed = cursorToFeed(cursor, true);
 		return feed;
 	}
@@ -155,7 +152,6 @@ public class FeedDBHelper
 		url = "\'" + url + "\'";
 		Cursor cursor = this.db.query(TABLE_NAME, columns, columns[4] + " = " + url, null, null, null, null);
 		cursor.moveToFirst();
-		this.db.close();
 		feed = cursorToFeed(cursor, true);
 		return feed;
 	}
@@ -188,7 +184,6 @@ public class FeedDBHelper
 		    	Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
 			    cursor.moveToFirst();
 			    Feed insertedFeed = cursorToFeed(cursor, true);
-			    this.db.close();
 			    //TODO: Might not need to make a new selection here since insertEpisodes returns a list. Is that list usable?
 			    insertedFeed.setEpisodes(this.eph.insertEpisodes(feed.getEpisodes(), insertedFeed.getFeedId()));
 			    Log.i(LOG_TAG,"Added Feed with id: " + insertId);
@@ -224,7 +219,6 @@ public class FeedDBHelper
 		{
 			this.db = this.dbHelper.getWritableDatabase();
 		    int res = this.db.delete(TABLE_NAME, columns[0] + " = " + feedId, null);
-		    this.db.close();
 		    this.eph.deleteEpisodes(feedId);
 		    if (res == 0)
 		    {
@@ -262,7 +256,6 @@ public class FeedDBHelper
 	    Log.w(LOG_TAG,"Updated Feed with id: " + newFeed.getFeedId());
 	    cursor.moveToFirst();
 	    f = cursorToFeed(cursor, false);
-	    this.db.close();
 	    
 	    for (Episode ep : newFeed.getEpisodes())
 	    {

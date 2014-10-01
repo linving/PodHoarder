@@ -6,10 +6,7 @@ import android.view.ViewGroup;
 
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.ViewHolders.EpisodeRowViewHolder;
-import com.podhoarder.util.ViewHolders.FeedDetailsRowViewHolder;
-import com.podhoarder.util.ViewHolders.LatestEpisodesRowViewHolder;
 import com.podhoarder.util.ViewHolders.PlaylistRowViewHolder;
-import com.podhoarderproject.podhoarder.R;
 
 public class EpisodeRowUtils
 {
@@ -21,19 +18,19 @@ public class EpisodeRowUtils
 		recursiveLoopChildren(row,listened);
 	}
 	
-	public static void setRowListened(FeedDetailsRowViewHolder row, boolean listened)
+	public static void setRowListened(EpisodeRowViewHolder row, boolean listened)
 	{
 		if (listened)
 		{
 			row.feedImage.setAlpha(ALPHA_LISTENED);
-			row.episodeTitle.setAlpha(ALPHA_LISTENED);
-			row.episodeAge.setAlpha(ALPHA_LISTENED);
+			row.title.setAlpha(ALPHA_LISTENED);
+			row.age.setAlpha(ALPHA_LISTENED);
 		}
 		else
 		{
 			row.feedImage.setAlpha(ALPHA_NORMAL);
-			row.episodeTitle.setAlpha(ALPHA_NORMAL);
-			row.episodeAge.setAlpha(ALPHA_NORMAL);
+			row.title.setAlpha(ALPHA_NORMAL);
+			row.age.setAlpha(ALPHA_NORMAL);
 		}
 	}
 	
@@ -42,38 +39,19 @@ public class EpisodeRowUtils
 		if (listened)
 		{
 			row.feedImage.setAlpha(ALPHA_LISTENED);
-			row.episodeTitle.setAlpha(ALPHA_LISTENED);
+			row.title.setAlpha(ALPHA_LISTENED);
 			row.feedTitle.setAlpha(ALPHA_LISTENED);
-			row.episodeAge.setAlpha(ALPHA_LISTENED);
+			row.age.setAlpha(ALPHA_LISTENED);
 			row.timeListened.setAlpha(ALPHA_LISTENED);
 		}
 		else
 		{
 			row.feedImage.setAlpha(ALPHA_NORMAL);
-			row.episodeTitle.setAlpha(ALPHA_NORMAL);
+			row.title.setAlpha(ALPHA_NORMAL);
 			row.feedTitle.setAlpha(ALPHA_NORMAL);
-			row.episodeAge.setAlpha(ALPHA_NORMAL);
+			row.age.setAlpha(ALPHA_NORMAL);
 			row.timeListened.setAlpha(ALPHA_NORMAL);
 		}
-	}
-	
-	public static void setRowListened(LatestEpisodesRowViewHolder row, boolean listened)
-	{
-		if (listened)
-		{
-			row.feedImage.setAlpha(ALPHA_LISTENED);
-			row.episodeTitle.setAlpha(ALPHA_LISTENED);
-			row.feedTitle.setAlpha(ALPHA_LISTENED);
-			row.episodeAge.setAlpha(ALPHA_LISTENED);
-		}
-		else
-		{
-			row.feedImage.setAlpha(ALPHA_NORMAL);
-			row.episodeTitle.setAlpha(ALPHA_NORMAL);
-			row.feedTitle.setAlpha(ALPHA_NORMAL);
-			row.episodeAge.setAlpha(ALPHA_NORMAL);
-		}
-		
 	}
 
 	public static void setRowIndicator(Context ctx, EpisodeRowViewHolder row, Episode ep)
@@ -82,33 +60,39 @@ public class EpisodeRowUtils
 		{
 			if (NetworkUtils.isOnline(ctx))
 			{
-				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
-				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
+				
+				//row.episodeTitle.setTypeface(row.episodeTitle.getTypeface(), Typeface.BOLD);
+//				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
+//				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
 			}
 			else
 			{
-				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
-				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
+				//row.indicator.setStatus(Status.UNAVAILABLE);
+//				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
+//				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
 			}
 		} 
 		else
 		{
 			if (ep.isDownloaded())
 			{
-				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
-				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
+				
+//				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
+//				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
 			}
 			else
 			{
 				if (NetworkUtils.isOnline(ctx))	//Phone has internet access, streaming is possible.
 				{
-					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
-					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
+					
+//					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
+//					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
 				}
 				else	//Device does not have internet access, so all streaming episodes should be set to unavailable.
 				{
-					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
-					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
+					
+//					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
+//					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
 				}
 			}
 		}
@@ -124,7 +108,7 @@ public class EpisodeRowUtils
             } else {
                 if (child != null) {
                     // DO SOMETHING WITH VIEW
-                	if (listened && child.getId() != R.id.row_indicator && child.getId() != R.id.row_indicator_extension) child.setAlpha(ALPHA_LISTENED);
+                	if (listened) child.setAlpha(ALPHA_LISTENED);
                 	else	child.setAlpha(ALPHA_NORMAL);
                 }
             }

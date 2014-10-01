@@ -1,6 +1,6 @@
 package com.podhoarder.util;
 
-import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,28 +23,18 @@ public class ViewHolders
 		public TextView feedTitle;
 		public TextView feedNumberOfEpisodes;
 		public ImageView feedImage;
-		public ImageView	checkmark;
+		public CheckBox	checkmark;
 		public CheckableRelativeLayout checkableLayout;
 	}
 	
 	public static class EpisodeRowViewHolder
 	{
-		public TextView episodeTitle;
-		public TextView episodeAge;
+		public TextView title;
+		public TextView age;
+		public TextView description;
+		public ImageView indicator;
 		public ImageView feedImage;
-		public View indicator;
-		public View indicatorExtension;
-	}
-	
-	public static class LatestEpisodesRowViewHolder extends EpisodeRowViewHolder
-	{
-		public TextView feedTitle;
-		public TextView episodeDescription;
-	}
-	
-	public static class FeedDetailsRowViewHolder extends EpisodeRowViewHolder
-	{
-		public TextView episodeDescription;
+		public CheckBox checkbox;
 	}
 
 	public static class PlaylistRowViewHolder extends EpisodeRowViewHolder

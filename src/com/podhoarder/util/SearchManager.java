@@ -264,25 +264,31 @@ public class SearchManager
 			catch (MalformedURLException e)
 			{
 				e.printStackTrace();
+				this.conn.disconnect();
 				cancel(true);
 			} catch (DOMException e)
 			{
 				e.printStackTrace();
+				this.conn.disconnect();
 				cancel(true);
 			} catch (IOException e)
 			{
 				e.printStackTrace();
+				this.conn.disconnect();
 				cancel(true);
 			} catch (ParserConfigurationException e)
 			{
 				e.printStackTrace();
+				this.conn.disconnect();
 				cancel(true);
 			} catch (SAXException e)
 			{
 				e.printStackTrace();
+				this.conn.disconnect();
 				cancel(true);
 			} catch (SQLiteConstraintException e)
 			{
+				this.conn.disconnect();
 				cancel(true);
 			} 
 			return null;
@@ -314,8 +320,6 @@ public class SearchManager
 		protected void onCancelled(SearchResultRow result)
 		{
 			Log.i("ParseFeedTask", "Search Result Parse task cancelled");
-			if (this.conn != null)
-				this.conn.disconnect();
 			super.onCancelled(result);
 		}
 	}

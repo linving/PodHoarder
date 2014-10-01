@@ -5,6 +5,7 @@
     android:id="@+id/feeds_grid_item_checkableLayout"
     android:layout_width="@dimen/fragment_feeds_grid_item"
     android:layout_height="@dimen/fragment_feeds_grid_item"
+    android:descendantFocusability="blocksDescendants"
     android:background="?android:attr/activatedBackgroundIndicator"
     android:clickable="true"
     android:longClickable="true"
@@ -14,22 +15,9 @@
         android:id="@+id/feeds_grid_item_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/feeds_grid_image"
         android:scaleType="fitXY"
         app:tint="@drawable/grid_selector" />
-
-    <TextView
-        android:id="@+id/feeds_grid_item_text"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="5dp"
-        android:background="#80000000"
-        android:ellipsize="end"
-        android:gravity="center"
-        android:maxLines="1"
-        android:textColor="@color/text_inverse" />
-
+    
     <TextView
         android:id="@+id/feeds_grid_item_notification"
         style="@style/Podhoarder.Text.gridNotification"
@@ -40,15 +28,26 @@
         android:layout_margin="5dp"
         android:background="@drawable/feeds_grid_notification_shape"
         android:maxLines="1" />
-
-	<ImageView
-        android:id="@+id/feeds_grid_item_checkmark"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+    
+    <TextView
+        android:id="@+id/feeds_grid_item_text"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:background="#80000000"
+        android:ellipsize="end"
+        android:gravity="left|center_vertical"
+        android:maxLines="1"
+        style="@style/Podhoarder.Text.Inverse"/>
+    
+    <CheckBox android:id="@+id/feeds_grid_item_checkmark"
+        android:layout_width="36dp"
+        android:layout_height="48dp"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_margin="5dp"
-        android:src="@drawable/ic_action_accept"
-        android:scaleType="centerInside"
-        android:background="@drawable/feeds_grid_notification_shape"/>
+        android:layout_alignParentBottom="true"
+        android:clickable="false"
+        android:visibility="gone"/>	
+
 </com.podhoarder.view.CheckableRelativeLayout>

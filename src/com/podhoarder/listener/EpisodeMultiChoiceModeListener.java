@@ -13,11 +13,14 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.CheckBox;
 
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.EpisodeRowUtils;
+import com.podhoarder.util.ViewHolders;
+import com.podhoarder.adapter.EpisodesListAdapter;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ToastMessages;
 import com.podhoarderproject.podhoarder.R;
@@ -55,6 +58,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
 						if (i != -1)
 						{
 							view.getChildAt(i).setSelected(true);
+							((CheckBox)view.getChildAt(i).findViewById(R.id.list_episode_row_checkbox)).setChecked(true);
 						}
 					}
 				}
@@ -82,6 +86,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
         this.mActionMode = mode;
         this.mSelectedItems = new ArrayList<Integer>();
         this.mActive = true;
+        ((EpisodesListAdapter)mParentListView.getAdapter()).setSelectionEnabled(true);
         return true;
     }
 
@@ -120,12 +125,11 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
 		int i = getViewPosition(position);
 		if (i != -1)
 			AnimUtils.listSelectionAnimation(mParentListView.getChildAt(i));
-			mParentListView.getChildAt(i).setSelected(checked);	//Update the selected status of the View object if it is visible and not recycled.
+			((ViewHolders.EpisodeRowViewHolder)mParentListView.getChildAt(i).getTag()).checkbox.setChecked(checked);
     	if (checked)
     		this.mSelectedItems.add(position);	//save the list position of the selected view.
     	else
     		this.mSelectedItems.remove((Object)position);	//remove the list position of the unselected view.
-//    	this.updateTitle();
 	}
 	
 
@@ -138,12 +142,13 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     	{
     		i = getViewPosition(i);
     		if (i != -1)
-    			this.mParentListView.getChildAt(i).setSelected(false);	//Deselect the view if it's not recycled.
+    			((ViewHolders.EpisodeRowViewHolder)mParentListView.getChildAt(i).getTag()).checkbox.setChecked(false);	//Deselect the view if it's not recycled.
     	}
     	this.mSelectedItems.clear();
     	this.mSelectedItems = null;
     	this.mActive = false;
     	this.mActionMode = null;
+    	((EpisodesListAdapter)mParentListView.getAdapter()).setSelectionEnabled(false);
     }
 	
 	private void addSelectedItemsToPlaylist()

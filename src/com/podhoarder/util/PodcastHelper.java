@@ -41,9 +41,9 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 
 import com.podhoarder.adapter.DragNDropAdapter;
-import com.podhoarder.adapter.FeedDetailsListAdapter;
+import com.podhoarder.adapter.FeedEpisodesListAdapter;
 import com.podhoarder.adapter.GridListAdapter;
-import com.podhoarder.adapter.LatestEpisodesListAdapter;
+import com.podhoarder.adapter.EpisodesListAdapter;
 import com.podhoarder.db.EpisodeDBHelper;
 import com.podhoarder.db.FeedDBHelper;
 import com.podhoarder.db.PlaylistDBHelper;
@@ -75,8 +75,8 @@ public class PodcastHelper
 	private 				EpisodeDBHelper 			eph;	//Handles saving the Episode objects to a database for persistence.
 	public 					PlaylistDBHelper 			plDbH;	//Handles saving the current playlist to a database for persistence.
 	public 					GridListAdapter 			feedsListAdapter;	//An expandable list containing all the Feed and their respective Episodes.	
-	public					FeedDetailsListAdapter		feedDetailsListAdapter;
-	public 					LatestEpisodesListAdapter 	latestEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
+	public					FeedEpisodesListAdapter		feedDetailsListAdapter;
+	public 					EpisodesListAdapter 	latestEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
 	public 					DragNDropAdapter 			playlistAdapter;	//A list containing all the downloaded episodes.
 	private 				Context	 					context;
 	private 				String 						storagePath;
@@ -1115,7 +1115,7 @@ public class PodcastHelper
 			if (this.latestEpisodesListAdapter != null)	
 				this.latestEpisodesListAdapter.replaceItems(this.eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT));
 			else	
-				this.latestEpisodesListAdapter = new LatestEpisodesListAdapter(this.eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT), this.context);
+				this.latestEpisodesListAdapter = new EpisodesListAdapter(this.eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT), this.context);
 			
 			//Playlist
 			if (this.playlistAdapter != null)	
@@ -1137,7 +1137,7 @@ public class PodcastHelper
 			}
 			else if (this.feedDetailsListAdapter == null)
 			{
-				this.feedDetailsListAdapter = new FeedDetailsListAdapter(this.context);
+				this.feedDetailsListAdapter = new FeedEpisodesListAdapter(this.context);
 			}
 			
 			//Notify for UI updates.

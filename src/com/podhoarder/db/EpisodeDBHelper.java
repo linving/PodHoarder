@@ -57,7 +57,6 @@ public class EpisodeDBHelper
 				episodes.add(cursorToEpisode(cursor));
 			} while (cursor.moveToNext());
 		}
-		this.db.close();
 		return episodes;
 	}
 	
@@ -81,7 +80,6 @@ public class EpisodeDBHelper
 					episodes.add(cursorToEpisode(cursor));
 				} while (cursor.moveToNext());
 			}
-			this.db.close();
 		}
 		catch (IllegalStateException e)
 		{
@@ -112,7 +110,6 @@ public class EpisodeDBHelper
 					episodes.add(cursorToEpisode(cursor));
 				} while (cursor.moveToNext());
 			}
-			this.db.close();
 		}
 		catch (IllegalStateException e)
 		{
@@ -139,7 +136,6 @@ public class EpisodeDBHelper
 				episodes.add(cursorToEpisode(cursor));
 			} while (cursor.moveToNext());
 		}
-		this.db.close();
 		return episodes;	
 	}
 	
@@ -168,7 +164,6 @@ public class EpisodeDBHelper
 					unordered.add(cursorToEpisode(cursor));
 				} while (cursor.moveToNext());
 			}
-			this.db.close();
 			
 			//Now that we have the correct order in pointers we need to reorder the playlist accordingly.
 			for (EpisodePointer pointer:pointers)
@@ -212,7 +207,6 @@ public class EpisodeDBHelper
 		this.db = this.dbHelper.getWritableDatabase();
 		Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + id, null, null, null, null);
 		cursor.moveToFirst();
-		this.db.close();
 		try
 		{
 			ep = cursorToEpisode(cursor);
@@ -251,7 +245,6 @@ public class EpisodeDBHelper
 		    Log.w(LOG_TAG,"Added Episode with id: " + insertId);
 		    cursor.moveToFirst();
 		    Episode insertedEpisode = cursorToEpisode(cursor);
-		    this.db.close();
 		    return insertedEpisode;
 	    }
 	    catch (SQLiteConstraintException e)
@@ -289,7 +282,6 @@ public class EpisodeDBHelper
 		    Log.i(LOG_TAG,"Added Episode with id: " + insertId);
 		    cursor.moveToFirst();
 		    Episode insertedEpisode = cursorToEpisode(cursor);
-		    this.db.close();
 		    episodes.add(insertedEpisode);
 		}
 		return episodes;
@@ -308,7 +300,6 @@ public class EpisodeDBHelper
 	    int id = ep.getEpisodeId();
 	    this.db = this.dbHelper.getWritableDatabase();
 	    int res = this.db.delete(TABLE_NAME, columns[0] + " = " + id, null);
-	    this.db.close();
 	    if (res == 0)
 	    {
 	    	Log.w(LOG_TAG,"No Episode deleted");
@@ -333,7 +324,6 @@ public class EpisodeDBHelper
 		int retVal=0;
 		this.db = this.dbHelper.getWritableDatabase();
 		retVal = this.db.delete(TABLE_NAME, columns[8] + "=" + feedId, null);
-		this.db.close();
 		return retVal;
 	}	
 	
@@ -361,7 +351,6 @@ public class EpisodeDBHelper
 		    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + updatedEpisode.getEpisodeId(), null, null, null, null);
 		    Log.w(LOG_TAG,"Updated Episode with id: " + updatedEpisode.getEpisodeId());
 		    cursor.moveToFirst();
-		    this.db.close();
 		    ep = cursorToEpisode(cursor);
 			return ep;
 	    }
@@ -410,7 +399,6 @@ public class EpisodeDBHelper
 		}
 		this.db.setTransactionSuccessful();
 		this.db.endTransaction();
-		this.db.close();
 		return updatedEpisodes;
 	}
 	

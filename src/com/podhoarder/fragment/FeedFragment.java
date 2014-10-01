@@ -10,14 +10,11 @@ import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 
-import com.podhoarder.activity.MainActivity;
 import com.podhoarder.listener.GridActionModeCallback;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.PodcastHelper;
@@ -90,7 +87,6 @@ public class FeedFragment extends Fragment
     	this.mainGridView = (GridView) view.findViewById(R.id.mainGridView);
     	if (!this.helper.feedsListAdapter.isEmpty())
     	{
-    		this.helper.feedsListAdapter.setFooterView(setupAddFeed());
     		this.helper.feedsListAdapter.setLoadingViews(setupLoadingViews());
     		this.mainGridView.setAdapter(this.helper.feedsListAdapter);
     		
@@ -114,39 +110,12 @@ public class FeedFragment extends Fragment
     	}
     	else
     	{
-    		//TODO: MAKE SURE THIS WORKS CORRECTLY
-    		View emptyView = (setupAddFeed());
-    		emptyView.setMinimumHeight(this.helper.feedsListAdapter.mGridItemSize);
-    		emptyView.setMinimumWidth(this.helper.feedsListAdapter.mGridItemSize);
-    		emptyView.setLayoutParams(new LayoutParams(this.helper.feedsListAdapter.mGridItemSize, this.helper.feedsListAdapter.mGridItemSize));
-    		((RelativeLayout)this.mainGridView.getParent().getParent()).addView(emptyView);
-    		this.mainGridView.setEmptyView(emptyView);
+    		//Grid is empty.
+    		//TODO: Add a hint and a link to the add feed fragment.
+    		
     		
     	}
     	
-    }
-    
-    
-    
-    private View setupAddFeed()
-    {
-    	//We add the footer view (last item) for adding new Feeds here.
-    	LayoutInflater inflater = (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);	//get the inflater service.
-    	View addFeedRow = inflater.inflate(R.layout.fragment_feeds_grid_add_feed_item, this.mainGridView, false);	//Inflate the custom row layout for the footer.
-    	
-    	addFeedRow.setOnClickListener(new View.OnClickListener() {	//Add Click Listener for the footer. It shouldn't behave like the other listrows.
-			@Override
-			public void onClick(View v)
-			{
-				if (!mActionModeCallback.isActive())
-				{
-					((MainActivity)getActivity()).mAdapter.setSearchPageEnabled(true);
-					((MainActivity)getActivity()).setTab(Constants.BONUS_TAB_POSITION);
-				}
-			}
-			
-		});
-    	return addFeedRow;
     }
 
     private List<View> setupLoadingViews()

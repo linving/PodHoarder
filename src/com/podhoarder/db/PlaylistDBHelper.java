@@ -54,7 +54,6 @@ public class PlaylistDBHelper
 				pointers.add(EpisodePointer.cursorToEpisodePointer(cursor));
 			} while (cursor.moveToNext());
 		}
-		this.db.close();
 		//Now that we have the correct order in pointers we need to reorder the playlist accordingly.
 		for (EpisodePointer pointer:pointers)
 		{
@@ -97,7 +96,6 @@ public class PlaylistDBHelper
 				pointers.add(EpisodePointer.cursorToEpisodePointer(cursor));
 			} while (cursor.moveToNext());
 		}
-		this.db.close();
 		return pointers;
 	}
 	
@@ -111,7 +109,6 @@ public class PlaylistDBHelper
 	{
 		this.db = this.dbHelper.getWritableDatabase();
 	    this.db.delete(TABLE_NAME, null, null);	//Clear the table.
-	    this.db.close();
 		for (int i=0; i<playlist.size(); i++)
 		{
 			ContentValues values = new ContentValues();
@@ -121,7 +118,6 @@ public class PlaylistDBHelper
 		    //long insertId = this.db.insert(TABLE_NAME, null, values);
 		    this.db.insert(TABLE_NAME, null, values);
 		    //Log.i(LOG_TAG,"SAVED " + playlist.get(i).getTitle() + "(ID: " + insertId + ")");
-		    this.db.close();
 		}
 		Log.i(LOG_TAG, "Updated playlist!");
 	}
@@ -130,7 +126,6 @@ public class PlaylistDBHelper
 	{
 		this.db = this.dbHelper.getWritableDatabase();
 	    int res = this.db.delete(TABLE_NAME, columns[1] + " = " + episodeId, null);
-	    this.db.close();
 	    if (res == 0)
 	    {
 	    	Log.w(LOG_TAG,"No Episode deleted");
