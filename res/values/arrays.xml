@@ -10,4 +10,11 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="filters">
+        <item>@string/filter_all</item>
+        <item>@string/filter_new</item>
+        <item>@string/filter_latest</item>
+        <item>@string/filter_downloaded</item>
+        <item>@string/filter_favorites</item>
+    </string-array>
 </resources>

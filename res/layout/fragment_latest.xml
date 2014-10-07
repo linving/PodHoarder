@@ -4,18 +4,5 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/episodesFragment_container">
-    <ListView
-        android:id="@+id/mainListView"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-    	android:clipToPadding="false"
-        android:dividerHeight="1px"
-        android:divider="@drawable/list_divider"
-        android:clickable="true"
-        android:longClickable="true"
-	    android:fastScrollEnabled="true"
-        android:fastScrollAlwaysVisible="true"
-        android:listSelector="@drawable/list_selector"/>
+    
 </RelativeLayout>

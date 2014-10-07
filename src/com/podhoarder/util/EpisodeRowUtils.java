@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.ViewHolders.EpisodeRowViewHolder;
 import com.podhoarder.util.ViewHolders.PlaylistRowViewHolder;
+import com.podhoarderproject.podhoarder.R;
 
 public class EpisodeRowUtils
 {
@@ -60,13 +61,16 @@ public class EpisodeRowUtils
 		{
 			if (NetworkUtils.isOnline(ctx))
 			{
-				
+				row.arrow.setImageResource(R.drawable.ic_new);
+				row.arrow.setAlpha(1f);
 				//row.episodeTitle.setTypeface(row.episodeTitle.getTypeface(), Typeface.BOLD);
 //				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
 //				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
 			}
 			else
 			{
+				row.arrow.setImageResource(R.drawable.ic_info);
+				row.arrow.setAlpha(.54f);
 				//row.indicator.setStatus(Status.UNAVAILABLE);
 //				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
 //				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
@@ -76,7 +80,8 @@ public class EpisodeRowUtils
 		{
 			if (ep.isDownloaded())
 			{
-				
+				row.arrow.setImageResource(R.drawable.ic_info);
+				row.arrow.setAlpha(.54f);
 //				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
 //				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
 			}
@@ -84,13 +89,15 @@ public class EpisodeRowUtils
 			{
 				if (NetworkUtils.isOnline(ctx))	//Phone has internet access, streaming is possible.
 				{
-					
+					row.arrow.setImageResource(R.drawable.ic_info);
+					row.arrow.setAlpha(.54f);
 //					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
 //					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
 				}
 				else	//Device does not have internet access, so all streaming episodes should be set to unavailable.
 				{
-					
+					row.arrow.setImageResource(R.drawable.ic_info);
+					row.arrow.setAlpha(.54f);
 //					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
 //					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
 				}

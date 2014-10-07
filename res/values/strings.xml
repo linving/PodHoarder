@@ -3,12 +3,16 @@
 
     <!-- General -->
     <string name="app_name">Podhoarder</string>
+    <string name="action_search">Search</string>
     <string name="action_settings">Settings</string>
     <string name="action_add">Add Podcast</string>
     
-    <string name="tab_title_episodes">Latest Episodes</string>
-    <string name="tab_title_podcasts">Podcasts</string>
-    <string name="tab_title_player">Player</string>
+    <string name="filter_all">All</string>
+    <string name="filter_new">New</string>
+    <string name="filter_latest">Latest</string>
+    <string name="filter_downloaded">Downloaded</string>
+    <string name="filter_favorites">Favorites</string>
+    <string name="filter_search">Search</string>
     
     <!-- Player tab -->
     <string name="playlist_listened">listened</string>

@@ -5,20 +5,6 @@
     android:orientation="vertical"
     android:id="@+id/feedFragment_container">
 
-    <GridView 
-        android:id="@+id/mainGridView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:padding="4dp"
-    	android:clipToPadding="false"
-    	android:layout_gravity="center"
-        android:columnWidth="@dimen/fragment_feeds_grid_item"
-	    android:numColumns="auto_fit"
-	    android:verticalSpacing="4dp"
-	    android:horizontalSpacing="4dp"
-	    android:stretchMode="none"
-	    android:clickable="true"
-	    android:longClickable="true"/>
+    
     
 </RelativeLayout>

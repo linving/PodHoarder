@@ -30,9 +30,8 @@ public class DialogUtils
 	    	    @Override
 	    	    public void onClick(DialogInterface dialog, int which) 
 	    	    {
-	    	    	((MainActivity)ctx).helper.addSearchResults(selectedResults);
-					((MainActivity)ctx).setTab(Constants.FEEDS_TAB_POSITION);
-					((MainActivity)ctx).helper.feedsListAdapter.notifyDataSetChanged();
+	    	    	((MainActivity)ctx).mPodcastHelper.addSearchResults(selectedResults);
+	    	    	//TODO: Start mainactivity
 	    	    }
 	    	});
 	    	builder.setNegativeButton(R.string.popup_window_cancel_button, new DialogInterface.OnClickListener() {
@@ -55,9 +54,8 @@ public class DialogUtils
 	    	    @Override
 	    	    public void onClick(DialogInterface dialog, int which) 
 	    	    {
-	    	    	((MainActivity)ctx).helper.addSearchResults(selectedResults);
-					((MainActivity)ctx).setTab(Constants.FEEDS_TAB_POSITION);
-					((MainActivity)ctx).helper.feedsListAdapter.notifyDataSetChanged();
+	    	    	((MainActivity)ctx).mPodcastHelper.addSearchResults(selectedResults);
+	    	    	//TODO: Start mainactivity
 	    	    }
 	    	});
 	    	builder.setNegativeButton(R.string.popup_window_cancel_button, new DialogInterface.OnClickListener() {

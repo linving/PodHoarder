@@ -125,7 +125,7 @@ public final class DragNDropAdapter extends BaseAdapter {
         }
 
         Episode currentEpisode = this.mPlayList.get(position);
-        Feed currentFeed = ((MainActivity)mContext).helper.getFeed(currentEpisode.getFeedId());
+        Feed currentFeed = ((MainActivity)mContext).mPodcastHelper.getFeed(currentEpisode.getFeedId());
         
 		if(currentEpisode != null) 
 		{ 	
@@ -186,7 +186,7 @@ public final class DragNDropAdapter extends BaseAdapter {
     public void addToPlaylist(Episode ep)
     {
     	this.mPlayList.add(ep);
-    	((MainActivity)mContext).helper.plDbH.savePlaylist(this.mPlayList);
+    	((MainActivity)mContext).mPodcastHelper.plDbH.savePlaylist(this.mPlayList);
     	this.notifyDataSetChanged();
     }
        
@@ -196,9 +196,9 @@ public final class DragNDropAdapter extends BaseAdapter {
     	if (index >= 0)
     	{
     		this.mPlayList.remove(index);
-    		((MainActivity)mContext).helper.plDbH.deleteEntry(ep.getEpisodeId());
+    		((MainActivity)mContext).mPodcastHelper.plDbH.deleteEntry(ep.getEpisodeId());
     	}
-    	((MainActivity)mContext).helper.plDbH.savePlaylist(this.mPlayList);
+    	((MainActivity)mContext).mPodcastHelper.plDbH.savePlaylist(this.mPlayList);
     	this.notifyDataSetChanged();
     }
     
@@ -221,13 +221,7 @@ public final class DragNDropAdapter extends BaseAdapter {
 	
 	public int findCurrentEpisodeIndex()
 	{
-		if (((MainActivity)mContext).podService != null)
-		{
-			if (((MainActivity)mContext).podService.mCurrentEpisode != null)
-			{
-				return this.findEpisodeInPlaylist(((MainActivity)mContext).podService.mCurrentEpisode);
-			}
-		}
+
 		return -1;
 	}
 	

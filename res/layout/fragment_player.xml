@@ -26,8 +26,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="10dip"
             android:scaleType="centerInside"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_action_collapse" />
+            android:background="@android:color/transparent" />
 
         <com.podhoarder.view.DragNDropListView
             android:id="@+id/playlist"

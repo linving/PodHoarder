@@ -8,7 +8,6 @@ import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import com.podhoarder.activity.MainActivity;
 import com.podhoarder.service.PodHoarderService;
 
 /**
@@ -18,16 +17,18 @@ import com.podhoarder.service.PodHoarderService;
  */
 public class HardwareIntentReceiver extends BroadcastReceiver 
 {
-	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.HardwareIntentReceiver";
 	
-	private PodHoarderService playbackService;
+	private PodHoarderService mPlaybackService;
 	
-	private boolean wasPlaying = false;
+	private PodcastHelper mPodcastHelper;
 	
-	public HardwareIntentReceiver(PodHoarderService playbackService)
+	private boolean mWasPlaying = false;
+	
+	public HardwareIntentReceiver(PodHoarderService playbackService, PodcastHelper podcastHelper)
 	{
-		this.playbackService = playbackService;
+		mPlaybackService = playbackService;
+		mPodcastHelper = podcastHelper;
 	}
 	
     @Override public void onReceive(Context context, Intent intent) 
@@ -39,7 +40,7 @@ public class HardwareIntentReceiver extends BroadcastReceiver
             {
 	            case 0:
 	            	//Fires when the headphones are unplugged.
-	            	if (this.playbackService != null && this.playbackService.isPlaying()) this.playbackService.pause();
+	            	if (this.mPlaybackService != null && this.mPlaybackService.isPlaying()) this.mPlaybackService.pause();
 	                break;
 	            case 1:
 	            	//Fires when the headphones are plugged in.
@@ -54,18 +55,18 @@ public class HardwareIntentReceiver extends BroadcastReceiver
             String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
             if (state.equals(TelephonyManager.EXTRA_STATE_RINGING))
             {
-            	if (this.playbackService != null && this.playbackService.isPlaying()) 
+            	if (this.mPlaybackService != null && this.mPlaybackService.isPlaying()) 
             	{
-            		this.wasPlaying = true;
-            		this.playbackService.pause();	//For when it starts ringing.
+            		this.mWasPlaying = true;
+            		this.mPlaybackService.pause();	//For when it starts ringing.
             	}
             }
             else if (state.equals(TelephonyManager.EXTRA_STATE_IDLE))
             {
-            	if (this.playbackService != null && this.wasPlaying) 
+            	if (this.mPlaybackService != null && this.mWasPlaying) 
             	{
-            		this.wasPlaying = false;
-            		playbackService.resume(); //For when the phone returns back to normal after a call.
+            		this.mWasPlaying = false;
+            		mPlaybackService.resume(); //For when the phone returns back to normal after a call.
             	}
             }
         }
@@ -82,18 +83,18 @@ public class HardwareIntentReceiver extends BroadcastReceiver
                 if (ni != null && ni.isConnectedOrConnecting()) 
                 {
                     Log.i(LOG_TAG, "Network " + ni.getTypeName() + " connected");
-                    ((MainActivity)context).helper.refreshListsAsync();
+                    mPodcastHelper.invalidate();
                 } 
                 else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) 
                 {
-                	if (playbackService.isPlaying() && playbackService.isStreaming())
+                	if (mPlaybackService.isPlaying() && mPlaybackService.isStreaming())
                 	{
-                		playbackService.stop();
-                		((MainActivity)context).helper.refreshLists();
+                		mPlaybackService.stop();
+                		mPodcastHelper.invalidate();
                 	}
                 	else
                 	{
-                		((MainActivity)context).helper.refreshListsAsync();
+                		mPodcastHelper.invalidate();
                 	}
                     Log.d(LOG_TAG, "There's no network connectivity");
                 }

@@ -125,7 +125,8 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
 		int i = getViewPosition(position);
 		if (i != -1)
 			AnimUtils.listSelectionAnimation(mParentListView.getChildAt(i));
-			((ViewHolders.EpisodeRowViewHolder)mParentListView.getChildAt(i).getTag()).checkbox.setChecked(checked);
+			((ViewHolders.EpisodeRowViewHolder)mParentListView.getChildAt(i).getTag()).checked = checked;
+			((CheckBox)mParentListView.getChildAt(i).findViewById(R.id.list_episode_row_checkbox)).setChecked(checked);
     	if (checked)
     		this.mSelectedItems.add(position);	//save the list position of the selected view.
     	else
@@ -142,7 +143,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     	{
     		i = getViewPosition(i);
     		if (i != -1)
-    			((ViewHolders.EpisodeRowViewHolder)mParentListView.getChildAt(i).getTag()).checkbox.setChecked(false);	//Deselect the view if it's not recycled.
+    			((ViewHolders.EpisodeRowViewHolder)mParentListView.getChildAt(i).getTag()).checked = false;	//Deselect the view if it's not recycled.
     	}
     	this.mSelectedItems.clear();
     	this.mSelectedItems = null;
@@ -156,10 +157,10 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     	for (int i : this.mSelectedItems)
     	{
     		Episode ep = (Episode) this.mParentListView.getItemAtPosition(i);
-    		if (((MainActivity)this.mContext).helper.playlistAdapter.findEpisodeInPlaylist(ep) == -1)
-    			((MainActivity)this.mContext).helper.playlistAdapter.addToPlaylist(ep);	//We only add items that aren't already in the playlist.
+    		if (((MainActivity)this.mContext).mPodcastHelper.mPlaylistAdapter.findEpisodeInPlaylist(ep) == -1)
+    			((MainActivity)this.mContext).mPodcastHelper.mPlaylistAdapter.addToPlaylist(ep);	//We only add items that aren't already in the playlist.
     	}
-    	((MainActivity)this.mContext).helper.refreshPlayList();
+    	((MainActivity)this.mContext).mPodcastHelper.refreshPlayList();
     	ToastMessages.EpisodeAddedToPlaylist(this.mContext).show();
     }
     
@@ -177,7 +178,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     		if (!ep.isListened())	//We only need to mark unlistened Episodes as listened. So we only add those that aren't already listened.
     			eps.add(ep);
     	}
-		((MainActivity)this.mContext).helper.markAsListenedAsync(eps);
+		((MainActivity)this.mContext).mPodcastHelper.markAsListenedAsync(eps);
     }
     
     private void downloadSelectedItems()
@@ -191,7 +192,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     	}
     	for (Episode ep : eps)
     	{
-    		((MainActivity)this.mContext).helper.downloadEpisode(ep);
+    		((MainActivity)this.mContext).mPodcastHelper.downloadEpisode(ep);
     	}
     }
 

@@ -4,8 +4,6 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.podhoarder.view.CheckableRelativeLayout;
-
 /**
  * This is to improve ListView performance. See link for details.
  * 
@@ -24,17 +22,17 @@ public class ViewHolders
 		public TextView feedNumberOfEpisodes;
 		public ImageView feedImage;
 		public CheckBox	checkmark;
-		public CheckableRelativeLayout checkableLayout;
+		public boolean checked;
 	}
 	
 	public static class EpisodeRowViewHolder
 	{
 		public TextView title;
 		public TextView age;
-		public TextView description;
-		public ImageView indicator;
+		public ImageView arrow;
 		public ImageView feedImage;
 		public CheckBox checkbox;
+		public boolean checked;
 	}
 
 	public static class PlaylistRowViewHolder extends EpisodeRowViewHolder

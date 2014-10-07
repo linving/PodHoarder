@@ -108,7 +108,7 @@ public class FeedDetailsFragment extends Fragment
    
     private void setupHelper()
     {
-    	this.mHelper = ((com.podhoarder.activity.MainActivity)this.getActivity()).helper;
+    	this.mHelper = ((com.podhoarder.activity.MainActivity)this.getActivity()).mPodcastHelper;
     }
 
 	public EpisodeMultiChoiceModeListener getListSelectionListener()

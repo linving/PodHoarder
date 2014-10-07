@@ -18,6 +18,7 @@ import android.util.Log;
 
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.EpisodePointer;
+import com.podhoarder.util.Constants;
 
 public class EpisodeDBHelper
 {
@@ -96,6 +97,35 @@ public class EpisodeDBHelper
 	 * @param nrOfEpisodes	The amount of Episodes to return.
 	 * @return 			A list containing the latest Episode objects.
 	 */
+	public List<Episode> getLatestEpisodes()
+	{
+		this.db = this.dbHelper.getWritableDatabase();
+		Cursor cursor = this.db.query(TABLE_NAME, columns, null, null, null, null, DBHelper.colEpisodePubDate + " DESC", ""+Constants.LATEST_EPISODES_COUNT);
+		List<Episode> episodes = new ArrayList<Episode>();
+		try
+		{
+			if (cursor.moveToFirst())
+			{
+				do
+				{
+					episodes.add(cursorToEpisode(cursor));
+				} while (cursor.moveToNext());
+			}
+		}
+		catch (IllegalStateException e)
+		{
+			Log.d(LOG_TAG, "Cursor caused IllegalStateException on getLatestEpisodes!");
+			e.printStackTrace();
+		}
+		return episodes;	
+	}
+	
+	/**
+	 * 
+	 * Retrieves a list of the latest Episodes across all Feeds.
+	 * @param nrOfEpisodes	The amount of Episodes to return.
+	 * @return 			A list containing the latest Episode objects.
+	 */
 	public List<Episode> getLatestEpisodes(int nrOfEpisodes)
 	{
 		this.db = this.dbHelper.getWritableDatabase();
@@ -139,6 +169,63 @@ public class EpisodeDBHelper
 		return episodes;	
 	}
 	
+	/**
+	 * Retrieves a list of all NEW Episodes.
+	 * @return A List<Episode> of Episode objects that are flagged as NEW.
+	 */
+	public List<Episode> getNewEpisodes()
+	{
+		this.db = this.dbHelper.getWritableDatabase();
+		Cursor cursor = this.db.query(TABLE_NAME, columns, DBHelper.colEpisodeLocalLink + " IS NULL OR "
+		+ DBHelper.colEpisodeLocalLink + " = '' AND " 
+		+ DBHelper.colEpisodeTotalTime + " = 0 AND " 
+		+ DBHelper.colEpisodeElapsedTime + " = 0", null, null, null, DBHelper.colEpisodePubDate + " DESC");
+		List<Episode> episodes = new ArrayList<Episode>();
+		if (cursor.moveToFirst())
+		{
+			do
+			{
+				episodes.add(cursorToEpisode(cursor));
+			} while (cursor.moveToNext());
+		}
+		return episodes;
+	}
+	
+	/**
+	 * Retrieves a list of all Episodes marked as favorites in the db.
+	 * @return A List<Episode> object containing all favorited Episode objects.
+	 */
+	public List<Episode> getFavoriteEpisodes()
+	{
+		return new ArrayList<Episode>();
+	}
+
+	/**
+	 * Performs a search on all episodes stored in the db. Matches searchstring on both title and description.
+	 * @param searchString Search string.
+	 * @return	List<Episode> containing the 100 most relevant results.
+	 */
+	public List<Episode> search(String searchString)
+	{
+		this.db = this.dbHelper.getWritableDatabase();
+		Cursor cursor = this.db.query(true, TABLE_NAME, columns, DBHelper.colEpisodeTitle + " LIKE ? OR " + DBHelper.colEpisodeDescription + " LIKE ?",
+	            new String[] {"%"+ searchString + "%" , "%"+ searchString + "%"}, null, null, null,
+	            ""+Constants.LOCAL_SEARCH_RESULT_LIMIT);
+		List<Episode> episodes = new ArrayList<Episode>();
+		if (cursor.moveToFirst())
+		{
+			do
+			{
+				episodes.add(cursorToEpisode(cursor));
+			} while (cursor.moveToNext());
+		}
+		return episodes;
+	}
+	
+	/**
+	 * Retrieves a list of all Episodes referenced in the Playlist db.
+	 * @return List<Episode> containing all the Episodes referenced in the Playlist db.
+	 */
 	public List<Episode> getPlaylistEpisodes()
 	{
 		List<Episode> ret = new ArrayList<Episode>();
@@ -193,8 +280,6 @@ public class EpisodeDBHelper
 		return ret;
 	}
 	
-	
-
 	/**
 	 * 
 	 * Retrieves an Episode from the SQLite database.
@@ -435,5 +520,14 @@ public class EpisodeDBHelper
 	        }
 	        return sb.toString();
 	    }
+	}
+
+	/**
+	 * Tries to close the database if it is open. Use this to make sure that no db conections leak!
+	 */
+	public void closeDatabaseIfOpen()
+	{
+		if (db.isOpen())
+			db.close();
 	}
 }

@@ -73,7 +73,7 @@ public class PlayerFragment extends Fragment
     
     private void setServiceVars()
     {
-    	this.podService = ((com.podhoarder.activity.MainActivity)this.getActivity()).getPodService();
+    	this.podService = ((com.podhoarder.activity.MainActivity)this.getActivity()).getPlaybackService();
     }
     
     public void setService(PodHoarderService service)
@@ -138,7 +138,7 @@ public class PlayerFragment extends Fragment
        
     private void setupHelper()
     {
-    	this.helper = ((com.podhoarder.activity.MainActivity)this.getActivity()).helper;
+    	this.helper = ((com.podhoarder.activity.MainActivity)this.getActivity()).mPodcastHelper;
     }
     
     @Override
@@ -232,7 +232,7 @@ public class PlayerFragment extends Fragment
 
 		public void onStopDrag() 
 		{
-			((MainActivity)getActivity()).helper.plDbH.savePlaylist(adapter.mPlayList);
+			((MainActivity)getActivity()).mPodcastHelper.plDbH.savePlaylist(adapter.mPlayList);
 			index = -1;
 			adapter.notifyDataSetChanged();
 		}

@@ -13,11 +13,13 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.CheckBox;
 import android.widget.GridView;
+import android.widget.RelativeLayout;
 
 import com.podhoarder.activity.MainActivity;
-import com.podhoarder.adapter.GridListAdapter;
+import com.podhoarder.adapter.GridAdapter;
 import com.podhoarder.object.Feed;
 import com.podhoarder.util.AnimUtils;
+import com.podhoarder.util.ViewHolders;
 import com.podhoarder.view.CheckableRelativeLayout;
 import com.podhoarderproject.podhoarder.R;
 
@@ -78,7 +80,7 @@ public class GridActionModeCallback implements ActionMode.Callback
         inflater.inflate(R.menu.contextual_menu_feed, menu);
         this.mActionMode = mode;
 		this.mActive = true;
-		((GridListAdapter)this.mParentListView.getAdapter()).setSelectionEnabled(true);
+		((GridAdapter)this.mParentListView.getAdapter()).setSelectionEnabled(true);
         return true;
     }
 
@@ -114,8 +116,8 @@ public class GridActionModeCallback implements ActionMode.Callback
 		int i = getViewPosition(position);
 		if (i != -1)
 		{
-			CheckableRelativeLayout view = (CheckableRelativeLayout)this.mParentListView.getChildAt(i);
-			view.setChecked(checked);
+			RelativeLayout view = (RelativeLayout)this.mParentListView.getChildAt(i);
+			((ViewHolders.FeedsAdapterViewHolder)view.getTag()).checked = checked;
 			CheckBox checkmark = ((CheckBox)view.findViewById(R.id.feeds_grid_item_checkmark));
 			checkmark.setChecked(checked);
 			AnimUtils.gridSelectionAnimation(view);
@@ -140,12 +142,12 @@ public class GridActionModeCallback implements ActionMode.Callback
     		i = getViewPosition(i);
     		if (i != -1)
     		{
-    			((CheckableRelativeLayout)this.mParentListView.getChildAt(i).findViewById(R.id.feeds_grid_item_checkableLayout)).setChecked(false);
+    			((ViewHolders.FeedsAdapterViewHolder)this.mParentListView.getChildAt(i).getTag()).checked = false;
     			((CheckBox)this.mParentListView.getChildAt(i).findViewById(R.id.feeds_grid_item_checkmark)).setChecked(false);
     		}
     	}
     	this.mSelectedItems.clear();
-    	((GridListAdapter)this.mParentListView.getAdapter()).setSelectionEnabled(false);
+    	((GridAdapter)this.mParentListView.getAdapter()).setSelectionEnabled(false);
     	this.mActive = false;
         this.mActionMode = null;
         this.mParentListView.invalidateViews();
@@ -164,9 +166,9 @@ public class GridActionModeCallback implements ActionMode.Callback
     	for (int i : this.mSelectedItems)
     	{
     		ids.add(((Feed) this.mParentListView.getItemAtPosition(i)).getFeedId());	//Save the Feed ID for the db operation.
-    		((GridListAdapter)this.mParentListView.getAdapter()).mItems.remove(i);	//Remove the item from the adapter to quickly reflect changes.
+    		((GridAdapter)this.mParentListView.getAdapter()).mItems.remove(i);	//Remove the item from the adapter to quickly reflect changes.
     	}
-		((MainActivity)this.mContext).helper.deleteFeeds(ids);	//Perform the background operation on the DB.
+		((MainActivity)this.mContext).mPodcastHelper.deleteFeeds(ids);	//Perform the background operation on the DB.
     }
     
     private void markSelectedItemsAsListened()
@@ -174,7 +176,7 @@ public class GridActionModeCallback implements ActionMode.Callback
     	for (int i : this.mSelectedItems)
     	{
     		Feed feed = (Feed) this.mParentListView.getItemAtPosition(i);
-    		((MainActivity)this.mContext).helper.markAsListenedAsync(feed);
+    		((MainActivity)this.mContext).mPodcastHelper.markAsListenedAsync(feed);
     	}
 		
     }

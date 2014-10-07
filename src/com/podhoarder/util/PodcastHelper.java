@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,19 +36,20 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 
+import com.podhoarder.activity.MainActivity;
+import com.podhoarder.activity.MainActivity.ListFilter;
 import com.podhoarder.adapter.DragNDropAdapter;
-import com.podhoarder.adapter.FeedEpisodesListAdapter;
-import com.podhoarder.adapter.GridListAdapter;
 import com.podhoarder.adapter.EpisodesListAdapter;
+import com.podhoarder.adapter.GridAdapter;
 import com.podhoarder.db.EpisodeDBHelper;
 import com.podhoarder.db.FeedDBHelper;
 import com.podhoarder.db.PlaylistDBHelper;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.object.SearchResultRow;
+import com.podhoarder.view.CustomSwipeRefreshLayout;
 import com.podhoarderproject.podhoarder.R;
 
 /**
@@ -65,46 +65,44 @@ import com.podhoarderproject.podhoarder.R;
 public class PodcastHelper
 {
 	private static final 	String 						LOG_TAG = "com.podhoarderproject.podhoarder.PodcastHelper";
-	
-	public 	static final 	SimpleDateFormat 			xmlFormat = new SimpleDateFormat("EEE, d MMM yyy HH:mm:ss Z");	//Used when formatting Timestamps in .xml's
-	public 	static final 	SimpleDateFormat 			correctFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");	//Used when formatting timestamps in .xml's
+
 	private 				DownloadManager 			downloadManager;
 	private					List<BroadcastReceiver>		broadcastReceivers;
 
 	private 				FeedDBHelper 				fDbH;	//Handles saving the Feed objects to a database for persistence.
 	private 				EpisodeDBHelper 			eph;	//Handles saving the Episode objects to a database for persistence.
 	public 					PlaylistDBHelper 			plDbH;	//Handles saving the current playlist to a database for persistence.
-	public 					GridListAdapter 			feedsListAdapter;	//An expandable list containing all the Feed and their respective Episodes.	
-	public					FeedEpisodesListAdapter		feedDetailsListAdapter;
-	public 					EpisodesListAdapter 	latestEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
-	public 					DragNDropAdapter 			playlistAdapter;	//A list containing all the downloaded episodes.
-	private 				Context	 					context;
+	public 					GridAdapter 				mFeedsGridAdapter;	//An expandable list containing all the Feed and their respective Episodes.	
+	public 					EpisodesListAdapter 		mEpisodesListAdapter;	//A list containing the newest X episodes of all the feeds.
+	public 					DragNDropAdapter 			mPlaylistAdapter;	//A list containing all the downloaded episodes.
+	private 				Context	 					mContext;
 	private 				String 						storagePath;
 	private 				String 						podcastDir;
-	private					boolean						mRefreshing;
+	private 				boolean						mRefreshing;
 	
-	private					SwipeRefreshLayout			refreshLayout;
+	private List<Feed> mFeeds;
+	private List<Episode> mLatest, mDownloaded, mNew, mFavorites, mSearch;
 
 	public PodcastHelper(Context ctx)
 	{
-		this.context = ctx;
-		this.mRefreshing = false;
-		this.storagePath = Environment.DIRECTORY_PODCASTS;
-		this.podcastDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PODCASTS).getAbsolutePath();
-		this.fDbH = new FeedDBHelper(this.context);
-		this.eph = new EpisodeDBHelper(this.context);
-		this.plDbH = new PlaylistDBHelper(this.context);
-		this.downloadManager = (DownloadManager) this.context.getSystemService(Context.DOWNLOAD_SERVICE);
-		this.broadcastReceivers = new ArrayList<BroadcastReceiver>();
+		mContext = ctx;
+		mRefreshing = false;
+		storagePath = Environment.DIRECTORY_PODCASTS;
+		podcastDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PODCASTS).getAbsolutePath();
+		fDbH = new FeedDBHelper(this.mContext);
+		eph = new EpisodeDBHelper(this.mContext);
+		plDbH = new PlaylistDBHelper(this.mContext);
+		downloadManager = (DownloadManager) this.mContext.getSystemService(Context.DOWNLOAD_SERVICE);
+		broadcastReceivers = new ArrayList<BroadcastReceiver>();
+		
+		mFeeds = new ArrayList<Feed>();
+		mLatest = new ArrayList<Episode>();
+		mDownloaded = new ArrayList<Episode>();
+		mNew = new ArrayList<Episode>();
+		mFavorites = new ArrayList<Episode>();
+		mSearch = new ArrayList<Episode>();
+		
 		checkLocalLinks();
-	}
-
-	/**
-	 * @return True if currently refreshing any list adapters. False otherwise.
-	 */
-	public boolean isRefreshing()
-	{
-		return mRefreshing;
 	}
 
 	/**
@@ -116,17 +114,17 @@ public class PodcastHelper
 	 */
 	public void addFeed(List<String> urls)
 	{
-		if (NetworkUtils.isOnline(context))
+		if (NetworkUtils.isOnline(mContext))
 		{
 			for (String url : urls)
 			{
-				this.feedsListAdapter.addLoadingItem();
+				this.mFeedsGridAdapter.addLoadingItem();
 				new AddFeedFromURLTask().execute(url);
 			}
 		}
 			
 		else
-			ToastMessages.AddFeedFailed(this.context).show();
+			ToastMessages.AddFeedFailed(this.mContext).show();
 	}
 	
 	/**
@@ -138,17 +136,17 @@ public class PodcastHelper
 	 */
 	public void addSearchResults(List<SearchResultRow> itemsToAdd)
 	{
-		if (NetworkUtils.isOnline(context))
+		if (NetworkUtils.isOnline(mContext))
 		{
 			for (SearchResultRow row : itemsToAdd)
 			{
-				this.feedsListAdapter.addLoadingItem();
+				this.mFeedsGridAdapter.addLoadingItem();
 				new AddFeedFromSearchTask().execute(row);
 			}
 		}
 			
 		else
-			ToastMessages.AddFeedFailed(this.context).show();
+			ToastMessages.AddFeedFailed(this.mContext).show();
 	}
 
 	/**
@@ -164,7 +162,7 @@ public class PodcastHelper
 		{
 			// Delete Feed Image
 			String fName = feedId + ".jpg";
-			File file = new File(this.context.getFilesDir(), fName);
+			File file = new File(this.mContext.getFilesDir(), fName);
 			boolean check = file.delete();
 			if (check)
 			{
@@ -173,58 +171,51 @@ public class PodcastHelper
 			{
 				Log.w(LOG_TAG, "Feed Image not found! No delete necessary.");
 			}
-			if (this.feedDetailsListAdapter.mFeed != null)
-			{
-				if (this.feedDetailsListAdapter.mFeed.getFeedId() == feedId)	//If we are removing the current active Feed in the FeedDetailsPage we need to set it to null.
-				{
-					this.feedDetailsListAdapter.mFeed = null;	//This will prevent the refreshLists() from trying to get a Feed that's no longer in the db.
-				}	
-			}
 		}
-		this.refreshListsAsync();
+		this.refreshContent();
 	}
 
 	/**
 	 * Calls a background thread that refreshes all the Feed objects in the db.
-	 * (Make sure that before calling this, you have called setRefreshLayout so the Task can update the UI once done.)
+	 * * @param swipeRefreshLayout SwipeRefreshLayout to indicate when the refresh is done.
 	 */
-	public void refreshFeeds()
+	@SuppressWarnings("unchecked")
+	public void refreshFeeds(CustomSwipeRefreshLayout swipeRefreshLayout)
 	{
-		if (NetworkUtils.isOnline(context))
+		if (NetworkUtils.isOnline(mContext))
 		{
 			List<String> urls = new ArrayList<String>();
-			for (Feed f:this.feedsListAdapter.mItems)
+			for (Feed f:this.mFeedsGridAdapter.mItems)
 			{
 				urls.add(f.getLink());
 			}
-			new FeedRefreshTask().execute(urls);
+			new FeedRefreshTask(swipeRefreshLayout).execute(urls);
 		}
 		else
 		{
-			if (refreshLayout.isRefreshing())
-				refreshLayout.setRefreshing(false);
-			ToastMessages.RefreshFailed(this.context).show();
+			//TODO: Cancel refresh view if it started to refresh.
+			ToastMessages.RefreshFailed(this.mContext).show();
 		}
 	}
 	
 	/**
 	 * Calls a background thread that refreshes a particular Feed object in the db.
-	 * (Make sure that before calling this, you have called setRefreshLayout so the Task can update the UI once done.)
+	 * @param swipeRefreshLayout SwipeRefreshLayout to indicate when the refresh is done.
 	 * @param id ID of the Feed to be refreshed.
 	 */
-	public void refreshFeed(int id)
+	@SuppressWarnings("unchecked")
+	public void refreshFeed(CustomSwipeRefreshLayout swipeRefreshLayout, int id)
 	{
-		if (NetworkUtils.isOnline(context))
+		if (NetworkUtils.isOnline(mContext))
 		{
 			List<String> urls = new ArrayList<String>();
 			urls.add(this.getFeed(id).getLink());
-			new FeedRefreshTask().execute(urls);
+			new FeedRefreshTask(swipeRefreshLayout).execute(urls);
 		}
 		else
 		{
-			if (refreshLayout.isRefreshing())
-				refreshLayout.setRefreshing(false);
-			ToastMessages.RefreshFailed(this.context).show();
+			//TODO: Cancel refresh view if it started to refresh.
+			ToastMessages.RefreshFailed(this.mContext).show();
 		}
 	}
 	
@@ -237,11 +228,11 @@ public class PodcastHelper
 	 */
 	public void downloadEpisode(Episode ep)
 	{
-		if (NetworkUtils.isDownloadManagerAvailable(this.context) && !new File(ep.getLocalLink()).exists())
+		if (NetworkUtils.isDownloadManagerAvailable(this.mContext) && !new File(ep.getLocalLink()).exists())
 		{
 			String url = ep.getLink();
 			DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-			request.setDescription(this.context.getString(R.string.notification_download_in_progress));
+			request.setDescription(this.mContext.getString(R.string.notification_download_in_progress));
 			request.setTitle(ep.getTitle());
 			// in order for this if to run, you must use the android 3.2 to compile your app
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) 
@@ -260,9 +251,9 @@ public class PodcastHelper
 			    	checkDownloadStatus(dwnId, epTemp, this);
 			    }
 			});
-			this.context.registerReceiver(this.broadcastReceivers.get(this.broadcastReceivers.size()-1), new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+			this.mContext.registerReceiver(this.broadcastReceivers.get(this.broadcastReceivers.size()-1), new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 			this.downloadManager.enqueue(request);
-			ToastMessages.DownloadingPodcast(this.context).show();
+			ToastMessages.DownloadingPodcast(this.mContext).show();
 		}
 		else
 		{
@@ -285,10 +276,10 @@ public class PodcastHelper
 		//update db entry
 		this.eph.updateEpisode(ep);
 		Log.i(LOG_TAG, "download completed: " + ep.getTitle());
-		this.context.unregisterReceiver(receiver);
+		this.mContext.unregisterReceiver(receiver);
 		this.broadcastReceivers.remove(receiver);
 		
-		this.refreshLists();
+		this.forceRefreshContent();
 	}
 		
 	/**
@@ -298,7 +289,7 @@ public class PodcastHelper
 	public Episode updateEpisode(Episode ep)
 	{
 		Episode temp = this.eph.updateEpisode(ep);
-		this.refreshListsAsync();
+		this.refreshContent();
 		return temp;
 	}
 	
@@ -327,7 +318,7 @@ public class PodcastHelper
 				ep.setElapsedTime(100);
 			}
 			this.eph.updateEpisode(ep);
-			this.refreshListsAsync();
+			this.refreshContent();
 		}
 	}
 	
@@ -347,7 +338,7 @@ public class PodcastHelper
 			}
 		}
 		this.eph.bulkUpdateEpisodes(feed.getEpisodes());
-		this.refreshListsAsync();
+		this.refreshContent();
 	}
 	
 	/**
@@ -363,6 +354,7 @@ public class PodcastHelper
 	 * Marks the Episode as listened asynchronously.
 	 * @param ep Episode that should be marked as listened.
 	 */
+	@SuppressWarnings("unchecked")
 	public void markAsListenedAsync(Episode ep)
 	{
 		List<Episode> eps = new ArrayList<Episode>();
@@ -374,6 +366,7 @@ public class PodcastHelper
 	 * Marks Episodes as listened asynchronously.
 	 * @param eps List<Episode> containing the Episode objects that should be marked as listened.
 	 */
+	@SuppressWarnings("unchecked")
 	public void markAsListenedAsync(List<Episode> eps)
 	{
 		new MarkEpisodeAsListenedTask().execute(eps);
@@ -391,7 +384,7 @@ public class PodcastHelper
         @Override
         protected void onPostExecute(Void v) 
         {
-        	refreshListsAsync();
+        	refreshContent();
         }
 
 		@Override
@@ -423,7 +416,7 @@ public class PodcastHelper
         @Override
         protected void onPostExecute(Void v) 
         {
-        	refreshListsAsync();
+        	refreshContent();
         }
 
 		@Override
@@ -496,7 +489,7 @@ public class PodcastHelper
 				}
 			}
 		}
-		this.refreshLists();
+		setupAdapters();
 	}
 	
 	/**
@@ -579,7 +572,7 @@ public class PodcastHelper
 				cancel(true);
 			}
 			this.newFeed = new Feed(this.title, this.author, this.description,
-					this.link, this.category, this.img, false, eps, context);
+					this.link, this.category, this.img, false, eps, mContext);
 			
 			//Insert all the data into the db.
 			try
@@ -587,7 +580,7 @@ public class PodcastHelper
 				this.newFeed = fDbH.insertFeed(this.newFeed);
 				if (this.newFeed != null)
 				{
-					this.newFeed.getFeedImage().setImageDownloadListener(feedsListAdapter);	
+					this.newFeed.getFeedImage().setImageDownloadListener(mFeedsGridAdapter);	
 					return newFeed;
 				}
 				else
@@ -616,8 +609,8 @@ public class PodcastHelper
 				Log.i(LOG_TAG, "Added Feed: " + result.getTitle());
 			else
 			{
-				feedsListAdapter.resetLoading();
-				ToastMessages.AddFeedFailed(context);
+				mFeedsGridAdapter.resetLoading();
+				ToastMessages.AddFeedFailed(mContext);
 				Log.e(LOG_TAG, "Couldn't Add Feed!");
 			}
 		}
@@ -672,7 +665,7 @@ public class PodcastHelper
 				cancel(true);
 			}
 			this.newFeed = new Feed(data.getTitle(), data.getAuthor(), data.getDescription(),
-					data.getLink(), data.getCategory(), data.getImageUrl(), false, eps, context);
+					data.getLink(), data.getCategory(), data.getImageUrl(), false, eps, mContext);
 			
 			//Insert all the data into the db.
 			try
@@ -680,7 +673,7 @@ public class PodcastHelper
 				this.newFeed = fDbH.insertFeed(this.newFeed);
 				if (this.newFeed != null)
 				{
-					this.newFeed.getFeedImage().setImageDownloadListener(feedsListAdapter);	
+					this.newFeed.getFeedImage().setImageDownloadListener(mFeedsGridAdapter);	
 					return newFeed;
 				}
 				else
@@ -709,8 +702,8 @@ public class PodcastHelper
 				Log.i(LOG_TAG, "Added Feed: " + result.getTitle());
 			else
 			{
-				feedsListAdapter.resetLoading();
-				ToastMessages.AddFeedFailed(context);
+				mFeedsGridAdapter.resetLoading();
+				ToastMessages.AddFeedFailed(mContext);
 				Log.e(LOG_TAG, "Couldn't Add Feed!");
 			}
 		}
@@ -742,6 +735,12 @@ public class PodcastHelper
 		private List<Feed> feeds;
 		private List<String> titles;
 		private boolean shouldDelete = false;
+		private CustomSwipeRefreshLayout swipeRefreshLayout;
+		
+		public FeedRefreshTask(CustomSwipeRefreshLayout swipeRefreshLayout)
+		{
+			this.swipeRefreshLayout = swipeRefreshLayout;
+		}
 		
 		protected List<Feed> doInBackground(List<String>... urls)
 		{
@@ -845,7 +844,7 @@ public class PodcastHelper
 				if (eps.size() > 0 || shouldDelete)	//If we haven't found any new Episodes, there's no need to add the entire Feed object and process it. 
 				{
 					feeds.add(new Feed(this.title, this.author, this.description,
-							this.link, this.category, this.img, false, eps, context));
+							this.link, this.category, this.img, false, eps, mContext));
 				}
 			}
 			
@@ -855,9 +854,8 @@ public class PodcastHelper
 		@Override
 		protected void onCancelled()
 		{
-			if (refreshLayout.isRefreshing()) 
-				refreshLayout.setRefreshing(false);
-			ToastMessages.RefreshFailed(context).show();
+			this.swipeRefreshLayout.setRefreshing(false);
+			ToastMessages.RefreshFailed(mContext).show();
 		}
 		
 		@Override
@@ -897,23 +895,22 @@ public class PodcastHelper
 					//Update the Feed with the new Episodes in the db.
 					oldFeed = fDbH.updateFeed(oldFeed);				
 				}
-				//Disable the "refreshing" animation.
-				refreshLayout.setRefreshing(false);
-				refreshListsAsync();
-				ToastMessages.RefreshSuccessful(context).show();
+				this.swipeRefreshLayout.setRefreshing(false);
+				refreshContent();
+				ToastMessages.RefreshSuccessful(mContext).show();
 			} 
 			catch (CursorIndexOutOfBoundsException e)
 			{
 				Log.e(LOG_TAG,"CursorIndexOutOfBoundsException: Refresh failed.");
-				refreshLayout.setRefreshing(false);
-				ToastMessages.RefreshFailed(context).show();
+				this.swipeRefreshLayout.setRefreshing(false);
+				ToastMessages.RefreshFailed(mContext).show();
 				cancel(true);
 			} 
 			catch (SQLiteConstraintException e)
 			{
 				Log.e(LOG_TAG,"SQLiteConstraintException: Refresh failed.");
-				refreshLayout.setRefreshing(false);
-				ToastMessages.RefreshFailed(context).show();
+				this.swipeRefreshLayout.setRefreshing(false);
+				ToastMessages.RefreshFailed(mContext).show();
 				cancel(true);
 			}
 		}
@@ -940,9 +937,9 @@ public class PodcastHelper
 	private int getFeedPositionWithId(int feedId)
 	{
 		int retVal = -1;
-		for (int i=0; i<this.feedsListAdapter.mItems.size(); i++)
+		for (int i=0; i<this.mFeeds.size(); i++)
 		{
-			if (this.feedsListAdapter.mItems.get(i).getFeedId() == feedId)
+			if (this.mFeeds.get(i).getFeedId() == feedId)
 			{
 				retVal = i;
 			}
@@ -961,7 +958,7 @@ public class PodcastHelper
 		if (index == -1)
 			return null;
 		else
-			return this.feedsListAdapter.mItems.get(index);
+			return this.mFeeds.get(index);
 	}
 	
 	/**
@@ -976,7 +973,7 @@ public class PodcastHelper
 	
 	public BitmapDrawable getFeedImage(int feedId)
 	{
-		return new BitmapDrawable(this.context.getResources(),getFeed(feedId).getFeedImage().imageObject());
+		return new BitmapDrawable(this.mContext.getResources(),getFeed(feedId).getFeedImage().imageObject());
 	}
 	
 	@SuppressWarnings("unused")
@@ -996,7 +993,7 @@ public class PodcastHelper
 	 */
 	private Feed getFeedWithURL(String url)
 	{
-		for (Feed currentFeed : this.feedsListAdapter.mItems)
+		for (Feed currentFeed : this.mFeedsGridAdapter.mItems)
 		{
 			if (url.equals(currentFeed.getLink())) return currentFeed;
 		}
@@ -1054,7 +1051,7 @@ public class PodcastHelper
 							    failedReason = "ERROR_UNKNOWN";
 							    break;
 					   }
-					   ToastMessages.DownloadFailed(this.context).show();
+					   ToastMessages.DownloadFailed(this.mContext).show();
 					   Log.i(LOG_TAG, "FAILED: " + failedReason);
 					   break;
 					   
@@ -1092,96 +1089,136 @@ public class PodcastHelper
 	}
 	
 	/**
-	 * Use this to set the current Refresh layout. It will be updated once the FeedRefreshTask is completed.
-	 * @param layout	The view to update once the Task is finished.
+	 * Initializes adapter objects.
 	 */
-	public void setRefreshLayout(SwipeRefreshLayout layout)
+	public void setupAdapters()
 	{
-		this.refreshLayout = layout;
+		//TODO: If the filter points to for example favorites, and the favorites list is empty, the listview will not initialize. Have to always start with items in list and gridviews.
+		mFeeds = fDbH.getAllFeeds(true);
+		switch (((MainActivity)mContext).getFilter())
+    	{
+        	case ALL:
+        		
+        		mFeedsGridAdapter = new GridAdapter(mFeeds, mContext);
+        		mEpisodesListAdapter = new EpisodesListAdapter(mFeeds.get(0).getEpisodes(), mContext);
+        		break;
+        	case NEW:
+        		mNew = eph.getNewEpisodes();
+        		mFeedsGridAdapter = new GridAdapter(mFeeds, mContext);
+        		mEpisodesListAdapter = new EpisodesListAdapter(mNew, mContext);
+        		break;
+        	case LATEST:
+        		mLatest = eph.getLatestEpisodes();
+        		mFeedsGridAdapter = new GridAdapter(mFeeds, mContext);
+        		mEpisodesListAdapter = new EpisodesListAdapter(mLatest, mContext);
+        		break;
+        	case DOWNLOADED:
+        		mDownloaded = eph.getDownloadedEpisodes();
+        		mFeedsGridAdapter = new GridAdapter(mFeeds, mContext);
+        		mEpisodesListAdapter = new EpisodesListAdapter(mDownloaded, mContext);
+        		break;
+        	case FAVORITES:
+        		mFavorites = eph.getFavoriteEpisodes();
+        		mFeedsGridAdapter = new GridAdapter(mFeeds, mContext);
+        		mEpisodesListAdapter = new EpisodesListAdapter(mFavorites, mContext);
+        		break;
+			case SEARCH:
+				mSearch = eph.search(((MainActivity)mContext).getSearchString());
+				mFeedsGridAdapter = new GridAdapter(mFeeds, mContext);
+				mEpisodesListAdapter = new EpisodesListAdapter(mSearch, mContext);
+				break;
+			default:
+				mFeedsGridAdapter = new GridAdapter(mFeeds, mContext);
+				mEpisodesListAdapter = new EpisodesListAdapter(new ArrayList<Episode>(), mContext);
+				break;
+    	}
+		mPlaylistAdapter = new DragNDropAdapter(eph.getPlaylistEpisodes(), mContext);
+		new loadListsTask().execute();
 	}
 
-	/**
-	 * Refreshes the lists on each of the fragments simultaneously. This operation is pretty intense because of sorting and selection etc.
-	 * You probably want to use refreshListsAsync() instead since it doesn't do all the heavy lifting on the UI thread.
-	 * @see refreshListsAsync()
-	 */
-	public void refreshLists()
+	private class loadListsTask extends AsyncTask<Void, Void, Void>
 	{
-		if (!isRefreshing())
+		@Override
+		protected Void doInBackground(Void... params)
 		{
-			this.mRefreshing = true;
-			//Update the list adapters to reflect changes.
-			//Latest Episodes list
-			if (this.latestEpisodesListAdapter != null)	
-				this.latestEpisodesListAdapter.replaceItems(this.eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT));
-			else	
-				this.latestEpisodesListAdapter = new EpisodesListAdapter(this.eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT), this.context);
+			if (mFeeds.isEmpty())
+				mFeeds = fDbH.getAllFeeds(true);
+			if (mLatest.isEmpty())
+				mLatest = eph.getLatestEpisodes();
+			if (mNew.isEmpty())
+				mNew = eph.getNewEpisodes();
+			if (mDownloaded.isEmpty())
+				mDownloaded = eph.getDownloadedEpisodes();
+			if (mFavorites.isEmpty())
+				mFavorites = eph.getFavoriteEpisodes();
+			if (mSearch.isEmpty())
+				mSearch = eph.search(((MainActivity)mContext).getSearchString());
+
 			
-			//Playlist
-			if (this.playlistAdapter != null)	
-				this.playlistAdapter.replaceItems(this.eph.getPlaylistEpisodes());
-			else	
-				this.playlistAdapter = new DragNDropAdapter(this.eph.getPlaylistEpisodes(), this.context);
-			
-			//Feeds List
-			if (this.feedsListAdapter != null)	
-				this.feedsListAdapter.replaceItems(this.fDbH.getAllFeeds());
-			else	
-				this.feedsListAdapter = new GridListAdapter(this.fDbH.getAllFeeds(), this.context);
-			
-			//Feed Details List
-			if (this.feedDetailsListAdapter != null && this.feedDetailsListAdapter.mFeed != null)
-			{
-				this.feedDetailsListAdapter.replaceItems(this.fDbH.getFeed(this.feedDetailsListAdapter.mFeed.getFeedId()).getEpisodes());
-				this.feedDetailsListAdapter.notifyDataSetChanged();
-			}
-			else if (this.feedDetailsListAdapter == null)
-			{
-				this.feedDetailsListAdapter = new FeedEpisodesListAdapter(this.context);
-			}
-			
-			//Notify for UI updates.
-			this.feedsListAdapter.notifyDataSetChanged();
-			this.playlistAdapter.notifyDataSetChanged();
-			this.latestEpisodesListAdapter.notifyDataSetChanged();
-			this.mRefreshing = false;
+			return null;
 		}
 	}
 	
-	/**
-	 * Refreshes the lists on each of the fragments asynchronously if a refresh task isn't already running. This operation is pretty intense because of sorting and selection etc.
-	 */
-	public void refreshListsAsync()
+	public void switchLists()
 	{
-		if (!isRefreshing())
+		ListFilter mCurrentFilter = ((MainActivity)mContext).getFilter();
+		switch (mCurrentFilter)
+    	{
+        	case ALL:
+        		mFeedsGridAdapter.replaceItems(mFeeds);
+        		break;
+        	case FEED:
+        		int feedPos = getFeedPositionWithId(((MainActivity)mContext).getFilter().getFeedId());
+        		mEpisodesListAdapter.replaceItems(mFeeds.get(feedPos).getEpisodes());
+        		break;
+        	case NEW:
+        		mEpisodesListAdapter.replaceItems(mNew);
+        		break;
+        	case LATEST:
+        		mEpisodesListAdapter.replaceItems(mLatest);
+        		break;
+        	case DOWNLOADED:
+        		mEpisodesListAdapter.replaceItems(mDownloaded);
+        		break;
+        	case FAVORITES:
+        		mEpisodesListAdapter.replaceItems(mFavorites);
+        		break;
+			case SEARCH:
+				mSearch = eph.search(((MainActivity)mContext).getSearchString());
+				mEpisodesListAdapter.replaceItems(mSearch);
+				break;
+			default:
+				break;
+    	}
+	}
+	
+	public void invalidate()
+	{
+		ListFilter mCurrentFilter = ((MainActivity)mContext).getFilter();
+		//Notify for UI updates.
+    	if (mCurrentFilter == ListFilter.ALL && mCurrentFilter.getFeedId() == 0)
+    		mFeedsGridAdapter.notifyDataSetChanged();
+    	else
+    		mEpisodesListAdapter.notifyDataSetChanged();
+	}
+	
+	/**
+	 * Refreshes the list or grid view.
+	 */
+	public void refreshContent()
+	{
+		if (!mRefreshing)
 			new ListRefreshTask().execute();
 		else
 			Log.d(LOG_TAG, "Refresh currently in progress. Not running RefreshListsAsync()!");
 	}
 	
 	/**
-	 * Refreshes the lists on each of the fragments asynchronously with total disregard of any currently running refresh tasks.
+	 * Forces a refresh on the list or grid view.
 	 */
-	public void forceRefreshListsAsync()
+	public void forceRefreshContent()
 	{
 		new ListRefreshTask().execute();
-	}
-	
-	/**
-	 * Refreshes the list on the player fragment.
-	 */
-	public void refreshPlayList()
-	{
-		this.mRefreshing = true;
-		//Playlist
-		if (this.playlistAdapter != null)	
-			this.playlistAdapter.replaceItems(this.eph.getPlaylistEpisodes());
-		else	
-			this.playlistAdapter = new DragNDropAdapter(this.eph.getPlaylistEpisodes(), this.context);
-		
-		//Notify for UI updates.
-		this.playlistAdapter.notifyDataSetChanged();
-		this.mRefreshing = false;
 	}
 	
 	/**
@@ -1189,9 +1226,8 @@ public class PodcastHelper
      */
     class ListRefreshTask extends AsyncTask<Void, Void, Void> 
     {
-    	private List<Episode> latestEpisodes, playlist, feedDetailsEpisodes;
-    	private List<Feed> feeds;
-    	
+    	private ListFilter mCurrentFilter;
+    	private boolean cancelled = false;
     	
         public ListRefreshTask()	
         {
@@ -1201,7 +1237,11 @@ public class PodcastHelper
         @Override
         protected void onPreExecute() 
         {
-        	mRefreshing = true;
+        	if (!cancelled)
+        	{
+        		mRefreshing = true;
+            	mCurrentFilter = ((MainActivity)mContext).getFilter();
+        	}
         }
 
         /**
@@ -1211,28 +1251,15 @@ public class PodcastHelper
         @Override
         protected Void doInBackground(Void... params) 
         {
-        	this.latestEpisodes = eph.getLatestEpisodes(Constants.LATEST_EPISODES_COUNT);
-        	this.playlist = eph.getPlaylistEpisodes();
-        	this.feeds = fDbH.refreshFeedData(feedsListAdapter.mItems, false);
-        	if (feedDetailsListAdapter != null && feedDetailsListAdapter.mFeed != null)
-    		{
-    			this.feedDetailsEpisodes = fDbH.getFeed(feedDetailsListAdapter.mFeed.getFeedId()).getEpisodes();
-    		}
-        	
-        	//Replace and reload the Feeds Grid List.
-        	feedsListAdapter.replaceItems(this.feeds);
-        	
-        	//Replace and reload the Latest Episodes List.
-        	latestEpisodesListAdapter.replaceItems(this.latestEpisodes);
-        	
-        	//Replace and reload the Playlist.
-        	playlistAdapter.replaceItems(this.playlist);
-        	
-        	//Replace and reload the Feed Details List only when a feed is selected.
-        	if (feedDetailsListAdapter != null && feedDetailsListAdapter.mFeed != null)
+        	if (!cancelled)
         	{
-        		feedDetailsListAdapter.replaceItems(feedDetailsEpisodes);
-        	}	
+        		mFeeds = fDbH.refreshFeedData(mFeedsGridAdapter.mItems, false);
+        		mNew = eph.getNewEpisodes();
+        		mLatest = eph.getLatestEpisodes();
+        		mDownloaded = eph.getDownloadedEpisodes();
+        		mFavorites = eph.getFavoriteEpisodes();
+				mSearch = eph.search(((MainActivity)mContext).getSearchString());
+        	}
     		return null;
         }
 
@@ -1243,15 +1270,63 @@ public class PodcastHelper
         @Override
         protected void onPostExecute(Void param) 
         {
-        	//Notify for UI updates.
-        	feedsListAdapter.notifyDataSetChanged();
-        	latestEpisodesListAdapter.notifyDataSetChanged();
-        	playlistAdapter.notifyDataSetChanged();
-        	feedDetailsListAdapter.notifyDataSetChanged();  
+        	switch (mCurrentFilter)
+        	{
+	        	case ALL:
+	        		mFeedsGridAdapter.replaceItems(mFeeds);
+	        		break;
+	        	case FEED:
+	        		int feedPos = getFeedPositionWithId(((MainActivity)mContext).getFilter().getFeedId());
+	        		mEpisodesListAdapter.replaceItems(mFeeds.get(feedPos).getEpisodes());
+	        		break;
+	        	case NEW:
+	        		mEpisodesListAdapter.replaceItems(mNew);
+	        		break;
+	        	case LATEST:
+	        		mEpisodesListAdapter.replaceItems(mLatest);
+	        		break;
+	        	case DOWNLOADED:
+	        		mEpisodesListAdapter.replaceItems(mDownloaded);
+	        		break;
+	        	case FAVORITES:
+	        		mEpisodesListAdapter.replaceItems(mFavorites);
+	        		break;
+				case SEARCH:
+					mEpisodesListAdapter.replaceItems(mSearch);
+					break;
+				default:
+					break;
+        	}
         	mRefreshing = false;
+        }
+        
+        @Override
+        protected void onCancelled(Void result)
+        {
+        	this.cancelled = true;
+        	mRefreshing = false;
+        	//Notify for UI updates.
+        	invalidate();
         }
     }
 
+    /**
+	 * Refreshes the playlist adapter.
+	 */
+	public void refreshPlayList()
+	{
+		this.mRefreshing = true;
+		//Playlist
+		if (this.mPlaylistAdapter != null)	
+			this.mPlaylistAdapter.replaceItems(this.eph.getPlaylistEpisodes());
+		else	
+			this.mPlaylistAdapter = new DragNDropAdapter(this.eph.getPlaylistEpisodes(), mContext);
+		
+		//Notify for UI updates.
+		this.mPlaylistAdapter.notifyDataSetChanged();
+		this.mRefreshing = false;
+	}
+    
     public static boolean episodeExists(String episodeTitle, List<Episode> episodes)
 	{
 		for (int r = 0; r < episodes.size(); r++)
@@ -1263,11 +1338,20 @@ public class PodcastHelper
     
     public boolean feedExists(String feedURL)
 	{
-    	List<Feed> feeds = this.feedsListAdapter.mItems;
+    	List<Feed> feeds = this.mFeedsGridAdapter.mItems;
 		for (int r = 0; r < feeds.size(); r++)
 		{
 			if (feedURL.equals(feeds.get(r).getLink())) return true;
 		}
 		return false;
 	}
+
+    /**
+     * Closes all open db connections to prevent leaks.
+     */
+    public void closeDbIfOpen()
+    {
+    	this.eph.closeDatabaseIfOpen();
+    	this.fDbH.closeDatabaseIfOpen();
+    }
 }

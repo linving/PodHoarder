@@ -44,7 +44,7 @@ public class SearchManager
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarder.util.SearchManager";
 	
-	private String baseURL = "http://itunes.apple.com/search?media=podcast&entity=podcast&limit=" + Constants.SEARCH_RESULT_LIMIT + "&term=";	//Just append the search term to this string and you will receive the 25 most relevant results.
+	private String baseURL = "http://itunes.apple.com/search?media=podcast&entity=podcast&limit=" + Constants.NEW_SEARCH_RESULT_LIMIT + "&term=";	//Just append the search term to this string and you will receive the 25 most relevant results.
 
     private SearchResultsAdapter mListAdapter;
 	private ButteryProgressBar mProgressBar;
@@ -161,7 +161,7 @@ public class SearchManager
 
 			for (SearchResultItem result : mResults.getResults())
 			{
-				if (!((MainActivity)mContext).helper.feedExists(result.getFeedUrl()) && !this.isCancelled())
+				if (!((MainActivity)mContext).mPodcastHelper.feedExists(result.getFeedUrl()) && !this.isCancelled())
 				{
 					AsyncTask<String, Void, SearchResultRow > tempTask = new FeedParseTask();
 					tempTask.execute(result.getFeedUrl());

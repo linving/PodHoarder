@@ -79,16 +79,16 @@ public class FeedFragment extends Fragment
  
     private void setupHelper()
     {
-    	this.helper = ((com.podhoarder.activity.MainActivity)this.getActivity()).helper;
+    	this.helper = ((com.podhoarder.activity.MainActivity)this.getActivity()).mPodcastHelper;
     }
 
     private void setupGridView()
     {
     	this.mainGridView = (GridView) view.findViewById(R.id.mainGridView);
-    	if (!this.helper.feedsListAdapter.isEmpty())
+    	if (!this.helper.mFeedsGridAdapter.isEmpty())
     	{
-    		this.helper.feedsListAdapter.setLoadingViews(setupLoadingViews());
-    		this.mainGridView.setAdapter(this.helper.feedsListAdapter);
+    		this.helper.mFeedsGridAdapter.setLoadingViews(setupLoadingViews());
+    		this.mainGridView.setAdapter(this.helper.mFeedsGridAdapter);
     		
     		this.mainGridView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         	mActionModeCallback = new GridActionModeCallback(getActivity(), mainGridView);
@@ -100,7 +100,7 @@ public class FeedFragment extends Fragment
 					if (mActionMode == null || !mActionModeCallback.isActive())
 					{
 						mActionMode = getActivity().startActionMode(mActionModeCallback);
-			        	helper.feedsListAdapter.setActionModeVars(mActionMode, mActionModeCallback);
+			        	helper.mFeedsGridAdapter.setActionModeVars(mActionMode, mActionModeCallback);
 					}
 					((CheckableRelativeLayout)v).toggle();
 					mActionModeCallback.onItemCheckedStateChanged(pos, ((CheckableRelativeLayout)v).isChecked());
@@ -122,7 +122,7 @@ public class FeedFragment extends Fragment
     {
     	List<View> views = new ArrayList<View>();	//This is an ugly solution but in order to use the GridViews LayoutParams the loading views must be inflated here.
     	LayoutInflater inflater = (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);	//get the inflater service.
-    	for (int i=0; i<Constants.SEARCH_RESULT_LIMIT; i++)	//Inflate a collection of Loading views, same size as the maximum amount Search Results.
+    	for (int i=0; i<Constants.NEW_SEARCH_RESULT_LIMIT; i++)	//Inflate a collection of Loading views, same size as the maximum amount Search Results.
     	{
         	views.add(inflater.inflate(R.layout.fragment_feeds_grid_loading_feed_item, this.mainGridView, false));	//Inflate the "loading" grid item to show while data is downloaded
     	}

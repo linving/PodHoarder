@@ -29,9 +29,11 @@ public class SettingsActivity extends PreferenceActivity
         {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
-            Preference somePreference = findPreference(Constants.SETTINGS_KEY_LASTEPISODE);
+            Preference lastEpisodePreference = findPreference(Constants.SETTINGS_KEY_LASTEPISODE);
+            Preference lastFilterPreference = findPreference(Constants.SETTINGS_KEY_LASTFILTER);
             PreferenceScreen preferenceScreen = getPreferenceScreen();
-            preferenceScreen.removePreference(somePreference);
+            preferenceScreen.removePreference(lastEpisodePreference);
+            preferenceScreen.removePreference(lastFilterPreference);
         }
     }
 }

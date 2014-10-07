@@ -78,7 +78,7 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
         this.mActionMode = mode;
         this.mSelectedItems = new ArrayList<Integer>();
         this.mActive = true;
-        ((MainActivity)this.mContext).helper.playlistAdapter.setReorderingEnabled(false);
+        ((MainActivity)this.mContext).mPodcastHelper.mPlaylistAdapter.setReorderingEnabled(false);
         
         return true;
     }
@@ -150,7 +150,7 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
     	this.mSelectedItems = null;
     	this.mActive = false;
     	this.mActionMode = null;
-    	((MainActivity)this.mContext).helper.playlistAdapter.setReorderingEnabled(true);
+    	((MainActivity)this.mContext).mPodcastHelper.mPlaylistAdapter.setReorderingEnabled(true);
     }
     
     private void removeSelectedItemsFromPlaylist()
@@ -160,12 +160,12 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
 		for (int i : this.mSelectedItems)
 		{
 			Episode ep = (Episode) this.mParentListView.getItemAtPosition(i);
-			((MainActivity)this.mContext).podService.deletingEpisode(ep.getEpisodeId());
+			((MainActivity)this.mContext).deletingEpisode(ep.getEpisodeId());
         	if (ep.isDownloaded())
-        		((MainActivity)this.mContext).helper.deleteEpisodeFile(ep);
-        	((MainActivity)this.mContext).helper.playlistAdapter.removeFromPlaylist(ep);
+        		((MainActivity)this.mContext).mPodcastHelper.deleteEpisodeFile(ep);
+        	((MainActivity)this.mContext).mPodcastHelper.mPlaylistAdapter.removeFromPlaylist(ep);
 		}
-    	((MainActivity)this.mContext).helper.refreshPlayList();
+    	((MainActivity)this.mContext).mPodcastHelper.refreshPlayList();
     }
     
     private void downloadSelectedItems()
@@ -179,7 +179,7 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
     	}
     	for (Episode ep : eps)
     	{
-    		((MainActivity)this.mContext).helper.downloadEpisode(ep);
+    		((MainActivity)this.mContext).mPodcastHelper.downloadEpisode(ep);
     	}
     }
 

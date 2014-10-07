@@ -25,9 +25,9 @@ public class TestActivity extends Activity
 		//this.helper.updateEpisodeListened(1, 1, 45);
 		//this.helper.deleteFeed(2);
 		//this.helper.downloadEpisode(1, 24);
-		this.helper.refreshFeeds();
+		this.helper.refreshFeeds(null);
 		ExpandableListView list = (ExpandableListView)findViewById(R.id.mainListView);
-		list.setAdapter(helper.feedsListAdapter);
+		list.setAdapter(helper.mFeedsGridAdapter);
 		System.out.println("Done!");
 	}
 

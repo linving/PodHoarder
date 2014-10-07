@@ -312,4 +312,13 @@ public class FeedDBHelper
 		
 		return false;
 	}
+
+	/**
+	 * Tries to close the database if it is open. Use this to make sure that no db conections leak!
+	 */
+	public void closeDatabaseIfOpen()
+	{
+		if (db.isOpen())
+			db.close();
+	}
 }

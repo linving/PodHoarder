@@ -28,6 +28,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.podhoarder.activity.EpisodeActivity"
+            android:parentActivityName="com.podhoarder.activity.MainActivity">
+            
+        </activity>
         <activity
             android:name="com.podhoarder.activity.SettingsActivity"
             android:label="@string/action_settings">

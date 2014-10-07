@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.util.BitmapManager;
+import com.podhoarder.util.DataParser;
 import com.podhoarder.util.PodcastHelper;
 import com.podhoarder.util.ViewHolders.SearchResultsAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
@@ -119,7 +120,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 			{
 					viewHolder.lastUpdated.setText(context.getString(R.string.search_list_feed_last_updated) + " " + 
 							DateUtils.getRelativeTimeSpanString(
-									PodcastHelper.correctFormat.parse(currentResult.getLastUpdated()).getTime()));	//Set a time stamp since Episode publication.
+									DataParser.correctFormat.parse(currentResult.getLastUpdated()).getTime()));	//Set a time stamp since Episode publication.
 			} 
 			catch (ParseException e)
 			{

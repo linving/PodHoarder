@@ -56,9 +56,9 @@ public class LatestEpisodesFragment extends Fragment
     private void setupListView()
     {
     	this.mainListView = (ListView) view.findViewById(R.id.mainListView);
-    	if (!this.helper.latestEpisodesListAdapter.isEmpty())
+    	if (!this.helper.mEpisodesListAdapter.isEmpty())
     	{
-    		this.mainListView.setAdapter(this.helper.latestEpisodesListAdapter);
+    		this.mainListView.setAdapter(this.helper.mEpisodesListAdapter);
     		this.mainListView.setOnItemClickListener(new OnItemDoubleClickListener()
 			{
 				@Override
@@ -93,7 +93,7 @@ public class LatestEpisodesFragment extends Fragment
     
     private void setupHelper()
     {
-    	this.helper = ((com.podhoarder.activity.MainActivity)this.getActivity()).helper;
+    	this.helper = ((com.podhoarder.activity.MainActivity)this.getActivity()).mPodcastHelper;
     }
 
 	public EpisodeMultiChoiceModeListener getListSelectionListener()

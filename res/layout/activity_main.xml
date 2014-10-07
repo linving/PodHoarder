@@ -1,41 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.podhoarder.view.CustomSwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res/com.podhoarderproject.podhoarder"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:id="@+id/swipeLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:triggerDistance="200" >
 
-    <com.podhoarder.view.PullRefreshLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/swipe_container"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center"
-        app:ignoreScrollMotions="true"
-        app:handleHeight="30dip" >
+        android:layout_height="match_parent" >
 
-        <android.support.v4.view.SmoothScrollingViewPager
-            android:id="@+id/pager"
+        <ListView
+            android:id="@+id/episodesListView"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:clickable="true"
+            android:clipToPadding="false"
+            android:divider="@drawable/list_divider"
+            android:dividerHeight="1px"
+            android:fastScrollAlwaysVisible="true"
+            android:fastScrollEnabled="true"
+            android:listSelector="@drawable/list_selector"
+            android:longClickable="true"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp"
+            android:visibility="gone" />
+
+        <GridView
+            android:id="@+id/feedsGridView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-        
-    </com.podhoarder.view.PullRefreshLayout>
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:clickable="true"
+            android:clipToPadding="false"
+            android:columnWidth="@dimen/fragment_feeds_grid_item"
+            android:horizontalSpacing="4dp"
+            android:longClickable="true"
+            android:numColumns="auto_fit"
+            android:padding="4dp"
+            android:stretchMode="none"
+            android:verticalSpacing="4dp"
+            android:visibility="gone" />
 
-    <com.viewpagerindicator.CirclePageIndicator
-        android:id="@+id/tabIndicator"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dip"
-        android:paddingTop="1dip"
-        app:centered="true"
-        app:pageColor="@color/page_indicator_fill"
-        app:fillColor="@color/page_indicator_currentPage_fill"
-        app:radius="3dp"
-        app:strokeWidth="0dp"
-        app:snap="true"
-        app:strokeColor="@color/page_indicator_stroke" />
+        <com.podhoarder.view.FloatingPlayPauseButton
+            android:id="@+id/fabbutton"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="16dp"
+            android:layout_marginRight="16dp"
+            app:pauseDrawable="@drawable/ic_action_pause"
+            app:playDrawable="@drawable/ic_action_play"
+            app:color="@color/app_detail" />
+    </FrameLayout>
 
-</RelativeLayout>
+</com.podhoarder.view.CustomSwipeRefreshLayout>

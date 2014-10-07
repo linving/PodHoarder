@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/episode_title_container"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+
+        <com.podhoarder.view.Banner
+            android:id="@+id/episode_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_action_accept" />
+
+        <TextView
+            android:id="@+id/episode_title"
+            style="@style/Podhoarder.Text.Giant"
+            android:layout_width="wrap_content"
+            android:layout_height="72dp"
+            android:layout_alignParentBottom="true"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:paddingLeft="72dp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/episode_text_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <LinearLayout android:orientation="horizontal" 
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/episode_description_icon"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:padding="24dp"
+                android:gravity="top"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_info_colored" />
+
+            <TextView
+                android:id="@+id/episode_description"
+                style="@style/Podhoarder.Text.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="16dp"
+                android:paddingTop="24dp"
+                android:layout_gravity="left"
+                android:ellipsize="end"
+                android:maxLines="10" />
+        </LinearLayout>
+
+        <LinearLayout android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+            <ImageView
+                android:id="@+id/episode_timeStamp_icon"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:padding="24dp"
+                android:layout_gravity="top"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_clock_colored" />
+
+            <TextView
+                android:id="@+id/episode_timeStamp"
+                style="@style/Podhoarder.Text.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="16dp"
+                android:paddingTop="24dp"
+                android:layout_gravity="left"
+                android:ellipsize="end"
+                android:maxLines="1" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

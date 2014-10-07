@@ -4,80 +4,135 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.app.FragmentTransaction;
+import android.app.ActionBar.OnNavigationListener;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Color;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.SmoothScrollingViewPager;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.telephony.TelephonyManager;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
+import android.util.Log;
+import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.TextView;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
+import android.widget.ListView;
 
-import com.podhoarder.adapter.TabFragmentsAdapter;
-import com.podhoarder.fragment.FeedDetailsFragment;
-import com.podhoarder.fragment.FeedFragment;
-import com.podhoarder.fragment.LatestEpisodesFragment;
-import com.podhoarder.fragment.PlayerFragment;
-import com.podhoarder.fragment.SearchFragment;
+import com.faizmalkani.FloatingActionButton;
+import com.podhoarder.listener.EpisodeMultiChoiceModeListener;
+import com.podhoarder.listener.GridActionModeCallback;
 import com.podhoarder.object.Episode;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.HardwareIntentReceiver;
+import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.PodcastHelper;
-import com.podhoarder.view.PullRefreshLayout;
+import com.podhoarder.util.ToastMessages;
+import com.podhoarder.view.CustomSwipeRefreshLayout;
+import com.podhoarder.view.FloatingPlayPauseButton;
 import com.podhoarderproject.podhoarder.R;
-import com.viewpagerindicator.CirclePageIndicator;
 
-/**
- * 
- * @author Sebastian Andersson
- * 2013-04-17
- */
-public class MainActivity extends FragmentActivity implements ActionBar.TabListener, OnRefreshListener
+
+public class MainActivity extends Activity implements OnNavigationListener, OnRefreshListener, OnQueryTextListener
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.MainActivity";
-	//UI Elements
-	private CirclePageIndicator mTabIndicator;
-    private SmoothScrollingViewPager mPager;
-    public TabFragmentsAdapter mAdapter;
-    public ActionBar actionBar;
+   
+    //PODCAST HELPER
+    public PodcastHelper mPodcastHelper;
     
-    //Podcast Helper
-    public PodcastHelper helper;
+    //FILTER
+    private ListFilter mFilter;
+    private ListFilter mPreviousFilter;
     
-    //Refresh Layout
-    private PullRefreshLayout swipeRefreshLayout;
-    //Playback service
-    public PodHoarderService podService;
+    //SEARCH
+    private String mSearchString;
+    private SearchView mSearchView;
+
+	//UI ELEMENTS
+    private FloatingPlayPauseButton mFAB;
+	//Episodes List
+    private ListView mListView;
+    private EpisodeMultiChoiceModeListener mListSelectionListener;
+    //Feeds Grid
+    private GridView mGridView;
+    private GridActionModeCallback mActionModeCallback;  
+	private ActionMode mActionMode;  
+	//SwipeRefreshLayout
+	private CustomSwipeRefreshLayout mSwipeRefreshLayout;
 	
-	private Intent playIntent;
-	private boolean musicBound = false;
-	
-	//Receiver for music channel intents (headphones unplugged etc.)
+	//HARDWARE INTENT RECEIVER
 	private HardwareIntentReceiver hardwareIntentReceiver;
     
+	//PLAYBACK SERVICE
+    private PodHoarderService mPlaybackService;
+    private Intent mPlayIntent;
+	private boolean mIsMusicBound = false;
+	
+	private AbsListView.OnScrollListener mScrollListener = new AbsListView.OnScrollListener ()
+	{  
+		  @Override
+		  public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+		  }
+
+		  @Override
+		  public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) 
+		  {
+			boolean enable = false;
+			if (mFilter == ListFilter.ALL && mFilter.mFeedId == 0)
+			{
+				if(mGridView != null && mGridView.getChildCount() > 0){
+		            // check if the first item of the list is visible
+		            boolean firstItemVisible = mGridView.getFirstVisiblePosition() == 0;
+		            // check if the top of the first item is visible
+		            boolean topOfFirstItemVisible = mGridView.getChildAt(0).getTop() <= 6;	//We set 6 instead of 0 here because of grid padding etc.
+		            // enabling or disabling the refresh layout
+		            enable = firstItemVisible && topOfFirstItemVisible;
+		        }
+			} 
+			else
+			{
+				if(mListView != null && mListView.getChildCount() > 0){
+		            // check if the first item of the list is visible
+		            boolean firstItemVisible = mListView.getFirstVisiblePosition() == 0;
+		            // check if the top of the first item is visible
+		            boolean topOfFirstItemVisible = mListView.getChildAt(0).getTop() <= 12;	//We set 12 instead of 0 here because of list padding etc.
+		            // enabling or disabling the refresh layout
+		            enable = firstItemVisible && topOfFirstItemVisible;
+		        }
+			}
+
+			mSwipeRefreshLayout.setEnabled(enable);
+		  }
+
+	};
+	
 	private ServiceConnection podConnection = new ServiceConnection()	//connect to the service
     { 
 	    @Override
@@ -85,83 +140,69 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	    {
 		    PodHoarderBinder binder = (PodHoarderBinder)service;
 		    //get service
-		    podService = binder.getService();
+		    mPlaybackService = binder.getService();
 		    //pass list
-		    podService.setList(helper.playlistAdapter.mPlayList);
-		    musicBound = true;
+		    mPlaybackService.setList(mPodcastHelper.mPlaylistAdapter.mPlayList);
+		    mIsMusicBound = true;
 		    
 		    //Initialise the headphone jack listener / intent receiver.
 		    IntentFilter headsetFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
 		    IntentFilter callStateFilter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
 		    IntentFilter connectivityFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);  
-	        hardwareIntentReceiver = new HardwareIntentReceiver(podService);
+	        hardwareIntentReceiver = new HardwareIntentReceiver(mPlaybackService, mPodcastHelper);
 	        registerReceiver(hardwareIntentReceiver, headsetFilter);
 	        registerReceiver(hardwareIntentReceiver, callStateFilter);
 	        registerReceiver(hardwareIntentReceiver, connectivityFilter);
-	        fragmentSetup();
+	        populate();
+	        
+	        //TODO: Show player button here. The Service is now completely bound and safe to use.
+	        mFAB = (FloatingPlayPauseButton) findViewById(R.id.fabbutton);
+	        mPlaybackService.setMembers(mPodcastHelper, mFAB);
+	        mFAB.setOnClickListener(new OnClickListener()
+			{
+				
+				@Override
+				public void onClick(View v)
+				{
+					if (mPlaybackService.isPlaying())
+						mPlaybackService.pause();
+					else
+						mPlaybackService.play();
+				}
+			});
 	    }
 	    
 	    @Override
 	    public void onServiceDisconnected(ComponentName name) 
 	    {
 	    	unregisterReceiver(hardwareIntentReceiver);
-	    	musicBound = false;
+	    	mIsMusicBound = false;
 	    }
     };   
     
-
     @Override
     protected void onCreate(Bundle savedInstanceState) 
     {	
     	super.onCreate(savedInstanceState);
         // Initialisation
-    	getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        getActionBar().hide();
-        setupActionBar();
         setContentView(R.layout.activity_main);
-        getActionBar().show();
-        this.helper = new PodcastHelper(this);
-        if (!this.musicBound)
+        mSwipeRefreshLayout = (CustomSwipeRefreshLayout) findViewById(R.id.swipeLayout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        setupActionBar();
+        loadFilter();
+        mSearchString = "";
+        mPodcastHelper = new PodcastHelper(this);
+        
+        if (!this.mIsMusicBound)	//If the service isn't bound, we need to start and bind it.
     	{
-    		if(playIntent==null)
+    		if(mPlayIntent==null)
     		{
-    			playIntent = new Intent(this, PodHoarderService.class);
-    			this.musicBound = this.bindService(playIntent, podConnection, Context.BIND_AUTO_CREATE);
-    			this.startService(playIntent);
+    			mPlayIntent = new Intent(this, PodHoarderService.class);
+    			this.mIsMusicBound = this.bindService(mPlayIntent, podConnection, Context.BIND_AUTO_CREATE);
+    			this.startService(mPlayIntent);
     		}
-    	} 
-    }
-    
-    private void fragmentSetup()
-    {
-        doTabSetup();
-        setupRefreshControls();
-	    setInitialTab();
-    }
-    
-    private void setupActionBar()
-    {
-//    	int titleId = 0;
-//
-//        titleId = getResources().getIdentifier("action_bar_title", "id", "android");
-//        
-//        getActionBar().setDisplayShowHomeEnabled(false);
-//
-//        // Final check for non-zero invalid id
-//        if (titleId > 0)
-//        {
-//            TextView titleTextView = (TextView) findViewById(titleId);
-//
-//            DisplayMetrics metrics = getResources().getDisplayMetrics();
-//
-//            // Fetch layout parameters of titleTextView (LinearLayout.LayoutParams : Info from HierarchyViewer)
-//            LinearLayout.LayoutParams txvPars = (LayoutParams) titleTextView.getLayoutParams();
-//            txvPars.gravity = Gravity.CENTER_HORIZONTAL;
-//            txvPars.width = metrics.widthPixels;
-//            titleTextView.setLayoutParams(txvPars);
-//
-//            titleTextView.setGravity(Gravity.CENTER);
-//        }
+    	}
+        
     }
     
     @Override
@@ -180,10 +221,11 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     protected void onDestroy()
     {
     	this.unbindService(this.podConnection);
-    	this.stopService(playIntent);
+    	this.stopService(mPlayIntent);
     	unregisterReceiver(hardwareIntentReceiver);
-	    this.podService=null;
-	    this.musicBound = false;
+	    this.mPlaybackService=null;
+	    this.mIsMusicBound = false;
+	    mPodcastHelper.closeDbIfOpen();
 	    super.onDestroy();
     }
     
@@ -194,173 +236,128 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     }
     
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) 
+    public boolean onCreateOptionsMenu(final Menu menu) 
     {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
+        mSearchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        
+        final Point p = new Point();
+        getWindowManager().getDefaultDisplay().getSize(p);
+        
+
+        // Create LayoutParams with width set to screen's width
+        LayoutParams params = new LayoutParams(p.x, getActionBar().getHeight());
+        mSearchView.setLayoutParams(params);
+        mSearchView.setMaxWidth(p.x);
+        mSearchView.setMinimumHeight(getActionBar().getHeight());
+        
+        mSearchView.setQueryHint(getString(R.string.search_hint));
+	    mSearchView.setOnQueryTextListener(this);
+	    
+	    mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+	        @Override
+	        public void onFocusChange(View view, boolean queryTextFocused) {
+	            if(!queryTextFocused) 
+	            {
+	            	menu.findItem(R.id.action_search).collapseActionView();
+	                mSearchString = "";
+	                if (mPreviousFilter != null) 
+	        		{
+	        			setFilter(mPreviousFilter);
+	        			mPreviousFilter = null;
+	        		}
+	            }
+	        }
+	    });
+	    
+	    SearchView.SearchAutoComplete searchAutoComplete = (SearchView.SearchAutoComplete)mSearchView.findViewById(R.id.search_src_text);
+	    searchAutoComplete.setHintTextColor(Color.WHITE);
+	    searchAutoComplete.setTextColor(Color.WHITE);
+	    
+	    View searchplate = (View)mSearchView.findViewById(R.id.search_plate);
+	    searchplate.setBackgroundResource(R.drawable.abc_textfield_search_default_holo_dark);
+
+	    ImageView searchCloseIcon = (ImageView)mSearchView.findViewById(R.id.search_close_btn);
+	    searchCloseIcon.setImageResource(R.drawable.ic_action_remove);
+
+	    ImageView voiceIcon = (ImageView)mSearchView.findViewById(R.id.search_voice_btn);
+	    voiceIcon.setImageResource(R.drawable.abc_ic_voice_search);
+
+	    ImageView searchIcon = (ImageView)mSearchView.findViewById(R.id.search_mag_icon);
+	    searchIcon.setScaleType(ScaleType.CENTER_INSIDE);
+	    searchIcon.setImageResource(R.drawable.ic_action_search);
+	    
         return true;
     }
     
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) 
+    {
     	switch (item.getItemId()) 
     	{
+    		case android.R.id.home:
+    			setFilter(ListFilter.ALL);
+    			return true;
 	        case R.id.action_settings:
 	        	startActivity(new Intent(this, SettingsActivity.class));
 	        	return true;
 	        case R.id.action_add:
-				mAdapter.setSearchPageEnabled(true);
-				setTab(Constants.BONUS_TAB_POSITION);
+				//TODO: Go to Add Feed Activity
 				return true;
+	        case R.id.action_search:
+	        	//Search
+	        	openSearch();
+	        	return true;
 	        default:
 	        	return super.onOptionsItemSelected(item);
 	    }
     }
+
+    @Override
+	public boolean onNavigationItemSelected(int pos, long itemId)
+	{
+		setFilter(ListFilter.values()[pos]);
+		return true;
+	}
     
-    private void doTabSetup()
+    @Override
+    public void onBackPressed()
     {
-    	mPager = (SmoothScrollingViewPager) findViewById(R.id.pager);
-    	mPager.setScrollDurationFactor(1); // make the animation twice as slow
-        actionBar = getActionBar();
-        mAdapter = new TabFragmentsAdapter(getSupportFragmentManager());
-
-        mPager.setAdapter(mAdapter);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        
-        //Bind the title indicator to the adapter
-        mTabIndicator = (CirclePageIndicator)findViewById(R.id.tabIndicator);
-        mTabIndicator.setViewPager(mPager);
-        
-        // Adding Tabs
-        for (int i=0; i<Constants.TAB_COUNT; i++)
-        {
-        	switch (i)
-        	{
-	        	//1. Player tab    
-	    		case Constants.PLAYER_TAB_POSITION:
-	    	        Tab playerTab = actionBar.newTab();
-	    	        playerTab.setTabListener(this);
-	    	        playerTab.setCustomView(null);
-	    	        actionBar.addTab(playerTab);
-	    	        break;
-	            //2. Latest Episodes tab    
-        		case Constants.LATEST_TAB_POSITION:   
-        	        Tab latestTab = actionBar.newTab();
-        	        latestTab.setTabListener(this);
-        	        latestTab.setCustomView(null);
-        	        actionBar.addTab(latestTab);
-        	        break;
-        	    //3. Feed tab
-        		case Constants.FEEDS_TAB_POSITION:
-	                Tab feedTab = actionBar.newTab();
-	                feedTab.setTabListener(this);
-	                feedTab.setCustomView(null);
-	                actionBar.addTab(feedTab);
-	                break;
-        		case Constants.BONUS_TAB_POSITION:
-        			//4. Feed Details tab
-	                Tab feedDetailsTab = actionBar.newTab();
-	                feedDetailsTab.setTabListener(this);
-	                feedDetailsTab.setCustomView(null);
-	                actionBar.addTab(feedDetailsTab);
-	                
-	                //5. Search tab
-	                Tab searchTab = actionBar.newTab();
-	                searchTab.setTabListener(this);
-	                searchTab.setCustomView(null);
-	                actionBar.addTab(searchTab);
-	                break;     
-	           
-        		
-        	}
-        }
-        
-        mTabIndicator.setOnPageChangeListener(new ViewPager.OnPageChangeListener() 
-        {
-
-            @Override
-            public void onPageSelected(int position) 
-            {
-                for (int i : adjacentFragmentIndexes(position))
-                {
-                	onNavigatedFrom(i);
-                }
-                if (position < 3)	//Disables the rightmost page once the user leaves it. 	
-                {
-                	mAdapter.setDetailsPageEnabled(false);
-                	mAdapter.setSearchPageEnabled(false);
-                }
-                setTab(position);
-            }
-
-            
-            
-            @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) { }
-
-            @Override
-            public void onPageScrollStateChanged(int arg0) {  }
-        });
+    	if (mFilter == ListFilter.FEED)
+    		setFilter(ListFilter.ALL);
+    	else if (mFilter == ListFilter.SEARCH)
+    	{
+    		closeSearch();
+    		if (mPreviousFilter != null) 
+    		{
+    			setFilter(mPreviousFilter);
+    			mPreviousFilter = null;
+    		}
+    	}
+    	else
+    		super.onBackPressed();
     }
     
-    private void setupRefreshControls()
-    {
-    	this.swipeRefreshLayout = (PullRefreshLayout) this.findViewById(R.id.swipe_container);
-    	this.swipeRefreshLayout.setOnRefreshListener(this);
-    	this.swipeRefreshLayout.setColorSchemeResources(R.color.app_detail, R.color.app_background, R.color.app_detail, R.color.app_background);
-    }
-
-
-    public void downloadEpisode(Episode ep)
-    {
-    	this.helper.downloadEpisode(ep);
-    }
+    @Override
+	public void onRefresh()
+	{
+		mPodcastHelper.refreshFeeds(mSwipeRefreshLayout);
+    	//mSwipeLayout.setRefreshing(false);
+	}
     
-	@Override
-	public void onTabReselected(Tab tab, FragmentTransaction ft)
+	public PodHoarderService getPlaybackService()
 	{
-		
+		return mPlaybackService;
 	}
 
-	@Override
-	public void onTabSelected(Tab tab, FragmentTransaction ft)
+	public FloatingActionButton getFAB()
 	{
-		// on tab selected
-        // show respected fragment view
-        mPager.setCurrentItem(tab.getPosition());
+		return mFAB;
 	}
-
-	@Override
-	public void onTabUnselected(Tab tab, FragmentTransaction ft)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-	
-	public PodHoarderService getPodService()
-	{
-		return podService;
-	}
-
 
 	public boolean isMusicBound()
 	{
-		return musicBound;
-	}
-	
-	public void setInitialTab()
-	{
-		switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.SETTINGS_KEY_STARTTAB, ""+Constants.FEEDS_TAB_POSITION)))
-		{
-			case Constants.FEEDS_TAB_POSITION:
-                setTab(Constants.FEEDS_TAB_POSITION);
-				break;
-			case Constants.LATEST_TAB_POSITION:
-                setTab(Constants.LATEST_TAB_POSITION);
-				break;
-			case Constants.PLAYER_TAB_POSITION:
-                setTab(Constants.PLAYER_TAB_POSITION);
-				break;
-		}
+		return mIsMusicBound;
 	}
 	
 	@Override
@@ -369,129 +366,159 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	    super.onNewIntent(intent);
 	    if (intent.getAction() != null && this != null)	//Make sure the Intent contains any data.
 		{
-		    if (intent.getAction().equals("navigate_feeds"))
+		    if (intent.getAction().equals("navigate_player"))
 		    {
-		    	setTab(Constants.FEEDS_TAB_POSITION);	//Navigate to the Player tab.
-		    }
-		    else if (intent.getAction().equals("navigate_latest"))
-		    {
-		    	setTab(Constants.LATEST_TAB_POSITION);	//Navigate to the Latest Episodes tab.
-		    }
-		    else if (intent.getAction().equals("navigate_player"))
-		    {
-		    	setTab(Constants.PLAYER_TAB_POSITION);	//Navigate to the Latest Episodes tab.
+		    	//TODO: Open player activity.
 		    }
 		}
 	}
 	
-	/**
-	 * Convenience method for finding adjacent fragments around a given index. 
-	 * @param currentIndex Index of the Fragment you want to find adjacent indexes for.
-	 * @return	A List<Integer> containing the adjacent fragment positions.
-	 */
-	private List<Integer> adjacentFragmentIndexes(int currentIndex)
+	private void populate()
 	{
-		List<Integer> indexes = new ArrayList<Integer>();
-		int before = currentIndex - 1;
-		int after = currentIndex + 1;
-		if (before > -1)
+		if (mFilter == ListFilter.ALL)
 		{
-			indexes.add(before);
+			setupGridView();
+			setupListView();
+			mGridView.setVisibility(View.VISIBLE);
+			mListView.setVisibility(View.GONE);
 		}
-		if (after < Constants.TAB_COUNT)
+		else
 		{
-			indexes.add(after);
+			setupListView();
+			setupGridView();
+			mGridView.setVisibility(View.GONE);
+			mListView.setVisibility(View.VISIBLE);
 		}
-		return indexes;
 	}
 	
-	/**
-	 * A function for doing the necessary operations once the user navigates from a fragment.
-	 * @param fragmentPos Position of the fragment that was navigated from.
-	 */
-	private void onNavigatedFrom(int fragmentPos)
+	private void setupActionBar()
 	{
-		switch (fragmentPos)
+		getActionBar().setDisplayShowTitleEnabled(false);
+		getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		ArrayAdapter<CharSequence> list = ArrayAdapter.createFromResource(this, R.array.filters, android.R.layout.simple_spinner_item);
+		list.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		getActionBar().setListNavigationCallbacks(list, this);
+	}
+	
+	private void setupListView()
+	{
+		mListView = (ListView) findViewById(R.id.episodesListView);
+		if (!this.mPodcastHelper.mEpisodesListAdapter.isEmpty())
 		{
-			case Constants.PLAYER_TAB_POSITION:
-				PlayerFragment playerFragment = ((PlayerFragment)mAdapter.getItem(Constants.PLAYER_TAB_POSITION));
-				if (playerFragment != null && playerFragment.getListSelectionListener() != null && playerFragment.getListSelectionListener().getActionMode() != null)
+			this.mListView.setAdapter(this.mPodcastHelper.mEpisodesListAdapter);
+			this.mListView.setOnItemClickListener(new OnItemClickListener()
+			{
+				@Override
+				public void onItemClick(AdapterView<?> adapterview, View v, int pos, long id)
 				{
-					if (playerFragment.getListSelectionListener().isActive())
-					{
-						playerFragment.getListSelectionListener().getActionMode().finish();
-					}
+					Episode currentEp = (Episode) mListView.getItemAtPosition(pos);
+					if (currentEp.isDownloaded() || NetworkUtils.isOnline(getApplication()))
+						mPlaybackService.playEpisode((Episode) mListView.getItemAtPosition(pos));
+					else
+						ToastMessages.PlaybackFailed(getApplication());
 				}
-				break;
-			case Constants.LATEST_TAB_POSITION:
-				LatestEpisodesFragment latestEpisodesFragment = ((LatestEpisodesFragment)mAdapter.getItem(Constants.LATEST_TAB_POSITION));
-            	if (latestEpisodesFragment != null && latestEpisodesFragment.getListSelectionListener() != null && latestEpisodesFragment.getListSelectionListener().getActionMode() != null)
-            	{
-            		if (latestEpisodesFragment.getListSelectionListener().isActive())
-                	{
-            			latestEpisodesFragment.getListSelectionListener().getActionMode().finish();
-                	}
-            	}
-            	break;
-			case Constants.FEEDS_TAB_POSITION:
-				FeedFragment feedsFragment = ((FeedFragment)mAdapter.getItem(Constants.FEEDS_TAB_POSITION));
-            	if (feedsFragment != null && feedsFragment.getActionModeCallback() != null && feedsFragment.getActionMode() != null)
-            	{
-            		if (feedsFragment.getActionModeCallback().isActive())
-                	{
-                		feedsFragment.getActionModeCallback().getActionMode().finish();
-                	}
-            	}
-            	break;
-			case Constants.BONUS_TAB_POSITION:
-				Fragment fragment = mAdapter.getItem(Constants.BONUS_TAB_POSITION);
-				if(fragment instanceof FeedDetailsFragment )
-				{
-					FeedDetailsFragment feedDetailsFragment = (FeedDetailsFragment) fragment;
-					if (feedDetailsFragment != null && feedDetailsFragment.getListSelectionListener() != null && feedDetailsFragment.getListSelectionListener().getActionMode() != null)
-	            	{
-	            		if (feedDetailsFragment.getListSelectionListener().isActive())
-	                	{
-	            			feedDetailsFragment.getListSelectionListener().getActionMode().finish();
-	                	}
-	            	}
-				}
-				else if ( fragment instanceof SearchFragment) 
-				{
-        			hideKeyboard();
-					SearchFragment searchFragment = (SearchFragment) fragment;
-					searchFragment.getSearchManager().cancelSearch();
-					if (searchFragment != null && searchFragment.getListSelectionListener() != null && searchFragment.getListSelectionListener().getActionMode() != null)
-	            	{
-	            		if (searchFragment.getListSelectionListener().isActive())
-	                	{
-	            			searchFragment.getListSelectionListener().getActionMode().finish();
-	                	}
-	            	}
-				}
-            	
-            	break;
+
+			});
+
+			this.mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+			this.mListSelectionListener = new EpisodeMultiChoiceModeListener(this, this.mListView);
+			this.mListView.setMultiChoiceModeListener(this.mListSelectionListener);
+			this.mListView.setOnScrollListener(mScrollListener);
+		} 
+		else
+		{
+			// TODO: Show some kind of "list is empty" text instead of the mainlistview here.
 		}
 	}
 
-	public void onBackPressed() 
-	{
-        if(mPager.getCurrentItem() == Constants.BONUS_TAB_POSITION) 
-        {
-        	setTab(Constants.FEEDS_TAB_POSITION);
-        }
-        else 
-        {
-        	Intent startMain = new Intent(Intent.ACTION_MAIN);
-        	startMain.addCategory(Intent.CATEGORY_HOME);
-        	startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        	startActivity(startMain);
-        }
+	private void setupGridView()
+    {
+		mGridView = (GridView) findViewById(R.id.feedsGridView);
+    	if (!this.mPodcastHelper.mFeedsGridAdapter.isEmpty())
+    	{
+    		mPodcastHelper.mFeedsGridAdapter.setLoadingViews(setupLoadingViews());
+    		mGridView.setAdapter(mPodcastHelper.mFeedsGridAdapter);
+    		
+    		mGridView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        	mActionModeCallback = new GridActionModeCallback(this, mGridView);
+        	mGridView.setOnItemLongClickListener(new OnItemLongClickListener()
+			{
+				@Override
+				public boolean onItemLongClick(AdapterView<?> parent, View v, int pos, long id)
+				{
+					if (mActionMode == null || !mActionModeCallback.isActive())
+					{
+						mActionMode = startActionMode(mActionModeCallback);
+						mPodcastHelper.mFeedsGridAdapter.setActionModeVars(mActionMode, mActionModeCallback);
+					}
+					mActionModeCallback.onItemCheckedStateChanged(pos, !((CheckBox)v.findViewById(R.id.feeds_grid_item_checkmark)).isChecked());
+			        return true;  
+				}
+			});
+        	mGridView.setOnScrollListener(mScrollListener);
+    	}
+    	else
+    	{
+    		//Grid is empty.
+    		//TODO: Add a hint and a link to the add feed fragment.
+    		
+    		
+    	}
+    	
     }
 	
-	public void hideKeyboard() 
+	private List<View> setupLoadingViews()
+    {
+    	List<View> views = new ArrayList<View>();	//This is an ugly solution but in order to use the GridViews LayoutParams the loading views must be inflated here.
+    	LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);	//get the inflater service.
+    	for (int i=0; i<Constants.NEW_SEARCH_RESULT_LIMIT; i++)	//Inflate a collection of Loading views, same size as the maximum amount Search Results.
+    	{
+        	views.add(inflater.inflate(R.layout.fragment_feeds_grid_loading_feed_item, mGridView, false));	//Inflate the "loading" grid item to show while data is downloaded
+    	}
+    	return views;
+    }
+
+	public PodcastHelper getPodcastHelper()
 	{
-	    InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+		return mPodcastHelper;
+	}
+
+	public String getSearchString()
+	{
+		return mSearchString;
+	}
+	
+	//SEARCHING
+	@Override
+	public boolean onQueryTextChange(String arg0)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public boolean onQueryTextSubmit(String arg0)
+	{
+		mPreviousFilter = mFilter;
+		Log.i(LOG_TAG,"Search for: " + arg0);
+		mSearchString = arg0;
+		setFilter(ListFilter.SEARCH);
+		
+		
+		return false;
+	}
+	
+	private void openSearch()
+	{
+    	mSearchView.setIconifiedByDefault(false);
+    	mSearchView.requestFocus();
+	    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE); //Toggle the soft keyboard to let the user search instantly.
+	    imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,0);
+	}
+	
+	private void closeSearch()
+	{
+		InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
 
 	    // check if no view has focus:
 	    View view = this.getCurrentFocus();
@@ -500,47 +527,70 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	    }
 	}
 	
-	private String getPageTitle(int pos)
-	{
-		switch (pos)
-    	{
-    		case Constants.LATEST_TAB_POSITION:
-    			return getString(R.string.tab_title_episodes);
-    		case Constants.FEEDS_TAB_POSITION:
-    			return getString(R.string.tab_title_podcasts);
-    		case Constants.PLAYER_TAB_POSITION:
-    			return getString(R.string.tab_title_player);
-    		default:
-    			return "";	
-    	}
+	//FILTERING
+	public enum ListFilter 
+	{ 
+		ALL, NEW, LATEST, DOWNLOADED, FAVORITES, SEARCH, FEED, ;
+		
+		public int getFeedId()
+		{
+			return mFeedId;
+		}
+		public void setFeedId(int feedId)
+		{
+			this.mFeedId = feedId;
+		}
+		private int mFeedId = 0;
 	}
-	
-	
-	/**
-     * Navigates to the desired tab position. Use Constants for reliable values.
-     * @param pos Position of the tab to navigate to.
-     */
-    public void setTab(int pos) 
-    {
-    	
-    	this.mPager.setCurrentItem(pos, true);
-    	setTitle(getPageTitle(pos));
-    }
-    
-    @Override
-	public void onRefresh()
+	private void loadFilter()
 	{
-		this.helper.setRefreshLayout(this.swipeRefreshLayout);	//Set the layout that should be updated once the Refresh task is done executing.
-		this.helper.refreshFeeds();	//Start the refresh process.
+		int lastFilter = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(Constants.SETTINGS_KEY_LASTFILTER,"0"));
+		mFilter = ListFilter.values()[lastFilter];
 	}
-    
-    public void disableRefresh()
+	public ListFilter getFilter()
+	{
+		return mFilter;
+	}
+	public void setFilter(ListFilter filterToSet)
+	{
+		if (mFilter == ListFilter.ALL && filterToSet != ListFilter.ALL)
+		{
+			mGridView.setVisibility(View.GONE);
+			mListView.setVisibility(View.VISIBLE);
+		}
+		else if (mFilter != ListFilter.ALL && filterToSet == ListFilter.ALL)
+		{		
+			mListView.setVisibility(View.GONE);
+			mGridView.setVisibility(View.VISIBLE);
+		}
+		if (filterToSet == ListFilter.FEED)
+			getActionBar().setDisplayHomeAsUpEnabled(true);
+		else
+			getActionBar().setDisplayHomeAsUpEnabled(false);
+		this.mFilter = filterToSet;
+		mPodcastHelper.switchLists();
+	}	
+
+
+	//HELPER METHODS
+	public void deletingEpisode(int episodeId)
+	{
+		this.mPlaybackService.deletingEpisode(episodeId);
+	}
+	public void downloadEpisode(Episode ep)
     {
-    	this.swipeRefreshLayout.setEnabled(false);
+    	this.mPodcastHelper.downloadEpisode(ep);
     }
-    
-    public void enableRefresh()
-    {
-    	this.swipeRefreshLayout.setEnabled(true);
-    }
+
+	public void startEpisodeDetailsActivity(int episodeId)
+	{
+		Intent intent = new Intent(MainActivity.this, EpisodeActivity.class);
+		Bundle b = new Bundle();
+		b.putInt("id", episodeId); //Your id
+		intent.putExtras(b); //Put your id to your next Intent
+		startActivity(intent);
+		overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
+	}
+
+	
 }

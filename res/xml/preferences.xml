@@ -22,4 +22,7 @@
     <Preference
         android:key="pref_lastEpisode"
         android:defaultValue="-1"/>
+    <Preference
+        android:key="pref_lastFilter"
+        android:defaultValue="0"/>
 </PreferenceScreen>
