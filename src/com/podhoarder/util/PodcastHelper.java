@@ -193,7 +193,7 @@ public class PodcastHelper
 		}
 		else
 		{
-			//TODO: Cancel refresh view if it started to refresh.
+			swipeRefreshLayout.setRefreshing(false);
 			ToastMessages.RefreshFailed(this.mContext).show();
 		}
 	}

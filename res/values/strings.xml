@@ -14,6 +14,9 @@
     <string name="filter_favorites">Favorites</string>
     <string name="filter_search">Search</string>
     
+    <string name="search_hint">Search Podcast Episodes</string>
+    <string name="search_results">Search Results</string>
+    
     <!-- Player tab -->
     <string name="playlist_listened">listened</string>
     
@@ -21,10 +24,10 @@
     <string name="latest_list_row_new">NEW!</string>
     
     <!-- Search Fragment -->
-    <string name="search_hint">Search</string>
-    <string name="search_list_feed_last_updated">Last update</string>
-    <string name="search_list_feed_last_updated_unknown">unknown</string>
-    <string name="search_list_feed_no_description">No description available.</string>
+    <string name="add_search_hint">Search Episodes</string>
+    <string name="add_list_feed_last_updated">Last update</string>
+    <string name="add_list_feed_last_updated_unknown">unknown</string>
+    <string name="add_list_feed_no_description">No description available.</string>
     
     <!-- Settings -->    
     <string name="pref_group_ui_title">UI Options</string>

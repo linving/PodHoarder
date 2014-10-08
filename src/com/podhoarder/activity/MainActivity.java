@@ -1,27 +1,24 @@
 package com.podhoarder.activity;
  
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.graphics.Color;
-import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,8 +26,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -38,8 +33,6 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 
 import com.faizmalkani.FloatingActionButton;
@@ -58,7 +51,7 @@ import com.podhoarder.view.FloatingPlayPauseButton;
 import com.podhoarderproject.podhoarder.R;
 
 
-public class MainActivity extends Activity implements OnNavigationListener, OnRefreshListener, OnQueryTextListener
+public class MainActivity extends Activity implements OnNavigationListener, OnRefreshListener
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.MainActivity";
@@ -67,12 +60,13 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
     public PodcastHelper mPodcastHelper;
     
     //FILTER
+    private ArrayList<CharSequence> mFilters;
+    private ArrayAdapter<CharSequence> mFiltersAdapter;
     private ListFilter mFilter;
     private ListFilter mPreviousFilter;
     
     //SEARCH
     private String mSearchString;
-    private SearchView mSearchView;
 
 	//UI ELEMENTS
     private FloatingPlayPauseButton mFAB;
@@ -240,54 +234,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
     {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
-        mSearchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         
-        final Point p = new Point();
-        getWindowManager().getDefaultDisplay().getSize(p);
-        
-
-        // Create LayoutParams with width set to screen's width
-        LayoutParams params = new LayoutParams(p.x, getActionBar().getHeight());
-        mSearchView.setLayoutParams(params);
-        mSearchView.setMaxWidth(p.x);
-        mSearchView.setMinimumHeight(getActionBar().getHeight());
-        
-        mSearchView.setQueryHint(getString(R.string.search_hint));
-	    mSearchView.setOnQueryTextListener(this);
-	    
-	    mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-	        @Override
-	        public void onFocusChange(View view, boolean queryTextFocused) {
-	            if(!queryTextFocused) 
-	            {
-	            	menu.findItem(R.id.action_search).collapseActionView();
-	                mSearchString = "";
-	                if (mPreviousFilter != null) 
-	        		{
-	        			setFilter(mPreviousFilter);
-	        			mPreviousFilter = null;
-	        		}
-	            }
-	        }
-	    });
-	    
-	    SearchView.SearchAutoComplete searchAutoComplete = (SearchView.SearchAutoComplete)mSearchView.findViewById(R.id.search_src_text);
-	    searchAutoComplete.setHintTextColor(Color.WHITE);
-	    searchAutoComplete.setTextColor(Color.WHITE);
-	    
-	    View searchplate = (View)mSearchView.findViewById(R.id.search_plate);
-	    searchplate.setBackgroundResource(R.drawable.abc_textfield_search_default_holo_dark);
-
-	    ImageView searchCloseIcon = (ImageView)mSearchView.findViewById(R.id.search_close_btn);
-	    searchCloseIcon.setImageResource(R.drawable.ic_action_remove);
-
-	    ImageView voiceIcon = (ImageView)mSearchView.findViewById(R.id.search_voice_btn);
-	    voiceIcon.setImageResource(R.drawable.abc_ic_voice_search);
-
-	    ImageView searchIcon = (ImageView)mSearchView.findViewById(R.id.search_mag_icon);
-	    searchIcon.setScaleType(ScaleType.CENTER_INSIDE);
-	    searchIcon.setImageResource(R.drawable.ic_action_search);
-	    
         return true;
     }
     
@@ -306,7 +253,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 				return true;
 	        case R.id.action_search:
 	        	//Search
-	        	openSearch();
+	        	onSearchRequested();
 	        	return true;
 	        default:
 	        	return super.onOptionsItemSelected(item);
@@ -326,23 +273,37 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
     	if (mFilter == ListFilter.FEED)
     		setFilter(ListFilter.ALL);
     	else if (mFilter == ListFilter.SEARCH)
-    	{
-    		closeSearch();
-    		if (mPreviousFilter != null) 
-    		{
+    		if (mPreviousFilter != null)
     			setFilter(mPreviousFilter);
-    			mPreviousFilter = null;
-    		}
-    	}
+    		else
+    			setFilter(ListFilter.ALL);
     	else
     		super.onBackPressed();
     }
     
     @Override
+	public void onNewIntent(Intent intent)
+	{
+	    super.onNewIntent(intent);
+	    if (intent.getAction() != null && this != null)	//Make sure the Intent contains any data.
+		{
+		    if (intent.getAction().equals("navigate_player"))
+		    {
+		    	//TODO: Open player activity.
+		    }
+		    else if (intent.getAction().equals(Intent.ACTION_SEARCH))
+		    {
+		    	mSearchString = intent.getStringExtra(SearchManager.QUERY);
+		    	mPreviousFilter = mFilter;
+		    	setFilter(ListFilter.SEARCH);
+		    }
+		}
+	}
+    
+    @Override
 	public void onRefresh()
 	{
 		mPodcastHelper.refreshFeeds(mSwipeRefreshLayout);
-    	//mSwipeLayout.setRefreshing(false);
 	}
     
 	public PodHoarderService getPlaybackService()
@@ -358,19 +319,6 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 	public boolean isMusicBound()
 	{
 		return mIsMusicBound;
-	}
-	
-	@Override
-	public void onNewIntent(Intent intent)
-	{
-	    super.onNewIntent(intent);
-	    if (intent.getAction() != null && this != null)	//Make sure the Intent contains any data.
-		{
-		    if (intent.getAction().equals("navigate_player"))
-		    {
-		    	//TODO: Open player activity.
-		    }
-		}
 	}
 	
 	private void populate()
@@ -395,9 +343,13 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 	{
 		getActionBar().setDisplayShowTitleEnabled(false);
 		getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-		ArrayAdapter<CharSequence> list = ArrayAdapter.createFromResource(this, R.array.filters, android.R.layout.simple_spinner_item);
-		list.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		getActionBar().setListNavigationCallbacks(list, this);
+		String[] mFilterStrings = getResources().getStringArray(R.array.filters);
+		mFilters = new ArrayList<CharSequence>();
+		mFilters.addAll(Arrays.asList(mFilterStrings));
+		mFiltersAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item, mFilters);
+		//ArrayAdapter<CharSequence> list = ArrayAdapter.createFromResource(this, R.array.filters, android.R.layout.simple_spinner_item);
+		mFiltersAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		getActionBar().setListNavigationCallbacks(mFiltersAdapter, this);
 	}
 	
 	private void setupListView()
@@ -489,48 +441,12 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 	}
 	
 	//SEARCHING
-	@Override
-	public boolean onQueryTextChange(String arg0)
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
-	@Override
-	public boolean onQueryTextSubmit(String arg0)
-	{
-		mPreviousFilter = mFilter;
-		Log.i(LOG_TAG,"Search for: " + arg0);
-		mSearchString = arg0;
-		setFilter(ListFilter.SEARCH);
-		
-		
-		return false;
-	}
-	
-	private void openSearch()
-	{
-    	mSearchView.setIconifiedByDefault(false);
-    	mSearchView.requestFocus();
-	    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE); //Toggle the soft keyboard to let the user search instantly.
-	    imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,0);
-	}
-	
-	private void closeSearch()
-	{
-		InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
 
-	    // check if no view has focus:
-	    View view = this.getCurrentFocus();
-	    if (view != null) {
-	        inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-	    }
-	}
 	
 	//FILTERING
 	public enum ListFilter 
 	{ 
-		ALL, NEW, LATEST, DOWNLOADED, FAVORITES, SEARCH, FEED, ;
+		ALL, NEW, LATEST, DOWNLOADED, FAVORITES, FEED, SEARCH;
 		
 		public int getFeedId()
 		{
@@ -567,6 +483,22 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 		else
 			getActionBar().setDisplayHomeAsUpEnabled(false);
+		
+		if (mFilter != ListFilter.SEARCH && filterToSet == ListFilter.SEARCH)
+		{
+	    	//Set the title to Search Results in the action bar when presenting the results from a search query.
+			getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+			getActionBar().setDisplayShowTitleEnabled(true);
+			setTitle(getString(R.string.search_results));
+		}
+		else if (mFilter == ListFilter.SEARCH && filterToSet != ListFilter.SEARCH)
+		{
+			//Reset the actionbar to show a navigation list.
+			setTitle(getString(R.string.app_name));
+			getActionBar().setDisplayShowTitleEnabled(false);
+			getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		}
+		
 		this.mFilter = filterToSet;
 		mPodcastHelper.switchLists();
 	}	
@@ -592,5 +524,5 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 		overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
 	}
 
-	
+
 }

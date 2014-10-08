@@ -114,21 +114,21 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 			if (currentResult == null || !currentResult.getDescription().isEmpty())
 				viewHolder.feedDescription.setText(Html.fromHtml(currentResult.getDescription()).toString());
 			else
-				viewHolder.feedDescription.setText(this.context.getString(R.string.search_list_feed_no_description));
+				viewHolder.feedDescription.setText(this.context.getString(R.string.add_list_feed_no_description));
 			//Set Last Updated string
 			try
 			{
-					viewHolder.lastUpdated.setText(context.getString(R.string.search_list_feed_last_updated) + " " + 
+					viewHolder.lastUpdated.setText(context.getString(R.string.add_list_feed_last_updated) + " " + 
 							DateUtils.getRelativeTimeSpanString(
 									DataParser.correctFormat.parse(currentResult.getLastUpdated()).getTime()));	//Set a time stamp since Episode publication.
 			} 
 			catch (ParseException e)
 			{
-				viewHolder.lastUpdated.setText(context.getString(R.string.search_list_feed_last_updated) + " " + context.getString(R.string.search_list_feed_last_updated_unknown));	//Set a time stamp since Episode publication.
+				viewHolder.lastUpdated.setText(context.getString(R.string.add_list_feed_last_updated) + " " + context.getString(R.string.add_list_feed_last_updated_unknown));	//Set a time stamp since Episode publication.
 			}
 			catch (NullPointerException ex)
 			{
-				viewHolder.lastUpdated.setText(context.getString(R.string.search_list_feed_last_updated) + " " + context.getString(R.string.search_list_feed_last_updated_unknown));	//Set a time stamp since Episode publication.
+				viewHolder.lastUpdated.setText(context.getString(R.string.add_list_feed_last_updated) + " " + context.getString(R.string.add_list_feed_last_updated_unknown));	//Set a time stamp since Episode publication.
 			}
 			//Set Bitmap Image
 			if (mBitmapManager.isCached(currentResult.getImageUrl()))

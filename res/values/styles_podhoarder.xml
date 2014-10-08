@@ -10,7 +10,7 @@
         <item name="android:spinnerDropDownItemStyle">@style/Podhoarder.ActionBar.DropdownItemStyle</item>
         <item name="android:actionDropDownStyle">@style/Podhoarder.ActionBar.DropDownStyle</item>
         <item name="android:actionBarStyle">@style/Podhoarder.ActionBar</item>
-    	<item name="android:actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
+    	<item name="android:actionBarWidgetTheme">@style/Podhoarder.ActionBarWidget</item>
         <item name="android:actionModeCloseDrawable">@drawable/ic_action_close</item>
         <item name="android:actionOverflowButtonStyle">@style/ActionBar.OverflowButtonStyle</item>
         <item name="android:homeAsUpIndicator">@drawable/ic_action_back</item>
@@ -34,7 +34,7 @@
         <!-- SearchView customization-->
         <item name="searchViewSearchIcon">@drawable/ic_action_search</item>
         <item name="searchViewCloseIcon">@drawable/ic_action_remove</item>
-        <item name="searchViewTextField">@drawable/abc_textfield_search_default_holo_light</item>
+        <item name="searchViewTextField">@drawable/abc_textfield_search_default_holo_dark</item>
         <item name="searchViewAutoCompleteTextView">@style/AutoCompleteTextView</item>
     </style>
  
