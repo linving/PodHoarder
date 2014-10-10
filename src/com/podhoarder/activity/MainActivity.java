@@ -26,6 +26,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -150,20 +151,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 	        populate();
 	        
 	        //TODO: Show player button here. The Service is now completely bound and safe to use.
-	        mFAB = (FloatingPlayPauseButton) findViewById(R.id.fabbutton);
-	        mPlaybackService.setMembers(mPodcastHelper, mFAB);
-	        mFAB.setOnClickListener(new OnClickListener()
-			{
-				
-				@Override
-				public void onClick(View v)
-				{
-					if (mPlaybackService.isPlaying())
-						mPlaybackService.pause();
-					else
-						mPlaybackService.play();
-				}
-			});
+	        setupFAB();
 	    }
 	    
 	    @Override
@@ -419,6 +407,34 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
     	
     }
 	
+	private void setupFAB()
+	{
+		mFAB = (FloatingPlayPauseButton) findViewById(R.id.fabbutton);
+        mPlaybackService.setMembers(mPodcastHelper, mFAB);
+        mFAB.setOnClickListener(new OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				if (mPlaybackService.isPlaying())
+					mPlaybackService.pause();
+				else
+					mPlaybackService.play();
+			}
+		});
+        mFAB.setOnLongClickListener( new OnLongClickListener()
+		{
+			
+			@Override
+			public boolean onLongClick(View v)
+			{
+				startPlayerActivity();
+				return false;
+			}
+		});
+	}
+	
 	private List<View> setupLoadingViews()
     {
     	List<View> views = new ArrayList<View>();	//This is an ugly solution but in order to use the GridViews LayoutParams the loading views must be inflated here.
@@ -523,6 +539,10 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 		startActivity(intent);
 		overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
 	}
-
-
+	public void startPlayerActivity()
+	{
+		Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+		startActivity(intent);
+		overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
+	}
 }

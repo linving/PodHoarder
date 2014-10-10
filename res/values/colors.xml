@@ -22,6 +22,8 @@
     <!--  This is used for details that should be the focus of attention, such as circular seek bar track, selected item backgrounds etc -->
     <color name="app_detail">#ef4d80</color>
     
+    <color name="app_favorite">#ffeb3b</color>
+    
     <color name="seekbar_background">#FFFFFF</color>
     
     <color name="page_indicator_stroke">#555555</color>

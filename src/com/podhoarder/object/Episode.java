@@ -17,6 +17,7 @@ public class Episode
 	private String 	localLink;
 	private String 	pubDate;
 	private String 	description;
+	private boolean favorite;
 	private int 	elapsedTime;
 	private int		totalTime;
 	private int		feedId;
@@ -34,6 +35,8 @@ public class Episode
 		this.elapsedTime = elapsedTime;
 		this.totalTime = length;
 		this.feedId = feedId;
+		
+		this.favorite = false;	//TODO: Delete this when support for favorites are added to db.
 	}
 
 	public Episode()
@@ -81,7 +84,6 @@ public class Episode
 		this.localLink = localLink;
 	}
 
-
 	public String getPubDate() 
 	{
 		return pubDate;
@@ -90,7 +92,6 @@ public class Episode
 	{
 		this.pubDate = pubDate;
 	}
-
 
 	public String getDescription() 
 	{
@@ -119,6 +120,12 @@ public class Episode
 	{
 		this.totalTime = totalTime;
 	}
+
+	public void setFavorite(boolean favorite)
+	{
+		//TODO: Add support for this in the db
+		this.favorite = favorite;
+	}
 	
 	public int getFeedId()
 	{
@@ -141,6 +148,11 @@ public class Episode
 	{
 		if (this.localLink.isEmpty()) return false;
 		else return true;
+	}
+
+	public boolean isFavorite()
+	{
+		return this.favorite;
 	}
 }
 

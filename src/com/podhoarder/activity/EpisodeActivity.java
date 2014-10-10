@@ -10,8 +10,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NavUtils;
 import android.text.format.DateUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.podhoarder.db.EpisodeDBHelper;
@@ -20,6 +24,7 @@ import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.util.DataParser;
 import com.podhoarder.view.Banner;
+import com.podhoarder.view.FloatingToggleButton;
 import com.podhoarderproject.podhoarder.R;
 
 public class EpisodeActivity extends Activity
@@ -60,6 +65,23 @@ public class EpisodeActivity extends Activity
                         Banner banner = (Banner)findViewById(R.id.episode_banner);
                         banner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
                         
+                        FloatingToggleButton FAB = (FloatingToggleButton)findViewById(R.id.episode_favorite_toggle);
+                        FAB.setOnClickListener(new OnClickListener()
+                		{
+                			
+                			@Override
+                			public void onClick(View v)
+                			{
+                				boolean favorite = false;
+                				
+                				if (!mCurrentEpisode.isFavorite())
+                					favorite = true;
+                				
+                				mCurrentEpisode.setFavorite(favorite);
+                				((FloatingToggleButton)v).setToggled(favorite);
+                			}
+                		});
+                        
                         TextView episodeTitle = (TextView)findViewById(R.id.episode_title);
                         episodeTitle.setText(mCurrentEpisode.getTitle());
                         //episodeTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, getResources().getDimension(R.dimen.text_giant));
@@ -70,7 +92,7 @@ public class EpisodeActivity extends Activity
                         TextView episodeTimestamp = (TextView)findViewById(R.id.episode_timeStamp);
                         try
                 		{
-                        	episodeTimestamp.setText(DateUtils.getRelativeTimeSpanString(
+                        	episodeTimestamp.setText(getString(R.string.timestamp_posted) + " " + DateUtils.getRelativeTimeSpanString(
                 								DataParser.correctFormat.parse(
                 										mCurrentEpisode.getPubDate()).getTime()));	//Set a time stamp since Episode publication.
                 		} 
@@ -85,15 +107,36 @@ public class EpisodeActivity extends Activity
         t.start();
         
         
-        
-        
-        
-       
-        
-        
 	}
 	
-	
+	@Override
+    public boolean onCreateOptionsMenu(final Menu menu) 
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.contextual_menu_episode, menu);
+        
+        if (mCurrentEpisode != null)
+        {
+        	if (mCurrentEpisode.isDownloaded())
+            {
+            	menu.removeItem(R.id.menu_episode_available_offline);
+            }
+        	else
+        	{
+        		
+        	}
+        	if (mCurrentEpisode.isListened())
+        	{
+        		menu.removeItem(R.id.menu_episode_markAsListened);
+        	}
+        	else
+        	{
+        		
+        	}
+        }
+        
+        return true;
+    }
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) 

@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 
 import com.faizmalkani.FloatingActionButton;
 import com.podhoarderproject.podhoarder.R;
@@ -98,16 +97,6 @@ public class FloatingPlayPauseButton extends FloatingActionButton
 		else
 			mPlaying = true;
 		invalidate();
-	}
-
-	@Override
-	public boolean onTouchEvent(MotionEvent event)
-	{
-		if (event.getAction() == MotionEvent.ACTION_UP)
-		{
-			super.performClick();
-		}
-		return super.onTouchEvent(event);
 	}
 
 	enum ButtonStatus { PLAYING, LOADING, PAUSED }

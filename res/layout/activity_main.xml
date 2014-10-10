@@ -52,7 +52,10 @@
             android:layout_marginRight="16dp"
             app:pauseDrawable="@drawable/ic_action_pause"
             app:playDrawable="@drawable/ic_action_play"
-            app:color="@color/app_detail" />
+            app:color="@color/app_detail"  
+            app:shadowRadius="3.0"
+            app:shadowDx="0.5"
+            app:shadowDy="1.0"/>
     </FrameLayout>
 
 </com.podhoarder.view.CustomSwipeRefreshLayout>

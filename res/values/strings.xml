@@ -17,13 +17,9 @@
     <string name="search_hint">Search Podcast Episodes</string>
     <string name="search_results">Search Results</string>
     
-    <!-- Player tab -->
-    <string name="playlist_listened">listened</string>
+    <string name="timestamp_posted">Posted</string>
     
-    <!-- Latest Episodes tab -->
-    <string name="latest_list_row_new">NEW!</string>
-    
-    <!-- Search Fragment -->
+    <!-- Add Feeds Activity -->
     <string name="add_search_hint">Search Episodes</string>
     <string name="add_list_feed_last_updated">Last update</string>
     <string name="add_list_feed_last_updated_unknown">unknown</string>

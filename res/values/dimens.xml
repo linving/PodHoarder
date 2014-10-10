@@ -2,7 +2,7 @@
     
     <dimen name="actionbar_title">20sp</dimen>
     
-    <dimen name="text_giant">34dp</dimen>
+    <dimen name="text_giant">28dp</dimen>
     <dimen name="text_header">20sp</dimen>
     <dimen name="text_primary">16sp</dimen>
     <dimen name="text_secondary">14sp</dimen>

@@ -117,7 +117,7 @@ public class FloatingActionButton extends View {
         }
         mButtonPaint.setColor(color);
         invalidate();
-        return true;
+        return super.onTouchEvent(event);
     }
     
     public void hide(boolean hide) {
