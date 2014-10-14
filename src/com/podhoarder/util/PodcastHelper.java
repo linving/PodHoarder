@@ -398,6 +398,14 @@ public class PodcastHelper
 					ep.setTotalTime(100);
 					ep.setElapsedTime(100);
 				}
+				if (ep.isDownloaded())
+				{
+					File file = new File(ep.getLocalLink());
+					if (file.delete())
+					{
+						ep.setLocalLink("");
+					}
+				}	
 			}
 			eph.bulkUpdateEpisodes(params[0].getEpisodes());
 			return null;
@@ -431,6 +439,14 @@ public class PodcastHelper
 					ep.setTotalTime(100);
 					ep.setElapsedTime(100);
 				}
+				if (ep.isDownloaded())
+				{
+					File file = new File(ep.getLocalLink());
+					if (file.delete())
+					{
+						ep.setLocalLink("");
+					}
+				}				
 				eph.updateEpisode(ep);
 			}
 			return null;
@@ -439,8 +455,7 @@ public class PodcastHelper
     
 	/**
 	 * Deletes the physical mp3-file associated with an Episode, not the Episode object itself.
-	 * @param feedId Id of the Feed that the Podcast belongs to.
-	 * @param episodeId Id of the Episode within the specified feed.
+	 * @param ep Episode object with the file you want to delete.
 	 * @author Emil
 	 */
 	public void deleteEpisodeFile(Episode ep)

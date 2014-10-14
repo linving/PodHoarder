@@ -3,49 +3,77 @@
     xmlns:app="http://schemas.android.com/apk/res/com.podhoarderproject.podhoarder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
     android:orientation="vertical" >
 
     <RelativeLayout
-        android:id="@+id/episode_title_container"
-        android:layout_width="wrap_content"
+        android:id="@+id/episode_banner_container"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" >
+        android:layout_weight="5"
+		android:orientation="vertical">
 
-        <com.podhoarder.view.Banner
+        <ImageView
             android:id="@+id/episode_banner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:background="@android:color/black"
             android:src="@drawable/ic_action_accept" />
+        
+        <com.podhoarder.view.FloatingToggleButton
+            android:id="@+id/episode_favorite_toggle"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginBottom="-36dp"
+            android:layout_marginRight="16dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            app:offDrawable="@drawable/ic_action_favorite_outline"
+            app:onDrawable="@drawable/ic_action_favorite_filled"
+            app:shadowDx="0.5"
+            app:shadowDy="1.0"
+            app:shadowRadius="3.0"
+            app:color="@color/app_favorite" />
+
     </RelativeLayout>
 
-    <com.podhoarder.view.FloatingToggleButton 
-        android:id="@+id/episode_favorite_toggle"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_gravity="top|right"
-        android:background="@android:color/transparent"
-        app:onDrawable="@drawable/ic_action_favorite_filled"
-        app:offDrawable="@drawable/ic_action_favorite_outline"
-        app:color="@color/app_favorite"/>
-    
     <LinearLayout
         android:id="@+id/episode_text_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
         android:layout_weight="1"
+        android:layout_marginTop="36dp"
         android:orientation="vertical" >
 
         <TextView
             android:id="@+id/episode_title"
-            style="@style/Podhoarder.Text.Giant"
+            style="@style/Podhoarder.Text.Header"
             android:layout_width="wrap_content"
-            android:layout_height="72dp"
-            android:layout_alignParentBottom="true"
-            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
             android:maxLines="1"
-            android:paddingLeft="72dp" />
+            android:paddingLeft="16dp" />
+
+        <TextView
+            android:id="@+id/podcast_title"
+            style="@style/Podhoarder.Text.Primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:paddingLeft="16dp" />
     </LinearLayout>
 
+    <include layout="@layout/player_controls"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"/>
+    
+    <SeekBar
+        android:id="@+id/player_controls_seekbar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        style="@style/Podhoarder.Seekbar"/>
 </LinearLayout>

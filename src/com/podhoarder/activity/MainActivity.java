@@ -19,6 +19,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,6 +28,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.GridLayoutAnimationController;
+import android.view.animation.ScaleAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -41,6 +46,7 @@ import com.podhoarder.listener.EpisodeMultiChoiceModeListener;
 import com.podhoarder.listener.GridActionModeCallback;
 import com.podhoarder.object.Episode;
 import com.podhoarder.service.PodHoarderService;
+import com.podhoarder.service.PodHoarderService.PlayerState;
 import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.HardwareIntentReceiver;
@@ -52,7 +58,7 @@ import com.podhoarder.view.FloatingPlayPauseButton;
 import com.podhoarderproject.podhoarder.R;
 
 
-public class MainActivity extends Activity implements OnNavigationListener, OnRefreshListener
+public class MainActivity extends Activity implements OnNavigationListener, OnRefreshListener, PodHoarderService.StateChangedListener
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.MainActivity";
@@ -149,7 +155,8 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 	        registerReceiver(hardwareIntentReceiver, callStateFilter);
 	        registerReceiver(hardwareIntentReceiver, connectivityFilter);
 	        populate();
-	        
+	        mPlaybackService.setHelper(mPodcastHelper);
+	        mPlaybackService.setStateChangedListener(MainActivity.this);
 	        //TODO: Show player button here. The Service is now completely bound and safe to use.
 	        setupFAB();
 	    }
@@ -170,6 +177,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
         setContentView(R.layout.activity_main);
         mSwipeRefreshLayout = (CustomSwipeRefreshLayout) findViewById(R.id.swipeLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.app_detail, R.color.app_accent, R.color.app_detail, R.color.app_detail);
         setupActionBar();
         loadFilter();
         mSearchString = "";
@@ -191,11 +199,17 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
     protected void onStart()
     {
     	super.onStart();
+
     }
     
     @Override
     public void onResume()
     {
+    	if (mPlaybackService != null && mFAB != null)
+    	{
+    		mFAB.setPlaying(mPlaybackService.isPlaying());
+            mPlaybackService.setStateChangedListener(MainActivity.this);
+    	}
     	super.onResume();    	
     }
     
@@ -216,6 +230,23 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
     {    	
     	super.onPause();
     }
+  
+    @Override
+	public void onStateChanged(PlayerState newPlayerState)
+	{
+    	Log.i(LOG_TAG, "New player state: " + newPlayerState);
+		switch (newPlayerState)
+		{
+			case PLAYING:
+				mFAB.setPlaying(true);
+				break;
+			case PAUSED:
+				mFAB.setPlaying(false);
+				break;
+			case LOADING:
+				break;
+		}
+	}
     
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) 
@@ -317,6 +348,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 			setupListView();
 			mGridView.setVisibility(View.VISIBLE);
 			mListView.setVisibility(View.GONE);
+        	mGridView.getLayoutAnimation().start(); 
 		}
 		else
 		{
@@ -373,11 +405,18 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 
 	private void setupGridView()
     {
+		
 		mGridView = (GridView) findViewById(R.id.feedsGridView);
     	if (!this.mPodcastHelper.mFeedsGridAdapter.isEmpty())
     	{
+    		
+    		Animation animation = AnimationUtils.loadAnimation( this, R.anim.grid_fade_in);
+    		GridLayoutAnimationController animationController = new GridLayoutAnimationController(animation, 0.3f, 0.3f);
+    		
     		mPodcastHelper.mFeedsGridAdapter.setLoadingViews(setupLoadingViews());
     		mGridView.setAdapter(mPodcastHelper.mFeedsGridAdapter);
+    		
+    		mGridView.setLayoutAnimation(animationController);
     		
     		mGridView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         	mActionModeCallback = new GridActionModeCallback(this, mGridView);
@@ -396,6 +435,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 				}
 			});
         	mGridView.setOnScrollListener(mScrollListener);
+        	
     	}
     	else
     	{
@@ -410,7 +450,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 	private void setupFAB()
 	{
 		mFAB = (FloatingPlayPauseButton) findViewById(R.id.fabbutton);
-        mPlaybackService.setMembers(mPodcastHelper, mFAB);
+		
         mFAB.setOnClickListener(new OnClickListener()
 		{
 			
@@ -433,6 +473,8 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 				return false;
 			}
 		});
+        mFAB.setPlaying(mPlaybackService.isPlaying());
+	
 	}
 	
 	private List<View> setupLoadingViews()
@@ -489,11 +531,13 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 		{
 			mGridView.setVisibility(View.GONE);
 			mListView.setVisibility(View.VISIBLE);
+			//TODO: Animate listview layout animation
 		}
 		else if (mFilter != ListFilter.ALL && filterToSet == ListFilter.ALL)
 		{		
 			mListView.setVisibility(View.GONE);
 			mGridView.setVisibility(View.VISIBLE);
+        	mGridView.getLayoutAnimation().start(); 
 		}
 		if (filterToSet == ListFilter.FEED)
 			getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -530,14 +574,19 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
     	this.mPodcastHelper.downloadEpisode(ep);
     }
 
-	public void startEpisodeDetailsActivity(int episodeId)
+	public void startEpisodeDetailsActivity(Episode currentEp)
 	{
+		Animation slideOutAnim = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
+		findViewById(R.id.root).startAnimation(slideOutAnim);
 		Intent intent = new Intent(MainActivity.this, EpisodeActivity.class);
 		Bundle b = new Bundle();
-		b.putInt("id", episodeId); //Your id
+		b.putInt("id", currentEp.getEpisodeId()); //Your id
+		b.putString("title", currentEp.getTitle());
+		b.putString("description", currentEp.getDescription());
+		b.putString("timestamp", currentEp.getPubDate());
 		intent.putExtras(b); //Put your id to your next Intent
 		startActivity(intent);
-		overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
+		overridePendingTransition(0 , R.anim.slide_out_left);
 	}
 	public void startPlayerActivity()
 	{
@@ -545,4 +594,6 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 		startActivity(intent);
 		overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
 	}
+
+	
 }

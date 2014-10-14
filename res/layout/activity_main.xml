@@ -5,9 +5,9 @@
     android:id="@+id/swipeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:triggerDistance="200" >
+    app:triggerDistance="300" >
 
-    <FrameLayout
+    <FrameLayout android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 

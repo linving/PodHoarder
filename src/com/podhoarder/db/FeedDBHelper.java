@@ -318,7 +318,7 @@ public class FeedDBHelper
 	 */
 	public void closeDatabaseIfOpen()
 	{
-		if (db.isOpen())
+		if (db != null && db.isOpen())
 			db.close();
 	}
 }

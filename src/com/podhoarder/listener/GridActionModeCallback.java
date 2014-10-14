@@ -20,7 +20,6 @@ import com.podhoarder.adapter.GridAdapter;
 import com.podhoarder.object.Feed;
 import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.ViewHolders;
-import com.podhoarder.view.CheckableRelativeLayout;
 import com.podhoarderproject.podhoarder.R;
 
 public class GridActionModeCallback implements ActionMode.Callback
@@ -62,8 +61,7 @@ public class GridActionModeCallback implements ActionMode.Callback
 						i = getViewPosition(i);
 						if (i != -1)
 						{
-							CheckableRelativeLayout item = (CheckableRelativeLayout)view.getChildAt(i);
-							item.setChecked(true);
+							RelativeLayout item = (RelativeLayout)view.getChildAt(i);
 							CheckBox checkmark = ((CheckBox)item.findViewById(R.id.feeds_grid_item_checkmark));
 							checkmark.setChecked(true);
 						}

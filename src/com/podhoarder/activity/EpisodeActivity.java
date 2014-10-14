@@ -6,16 +6,22 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.NavUtils;
 import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.podhoarder.db.EpisodeDBHelper;
@@ -23,8 +29,8 @@ import com.podhoarder.db.FeedDBHelper;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.util.DataParser;
-import com.podhoarder.view.Banner;
 import com.podhoarder.view.FloatingToggleButton;
+import com.podhoarder.view.StrokedTextView;
 import com.podhoarderproject.podhoarder.R;
 
 public class EpisodeActivity extends Activity
@@ -33,80 +39,234 @@ public class EpisodeActivity extends Activity
 	private FeedDBHelper mFDB;
 	private Feed mCurrentFeed;
 	private Episode mCurrentEpisode;
+	
+	private int mEpId;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
         // Initialisation
 		getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-        ActionBar actionBar =  getActionBar();
-        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00000000")));
-        setTitle(" ");
         setContentView(R.layout.activity_episode);
         
         Bundle b = getIntent().getExtras();
-        final int episodeId = b.getInt("id");
+        new backgroundSetupTask().execute(b.getInt("id"));
         
-        final Handler handler = new Handler();
+        ActionBar actionBar =  getActionBar();
+        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00000000")));
+        setTitle(" ");
         
-        Thread t =new Thread()
+        new UISetupTask().execute(b);
+    	Animation slideInAnim = AnimationUtils.loadAnimation(EpisodeActivity.this, R.anim.slide_in_right);
+		findViewById(R.id.root).startAnimation(slideInAnim);
+	}
+	
+	private class UISetupTask extends AsyncTask<Bundle, Void, Void> 
+	{
+		private StrokedTextView episodeTitle;
+		private TextView episodeDescription, episodeTimestamp;
+		private FloatingToggleButton FAB;
+		private LinearLayout mTextContainer;
+		
+		private String title, description, timestamp;
+        @Override
+        protected Void doInBackground(Bundle... params) 
         {
-            public void run() 
-            {
-                handler.post(new Runnable() 
-                {
-                    public void run() {
-                    	mEDB = new EpisodeDBHelper(EpisodeActivity.this);
-                        mFDB = new FeedDBHelper(EpisodeActivity.this);
-                        
-                        mCurrentEpisode = mEDB.getEpisode(episodeId);
-                        mCurrentFeed = mFDB.getFeed(mCurrentEpisode.getFeedId());
+            Bundle b = params[0];
+            title = b.getString("title");
+            description = b.getString("description");
+            timestamp = b.getString("timestamp");
+            
+            mTextContainer = (LinearLayout)findViewById(R.id.episode_text_container);
+            
+            FAB = (FloatingToggleButton)findViewById(R.id.episode_favorite_toggle);
+            
+            FAB.setOnClickListener(new OnClickListener()
+    		{
+    			
+    			@Override
+    			public void onClick(View v)
+    			{
+    				boolean favorite = false;
+    				
+    				if (!mCurrentEpisode.isFavorite())
+    					favorite = true;
+    				
+    				mCurrentEpisode.setFavorite(favorite);
+    				((FloatingToggleButton)v).setToggled(favorite);
+    				//mTextContainer.invalidate();
+    			}
+    		});
+            FAB.setOnTouchListener(new OnTouchListener()
+			{
+				
+				@Override
+				public boolean onTouch(View v, MotionEvent event)
+				{
+					mTextContainer.invalidate();
+					return false;
+				}
+			});
+            
+            
+            episodeTitle = (StrokedTextView)findViewById(R.id.episode_title);
+            
+            episodeDescription = (TextView)findViewById(R.id.episode_description);
+            
+            episodeTimestamp = (TextView)findViewById(R.id.episode_timeStamp);
+			return null;
+        }
 
-                        Banner banner = (Banner)findViewById(R.id.episode_banner);
-                        banner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
+        @Override
+        protected void onPostExecute(Void res) 
+        {
+        	
+        	episodeTitle.setText(title);
+        	episodeDescription.setText(description);
+        	
+        	try
+    		{
+            	episodeTimestamp.setText(getString(R.string.timestamp_posted) + " " + DateUtils.getRelativeTimeSpanString(
+    								DataParser.correctFormat.parse(timestamp).getTime()));	//Set a time stamp since Episode publication.
+    		} 
+    		catch (ParseException e)
+    		{
+    			e.printStackTrace();
+    		}
+        	
+
+        }
+
+        @Override
+        protected void onPreExecute() {}
+
+        @Override
+        protected void onProgressUpdate(Void... values) {}
+	}
+	
+	private class backgroundSetupTask extends AsyncTask<Integer, Void, Void> {
+
+		private ImageView banner;
+        @Override
+        protected Void doInBackground(Integer... params) 
+        {
+        	mEDB = new EpisodeDBHelper(EpisodeActivity.this);
+            mFDB = new FeedDBHelper(EpisodeActivity.this);
+            
+            mEpId = params[0];
+            
+            mCurrentEpisode = mEDB.getEpisode(mEpId);
+            mCurrentFeed = mFDB.getFeed(mCurrentEpisode.getFeedId());
+            
+            banner = (ImageView)findViewById(R.id.episode_banner);
+			return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void res) 
+        {
+        	banner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
+
+        	Animation fadeInAnim = AnimationUtils.loadAnimation(EpisodeActivity.this, R.anim.slide_in_right);
+        	banner.startAnimation(fadeInAnim);
+        }
+
+        @Override
+        protected void onPreExecute() {}
+
+        @Override
+        protected void onProgressUpdate(Void... values) {}
+	}
+	
+	private class completeUISetupTask extends AsyncTask<Bundle, Void, Void>
+	{
+		private StrokedTextView episodeTitle;
+		private TextView episodeDescription, episodeTimestamp;
+		private FloatingToggleButton FAB;
+		private LinearLayout mTextContainer;
+		private ImageView banner;
+		private String title, description, timestamp;
+		private int epid;
+        @Override
+        protected Void doInBackground(Bundle... params) 
+        {
+        	mEDB = new EpisodeDBHelper(EpisodeActivity.this);
+            mFDB = new FeedDBHelper(EpisodeActivity.this);
+            
+            Bundle b = params[0];
+            epid = b.getInt("id");
+            title = b.getString("title");
+            description = b.getString("description");
+            timestamp = b.getString("timestamp");
+            
+            mCurrentEpisode = mEDB.getEpisode(epid);
+            mCurrentFeed = mFDB.getFeed(mCurrentEpisode.getFeedId());
+            
+            mTextContainer = (LinearLayout)findViewById(R.id.episode_text_container);
+            
+            FAB = (FloatingToggleButton)findViewById(R.id.episode_favorite_toggle);
+            
+            FAB.setOnClickListener(new OnClickListener()
+    		{
+    			
+    			@Override
+    			public void onClick(View v)
+    			{
+    				boolean favorite = false;
+    				
+    				if (!mCurrentEpisode.isFavorite())
+    					favorite = true;
+    				
+    				mCurrentEpisode.setFavorite(favorite);
+    				((FloatingToggleButton)v).setToggled(favorite);
+    				//mTextContainer.invalidate();
+    			}
+    		});
+            FAB.setOnTouchListener(new OnTouchListener()
+			{
+				
+				@Override
+				public boolean onTouch(View v, MotionEvent event)
+				{
+					mTextContainer.invalidate();
+					return false;
+				}
+			});
                         
-                        FloatingToggleButton FAB = (FloatingToggleButton)findViewById(R.id.episode_favorite_toggle);
-                        FAB.setOnClickListener(new OnClickListener()
-                		{
-                			
-                			@Override
-                			public void onClick(View v)
-                			{
-                				boolean favorite = false;
-                				
-                				if (!mCurrentEpisode.isFavorite())
-                					favorite = true;
-                				
-                				mCurrentEpisode.setFavorite(favorite);
-                				((FloatingToggleButton)v).setToggled(favorite);
-                			}
-                		});
-                        
-                        TextView episodeTitle = (TextView)findViewById(R.id.episode_title);
-                        episodeTitle.setText(mCurrentEpisode.getTitle());
-                        //episodeTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, getResources().getDimension(R.dimen.text_giant));
-                        
-                        TextView episodeDescription = (TextView)findViewById(R.id.episode_description);
-                        episodeDescription.setText(mCurrentEpisode.getDescription());
-                        
-                        TextView episodeTimestamp = (TextView)findViewById(R.id.episode_timeStamp);
-                        try
-                		{
-                        	episodeTimestamp.setText(getString(R.string.timestamp_posted) + " " + DateUtils.getRelativeTimeSpanString(
-                								DataParser.correctFormat.parse(
-                										mCurrentEpisode.getPubDate()).getTime()));	//Set a time stamp since Episode publication.
-                		} 
-                		catch (ParseException e)
-                		{
-                			e.printStackTrace();
-                		}
-                    }
-                });
-            }
-        };
-        t.start();
-        
-        
+            banner = (ImageView)findViewById(R.id.episode_banner);
+            
+            episodeTitle = (StrokedTextView)findViewById(R.id.episode_title);
+            
+            episodeDescription = (TextView)findViewById(R.id.episode_description);
+            
+            episodeTimestamp = (TextView)findViewById(R.id.episode_timeStamp);
+			return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void res) 
+        {
+        	banner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
+        	episodeTitle.setText(title);
+        	episodeDescription.setText(description);
+        	
+        	try
+    		{
+            	episodeTimestamp.setText(getString(R.string.timestamp_posted) + " " + DateUtils.getRelativeTimeSpanString(
+    								DataParser.correctFormat.parse(timestamp).getTime()));	//Set a time stamp since Episode publication.
+    		} 
+    		catch (ParseException e)
+    		{
+    			e.printStackTrace();
+    		}
+        }
+
+        @Override
+        protected void onPreExecute() {}
+
+        @Override
+        protected void onProgressUpdate(Void... values) {}
 	}
 	
 	@Override

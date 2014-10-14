@@ -78,7 +78,7 @@ public class FloatingPlayPauseButton extends FloatingActionButton
 		}
         
 	}
-	
+		
 	public void setPlaying(boolean isPlaying)
 	{
 		mPlaying = isPlaying;

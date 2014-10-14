@@ -19,8 +19,13 @@
     
     <string name="timestamp_posted">Posted</string>
     
+    <string name="sleep_minutes">minutes</string>
+    
+    <!-- Player Title -->
+    <string name="now_playing">Now Playing</string>
+    
     <!-- Add Feeds Activity -->
-    <string name="add_search_hint">Search Episodes</string>
+    <string name="add_search_hint">Search Podcasts</string>
     <string name="add_list_feed_last_updated">Last update</string>
     <string name="add_list_feed_last_updated_unknown">unknown</string>
     <string name="add_list_feed_no_description">No description available.</string>
@@ -35,21 +40,20 @@
     <string name="pref_startTab_dialogTitle">Select Default View</string>
     <string name="pref_startTab_summary">Select which view to show when first starting the app.</string>
     
-    <!-- Feed Context Menu -->
+    <!-- Menu -->
     <string name="menu_feed_markAsListened">Mark Episodes As Listened</string>
     <string name="menu_feed_delete">Delete Podcast</string>
     
-    <!-- Episode Context Menu -->
     <string name="menu_episode_add_playlist">Add To Playlist</string>
     <string name="menu_episode_available_offline">Make Available Offline</string>
     <string name="menu_episode_markAsListened">Mark As Listened</string>
     
-    <!-- Playlist Context Menu -->
     <string name="menu_playlist_delete">Remove From Playlist</string>
     <string name="menu_playlist_available_offline">Make Available Offline</string>
     
-    <!-- Search Context Menu -->
     <string name="menu_search_add">Add Podcast(s)</string>
+    
+    <string name="menu_player_sleep">Set Sleep Timer</string>
     
     <!-- Add Feed Popup Window -->
     <string name="popup_window_title_single">Add Podcast?</string>

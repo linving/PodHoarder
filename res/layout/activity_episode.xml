@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res/com.podhoarderproject.podhoarder"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
@@ -9,22 +10,25 @@
     <RelativeLayout
         android:id="@+id/episode_title_container"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="0dp" 
+        android:layout_weight="3">
 
-        <com.podhoarder.view.Banner
+        <ImageView
             android:id="@+id/episode_banner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_action_accept" />
+            android:scaleType="centerCrop"/>
 
         <com.podhoarder.view.FloatingToggleButton
             android:id="@+id/episode_favorite_toggle"
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:layout_alignParentRight="true"
-            android:layout_below="@id/episode_banner"
-            android:layout_marginTop="-36dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="-36dp"
+            android:layout_marginRight="16dp"
+            android:clickable="true"
             android:background="@android:color/transparent"
 	        app:onDrawable="@drawable/ic_action_favorite_filled"
 	        app:offDrawable="@drawable/ic_action_favorite_outline"
@@ -33,23 +37,30 @@
             app:shadowDx="0.5"
             app:shadowDy="1.0"/>
 
-        <TextView
+        <com.podhoarder.view.StrokedTextView
             android:id="@+id/episode_title"
             style="@style/Podhoarder.Text.Giant"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="72dp"
-            android:layout_marginBottom="8dp"
             android:layout_marginLeft="72dp"
-            android:layout_above="@id/episode_favorite_toggle"
+            android:layout_marginBottom="8dp"
+            android:paddingRight="8dp"
+            android:layout_alignParentBottom="true"
             android:gravity="center_vertical"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:strokeWidth="1.0"/>
     </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/episode_text_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="8dp"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:layout_marginTop="44dp"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -68,7 +79,7 @@
                 android:gravity="top"
                 android:padding="4dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_info_colored" />
+                android:src="@drawable/ic_info" />
 
             <TextView
                 android:id="@+id/episode_description"
@@ -78,7 +89,7 @@
                 android:layout_gravity="left"
                 android:layout_marginLeft="16dp"
                 android:ellipsize="end"
-                android:maxLines="8" />
+                android:maxLines="12" />
         </LinearLayout>
 
         <LinearLayout
@@ -97,7 +108,7 @@
                 android:layout_gravity="top"
                 android:padding="4dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_clock_colored" />
+                android:src="@drawable/ic_clock" />
 
             <TextView
                 android:id="@+id/episode_timeStamp"

@@ -133,7 +133,7 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 				@Override
 				public void onClick(View v)
 				{
-					((MainActivity)mContext).startEpisodeDetailsActivity(currentEpisode.getEpisodeId());
+					((MainActivity)mContext).startEpisodeDetailsActivity(currentEpisode);
 				}
 			});
 			
