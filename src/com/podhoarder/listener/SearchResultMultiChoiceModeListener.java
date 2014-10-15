@@ -12,6 +12,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AbsListView.OnScrollListener;
 
+import com.podhoarder.activity.AddActivity;
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.DialogUtils;
@@ -138,7 +139,7 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
     	{
     		selectedItems.add(((SearchResultRow) this.mParentListView.getItemAtPosition(i)));
     	}
-    	DialogUtils.addFeedsDialog(mContext, selectedItems);
+    	((AddActivity)mContext).addFeedsDialog(mContext, selectedItems);
     }
 
     /**

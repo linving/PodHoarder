@@ -46,6 +46,10 @@
             android:parentActivityName="com.podhoarder.activity.MainActivity" >
         </activity>
         <activity
+            android:name="com.podhoarder.activity.AddActivity"
+            android:parentActivityName="com.podhoarder.activity.MainActivity" >
+        </activity>
+        <activity
             android:name="com.podhoarder.activity.SettingsActivity"
             android:label="@string/action_settings" >
         </activity>

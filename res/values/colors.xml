@@ -26,10 +26,6 @@
     
     <color name="seekbar_background">#FFFFFF</color>
     
-    <color name="page_indicator_stroke">#555555</color>
-    <color name="page_indicator_fill">#9aa4ad</color>
-    <color name="page_indicator_currentPage_fill">#474e58</color>
-    
     <!-- Text -->
     <color name="text_primary">#000000</color>
     <color name="text_secondary">#000000</color>

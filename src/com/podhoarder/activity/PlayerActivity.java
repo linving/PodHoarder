@@ -18,12 +18,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -37,6 +39,7 @@ import com.podhoarder.object.Feed;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.service.PodHoarderService.PlayerState;
 import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
+import com.podhoarder.view.FloatingToggleButton;
 import com.podhoarder.view.ToggleImageButton;
 import com.podhoarderproject.podhoarder.R;
 
@@ -59,6 +62,9 @@ public class PlayerActivity extends Activity implements PodHoarderService.StateC
 	private ToggleImageButton mPlayPauseButton;
 	private ImageButton mRewindButton, mForwardButton;
 	private ProgressBar mLoadingCircle;
+	
+	private FloatingToggleButton mFAB;
+	private LinearLayout mTextContainer;
 
 	private ServiceConnection podConnection = new ServiceConnection() // connect
 																		// to
@@ -163,6 +169,30 @@ public class PlayerActivity extends Activity implements PodHoarderService.StateC
 
 	private void setupPlayerControls()
 	{
+		mFAB = (FloatingToggleButton)findViewById(R.id.episode_favorite_toggle);
+		mTextContainer = (LinearLayout)findViewById(R.id.episode_text_container);
+		mFAB.setOnClickListener(new OnClickListener()
+		{
+			
+			@Override
+			public void onClick(View v)
+			{
+				mCurrentEpisode.setFavorite(!mCurrentEpisode.isFavorite());
+				((FloatingToggleButton)v).setToggled(mCurrentEpisode.isFavorite());
+			}
+		});
+        mFAB.setOnTouchListener(new OnTouchListener()
+		{
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event)
+			{
+				mTextContainer.invalidate();
+				return false;
+			}
+		});
+        mFAB.setToggled(mCurrentEpisode.isFavorite());
+        
 		mPlayPauseButton = (ToggleImageButton) findViewById(R.id.player_controls_button_playpause);		
 		mPlayPauseButton.setOnClickListener(new OnClickListener()
 		{
@@ -233,6 +263,8 @@ public class PlayerActivity extends Activity implements PodHoarderService.StateC
 					mPlaybackService.seek(progress);
 			}
 		});
+		
+		
 		
 		if (mPlaybackService.isPlaying())
 			mHandler.post(UpdateRunnable);

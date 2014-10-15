@@ -1,5 +1,7 @@
 package com.podhoarder.activity;
  
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,12 +15,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Color;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.telephony.TelephonyManager;
+import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -28,10 +33,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.GridLayoutAnimationController;
-import android.view.animation.ScaleAnimation;
+import android.view.animation.LayoutAnimationController;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -39,12 +45,17 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.SearchView.OnQueryTextListener;
+import android.widget.TextView;
 
 import com.faizmalkani.FloatingActionButton;
 import com.podhoarder.listener.EpisodeMultiChoiceModeListener;
 import com.podhoarder.listener.GridActionModeCallback;
 import com.podhoarder.object.Episode;
+import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.service.PodHoarderService.PlayerState;
 import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
@@ -58,7 +69,7 @@ import com.podhoarder.view.FloatingPlayPauseButton;
 import com.podhoarderproject.podhoarder.R;
 
 
-public class MainActivity extends Activity implements OnNavigationListener, OnRefreshListener, PodHoarderService.StateChangedListener
+public class MainActivity extends Activity implements OnNavigationListener, OnRefreshListener, PodHoarderService.StateChangedListener, OnQueryTextListener
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.MainActivity";
@@ -87,6 +98,9 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 	//SwipeRefreshLayout
 	private CustomSwipeRefreshLayout mSwipeRefreshLayout;
 	
+	//ACTIVITY RESULT
+	static final int ADD_PODCAST_REQUEST = 1;
+	
 	//HARDWARE INTENT RECEIVER
 	private HardwareIntentReceiver hardwareIntentReceiver;
     
@@ -112,7 +126,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 		            // check if the first item of the list is visible
 		            boolean firstItemVisible = mGridView.getFirstVisiblePosition() == 0;
 		            // check if the top of the first item is visible
-		            boolean topOfFirstItemVisible = mGridView.getChildAt(0).getTop() <= 6;	//We set 6 instead of 0 here because of grid padding etc.
+		            boolean topOfFirstItemVisible = mGridView.getChildAt(0).getTop() > 0;
 		            // enabling or disabling the refresh layout
 		            enable = firstItemVisible && topOfFirstItemVisible;
 		        }
@@ -123,7 +137,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 		            // check if the first item of the list is visible
 		            boolean firstItemVisible = mListView.getFirstVisiblePosition() == 0;
 		            // check if the top of the first item is visible
-		            boolean topOfFirstItemVisible = mListView.getChildAt(0).getTop() <= 12;	//We set 12 instead of 0 here because of list padding etc.
+		            boolean topOfFirstItemVisible = mListView.getChildAt(0).getTop() > 0;
 		            // enabling or disabling the refresh layout
 		            enable = firstItemVisible && topOfFirstItemVisible;
 		        }
@@ -177,7 +191,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
         setContentView(R.layout.activity_main);
         mSwipeRefreshLayout = (CustomSwipeRefreshLayout) findViewById(R.id.swipeLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.app_detail, R.color.app_accent, R.color.app_detail, R.color.app_detail);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.app_detail, R.color.app_background, R.color.app_detail, R.color.app_background);
         setupActionBar();
         loadFilter();
         mSearchString = "";
@@ -253,7 +267,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
     {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
-        
+        setupSearchView(menu);
         return true;
     }
     
@@ -269,10 +283,10 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 	        	return true;
 	        case R.id.action_add:
 				//TODO: Go to Add Feed Activity
+	        	startAddActivity();
 				return true;
 	        case R.id.action_search:
 	        	//Search
-	        	onSearchRequested();
 	        	return true;
 	        default:
 	        	return super.onOptionsItemSelected(item);
@@ -320,6 +334,24 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 	}
     
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == ADD_PODCAST_REQUEST) 
+        {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) 
+            {
+                // The user picked a contact.
+                // The Intent's data Uri identifies which contact was selected.
+            	@SuppressWarnings("unchecked")
+				List<SearchResultRow> results = (List<SearchResultRow>) data.getExtras().getSerializable("Results");
+            	mPodcastHelper.addSearchResults(results);
+                // Do something with the contact here (bigger example below)
+            }
+        }
+    }
+    
+    @Override
 	public void onRefresh()
 	{
 		mPodcastHelper.refreshFeeds(mSwipeRefreshLayout);
@@ -348,7 +380,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 			setupListView();
 			mGridView.setVisibility(View.VISIBLE);
 			mListView.setVisibility(View.GONE);
-        	mGridView.getLayoutAnimation().start(); 
+        	mGridView.startLayoutAnimation();
 		}
 		else
 		{
@@ -356,6 +388,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 			setupGridView();
 			mGridView.setVisibility(View.GONE);
 			mListView.setVisibility(View.VISIBLE);
+			mListView.startLayoutAnimation();
 		}
 	}
 	
@@ -372,11 +405,96 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 		getActionBar().setListNavigationCallbacks(mFiltersAdapter, this);
 	}
 	
+	public void expandSecondaryActionBar(String subtitle)
+	{
+		//LinearLayout expandableActionBar = (LinearLayout)findViewById(R.id.expandableActionBar);
+		//TextView subTitle = (TextView)findViewById(R.id.expandableActionBar_subtitle);
+		//subTitle.setText(subtitle);
+		//LayoutUtils.expand(expandableActionBar, 72);
+		getActionBar().setSubtitle(subtitle);
+	}
+	
+	private void setupSearchView(Menu menu)
+	{
+		MenuItem mSearchMenuItem = menu.findItem(R.id.action_search);
+		SearchView mSearchView = (SearchView) mSearchMenuItem.getActionView(); 
+		final Point p = new Point();
+
+		getWindowManager().getDefaultDisplay().getSize(p);
+
+		// Create LayoutParams with width set to screen's width
+		LayoutParams params = new LayoutParams(p.x, LayoutParams.MATCH_PARENT);
+
+		mSearchView.setLayoutParams(params);
+		mSearchView.setMaxWidth(p.x);
+
+		mSearchView.setQueryHint(getString(R.string.search_hint));
+		mSearchView.setOnQueryTextListener(this);
+		
+		int searchImgId = getResources().getIdentifier("android:id/search_button", null, null);
+		((ImageView)mSearchView.findViewById(searchImgId)).setImageResource(R.drawable.ic_action_search);
+
+		int searchPlateId = mSearchView.getContext().getResources().getIdentifier("android:id/search_plate", null, null);
+		mSearchView.findViewById(searchPlateId).setBackgroundResource(R.drawable.abc_textfield_search_default_holo_dark);
+		
+		int searchTextViewId = mSearchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
+		TextView searchTextView = (TextView) mSearchView.findViewById(searchTextViewId);
+		searchTextView.setHintTextColor(Color.WHITE);
+		searchTextView.setTextColor(Color.WHITE);
+		//((SpannedString)searchTextView.getHint()).
+		
+		try
+		{
+			View autoComplete = mSearchView.findViewById(searchTextViewId);
+			Class<?> clazz;
+			clazz = Class.forName("android.widget.SearchView$SearchAutoComplete");
+			SpannableStringBuilder stopHint = new SpannableStringBuilder("");  
+			stopHint.append(getString(R.string.search_hint));
+
+			
+			// Set the new hint text
+			Method setHintMethod = clazz.getMethod("setHint", CharSequence.class);  
+			setHintMethod.invoke(autoComplete, stopHint);
+		} 
+		catch (ClassNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
+		int searchCloseBtnId = mSearchView.getContext().getResources().getIdentifier("android:id/search_close_btn", null, null);
+		((ImageView)mSearchView.findViewById(searchCloseBtnId)).setImageResource(R.drawable.ic_action_close);
+
+		int searchIconId = mSearchView.getContext().getResources().getIdentifier("android:id/search_mag_icon", null, null);
+		((ImageView)mSearchView.findViewById(searchIconId)).setImageResource(R.drawable.ic_action_search);
+		
+	}
+	
 	private void setupListView()
 	{
 		mListView = (ListView) findViewById(R.id.episodesListView);
 		if (!this.mPodcastHelper.mEpisodesListAdapter.isEmpty())
 		{
+			Animation animation = AnimationUtils.loadAnimation( this, R.anim.grid_fade_in);
+    		LayoutAnimationController animationController = new LayoutAnimationController(animation, 0.2f);
+    		
 			this.mListView.setAdapter(this.mPodcastHelper.mEpisodesListAdapter);
 			this.mListView.setOnItemClickListener(new OnItemClickListener()
 			{
@@ -392,6 +510,8 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 
 			});
 
+			this.mListView.setLayoutAnimation(animationController);
+			
 			this.mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
 			this.mListSelectionListener = new EpisodeMultiChoiceModeListener(this, this.mListView);
 			this.mListView.setMultiChoiceModeListener(this.mListSelectionListener);
@@ -411,7 +531,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
     	{
     		
     		Animation animation = AnimationUtils.loadAnimation( this, R.anim.grid_fade_in);
-    		GridLayoutAnimationController animationController = new GridLayoutAnimationController(animation, 0.3f, 0.3f);
+    		GridLayoutAnimationController animationController = new GridLayoutAnimationController(animation, 0.2f, 0.4f);
     		
     		mPodcastHelper.mFeedsGridAdapter.setLoadingViews(setupLoadingViews());
     		mGridView.setAdapter(mPodcastHelper.mFeedsGridAdapter);
@@ -446,6 +566,25 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
     	}
     	
     }
+	
+	/**
+	 * Perform fade out animations on all of the grid items where position != pos
+	 * @param pos Position of the item that shouldn't be faded.
+	 */
+	public void fadeOtherGridItems(int pos)
+	{
+		Animation animation = AnimationUtils.loadAnimation( this, R.anim.grid_fade_out);
+		animation.setFillAfter(true);
+		GridLayoutAnimationController animationController = new GridLayoutAnimationController(animation, 0.3f, 0.3f);
+		
+		View v = mGridView.getChildAt(pos);
+		for (int i=0; i<mGridView.getChildCount(); i++)
+		{
+			if (i != pos)
+				mGridView.getChildAt(i).startAnimation(animation);
+		}
+		
+	}
 	
 	private void setupFAB()
 	{
@@ -532,12 +671,13 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 			mGridView.setVisibility(View.GONE);
 			mListView.setVisibility(View.VISIBLE);
 			//TODO: Animate listview layout animation
+			mListView.startLayoutAnimation();
 		}
 		else if (mFilter != ListFilter.ALL && filterToSet == ListFilter.ALL)
 		{		
 			mListView.setVisibility(View.GONE);
 			mGridView.setVisibility(View.VISIBLE);
-        	mGridView.getLayoutAnimation().start(); 
+        	mGridView.startLayoutAnimation(); 
 		}
 		if (filterToSet == ListFilter.FEED)
 			getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -576,8 +716,8 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 
 	public void startEpisodeDetailsActivity(Episode currentEp)
 	{
-		Animation slideOutAnim = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
-		findViewById(R.id.root).startAnimation(slideOutAnim);
+		//Animation slideOutAnim = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
+		//findViewById(R.id.root).startAnimation(slideOutAnim);
 		Intent intent = new Intent(MainActivity.this, EpisodeActivity.class);
 		Bundle b = new Bundle();
 		b.putInt("id", currentEp.getEpisodeId()); //Your id
@@ -586,7 +726,7 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 		b.putString("timestamp", currentEp.getPubDate());
 		intent.putExtras(b); //Put your id to your next Intent
 		startActivity(intent);
-		overridePendingTransition(0 , R.anim.slide_out_left);
+		overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
 	}
 	public void startPlayerActivity()
 	{
@@ -595,5 +735,25 @@ public class MainActivity extends Activity implements OnNavigationListener, OnRe
 		overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
 	}
 
-	
+	public void startAddActivity()
+	{
+		Intent intent = new Intent(MainActivity.this, AddActivity.class);
+		startActivityForResult(intent, ADD_PODCAST_REQUEST);
+		overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
+	}
+
+	@Override
+	public boolean onQueryTextChange(String str)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean onQueryTextSubmit(String str)
+	{
+		mSearchString = str;
+		mPreviousFilter = mFilter;
+    	setFilter(ListFilter.SEARCH);
+		return false;
+	}
 }

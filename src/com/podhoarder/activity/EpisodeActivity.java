@@ -40,6 +40,8 @@ public class EpisodeActivity extends Activity
 	private Feed mCurrentFeed;
 	private Episode mCurrentEpisode;
 	
+	private FloatingToggleButton FAB;
+	
 	private int mEpId;
 	
 	@Override
@@ -58,16 +60,14 @@ public class EpisodeActivity extends Activity
         setTitle(" ");
         
         new UISetupTask().execute(b);
-    	Animation slideInAnim = AnimationUtils.loadAnimation(EpisodeActivity.this, R.anim.slide_in_right);
-		findViewById(R.id.root).startAnimation(slideInAnim);
+//    	Animation slideInAnim = AnimationUtils.loadAnimation(EpisodeActivity.this, R.anim.slide_in_right);
+//		findViewById(R.id.root).startAnimation(slideInAnim);
 	}
 	
 	private class UISetupTask extends AsyncTask<Bundle, Void, Void> 
 	{
 		private StrokedTextView episodeTitle;
 		private TextView episodeDescription, episodeTimestamp;
-		private FloatingToggleButton FAB;
-		private LinearLayout mTextContainer;
 		
 		private String title, description, timestamp;
         @Override
@@ -77,37 +77,6 @@ public class EpisodeActivity extends Activity
             title = b.getString("title");
             description = b.getString("description");
             timestamp = b.getString("timestamp");
-            
-            mTextContainer = (LinearLayout)findViewById(R.id.episode_text_container);
-            
-            FAB = (FloatingToggleButton)findViewById(R.id.episode_favorite_toggle);
-            
-            FAB.setOnClickListener(new OnClickListener()
-    		{
-    			
-    			@Override
-    			public void onClick(View v)
-    			{
-    				boolean favorite = false;
-    				
-    				if (!mCurrentEpisode.isFavorite())
-    					favorite = true;
-    				
-    				mCurrentEpisode.setFavorite(favorite);
-    				((FloatingToggleButton)v).setToggled(favorite);
-    				//mTextContainer.invalidate();
-    			}
-    		});
-            FAB.setOnTouchListener(new OnTouchListener()
-			{
-				
-				@Override
-				public boolean onTouch(View v, MotionEvent event)
-				{
-					mTextContainer.invalidate();
-					return false;
-				}
-			});
             
             
             episodeTitle = (StrokedTextView)findViewById(R.id.episode_title);
@@ -148,6 +117,7 @@ public class EpisodeActivity extends Activity
 	private class backgroundSetupTask extends AsyncTask<Integer, Void, Void> {
 
 		private ImageView banner;
+		private LinearLayout mTextContainer;
         @Override
         protected Void doInBackground(Integer... params) 
         {
@@ -159,6 +129,33 @@ public class EpisodeActivity extends Activity
             mCurrentEpisode = mEDB.getEpisode(mEpId);
             mCurrentFeed = mFDB.getFeed(mCurrentEpisode.getFeedId());
             
+
+            mTextContainer = (LinearLayout)findViewById(R.id.episode_text_container);
+            
+            FAB = (FloatingToggleButton)findViewById(R.id.episode_favorite_toggle);
+            
+            FAB.setOnClickListener(new OnClickListener()
+    		{
+    			
+    			@Override
+    			public void onClick(View v)
+    			{
+    				mCurrentEpisode.setFavorite(!mCurrentEpisode.isFavorite());
+    				((FloatingToggleButton)v).setToggled(mCurrentEpisode.isFavorite());
+    			}
+    		});
+            FAB.setOnTouchListener(new OnTouchListener()
+			{
+				
+				@Override
+				public boolean onTouch(View v, MotionEvent event)
+				{
+					mTextContainer.invalidate();
+					return false;
+				}
+			});
+
+            
             banner = (ImageView)findViewById(R.id.episode_banner);
 			return null;
         }
@@ -167,9 +164,9 @@ public class EpisodeActivity extends Activity
         protected void onPostExecute(Void res) 
         {
         	banner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
-
-        	Animation fadeInAnim = AnimationUtils.loadAnimation(EpisodeActivity.this, R.anim.slide_in_right);
-        	banner.startAnimation(fadeInAnim);
+        	FAB.setToggled(mCurrentEpisode.isFavorite());
+//        	Animation fadeInAnim = AnimationUtils.loadAnimation(EpisodeActivity.this, R.anim.slide_in_right);
+//        	banner.startAnimation(fadeInAnim);
         }
 
         @Override

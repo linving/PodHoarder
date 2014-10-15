@@ -18,7 +18,6 @@ import android.widget.TextView;
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.util.BitmapManager;
 import com.podhoarder.util.DataParser;
-import com.podhoarder.util.PodcastHelper;
 import com.podhoarder.util.ViewHolders.SearchResultsAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
@@ -83,7 +82,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 		{
 			//Inflate
 			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = inflater.inflate(R.layout.fragment_search_list_row, null);
+			convertView = inflater.inflate(R.layout.activity_add_list_row, null);
 			
 			// Set up the ViewHolder
 	        viewHolder = new SearchResultsAdapterViewHolder();

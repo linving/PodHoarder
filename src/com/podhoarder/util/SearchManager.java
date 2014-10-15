@@ -20,18 +20,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.podhoarder.activity.AddActivity;
 import com.podhoarder.activity.MainActivity;
 import com.podhoarder.adapter.SearchResultsAdapter;
 import com.podhoarder.json.SearchResult;
 import com.podhoarder.json.SearchResultItem;
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.view.ButteryProgressBar;
+import com.podhoarderproject.podhoarder.R;
 
 
 /**
@@ -161,7 +165,8 @@ public class SearchManager
 
 			for (SearchResultItem result : mResults.getResults())
 			{
-				if (!((MainActivity)mContext).mPodcastHelper.feedExists(result.getFeedUrl()) && !this.isCancelled())
+				
+				if (!((AddActivity)mContext).feedExists(result.getFeedUrl()) && !this.isCancelled())
 				{
 					AsyncTask<String, Void, SearchResultRow > tempTask = new FeedParseTask();
 					tempTask.execute(result.getFeedUrl());
