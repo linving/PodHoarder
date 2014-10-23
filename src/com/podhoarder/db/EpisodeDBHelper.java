@@ -4,8 +4,6 @@ package com.podhoarder.db;
  * @author Emil Almrot
  * 2013-03-16
  */
-import java.util.ArrayList;
-import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -16,9 +14,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
+import com.podhoarder.activity.MainActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.EpisodePointer;
 import com.podhoarder.util.Constants;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EpisodeDBHelper
 {
@@ -32,7 +34,7 @@ public class EpisodeDBHelper
 			DBHelper.colEpisodeTitle, DBHelper.colEpisodeLink,
 			DBHelper.colEpisodeLocalLink, DBHelper.colEpisodePubDate, 
 			DBHelper.colEpisodeDescription,DBHelper.colEpisodeElapsedTime, 
-			DBHelper.colEpisodeTotalTime, DBHelper.colParentFeedId };
+			DBHelper.colEpisodeTotalTime, DBHelper.colIsFavorite, DBHelper.colParentFeedId };
 
 	public EpisodeDBHelper(Context ctx)
 	{
@@ -71,7 +73,7 @@ public class EpisodeDBHelper
 	{
 		List<Episode> episodes = new ArrayList<Episode>();
 		this.db = this.dbHelper.getWritableDatabase();
-		Cursor cursor = this.db.query(TABLE_NAME, columns,  columns[8] + "=" + feedId, null, null, null, DBHelper.colEpisodePubDate + " DESC");
+		Cursor cursor = this.db.query(TABLE_NAME, columns,  columns[9] + "=" + feedId, null, null, null, DBHelper.colEpisodePubDate + " DESC");
 		try
 		{
 			if (cursor.moveToFirst())
@@ -94,7 +96,6 @@ public class EpisodeDBHelper
 	/**
 	 * 
 	 * Retrieves a list of the latest Episodes across all Feeds.
-	 * @param nrOfEpisodes	The amount of Episodes to return.
 	 * @return 			A list containing the latest Episode objects.
 	 */
 	public List<Episode> getLatestEpisodes()
@@ -197,21 +198,73 @@ public class EpisodeDBHelper
 	 */
 	public List<Episode> getFavoriteEpisodes()
 	{
-		return new ArrayList<Episode>();
+        List<Episode> episodes = new ArrayList<Episode>();
+        this.db = this.dbHelper.getWritableDatabase();
+        Cursor cursor = this.db.query(TABLE_NAME, columns,  columns[8] + "= ?", new String[]{Integer.toString(1)}, null, null, DBHelper.colEpisodePubDate + " DESC");
+        try
+        {
+            if (cursor.moveToFirst())
+            {
+                do
+                {
+                    episodes.add(cursorToEpisode(cursor));
+                } while (cursor.moveToNext());
+            }
+        }
+        catch (IllegalStateException e)
+        {
+            Log.d(LOG_TAG, "Cursor caused IllegalStateException on getFavorites()");
+            e.printStackTrace();
+        }
+
+        return episodes;
 	}
 
 	/**
-	 * Performs a search on all episodes stored in the db. Matches searchstring on both title and description.
-	 * @param searchString Search string.
+	 * Performs a search on all episodes stored in the db with the current filter applied. Matches searchstring on both title and description.
+	 * @param currentFilter The currently used filter (with searchString set)
 	 * @return	List<Episode> containing the 100 most relevant results.
 	 */
-	public List<Episode> search(String searchString)
+	public List<Episode> search(MainActivity.ListFilter currentFilter)
 	{
-		this.db = this.dbHelper.getWritableDatabase();
-		Cursor cursor = this.db.query(true, TABLE_NAME, columns, DBHelper.colEpisodeTitle + " LIKE ? OR " + DBHelper.colEpisodeDescription + " LIKE ?",
-	            new String[] {"%"+ searchString + "%" , "%"+ searchString + "%"}, null, null, null,
-	            ""+Constants.LOCAL_SEARCH_RESULT_LIMIT);
-		List<Episode> episodes = new ArrayList<Episode>();
+        long startTime = System.currentTimeMillis();
+        List<Episode> episodes = new ArrayList<Episode>();
+        this.db = this.dbHelper.getWritableDatabase();
+
+        String whereString = "";
+        String[] args = new String[]{};
+        switch (currentFilter) {
+            case ALL:
+                whereString = DBHelper.colEpisodeTitle + " LIKE ? OR " + DBHelper.colEpisodeDescription + " LIKE ?";    //Apply search to title and description
+                args = new String[] {"%"+ currentFilter.getSearchString() + "%" , "%"+ currentFilter.getSearchString() + "%"};
+                break;
+            case FEED:
+                whereString = DBHelper.colParentFeedId + "=" + currentFilter.getFeedId() + " AND ("     //Apply FEED filter.
+                        + DBHelper.colEpisodeTitle + " LIKE ? OR " + DBHelper.colEpisodeDescription + " LIKE ?)"; //Apply search to title and description
+                args = new String[] {"%"+ currentFilter.getSearchString() + "%" , "%"+ currentFilter.getSearchString() + "%"};
+                break;
+            case NEW:
+                whereString = DBHelper.colEpisodeLocalLink + " IS NULL OR " //Apply NEW filter.
+                        + DBHelper.colEpisodeLocalLink + " = '' AND "
+                        + DBHelper.colEpisodeTotalTime + " = 0 AND "
+                        + DBHelper.colEpisodeElapsedTime + " = 0 AND ("
+                        + DBHelper.colEpisodeTitle + " LIKE ? OR " + DBHelper.colEpisodeDescription + " LIKE ?)"; //Apply search to title and description
+                args = new String[] {"%"+ currentFilter.getSearchString() + "%" , "%"+ currentFilter.getSearchString() + "%"};
+                break;
+            case DOWNLOADED:
+                whereString = DBHelper.colEpisodeLocalLink +" IS NOT NULL AND "+ DBHelper.colEpisodeLocalLink + " != '' AND ("   //Apply DOWNLOADED filter
+                        + DBHelper.colEpisodeTitle + " LIKE ? OR " + DBHelper.colEpisodeDescription + " LIKE ?)";    //Apply search to title and description
+                break;
+            case FAVORITES:
+                whereString =  columns[8] + "= ? AND ("  //Apply FAVORITES filter
+                        + DBHelper.colEpisodeTitle + " LIKE ? OR " + DBHelper.colEpisodeDescription + " LIKE ?)";    //Apply search to title and description
+                args = new String[] {"1", "%"+ currentFilter.getSearchString() + "%" , "%"+ currentFilter.getSearchString() + "%"};
+                break;
+            default:
+                break;
+        }
+        Cursor cursor = this.db.query(true, TABLE_NAME, columns, whereString, args, null, null, null,
+                ""+Constants.LOCAL_SEARCH_RESULT_LIMIT);
 		if (cursor.moveToFirst())
 		{
 			do
@@ -219,6 +272,7 @@ public class EpisodeDBHelper
 				episodes.add(cursorToEpisode(cursor));
 			} while (cursor.moveToNext());
 		}
+        Log.i(LOG_TAG,"Search completed in " + (System.currentTimeMillis() - startTime) + "ms");
 		return episodes;
 	}
 	
@@ -320,7 +374,8 @@ public class EpisodeDBHelper
 	    values.put(columns[5], ep.getDescription());
 	    values.put(columns[6], ep.getElapsedTime());
 	    values.put(columns[7], ep.getTotalTime());
-	    values.put(columns[8], feedId);
+        values.put(columns[8], ep.isFavorite());
+	    values.put(columns[9], feedId);
 	    
 	    try
 	    {
@@ -359,7 +414,8 @@ public class EpisodeDBHelper
 		    values.put(columns[5], eps.get(i).getDescription());
 		    values.put(columns[6], eps.get(i).getElapsedTime());
 		    values.put(columns[7], eps.get(i).getTotalTime());
-		    values.put(columns[8], feedId);
+            values.put(columns[8], eps.get(i).isFavorite());
+            values.put(columns[9], feedId);
 		    
 		    this.db = this.dbHelper.getWritableDatabase();
 		    long insertId = this.db.insert(TABLE_NAME, null, values);
@@ -408,7 +464,7 @@ public class EpisodeDBHelper
 		//TODO: Make sure that all downloaded Episode files are also deleted.
 		int retVal=0;
 		this.db = this.dbHelper.getWritableDatabase();
-		retVal = this.db.delete(TABLE_NAME, columns[8] + "=" + feedId, null);
+		retVal = this.db.delete(TABLE_NAME, columns[9] + "=" + feedId, null);
 		return retVal;
 	}	
 	
@@ -428,7 +484,8 @@ public class EpisodeDBHelper
 	    values.put(columns[5], updatedEpisode.getDescription());
 	    values.put(columns[6], updatedEpisode.getElapsedTime());
 	    values.put(columns[7], updatedEpisode.getTotalTime());
-	    values.put(columns[8], updatedEpisode.getFeedId());
+        values.put(columns[8], updatedEpisode.isFavorite());
+	    values.put(columns[9], updatedEpisode.getFeedId());
 	    try
 	    {
 	    	this.db = this.dbHelper.getWritableDatabase();
@@ -463,7 +520,8 @@ public class EpisodeDBHelper
 				+ columns[5] + ", "
 				+ columns[6] + ", "
 				+ columns[7] + ", "
-				+ columns[8] + ") values(?,?,?,?,?,?,?,?,?)";
+                + columns[8] + ", "
+				+ columns[9] + ") values(?,?,?,?,?,?,?,?,?,?)";
 		
 		this.db = this.dbHelper.getWritableDatabase();
 		SQLiteStatement statement = this.db.compileStatement(sql);
@@ -479,6 +537,7 @@ public class EpisodeDBHelper
 			statement.bindString(6, ep.getDescription());
 			statement.bindLong(7, ep.getElapsedTime());
 			statement.bindLong(8, ep.getTotalTime());
+            statement.bindLong(8,  ep.isFavorite() ? 1 : 0 );
 			statement.bindLong(9, ep.getFeedId());
 			statement.execute();
 		}
@@ -496,7 +555,7 @@ public class EpisodeDBHelper
 	{
 		Episode ep = new Episode(Integer.parseInt(c.getString(0)),
 				c.getString(1), c.getString(2), c.getString(3), c.getString(4),
-				c.getString(5), Integer.parseInt(c.getString(6)), Integer.parseInt(c.getString(7)), Integer.parseInt(c.getString(8)));
+				c.getString(5), Integer.parseInt(c.getString(6)), Integer.parseInt(c.getString(7)), (Integer.parseInt(c.getString(8)) != 0), Integer.parseInt(c.getString(9)));
 		return ep;
 	}
 	

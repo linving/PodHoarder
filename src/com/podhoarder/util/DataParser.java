@@ -1,18 +1,18 @@
 package com.podhoarder.util;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import android.text.Html;
+import android.util.Log;
+
+import com.podhoarder.object.Episode;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import android.text.Html;
-import android.util.Log;
-
-import com.podhoarder.object.Episode;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class DataParser
 {
@@ -339,6 +339,5 @@ public class DataParser
 			return pubDate;
 		}
 	}
-	
-	
+
 }

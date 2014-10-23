@@ -37,7 +37,7 @@
 
         <TextView
             android:id="@+id/player_list_row_episodeName"
-            style="@style/Podhoarder.Text.Primary"
+            style="@style/Base.TextAppearance.AppCompat.Body1"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:maxLines="1" 
@@ -45,7 +45,7 @@
 
         <TextView
             android:id="@+id/player_list_row_feedName"
-            style="@style/Podhoarder.Text.Primary"
+            style="@style/Base.TextAppearance.AppCompat.Body2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:maxLines="1" 

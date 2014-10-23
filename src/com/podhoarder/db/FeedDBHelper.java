@@ -4,20 +4,21 @@ package com.podhoarder.db;
  * @author Emil Almrot
  * 2013-03-16
  */
-import java.util.ArrayList;
-import java.util.List;
-
-import com.podhoarder.object.Episode;
-import com.podhoarder.object.Feed;
-import com.podhoarder.util.PodcastHelper;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+
+import com.podhoarder.object.Episode;
+import com.podhoarder.object.Feed;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FeedDBHelper
 {
@@ -39,6 +40,17 @@ public class FeedDBHelper
 		this.dbHelper = new DBHelper(this.ctx );
 		this.eph = new EpisodeDBHelper(this.ctx);
 	}
+
+    /**
+     *
+     * Retrieves the number of Feed objects in the DB.
+     * @return Row count.
+     */
+    public int getCount()
+    {
+        this.db = this.dbHelper.getWritableDatabase();
+        return (int)DatabaseUtils.queryNumEntries(db, TABLE_NAME);
+    }
 
 	/**
 	 * 
@@ -209,7 +221,7 @@ public class FeedDBHelper
 	/**
 	 * 
 	 * Deletes Feeds from the database.
-	 * @param feedId Feed ID of object to delete.
+	 * @param feedIds IDs of the feeds to delete.
 	 * @return True if something was deleted. False otherwise.
 	 */
 	public boolean deleteFeeds(List<Integer> feedIds) 
@@ -236,7 +248,7 @@ public class FeedDBHelper
 	/**
 	 * 
 	 * Updates a stored Feed in the database.
-	 * @param newfeed Feed object to update (should have the new values assigned already).
+	 * @param newFeed Feed object to update (should have the new values assigned already).
 	 * @return The updated Feed object.
 	 */
 	public Feed updateFeed(Feed newFeed)
@@ -259,7 +271,7 @@ public class FeedDBHelper
 	    
 	    for (Episode ep : newFeed.getEpisodes())
 	    {
-	    	if (!PodcastHelper.episodeExists(ep.getTitle(), f.getEpisodes()))
+	    	if (!episodeExists(ep.getTitle(), f.getEpisodes()))
 	    	{
 	    		this.eph.insertEpisode(ep,f.getFeedId());
 	    	}
@@ -267,7 +279,7 @@ public class FeedDBHelper
 	    
 	    for (Episode ep : f.getEpisodes())
 	    {
-	    	if (!PodcastHelper.episodeExists(ep.getTitle(), newFeed.getEpisodes()))
+	    	if (!episodeExists(ep.getTitle(), newFeed.getEpisodes()))
 	    	{
 	    		this.eph.deleteEpisode(ep);
 	    	}
@@ -321,4 +333,19 @@ public class FeedDBHelper
 		if (db != null && db.isOpen())
 			db.close();
 	}
+
+    /**
+     * Does a check to see if an Episode with the specified title is contained within the specified List of Episodes.
+     * @param episodeTitle  Title of the Episode to look for.
+     * @param episodes List of Episode objects to search through.
+     * @return True if the episode exists, False otherwise.
+     */
+    private static boolean episodeExists(String episodeTitle, List<Episode> episodes)
+    {
+        for (int r = 0; r < episodes.size(); r++)
+        {
+            if (episodeTitle.equals(episodes.get(r).getTitle())) return true;
+        }
+        return false;
+    }
 }

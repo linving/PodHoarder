@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_feed_markAsListened"
-          android:title="@string/menu_feed_markAsListened"
-          android:icon="@drawable/ic_action_accept" />
-    <item android:id="@+id/menu_feed_delete"
-          android:title="@string/menu_feed_delete"
-          android:icon="@drawable/ic_action_discard" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_feed_markAsListened"
+        android:icon="@drawable/ic_done_white_24dp"
+        android:title="@string/menu_feed_markAsListened"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_feed_delete"
+        android:icon="@drawable/ic_delete_white_24dp"
+        android:title="@string/menu_feed_delete"
+        app:showAsAction="ifRoom" />
 </menu>

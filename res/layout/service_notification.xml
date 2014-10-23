@@ -34,9 +34,10 @@
 	        android:layout_height="64dp"
 	        android:padding="5dp"
 	        android:layout_alignParentRight="true"
-	        android:src="@drawable/ic_action_close"
+	        android:src="@drawable/ic_close_white_24dp"
 	        android:background="?android:attr/selectableItemBackground"
-	        android:scaleType="centerInside"/>
+	        android:scaleType="centerInside"
+            android:alpha=".18" />
 	    <ImageButton
 	    	android:id="@+id/service_notification_playpausebutton"
 	        android:layout_width="64dp"

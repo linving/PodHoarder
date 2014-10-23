@@ -1,9 +1,5 @@
 package com.podhoarder.listener;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import android.content.Context;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -21,6 +17,10 @@ import com.podhoarder.object.Feed;
 import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.ViewHolders;
 import com.podhoarderproject.podhoarder.R;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class GridActionModeCallback implements ActionMode.Callback
 {
@@ -174,7 +174,7 @@ public class GridActionModeCallback implements ActionMode.Callback
     	for (int i : this.mSelectedItems)
     	{
     		Feed feed = (Feed) this.mParentListView.getItemAtPosition(i);
-    		((MainActivity)this.mContext).mPodcastHelper.markAsListenedAsync(feed);
+    		((MainActivity)this.mContext).mPodcastHelper.markAsListened(feed);
     	}
 		
     }

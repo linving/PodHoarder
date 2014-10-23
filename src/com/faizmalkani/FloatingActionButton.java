@@ -1,7 +1,5 @@
 package com.faizmalkani;
 
-import com.podhoarderproject.podhoarder.R;
-
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -20,6 +18,8 @@ import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.AbsListView;
+
+import com.podhoarderproject.podhoarder.R;
 
 public class FloatingActionButton extends View {
 
@@ -46,7 +46,7 @@ public class FloatingActionButton extends View {
         super(context, attrs, defStyleAttr);
         
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.FloatingActionButton);
-        mColor = a.getColor(R.styleable.FloatingActionButton_color, Color.WHITE);
+        mColor = a.getColor(R.styleable.FloatingActionButton_buttonColor, Color.WHITE);
         mButtonPaint.setStyle(Paint.Style.FILL);
         mButtonPaint.setColor(mColor);
         float radius, dx, dy;
@@ -76,6 +76,10 @@ public class FloatingActionButton extends View {
         mColor = color;
         mButtonPaint.setColor(mColor);
         invalidate();
+    }
+
+    protected int getColor() {
+        return mColor;
     }
     
     public void setDrawable(Drawable drawable) {

@@ -1,46 +1,38 @@
 package com.podhoarder.activity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
-import android.widget.TextView;
 
 import com.podhoarder.adapter.SearchResultsAdapter;
 import com.podhoarder.db.FeedDBHelper;
 import com.podhoarder.listener.SearchResultMultiChoiceModeListener;
 import com.podhoarder.object.Feed;
 import com.podhoarder.object.SearchResultRow;
-import com.podhoarder.util.DialogUtils;
 import com.podhoarder.util.SearchManager;
 import com.podhoarder.view.ButteryProgressBar;
 import com.podhoarderproject.podhoarder.R;
 
-public class AddActivity extends Activity implements OnQueryTextListener
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+public class AddActivity extends BaseActivity implements SearchView.OnQueryTextListener
 {
 	@SuppressWarnings("unused")
-	private static final String LOG_TAG = "com.podhoarder.fragment.AddActivity";
+	private static final String LOG_TAG = "com.podhoarder.activity.AddActivity";
 
 	private FeedDBHelper mFeedHelper;
 	
@@ -48,8 +40,6 @@ public class AddActivity extends Activity implements OnQueryTextListener
 	private SearchResultsAdapter mListAdapter;
 
 	private SearchManager mSearchManager;
-
-	private SearchView mSearchView;
 
 	private ButteryProgressBar mProgressBar;
 
@@ -59,6 +49,10 @@ public class AddActivity extends Activity implements OnQueryTextListener
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
 		mFeedHelper = new FeedDBHelper(AddActivity.this);
 		setupListView();
 		mProgressBar = (ButteryProgressBar) findViewById(R.id.search_progressBar);
@@ -71,53 +65,15 @@ public class AddActivity extends Activity implements OnQueryTextListener
 
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.search_menu, menu);
-		MenuItem searchItem = menu.findItem(R.id.action_search);
-		mSearchView = (SearchView) searchItem.getActionView(); 
-		final Point p = new Point();
-
-		getWindowManager().getDefaultDisplay().getSize(p);
-
-		// Create LayoutParams with width set to screen's width
-		LayoutParams params = new LayoutParams(p.x, LayoutParams.MATCH_PARENT);
-
-		mSearchView.setLayoutParams(params);
-		mSearchView.setMaxWidth(p.x);
-
-		mSearchView.setQueryHint(getString(R.string.add_search_hint));
-		mSearchView.setOnQueryTextListener(this);
-
-		int searchPlateId = mSearchView.getContext().getResources().getIdentifier("android:id/search_plate", null, null);
-		mSearchView.findViewById(searchPlateId).setBackgroundResource(R.drawable.abc_textfield_search_default_holo_dark);
-		
-		int searchTextViewId = mSearchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
-		TextView searchTextView = (TextView) mSearchView.findViewById(searchTextViewId);
-		searchTextView.setHintTextColor(Color.WHITE);
-		searchTextView.setTextColor(Color.WHITE);
-
-		int searchCloseBtnId = mSearchView.getContext().getResources().getIdentifier("android:id/search_close_btn", null, null);
-		((ImageView)mSearchView.findViewById(searchCloseBtnId)).setImageResource(R.drawable.ic_action_close);
-
-		int searchIconId = mSearchView.getContext().getResources().getIdentifier("android:id/search_mag_icon", null, null);
-		((ImageView)mSearchView.findViewById(searchIconId)).setImageResource(R.drawable.ic_action_search);
-
-		mSearchView.setIconifiedByDefault(false); // Automatically expand the
-													// Search View instead of
-													// waiting for the user to
-													// expand it manually.
-		mSearchView.requestFocus();
-		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE); // Toggle
-																										// the
-																										// soft
-																										// keyboard
-																										// to
-																										// let
-																										// the
-																										// user
-																										// search
-																										// instantly.
-		imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
-
-		super.onCreateOptionsMenu(menu);
+        android.app.SearchManager searchManager = (android.app.SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        if (null != searchView )
+        {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            searchView.setIconifiedByDefault(false);
+        }
+        searchView.setOnQueryTextListener(this);
+		onSearchRequested();
 		return true;
 	}
 
@@ -175,7 +131,6 @@ public class AddActivity extends Activity implements OnQueryTextListener
 	{
 		mSearchManager.doSearch(text);
 		hideKeyboard();
-		mSearchView.clearFocus();
 		return false;
 	}
 

@@ -1,19 +1,22 @@
 package com.podhoarder.activity;
 
-import android.app.ActionBar;
-import android.app.Activity;
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NavUtils;
+import android.support.v7.graphics.Palette;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,7 +25,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -43,7 +45,7 @@ import com.podhoarder.view.FloatingToggleButton;
 import com.podhoarder.view.ToggleImageButton;
 import com.podhoarderproject.podhoarder.R;
 
-public class PlayerActivity extends Activity implements PodHoarderService.StateChangedListener
+public class PlayerActivity extends BaseActivity implements PodHoarderService.StateChangedListener
 {
 	private static final String LOG_TAG = "com.podhoarder.activity.PlayerActivity";
 
@@ -52,6 +54,8 @@ public class PlayerActivity extends Activity implements PodHoarderService.StateC
 	private Handler mHandler;
 	private boolean mIsMusicBound = false;
 	private boolean mUpdateBlocked = false;
+
+    private Palette mPalette;
 
 	private EpisodeDBHelper mEDB;
 	private FeedDBHelper mFDB;
@@ -85,7 +89,15 @@ public class PlayerActivity extends Activity implements PodHoarderService.StateC
 			mCurrentFeed = mFDB.getFeed(mCurrentEpisode.getFeedId());
 
 			ImageView banner = (ImageView) findViewById(R.id.episode_banner);
+            mPalette = Palette.generate(mCurrentFeed.getFeedImage().imageObject());
 			banner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
+            Palette.generateAsync(mCurrentFeed.getFeedImage().imageObject(), 8,
+                    new Palette.PaletteAsyncListener() {
+                        @Override public void onGenerated(Palette palette) {
+                            // do something with the colors
+                            colorUI(palette);
+                        }
+                    });
 
 			TextView mTitle = (TextView) findViewById(R.id.episode_title);
 			mTitle.setText(mCurrentEpisode.getTitle());
@@ -107,11 +119,10 @@ public class PlayerActivity extends Activity implements PodHoarderService.StateC
 	{
 		super.onCreate(savedInstanceState);
 		// Initialisation
-		getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-		ActionBar actionBar = getActionBar();
-		actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00000000")));
-		setTitle(getString(R.string.now_playing));
 		setContentView(R.layout.activity_player);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
 		mEDB = new EpisodeDBHelper(PlayerActivity.this);
 		mFDB = new FeedDBHelper(PlayerActivity.this);
@@ -155,7 +166,7 @@ public class PlayerActivity extends Activity implements PodHoarderService.StateC
 	public void onBackPressed()
 	{
 		super.onBackPressed();
-		overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+		overridePendingTransition(R.anim.activity_stay_transition, R.anim.player_fade_out);
 	}
 
 	@Override
@@ -169,28 +180,25 @@ public class PlayerActivity extends Activity implements PodHoarderService.StateC
 
 	private void setupPlayerControls()
 	{
+
 		mFAB = (FloatingToggleButton)findViewById(R.id.episode_favorite_toggle);
 		mTextContainer = (LinearLayout)findViewById(R.id.episode_text_container);
-		mFAB.setOnClickListener(new OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				mCurrentEpisode.setFavorite(!mCurrentEpisode.isFavorite());
-				((FloatingToggleButton)v).setToggled(mCurrentEpisode.isFavorite());
-			}
-		});
-        mFAB.setOnTouchListener(new OnTouchListener()
-		{
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event)
-			{
-				mTextContainer.invalidate();
-				return false;
-			}
-		});
+		mFAB.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                mCurrentEpisode.setFavorite(!mCurrentEpisode.isFavorite());
+                ((FloatingToggleButton) v).setToggled(mCurrentEpisode.isFavorite());
+            }
+        });
+        mFAB.setOnTouchListener(new OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                mTextContainer.invalidate();
+                return false;
+            }
+        });
         mFAB.setToggled(mCurrentEpisode.isFavorite());
         
 		mPlayPauseButton = (ToggleImageButton) findViewById(R.id.player_controls_button_playpause);		
@@ -240,7 +248,8 @@ public class PlayerActivity extends Activity implements PodHoarderService.StateC
 		
 		mSeekBar.setMax(mCurrentEpisode.getTotalTime());
 		mSeekBar.setProgress(mCurrentEpisode.getElapsedTime());
-		
+
+
 		mSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
 		{
 			@Override
@@ -318,7 +327,6 @@ public class PlayerActivity extends Activity implements PodHoarderService.StateC
         }
     };
 
-	
     @Override
 	public void onStateChanged(PlayerState newPlayerState)
 	{
@@ -351,4 +359,38 @@ public class PlayerActivity extends Activity implements PodHoarderService.StateC
 				break;
 		}
 	}
+
+    /**
+     * Changes the UI components to fitting colors within the supplied Palette.
+     * @param p Palette generated from something that you want colors matched to.
+     */
+    private void colorUI(Palette p)
+    {
+        //Color the seekbar
+        LayerDrawable ld = (LayerDrawable) mSeekBar.getProgressDrawable();
+        final ClipDrawable pd = (ClipDrawable) ld.findDrawableByLayerId(android.R.id.progress);
+        pd.setColorFilter(mPalette.getVibrantColor(getResources().getColor(R.color.windowBackground)), PorterDuff.Mode.SRC_IN);
+        //Color the Floating Action Button
+        mFAB.setColor(mPalette.getVibrantColor(getResources().getColor(R.color.windowBackground)));
+
+    }
+
+    private void animateSeekBarColorChange(int color)
+    {
+        LayerDrawable ld = (LayerDrawable) mSeekBar.getProgressDrawable();
+        final ClipDrawable pd = (ClipDrawable) ld.findDrawableByLayerId(android.R.id.progress);
+
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getResources().getColor(R.color.windowBackground), color);
+        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                pd.setColorFilter((Integer) animator.getAnimatedValue(), PorterDuff.Mode.SRC_IN);
+            }
+
+        });
+        colorAnimation.setDuration(100);
+        colorAnimation.start();
+    }
+
 }

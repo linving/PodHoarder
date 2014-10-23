@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/menu_episode_markAsListened"
           android:title="@string/menu_episode_markAsListened"
-          android:icon="@drawable/ic_action_accept"
-          android:showAsAction="never"/>
+          android:icon="@drawable/ic_done_white_24dp"
+          app:showAsAction="never"/>
     <item android:id="@+id/menu_episode_available_offline"
           android:title="@string/menu_episode_available_offline"
-          android:icon="@drawable/ic_action_download"
-          android:showAsAction="ifRoom" />
+          android:icon="@drawable/ic_file_download_white_24dp"
+          app:showAsAction="ifRoom" />
     <item android:id="@+id/menu_episode_add_playlist"
           android:title="@string/menu_episode_add_playlist" 
-          android:icon="@drawable/ic_action_add_to_queue"
-          android:showAsAction="never"/>
+          android:icon="@drawable/ic_playlist_add_white_24dp"
+          app:showAsAction="never"/>
 </menu>

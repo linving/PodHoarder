@@ -1,10 +1,9 @@
 package com.podhoarder.adapter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
+import android.support.v7.graphics.Palette;
 import android.util.DisplayMetrics;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -26,6 +25,9 @@ import com.podhoarder.util.Constants;
 import com.podhoarder.util.ViewHolders.FeedsAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GridAdapter extends BaseAdapter implements ImageDownloadListener
 {
 	@SuppressWarnings("unused")
@@ -46,6 +48,8 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener
     public int mGridItemSize;
     
     private boolean mSelectionEnabled;
+
+    private Palette mPalette;
 
     public GridAdapter(List<Feed> feeds, Context c) 
     {
@@ -124,6 +128,7 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener
     public void resetLoading()
     {
     	this.mLoadingViews.clear();
+        this.notifyDataSetChanged();
     }
     
     public int getLoadingItemsCount()
@@ -133,12 +138,14 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener
     
     public void addLoadingItem()
     {
-    	this.mLoadingItemsCount++;
+        this.mLoadingItemsCount++;
     }
     
     public void removeLoadingItem()
     {
-    	if (this.mLoadingItemsCount > 0) this.mLoadingItemsCount--;	//We can never have a negative amount of loading items.
+    	if (this.mLoadingItemsCount > 0) {
+            this.mLoadingItemsCount--;    //We can never have a negative amount of loading items.
+        }
     }
 
     public void setActionModeVars(ActionMode mode, GridActionModeCallback callback)
@@ -174,7 +181,7 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener
 		if (convertView == null)
 		{
 			//Inflate
-			convertView = this.mInflater.inflate(R.layout.fragment_feeds_grid_item, null);
+			convertView = this.mInflater.inflate(R.layout.feeds_grid_item, null);
 			
 			// Set up the ViewHolder
 	        viewHolder = new FeedsAdapterViewHolder();
@@ -204,6 +211,15 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener
 		{
 			try
 			{
+                if (viewHolder.itemPalette == null)
+                {
+                    viewHolder.itemPalette = Palette.generate(currentFeed.getFeedImage().thumbnail(), 8);
+                    viewHolder.feedTitle.setBackgroundColor(viewHolder.itemPalette.getVibrantColor(Color.parseColor("#80000000")));
+                }
+                else
+                {
+                    viewHolder.feedTitle.setBackgroundColor(viewHolder.itemPalette.getVibrantColor(Color.parseColor("#80000000")));
+                }
 				if (PreferenceManager.getDefaultSharedPreferences(this.mContext).getBoolean(Constants.SETTINGS_KEY_GRIDSHOWTITLE, true) || this.mSelectionEnabled)
 				{
 					viewHolder.feedTitle.setVisibility(View.VISIBLE);
@@ -221,7 +237,7 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener
 				{
 					viewHolder.feedNumberOfEpisodes.setVisibility(View.GONE);
 				}
-    			
+
     			viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().imageObject());
     			viewHolder.feedImage.setSelected(viewHolder.checked);
 

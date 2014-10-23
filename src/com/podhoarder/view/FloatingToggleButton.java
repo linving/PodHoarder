@@ -1,5 +1,7 @@
 package com.podhoarder.view;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -104,4 +106,17 @@ public class FloatingToggleButton extends FloatingActionButton
 		invalidate();
 	}
 
+    public void animatedSetColor(int color) {
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(), color);
+        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                setColor((Integer) animator.getAnimatedValue());
+            }
+
+        });
+        colorAnimation.setDuration(100);
+        colorAnimation.start();
+    }
 }

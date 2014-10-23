@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources>
     
     <!-- General -->
     <color name="actionbar_title">#FFFFFF</color>
@@ -7,30 +7,30 @@
     <color name="list_separator">#cdcdcd</color>
     <color name="list_image_stroke">#323a45</color>
     
-    <color name="app_background">#fafafa</color>
+    <color name="windowBackground">#fafafa</color>
     <color name="app_background_almost">#EEEEEEEE</color>
     
     <color name="grid_item_pressed">#33DDDDDD</color>
     <color name="grid_item_selected">#55DDDDDD</color>
     
     <!-- App Action bar -->
-    <color name="app_menu">#4285f4</color>
+    <color name="colorPrimary">#3F51B5</color>
     
     <!-- Used for components such as scroll bars. -->
-    <color name="app_accent">#4285f4</color>
+    <color name="colorPrimaryDark">#303F9F</color>
     
     <!--  This is used for details that should be the focus of attention, such as circular seek bar track, selected item backgrounds etc -->
-    <color name="app_detail">#ef4d80</color>
+    <color name="colorAccent">#e91e63</color>
     
-    <color name="app_favorite">#ffeb3b</color>
+    <color name="app_favorite">#03a9f4</color>
     
     <color name="seekbar_background">#FFFFFF</color>
     
     <!-- Text -->
-    <color name="text_primary">#000000</color>
-    <color name="text_secondary">#000000</color>
-    <color name="text_inverse">#FFFFFF</color>
-    <color name="text_notification">#e91e63</color>
+    <color name="textColorPrimary">#000000</color>
+    <color name="textColorSecondary">#000000</color>
+    <color name="textColorPrimaryInverse">#FFFFFF</color>
+    <color name="textColorNotification">#e91e63</color>
     
     <!-- Episode Row Indicators -->
     <color name="indicator_new">#e91e63</color>

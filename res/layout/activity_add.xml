@@ -13,7 +13,7 @@
         android:layout_marginBottom="-5dp"
         android:visibility="invisible"
         android:background="@android:color/transparent"
-        app:barColor="@color/app_detail"/>
+        app:barColor="@color/colorAccent"/>
     <ListView
         android:id="@+id/mainListView"
         android:layout_width="match_parent"

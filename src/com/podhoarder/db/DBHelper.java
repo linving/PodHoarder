@@ -29,6 +29,7 @@ public class DBHelper extends SQLiteOpenHelper
 	static final String colEpisodeDescription = "description";
 	static final String colEpisodeElapsedTime = "elapsedTime";
 	static final String colEpisodeTotalTime = "totalTime";
+    static final String colIsFavorite = "isFavorite";
 	static final String colParentFeedId = "feedId";
 	
 	static final String playlistTable = "PLAYLIST";
@@ -36,7 +37,7 @@ public class DBHelper extends SQLiteOpenHelper
 	
 	public DBHelper(Context context)
 	{
-		super(context, dbName, null, 1);
+		super(context, dbName, null, 2);
 	}
 
 	@Override
@@ -63,6 +64,7 @@ public class DBHelper extends SQLiteOpenHelper
 				+ colEpisodeDescription + " TEXT NOT NULL, "
 				+ colEpisodeElapsedTime + " INTEGER NOT NULL, "
 				+ colEpisodeTotalTime + " INTEGER NOT NULL, "
+                + colIsFavorite + " INTEGER NOT NULL, "
 				+ colParentFeedId + " INTEGER NOT NULL "
 		    	+	")");
 		
@@ -77,11 +79,13 @@ public class DBHelper extends SQLiteOpenHelper
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
-		db.execSQL("DROP TABLE IF EXISTS "+feedTable);
-		db.execSQL("DROP TABLE IF EXISTS "+episodeTable);
-		db.execSQL("DROP TABLE IF EXISTS "+playlistTable);
-		
-		onCreate(db);
+        if (oldVersion == 1 && newVersion == 2)
+        { }
+        else {
+            db.execSQL("DROP TABLE IF EXISTS "+feedTable);
+            db.execSQL("DROP TABLE IF EXISTS "+episodeTable);
+            db.execSQL("DROP TABLE IF EXISTS "+playlistTable);
+        }
 	}
 
 }

@@ -1,8 +1,5 @@
 package com.podhoarder.listener;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -16,14 +13,17 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.CheckBox;
 
 import com.podhoarder.activity.MainActivity;
+import com.podhoarder.adapter.EpisodesListAdapter;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.EpisodeRowUtils;
-import com.podhoarder.util.ViewHolders;
-import com.podhoarder.adapter.EpisodesListAdapter;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ToastMessages;
+import com.podhoarder.util.ViewHolders;
 import com.podhoarderproject.podhoarder.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
 {
@@ -178,7 +178,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     		if (!ep.isListened())	//We only need to mark unlistened Episodes as listened. So we only add those that aren't already listened.
     			eps.add(ep);
     	}
-		((MainActivity)this.mContext).mPodcastHelper.markAsListenedAsync(eps);
+		((MainActivity)this.mContext).mPodcastHelper.markAsListened(eps);
     }
     
     private void downloadSelectedItems()
@@ -192,7 +192,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     	}
     	for (Episode ep : eps)
     	{
-    		((MainActivity)this.mContext).mPodcastHelper.downloadEpisode(ep);
+    		((MainActivity)this.mContext).mPodcastHelper.getDownloadManager().downloadEpisode(ep);
     	}
     }
 

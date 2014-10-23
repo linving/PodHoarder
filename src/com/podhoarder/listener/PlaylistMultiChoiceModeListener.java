@@ -1,9 +1,5 @@
 package com.podhoarder.listener;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import android.content.Context;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -14,11 +10,14 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AbsListView.OnScrollListener;
 
 import com.podhoarder.activity.MainActivity;
-
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarderproject.podhoarder.R;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
 {
@@ -179,7 +178,7 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
     	}
     	for (Episode ep : eps)
     	{
-    		((MainActivity)this.mContext).mPodcastHelper.downloadEpisode(ep);
+    		((MainActivity)this.mContext).mPodcastHelper.getDownloadManager().downloadEpisode(ep);
     	}
     }
 

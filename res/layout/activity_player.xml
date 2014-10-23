@@ -19,7 +19,7 @@
             android:layout_height="match_parent"
             android:scaleType="fitXY"
             android:background="@android:color/black"
-            android:src="@drawable/ic_action_accept" />
+            android:src="@drawable/ic_done_white_24dp" />
         
         <com.podhoarder.view.FloatingToggleButton
             android:id="@+id/episode_favorite_toggle"
@@ -31,12 +31,12 @@
             android:layout_alignParentRight="true"
             android:background="@android:color/transparent"
             android:clickable="true"
-            app:offDrawable="@drawable/ic_action_favorite_outline"
-            app:onDrawable="@drawable/ic_action_favorite_filled"
+            app:offDrawable="@drawable/ic_star_white_24dp"
+            app:onDrawable="@drawable/ic_star_outline_white_24dp"
             app:shadowDx="0.5"
             app:shadowDy="1.0"
             app:shadowRadius="3.0"
-            app:color="@color/app_favorite" />
+            app:buttonColor="@color/windowBackground" />
 
     </RelativeLayout>
 
@@ -50,7 +50,7 @@
 
         <TextView
             android:id="@+id/episode_title"
-            style="@style/Podhoarder.Text.Header"
+            style="@style/Base.TextAppearance.AppCompat.Headline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
@@ -58,7 +58,7 @@
 
         <TextView
             android:id="@+id/podcast_title"
-            style="@style/Podhoarder.Text.Primary"
+            style="@style/Base.TextAppearance.AppCompat.Subhead"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"

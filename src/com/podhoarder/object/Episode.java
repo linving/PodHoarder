@@ -23,7 +23,7 @@ public class Episode
 	private int		feedId;
 	
 	
-	public Episode (int episodeId, String title, String link, String localLink, String pubDate, String description, int elapsedTime, int length, int feedId)
+	public Episode (int episodeId, String title, String link, String localLink, String pubDate, String description, int elapsedTime, int length, boolean isFavorite, int feedId)
 	{
 		this.episodeId = episodeId;
 		this.title = title;
@@ -36,7 +36,7 @@ public class Episode
 		this.totalTime = length;
 		this.feedId = feedId;
 		
-		this.favorite = false;	//TODO: Delete this when support for favorites are added to db.
+		this.favorite = isFavorite;
 	}
 
 	public Episode()
@@ -49,6 +49,7 @@ public class Episode
 		this.description = "";
 		this.elapsedTime = 0;
 		this.totalTime = 0;
+        this.favorite = false;
 		this.feedId = 0;
 	}
 	
@@ -123,7 +124,6 @@ public class Episode
 
 	public void setFavorite(boolean favorite)
 	{
-		//TODO: Add support for this in the db
 		this.favorite = favorite;
 	}
 	

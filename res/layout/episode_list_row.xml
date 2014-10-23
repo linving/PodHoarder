@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="72dp"
-    android:background="?android:attr/activatedBackgroundIndicator"
+    android:background="@color/windowBackground"
     android:descendantFocusability="blocksDescendants"
     android:orientation="vertical" >
 
@@ -38,7 +38,7 @@
 
         <TextView
             android:id="@+id/list_episode_row_episodeName"
-            style="@style/Podhoarder.Text.Primary"
+            style="@style/Base.TextAppearance.AppCompat.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -47,7 +47,7 @@
 
         <TextView
             android:id="@+id/list_episode_row_episodeAge"
-            style="@style/Podhoarder.Text.Secondary"
+            style="@style/Base.TextAppearance.AppCompat.Body2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
