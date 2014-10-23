@@ -1,24 +1,11 @@
 package com.podhoarder.object;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.podhoarder.util.FileUtils;
+
+import org.w3c.dom.Document;
 
 public class SearchResultRow implements Parcelable
 {
@@ -29,6 +16,7 @@ public class SearchResultRow implements Parcelable
 	private String category;
 	private String imageUrl;
 	private Document xml;
+    private String  cachedFileName;
 	private String lastUpdated;
 	
 	public SearchResultRow() {	}
@@ -90,11 +78,11 @@ public class SearchResultRow implements Parcelable
 	{
 		return xml;
 	}
-
 	public void setXml(Document xml)
 	{
 		this.xml = xml;
 	}
+    public String getCachedFileName() {return this.cachedFileName; }
 
 	public String getLastUpdated()
 	{
@@ -104,30 +92,39 @@ public class SearchResultRow implements Parcelable
 	{
 		this.lastUpdated = lastUpdated;
 	}
-	public void startImageDownload()
+
+    /**
+     * Caches the stored XML file.
+     * @return True if the file was cached. False otherwise.
+     */
+	public boolean cacheXml()
 	{
-		
+        this.cachedFileName = FileUtils.cacheXML(this.xml);
+        if (this.cachedFileName != null || !this.cachedFileName.isEmpty()) {
+            this.xml = null;
+            return true;
+        }
+        else
+            return false;
+
 	}
 
-	
-	public String getStringFromDocument(Document doc)
-	{
-	    try
-	    {
-	       DOMSource domSource = new DOMSource(doc);
-	       StringWriter writer = new StringWriter();
-	       StreamResult result = new StreamResult(writer);
-	       TransformerFactory tf = TransformerFactory.newInstance();
-	       Transformer transformer = tf.newTransformer();
-	       transformer.transform(domSource, result);
-	       return writer.toString();
-	    }
-	    catch(TransformerException ex)
-	    {
-	       ex.printStackTrace();
-	       return null;
-	    }
-	}
+    /**
+     * Loads the cached xml file.
+     * @return True if the file was loaded. False otherwise.
+     */
+    public boolean loadXML()
+    {
+        if (this.cachedFileName != null || !this.cachedFileName.isEmpty())
+            this.xml = FileUtils.loadCachedXml(this.cachedFileName);
+
+        if (this.xml != null) {
+            this.cachedFileName = "";
+            return true;
+        }
+        else
+            return false;
+    }
 	
 	@Override
 	public int describeContents()
@@ -139,51 +136,26 @@ public class SearchResultRow implements Parcelable
 	@Override
 	public void writeToParcel(Parcel p, int flags)
 	{
-		// TODO Auto-generated method stub
 		p.writeString(title);
 		p.writeString(author);
 		p.writeString(description);
 		p.writeString(link);
 		p.writeString(category);
 		p.writeString(imageUrl);
-		p.writeString(getStringFromDocument(xml));
+		p.writeString(cachedFileName);
 		p.writeString(lastUpdated);
 	}
 	
 	private void readFromParcel(Parcel in) 
 	{
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db;
-		InputSource is = new InputSource();
-		try
-		{
-			db = dbf.newDocumentBuilder();
-			
-			title = in.readString();
-			author = in.readString();
-			description = in.readString();
-			link = in.readString();
-			category = in.readString();
-			imageUrl = in.readString();
-			
-			is.setCharacterStream(new StringReader(in.readString()));
-			
-			xml = db.parse(is);
-		} catch (ParserConfigurationException e1)
-		{
-			e1.printStackTrace();
-		} catch (SAXException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+        title = in.readString();
+        author = in.readString();
+        description = in.readString();
+        link = in.readString();
+        category = in.readString();
+        imageUrl = in.readString();
+        cachedFileName = in.readString();
 		lastUpdated = in.readString();
-		
 	}
 	
 	public static final Parcelable.Creator CREATOR = new Parcelable.Creator()

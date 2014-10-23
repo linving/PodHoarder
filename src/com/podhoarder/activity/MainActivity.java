@@ -335,6 +335,8 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
                 // The Intent's data Uri identifies which contact was selected.
             	@SuppressWarnings("unchecked")
 				List<SearchResultRow> results = (List<SearchResultRow>) data.getExtras().getSerializable("Results");
+                for (SearchResultRow row : results) //Load all the XML files back into memory from the cache directory.
+                    row.loadXML();
             	mPodcastHelper.addSearchResults(results);
             }
         }
@@ -542,7 +544,6 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
             if (mFilter == ListFilter.ALL){ //If the current Filter is ALL, then the grid is showing and we need to toggle List/Grid view visibility properties.
                 mGridView.setVisibility(View.GONE);
                 mListView.setVisibility(View.VISIBLE);
-                //TODO: Animate listview layout animation
                 mListView.startLayoutAnimation();
             }
 		}

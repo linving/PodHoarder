@@ -74,11 +74,14 @@ public class AddActivity extends BaseActivity implements SearchView.OnQueryTextL
         }
         searchView.setOnQueryTextListener(this);
 		onSearchRequested();
+        searchView.requestFocus();
 		return true;
 	}
 
 	public void finish(List<SearchResultRow> selectedResults)
 	{
+        for(SearchResultRow row : selectedResults) row.cacheXml();  //Cache the file. Most XML documents are too large to be passed as Intent Extras so we need to do this.
+
 		 Intent databackIntent = new Intent(); 
 		 databackIntent.putExtra("Results", (Serializable)selectedResults);
 		 setResult(Activity.RESULT_OK, databackIntent);
