@@ -1,6 +1,5 @@
 package com.podhoarder.util;
 
-import android.support.v7.graphics.Palette;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,7 +21,6 @@ public class ViewHolders
 		public ImageView feedImage;
 		public CheckBox	checkmark;
 		public boolean checked;
-        public Palette itemPalette;
 	}
 	
 	public static class EpisodeRowViewHolder

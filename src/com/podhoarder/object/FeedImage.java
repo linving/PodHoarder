@@ -3,19 +3,6 @@ package com.podhoarder.object;
  * @author Emil Almrot
  * 2013-03-15
  */
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-
-import com.podhoarder.util.ImageUtils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -24,8 +11,23 @@ import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
+import android.support.v7.graphics.Palette;
 import android.util.DisplayMetrics;
 import android.util.Log;
+
+import com.podhoarder.util.ImageUtils;
+
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class FeedImage 
 {
@@ -39,6 +41,7 @@ public class FeedImage
 	private	Bitmap 	mLargeImage;
 	private Bitmap 	mImageObject;
 	private Bitmap  mThumbnail;
+    private Palette mPalette;   //TODO: Implement a way to save this value to the DB so it doesn't have to be generated every time.
 	
 	private ImageDownloadListener mDownloadListener;
 	
@@ -66,33 +69,60 @@ public class FeedImage
 	}
 	
 	/**
-	 * Getter for the imageObject
-	 * @return
+	 * Getter for the medium sized imageObject.
+	 * @return A medium sized, downscaled BitmapDrawable object representation of the image.
 	 */
 	public BitmapDrawable imageObjectDrawable()
 	{
 		return new BitmapDrawable(this.mContext.getResources(),this.mImageObject);
 	}
-	
+    /**
+     * Getter for the thumbnail sized imageObject.
+     * @return A thumbnail sized, downscaled BitmapDrawable object representation of the image.
+     */
 	public BitmapDrawable thumbnailDrawable()
 	{
 		return new BitmapDrawable(this.mContext.getResources(),this.mThumbnail);
 	}
-	
+    /**
+     * Getter for the medium sized imageObject.
+     * @return A medium sized, downscaled Bitmap object representation of the image.
+     */
 	public Bitmap imageObject()
 	{
 		return this.mImageObject;
 	}
-	
+    /**
+     * Getter for the medium sized imageObject.
+     * @return A Bitmap object representation of the image in the original size.
+     */
 	public Bitmap largeImage()
 	{
 		return mLargeImage;
 	}
-
+    /**
+     * Getter for the thumbnail sized imageObject.
+     * @return A thumbnail sized, downscaled Bitmap object representation of the image.
+     */
 	public Bitmap thumbnail()
 	{
 		return this.mThumbnail;
 	}
+    /**
+     * Getter for the image Palette.
+     * @return A Palette object with colors that can be used with the image.
+     */
+    public Palette palette() {
+        if (this.mPalette == null) {    //If the palette hasn't been generated yet we need to generate it on the UI thread so it's always available.
+            if (mImageObject == null)
+                this.mPalette = Palette.generate(Bitmap.createBitmap( mImageSize, mImageSize, Bitmap.Config.RGB_565)); //We generate a temporary palette from a solid black bitmap
+            else
+                this.mPalette = Palette.generate(mImageObject);
+            return this.mPalette;
+        }
+        else
+            return this.mPalette;
+    }
 	
 	/**
 	 * Method for saving image to local storage.
@@ -105,6 +135,12 @@ public class FeedImage
 	    {
 	    	FileOutputStream out = new FileOutputStream(file);
 	    	this.mImageObject.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            Palette.generateAsync(this.mImageObject, new Palette.PaletteAsyncListener() {   //Generate a Palette object to go with the image.
+                @Override
+                public void onGenerated(Palette palette) {
+                    mPalette = palette;
+                }
+            });
 	    	out.flush();
 	    	out.close();
 	    	Log.d(LOG_TAG, "File downloaded from URL.");
@@ -116,7 +152,9 @@ public class FeedImage
 		this.mLargeImage = decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize);
 	    this.mImageObject = ImageUtils.scaleImage(mContext, this.mLargeImage, mImageSize);
 	    this.mThumbnail = ThumbnailUtils.extractThumbnail(mImageObject, mThumbnailSize, mThumbnailSize);
-	    if (this.mDownloadListener != null) this.mDownloadListener.downloadFinished(this.mFeedId);
+	    if (this.mDownloadListener != null) {
+            this.mDownloadListener.downloadFinished(this.mFeedId);  //Notify the listener that the image is downloaded.
+        }
 	}
 	
 	/**
@@ -131,6 +169,12 @@ public class FeedImage
 			this.mLargeImage = decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize);
 			this.mImageObject = ImageUtils.scaleImage(mContext, this.mLargeImage, mImageSize);
 			this.mThumbnail = ThumbnailUtils.extractThumbnail(mImageObject, mThumbnailSize, mThumbnailSize);
+            Palette.generateAsync(this.mImageObject, new Palette.PaletteAsyncListener() {   //Generate a Palette object to go with the image.
+                @Override
+                public void onGenerated(Palette palette) {
+                    mPalette = palette;
+                }
+            });
 			Log.d(LOG_TAG, "File loaded from local storage.");
 		}
 		catch (NullPointerException ex)
@@ -159,7 +203,7 @@ public class FeedImage
 
         public BitmapDownloaderTask() 
         {
-        	mImageObject = null;;
+        	mImageObject = null;
         }
 
         /**

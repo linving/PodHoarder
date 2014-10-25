@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:podhoarder="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
@@ -19,25 +19,27 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            background="?android:attr/selectableItemBackground"
             android:background="?android:attr/selectableItemBackground"
             android:padding="24dp"
             android:scaleType="centerInside"
-            android:src="@drawable/dark_player_backward" />
+            android:src="@drawable/ic_fast_rewind_black_48dp" />
 
         <com.podhoarder.view.ToggleImageButton
             android:id="@+id/player_controls_button_playpause"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="1"
+            background="?android:attr/selectableItemBackground"
             android:background="?android:attr/selectableItemBackground"
             android:padding="12dp"
             android:scaleType="centerInside"
-            podhoarder:checkedDrawable="@drawable/dark_player_pause"
-            podhoarder:unCheckedDrawable="@drawable/dark_player_play" />
+            app:checkedDrawable="@drawable/ic_pause_black_48dp"
+            app:unCheckedDrawable="@drawable/ic_play_arrow_black_48dp" />
 
         <ProgressBar
             android:id="@+id/player_controls_loading_circle"
-            style="?android:attr/progressBarStyle"
+            style="android:Widget.Material.ProgressBar"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
@@ -50,10 +52,11 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            background="?android:attr/selectableItemBackground"
             android:background="?android:attr/selectableItemBackground"
             android:padding="24dp"
             android:scaleType="centerInside"
-            android:src="@drawable/dark_player_forward" />
+            android:src="@drawable/ic_fast_forward_black_48dp" />
     </LinearLayout>
 
 </LinearLayout>

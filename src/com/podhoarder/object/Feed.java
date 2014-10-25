@@ -4,10 +4,10 @@ package com.podhoarder.object;
  * @author Emil Almrot
  * 2013-03-15
  */
-import java.util.List;
-
 
 import android.content.Context;
+
+import java.util.List;
 
 public class Feed
 {
@@ -25,7 +25,7 @@ public class Feed
 	private Context ctx;
 
 	public Feed(int feedId, String title, String author, String description,
-			String link, String category, String imageURL, boolean shouldCreateImage, List<Episode> episodes, 
+			String link, String category, String imageURL, boolean shouldCreateImage, List<Episode> episodes,
 			Context ctx)
 	{
 		this.feedId = feedId;
@@ -40,7 +40,7 @@ public class Feed
 	}
 	
 	public Feed(String title, String author, String description,
-			String link, String category, String imageURL, boolean shouldCreateImage, List<Episode> episodes, 
+			String link, String category, String imageURL, boolean shouldCreateImage, List<Episode> episodes,
 			Context ctx)
 	{
 		this.title = title;

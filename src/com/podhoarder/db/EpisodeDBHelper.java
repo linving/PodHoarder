@@ -227,7 +227,6 @@ public class EpisodeDBHelper
 	 */
 	public List<Episode> search(MainActivity.ListFilter currentFilter)
 	{
-        long startTime = System.currentTimeMillis();
         List<Episode> episodes = new ArrayList<Episode>();
         this.db = this.dbHelper.getWritableDatabase();
 
@@ -272,7 +271,6 @@ public class EpisodeDBHelper
 				episodes.add(cursorToEpisode(cursor));
 			} while (cursor.moveToNext());
 		}
-        Log.i(LOG_TAG,"Search completed in " + (System.currentTimeMillis() - startTime) + "ms");
 		return episodes;
 	}
 	
@@ -309,16 +307,14 @@ public class EpisodeDBHelper
 			//Now that we have the correct order in pointers we need to reorder the playlist accordingly.
 			for (EpisodePointer pointer:pointers)
 			{
-				
-				for (int i2=0; i2<unordered.size(); i2++)
-				{
-					if (unordered.get(i2).getEpisodeId() == pointer.getEpisodeId()) 
-					{
-						//Log.i(LOG_TAG,"LOADED " + playlist.get(i).getTitle() + "(ID: " + pointer.getId() + ")");
-						ret.add(unordered.get(i2));
-						break;
-					}
-				}
+
+                for (Episode ep : unordered) {
+                    if (ep.getEpisodeId() == pointer.getEpisodeId()) {
+                        //Log.i(LOG_TAG,"LOADED " + playlist.get(i).getTitle() + "(ID: " + pointer.getId() + ")");
+                        ret.add(ep);
+                        break;
+                    }
+                }
 			}
 			
 			if (ret.size() != unordered.size())	//This means that there are playlist entries that have not been stored in the database. They should be added to the end and then we should save the playlist.
@@ -384,8 +380,7 @@ public class EpisodeDBHelper
 		    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
 		    Log.w(LOG_TAG,"Added Episode with id: " + insertId);
 		    cursor.moveToFirst();
-		    Episode insertedEpisode = cursorToEpisode(cursor);
-		    return insertedEpisode;
+            return cursorToEpisode(cursor);
 	    }
 	    catch (SQLiteConstraintException e)
 		{
@@ -404,27 +399,33 @@ public class EpisodeDBHelper
 	public List<Episode> insertEpisodes(List<Episode> eps, int feedId)
 	{
 		List<Episode> episodes = new ArrayList<Episode>();
-		for (int i=0; i<eps.size(); i++)
-		{
-			ContentValues values = new ContentValues();
-		    values.put(columns[1], eps.get(i).getTitle());
-		    values.put(columns[2], eps.get(i).getLink());
-		    values.put(columns[3], eps.get(i).getLocalLink());
-		    values.put(columns[4], eps.get(i).getPubDate());
-		    values.put(columns[5], eps.get(i).getDescription());
-		    values.put(columns[6], eps.get(i).getElapsedTime());
-		    values.put(columns[7], eps.get(i).getTotalTime());
-            values.put(columns[8], eps.get(i).isFavorite());
+        for (Episode ep : eps) {
+            ContentValues values = new ContentValues();
+            values.put(columns[1], ep.getTitle());
+            values.put(columns[2], ep.getLink());
+            values.put(columns[3], ep.getLocalLink());
+            values.put(columns[4], ep.getPubDate());
+            values.put(columns[5], ep.getDescription());
+            values.put(columns[6], ep.getElapsedTime());
+            values.put(columns[7], ep.getTotalTime());
+            values.put(columns[8], ep.isFavorite());
             values.put(columns[9], feedId);
-		    
-		    this.db = this.dbHelper.getWritableDatabase();
-		    long insertId = this.db.insert(TABLE_NAME, null, values);
-		    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
-		    Log.i(LOG_TAG,"Added Episode with id: " + insertId);
-		    cursor.moveToFirst();
-		    Episode insertedEpisode = cursorToEpisode(cursor);
-		    episodes.add(insertedEpisode);
-		}
+
+            this.db = this.dbHelper.getWritableDatabase();
+            long insertId = this.db.insert(TABLE_NAME, null, values);
+            if (insertId != -1) {
+                Episode insertedEpisode = new Episode((int) insertId, ep.getTitle(), ep.getLink(), ep.getLocalLink(), ep.getPubDate(), ep.getDescription(), ep.getElapsedTime(), ep.getTotalTime(), false, feedId);
+                episodes.add(insertedEpisode);
+                Log.i(LOG_TAG, "Added Episode with id: " + insertId);
+            }
+            else {
+                Log.i(LOG_TAG, "Failed to add episode");
+            }
+
+//            Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
+//            cursor.moveToFirst();
+//            Episode insertedEpisode = cursorToEpisode(cursor);
+        }
 		return episodes;
 	}
 	
@@ -537,8 +538,8 @@ public class EpisodeDBHelper
 			statement.bindString(6, ep.getDescription());
 			statement.bindLong(7, ep.getElapsedTime());
 			statement.bindLong(8, ep.getTotalTime());
-            statement.bindLong(8,  ep.isFavorite() ? 1 : 0 );
-			statement.bindLong(9, ep.getFeedId());
+            statement.bindLong(9,  ep.isFavorite() ? 1 : 0 );
+			statement.bindLong(10, ep.getFeedId());
 			statement.execute();
 		}
 		this.db.setTransactionSuccessful();
@@ -553,10 +554,9 @@ public class EpisodeDBHelper
 	 */
 	private Episode cursorToEpisode(Cursor c)
 	{
-		Episode ep = new Episode(Integer.parseInt(c.getString(0)),
-				c.getString(1), c.getString(2), c.getString(3), c.getString(4),
-				c.getString(5), Integer.parseInt(c.getString(6)), Integer.parseInt(c.getString(7)), (Integer.parseInt(c.getString(8)) != 0), Integer.parseInt(c.getString(9)));
-		return ep;
+		return new Episode(Integer.parseInt(c.getString(0)),
+                c.getString(1), c.getString(2), c.getString(3), c.getString(4),
+                c.getString(5), Integer.parseInt(c.getString(6)), Integer.parseInt(c.getString(7)), (Integer.parseInt(c.getString(8)) != 0), Integer.parseInt(c.getString(9)));
 	}
 	
 	/**

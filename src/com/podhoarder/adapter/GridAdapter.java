@@ -211,19 +211,13 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener
 		{
 			try
 			{
-                if (viewHolder.itemPalette == null)
-                {
-                    viewHolder.itemPalette = Palette.generate(currentFeed.getFeedImage().thumbnail(), 8);
-                    viewHolder.feedTitle.setBackgroundColor(viewHolder.itemPalette.getVibrantColor(Color.parseColor("#80000000")));
-                }
-                else
-                {
-                    viewHolder.feedTitle.setBackgroundColor(viewHolder.itemPalette.getVibrantColor(Color.parseColor("#80000000")));
-                }
+
 				if (PreferenceManager.getDefaultSharedPreferences(this.mContext).getBoolean(Constants.SETTINGS_KEY_GRIDSHOWTITLE, true) || this.mSelectionEnabled)
 				{
-					viewHolder.feedTitle.setVisibility(View.VISIBLE);
+                    viewHolder.feedTitle.setBackgroundColor(currentFeed.getFeedImage().palette().getDarkVibrantColor(Color.parseColor("#80000000")));
+                    viewHolder.feedTitle.setTextColor(currentFeed.getFeedImage().palette().getDarkVibrantSwatch().getTitleTextColor());
 					viewHolder.feedTitle.setText(currentFeed.getTitle());	//Set Feed Title
+                    viewHolder.feedTitle.setVisibility(View.VISIBLE);
 				}
 				else viewHolder.feedTitle.setVisibility(View.GONE);
 				

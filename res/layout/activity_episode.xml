@@ -5,12 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:paddingTop="?actionBarSize"
+    android:clipToPadding="false">
 
     <RelativeLayout
         android:id="@+id/episode_title_container"
         android:layout_width="wrap_content"
-        android:layout_height="0dp" 
+        android:layout_height="0dp"
         android:layout_weight="5">
 
         <ImageView
@@ -18,38 +20,8 @@
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:background="@android:color/transparent"
-            android:scaleType="centerCrop"/>
+            android:scaleType="centerCrop" />
 
-        <com.podhoarder.view.FloatingToggleButton
-            android:id="@+id/episode_favorite_toggle"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="-36dp"
-            android:layout_marginRight="16dp"
-            android:clickable="true"
-            android:background="@android:color/transparent"
-	        app:onDrawable="@drawable/ic_star_white_24dp"
-	        app:offDrawable="@drawable/ic_star_outline_white_24dp"
-            app:buttonColor="@color/windowBackground"
-            app:shadowRadius="3.0"
-            app:shadowDx="0.5"
-            app:shadowDy="1.0"/>
-
-<!--        <com.podhoarder.view.StrokedTextView
-            android:id="@+id/episode_title"
-            style="@style/Podhoarder.Text.Giant"
-            android:layout_width="fill_parent"
-            android:layout_height="72dp"
-            android:layout_marginLeft="72dp"
-            android:layout_marginBottom="8dp"
-            android:paddingRight="8dp"
-            android:layout_alignParentBottom="true"
-            android:gravity="center_vertical"
-            android:maxLines="1"
-            android:ellipsize="end"
-            app:strokeWidth="1.0"/>-->
     </RelativeLayout>
 
     <LinearLayout
@@ -60,21 +32,72 @@
         android:clickable="false"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/episode_title"
-            style="@style/Base.TextAppearance.AppCompat.Headline"
+        <RelativeLayout
+            android:id="@+id/episode_headline_container"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:gravity="center_vertical"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginRight="88dp"
-            android:layout_marginEnd="88dp"
-            android:ellipsize="end"
-            android:maxLines="1" />
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:clipChildren="false"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/episode_headline_text_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?colorPrimary"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/episode_title"
+                    style="@style/Base.TextAppearance.AppCompat.Title.Inverse"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginLeft="88dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginStart="88dp"
+                    android:layout_marginTop="8dp"
+                    android:ellipsize="end"
+                    android:maxLines="2" />
+
+                <TextView
+                    android:id="@+id/episode_timeStamp"
+                    style="@style/Base.TextAppearance.AppCompat.Subhead.Inverse"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/episode_title"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginLeft="88dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginStart="88dp"
+                    android:layout_marginBottom="8dp"
+                    android:ellipsize="end"
+                    android:maxLines="1" />
+            </LinearLayout>
+
+
+            <com.podhoarder.view.FloatingToggleButton
+                android:id="@+id/episode_favorite_toggle"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/episode_headline_text_container"
+                android:layout_marginTop="-36dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                app:buttonColor="@color/windowBackground"
+                app:offDrawable="@drawable/ic_favorite_outline_black_24dp"
+                app:onDrawable="@drawable/ic_favorite_pink_24dp"
+                app:shadowDx="0.5"
+                app:shadowDy="1.0"
+                app:shadowRadius="3.0" />
+        </RelativeLayout>
+
 
         <TextView
             android:id="@+id/episode_description"
@@ -82,11 +105,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginLeft="88dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginStart="88dp"
+            android:layout_marginTop="-28dp"
             android:ellipsize="end"
             android:maxLines="9" />
     </LinearLayout>

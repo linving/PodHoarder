@@ -1,7 +1,5 @@
 package com.podhoarder.service;
 
-import java.util.List;
-
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -19,6 +17,8 @@ import com.podhoarder.util.Constants;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.PodcastHelper;
 import com.podhoarder.util.ToastMessages;
+
+import java.util.List;
 
 public class PodHoarderService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener  
 {
@@ -409,7 +409,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void playNext()
 	{
 		int index = this.mHelper.mPlaylistAdapter.findEpisodeInPlaylist(this.mCurrentEpisode);
-		if(index < (this.mPlayList.size()-1) && this.mPlayList.size() > 1)	//Only change Episode when we're not at the end of the playlist or the current Episode isn't the only one in the playlist.
+		if(index < (this.mHelper.mPlaylistAdapter.getCount()-1) && this.mHelper.mPlaylistAdapter.getCount() > 1)	//Only change Episode when we're not at the end of the playlist or the current Episode isn't the only one in the playlist.
 		{
 			playEpisode(index+1);
 			return;

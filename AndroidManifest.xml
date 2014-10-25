@@ -34,7 +34,7 @@
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="android.intent.action.VIEW" />
-                <data android:scheme="com.podhoarder.activity" />
+                <data android:scheme="com.podhoarderproject.podhoarder" />
             </intent-filter>
             <meta-data
                 android:name="android.app.searchable"
@@ -44,10 +44,12 @@
         </activity>
         <activity
             android:name="com.podhoarder.activity.EpisodeActivity"
+            android:theme="@style/Theme.Podhoarder.ToolbarOverlay"
             android:parentActivityName="com.podhoarder.activity.MainActivity" >
         </activity>
         <activity
             android:name="com.podhoarder.activity.PlayerActivity"
+            android:theme="@style/Theme.Podhoarder.ToolbarOverlay"
             android:parentActivityName="com.podhoarder.activity.MainActivity" >
         </activity>
         <activity

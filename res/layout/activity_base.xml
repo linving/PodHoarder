@@ -7,20 +7,19 @@
     tools:context=".HomeActivity">
 
 
-    <RelativeLayout
+    <FrameLayout
+        android:id="@+id/root_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <include
             android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:layout_alignParentTop="true"
             layout="@layout/toolbar" />
 
-        <RelativeLayout
-            android:id="@+id/root_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/toolbar"/>
-    </RelativeLayout>
+    </FrameLayout>
 
     <ListView
         android:id="@+id/drawer_list"

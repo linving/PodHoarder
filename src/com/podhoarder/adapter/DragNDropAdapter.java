@@ -16,8 +16,6 @@
 
 package com.podhoarder.adapter;
 
-import java.util.List;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +29,8 @@ import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.util.ViewHolders.PlaylistRowViewHolder;
 import com.podhoarderproject.podhoarder.R;
+
+import java.util.List;
 
 public final class DragNDropAdapter extends BaseAdapter {
 
@@ -139,7 +139,7 @@ public final class DragNDropAdapter extends BaseAdapter {
 			
 			if (position == findCurrentEpisodeIndex())
 			{
-				holder.feedImage.setImageResource(R.drawable.dark_player_play);
+				holder.feedImage.setImageResource(R.drawable.ic_play_arrow_black_24dp);
 				holder.feedImage.setPadding(15, 15, 15, 15);
 				holder.feedImage.setBackgroundColor(mContext.getResources().getColor(android.R.color.transparent));
 			}

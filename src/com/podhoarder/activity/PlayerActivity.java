@@ -187,8 +187,9 @@ public class PlayerActivity extends BaseActivity implements PodHoarderService.St
 
             @Override
             public void onClick(View v) {
-                mCurrentEpisode.setFavorite(!mCurrentEpisode.isFavorite());
-                ((FloatingToggleButton) v).setToggled(mCurrentEpisode.isFavorite());
+                mCurrentEpisode.setFavorite(!mCurrentEpisode.isFavorite()); //Toggle favorite status of the Episode.
+                mEDB.updateEpisode(mCurrentEpisode);    //Update the db with the new value
+                ((FloatingToggleButton) v).setToggled(mCurrentEpisode.isFavorite());    //Toggle the button.
             }
         });
         mFAB.setOnTouchListener(new OnTouchListener() {
@@ -371,7 +372,7 @@ public class PlayerActivity extends BaseActivity implements PodHoarderService.St
         final ClipDrawable pd = (ClipDrawable) ld.findDrawableByLayerId(android.R.id.progress);
         pd.setColorFilter(mPalette.getVibrantColor(getResources().getColor(R.color.windowBackground)), PorterDuff.Mode.SRC_IN);
         //Color the Floating Action Button
-        mFAB.setColor(mPalette.getVibrantColor(getResources().getColor(R.color.windowBackground)));
+       // mFAB.setColor(mPalette.getVibrantColor(getResources().getColor(R.color.windowBackground)));
 
     }
 

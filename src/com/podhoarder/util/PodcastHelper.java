@@ -16,6 +16,7 @@ import com.podhoarder.adapter.DragNDropAdapter;
 import com.podhoarder.adapter.EpisodesListAdapter;
 import com.podhoarder.adapter.GridAdapter;
 import com.podhoarder.async.AddFeedFromSearchTask;
+import com.podhoarder.async.AddFeedFromSearchTaskNoUI;
 import com.podhoarder.async.FeedRefreshTask;
 import com.podhoarder.async.MarkEpisodesAsListenedTask;
 import com.podhoarder.async.MarkFeedsAsListenedTask;
@@ -85,10 +86,21 @@ public class PodcastHelper {
      */
     public void addSearchResults(List<SearchResultRow> itemsToAdd) {
         if (NetworkUtils.isOnline(mContext)) {
-            for (SearchResultRow row : itemsToAdd) {
-                this.mFeedsGridAdapter.addLoadingItem();
-                new AddFeedFromSearchTask(mContext, fDbH, mFeedsGridAdapter).execute(row);
+            if (hasPodcasts())
+            {
+                for (SearchResultRow row : itemsToAdd) {
+                    this.mFeedsGridAdapter.addLoadingItem();
+                    this.mFeedsGridAdapter.notifyDataSetChanged();
+                    new AddFeedFromSearchTask(mContext, fDbH, mFeedsGridAdapter).execute(row);
+                }
             }
+            else {
+                for (SearchResultRow row : itemsToAdd) {
+                    new AddFeedFromSearchTaskNoUI(mContext, fDbH).execute(row);
+                }
+            }
+
+
         } else
             ToastMessages.AddFeedFailed(this.mContext).show();
     }
@@ -424,12 +436,15 @@ public class PodcastHelper {
      * Flags the currently visible List/Grid as invalidated, causing it to redraw the list.
      */
     public void invalidate() {
-        ListFilter mCurrentFilter = ((MainActivity) mContext).getFilter();
-        //Notify for UI updates.
-        if (mCurrentFilter == ListFilter.ALL && mCurrentFilter.getFeedId() == 0)
-            mFeedsGridAdapter.notifyDataSetChanged();
-        else
-            mEpisodesListAdapter.notifyDataSetChanged();
+        if (hasPodcasts())
+        {
+            ListFilter mCurrentFilter = ((MainActivity) mContext).getFilter();
+            //Notify for UI updates.
+            if (mCurrentFilter == ListFilter.ALL && mCurrentFilter.getFeedId() == 0)
+                mFeedsGridAdapter.notifyDataSetChanged();
+            else
+                mEpisodesListAdapter.notifyDataSetChanged();
+        }
     }
 
     /**

@@ -29,186 +29,171 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddActivity extends BaseActivity implements SearchView.OnQueryTextListener
-{
-	@SuppressWarnings("unused")
-	private static final String LOG_TAG = "com.podhoarder.activity.AddActivity";
+public class AddActivity extends BaseActivity implements SearchView.OnQueryTextListener {
+    @SuppressWarnings("unused")
+    private static final String LOG_TAG = "com.podhoarder.activity.AddActivity";
+    public static final String INTENT_RESULTS_ID = "res";
 
-	private FeedDBHelper mFeedHelper;
-	
-	private ListView mListView;
-	private SearchResultsAdapter mListAdapter;
+    private FeedDBHelper mFeedHelper;
 
-	private SearchManager mSearchManager;
+    private ListView mListView;
+    private SearchResultsAdapter mListAdapter;
 
-	private ButteryProgressBar mProgressBar;
+    private SearchManager mSearchManager;
 
-	private SearchResultMultiChoiceModeListener mListSelectionListener;
+    private ButteryProgressBar mProgressBar;
 
-	public void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_add);
+    private SearchResultMultiChoiceModeListener mListSelectionListener;
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-		mFeedHelper = new FeedDBHelper(AddActivity.this);
-		setupListView();
-		mProgressBar = (ButteryProgressBar) findViewById(R.id.search_progressBar);
-		mSearchManager = new SearchManager(AddActivity.this, mListAdapter, mProgressBar);
-	}
+        mFeedHelper = new FeedDBHelper(AddActivity.this);
+        setupListView();
+        mProgressBar = (ButteryProgressBar) findViewById(R.id.search_progressBar);
+        mSearchManager = new SearchManager(AddActivity.this, mListAdapter, mProgressBar);
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(final Menu menu)
-	{
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
 
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.search_menu, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.search_menu, menu);
         android.app.SearchManager searchManager = (android.app.SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        if (null != searchView )
-        {
+        if (null != searchView) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
             searchView.setIconifiedByDefault(false);
         }
         searchView.setOnQueryTextListener(this);
-		onSearchRequested();
+        onSearchRequested();
         searchView.requestFocus();
-		return true;
-	}
+        return true;
+    }
 
-	public void finish(List<SearchResultRow> selectedResults)
-	{
-        for(SearchResultRow row : selectedResults) row.cacheXml();  //Cache the file. Most XML documents are too large to be passed as Intent Extras so we need to do this.
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
 
-		 Intent databackIntent = new Intent(); 
-		 databackIntent.putExtra("Results", (Serializable)selectedResults);
-		 setResult(Activity.RESULT_OK, databackIntent);
-		 finish();
-	}
-	
-	private void setupListView()
-	{
-		this.mListAdapter = new SearchResultsAdapter(AddActivity.this);
+    public void finish(List<SearchResultRow> selectedResults) {
+        for (SearchResultRow row : selectedResults)
+            row.cacheXml();  //Cache the file. Most XML documents are too large to be passed as Intent Extras so we need to do this.
 
-		this.mListView = (ListView) findViewById(R.id.mainListView);
-		this.mListView.setAdapter(this.mListAdapter);
-		this.mListView.setOnItemClickListener(new OnItemClickListener()
-		{
-			@Override
-			public void onItemClick(AdapterView<?> adapterView, View v,
-					int position, long id)
-			{
-				List<SearchResultRow> selectedItem = new ArrayList<SearchResultRow>();
-				selectedItem.add((SearchResultRow) mListView
-						.getItemAtPosition(position));
-				addFeedsDialog(AddActivity.this, selectedItem);
-			}
-		});
-		this.mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-		this.mListSelectionListener = new SearchResultMultiChoiceModeListener(
-				AddActivity.this, this.mListView);
-		this.mListView.setMultiChoiceModeListener(this.mListSelectionListener);
-	}
+        Intent databackIntent = new Intent();
+        databackIntent.putExtra(INTENT_RESULTS_ID, (Serializable) selectedResults);
+        setResult(Activity.RESULT_OK, databackIntent);
+        finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
 
-	public SearchResultMultiChoiceModeListener getListSelectionListener()
-	{
-		return mListSelectionListener;
-	}
+    private void setupListView() {
+        this.mListAdapter = new SearchResultsAdapter(AddActivity.this);
 
-	public SearchManager getSearchManager()
-	{
-		return mSearchManager;
-	}
+        this.mListView = (ListView) findViewById(R.id.mainListView);
+        this.mListView.setAdapter(this.mListAdapter);
+        this.mListView.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View v,
+                                    int position, long id) {
+                List<SearchResultRow> selectedItem = new ArrayList<SearchResultRow>();
+                selectedItem.add((SearchResultRow) mListView
+                        .getItemAtPosition(position));
+                addFeedsDialog(AddActivity.this, selectedItem);
+            }
+        });
+        this.mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        this.mListSelectionListener = new SearchResultMultiChoiceModeListener(
+                AddActivity.this, this.mListView);
+        this.mListView.setMultiChoiceModeListener(this.mListSelectionListener);
+    }
 
-	@Override
-	public boolean onQueryTextChange(String arg0)
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public SearchResultMultiChoiceModeListener getListSelectionListener() {
+        return mListSelectionListener;
+    }
 
-	@Override
-	public boolean onQueryTextSubmit(String text)
-	{
-		mSearchManager.doSearch(text);
-		hideKeyboard();
-		return false;
-	}
+    public SearchManager getSearchManager() {
+        return mSearchManager;
+    }
 
-	public void addFeedsDialog(final Context ctx, final List<SearchResultRow> selectedResults)
-	{
-		if (selectedResults.size() > 1)
-		{
-			AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-	    	builder.setTitle(ctx.getString(R.string.popup_window_title_multiple));
-	    	builder.setMessage(ctx.getString(R.string.popup_areyousure) + " " + selectedResults.size() + " " + ctx.getString(R.string.popup_podcasts) + "?");
+    @Override
+    public boolean onQueryTextChange(String arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	    	// Set up the buttons
-	    	builder.setPositiveButton(R.string.popup_window_ok_button, new DialogInterface.OnClickListener() { 
-	    	    @Override
-	    	    public void onClick(DialogInterface dialog, int which) 
-	    	    {
-	    	    	finish(selectedResults);
-	    	    	//TODO: Start mainactivity
-	    	    }
-	    	});
-	    	builder.setNegativeButton(R.string.popup_window_cancel_button, new DialogInterface.OnClickListener() {
-	    	    @Override
-	    	    public void onClick(DialogInterface dialog, int which) {
-	    	        dialog.cancel();
-	    	    }
-	    	});
-			builder.show();
-		}
-		else if (selectedResults.size() == 1)
-		{
-			final SearchResultRow currentItem = selectedResults.get(0);
-			AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-	    	builder.setTitle(ctx.getString(R.string.popup_window_title_single));
-	    	builder.setMessage(ctx.getString(R.string.popup_areyousure) + " " + currentItem.getTitle() + "?");
+    @Override
+    public boolean onQueryTextSubmit(String text) {
+        mSearchManager.doSearch(text);
+        hideKeyboard();
+        return false;
+    }
 
-	    	// Set up the buttons
-	    	builder.setPositiveButton(R.string.popup_window_ok_button, new DialogInterface.OnClickListener() { 
-	    	    @Override
-	    	    public void onClick(DialogInterface dialog, int which) 
-	    	    {
-	    	    	finish(selectedResults);
-	    	    	//TODO: Start mainactivity
-	    	    }
-	    	});
-	    	builder.setNegativeButton(R.string.popup_window_cancel_button, new DialogInterface.OnClickListener() {
-	    	    @Override
-	    	    public void onClick(DialogInterface dialog, int which) {
-	    	        dialog.cancel();
-	    	    }
-	    	});
-			builder.show();
-		}
-	}
-	
-	public void hideKeyboard()
-	{
-		InputMethodManager inputManager = (InputMethodManager) this
-				.getSystemService(Context.INPUT_METHOD_SERVICE);
+    public void addFeedsDialog(final Context ctx, final List<SearchResultRow> selectedResults) {
+        if (selectedResults.size() > 1) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+            builder.setTitle(ctx.getString(R.string.popup_window_title_multiple));
+            builder.setMessage(ctx.getString(R.string.popup_areyousure) + " " + selectedResults.size() + " " + ctx.getString(R.string.popup_podcasts) + "?");
 
-		// check if no view has focus:
-		View view = this.getCurrentFocus();
-		if (view != null)
-		{
-			inputManager.hideSoftInputFromWindow(view.getWindowToken(),
-					InputMethodManager.HIDE_NOT_ALWAYS);
-		}
-	}
-	
-	public boolean feedExists(String feedURL)
-	{
-		List<Feed> feeds = mFeedHelper.getAllFeeds(false);
-		for (int r = 0; r < feeds.size(); r++)
-		{
-			if (feedURL.equals(feeds.get(r).getLink())) return true;
-		}
-		return false;
-	}
+            // Set up the buttons
+            builder.setPositiveButton(R.string.popup_window_ok_button, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish(selectedResults);
+                }
+            });
+            builder.setNegativeButton(R.string.popup_window_cancel_button, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            builder.show();
+        } else if (selectedResults.size() == 1) {
+            final SearchResultRow currentItem = selectedResults.get(0);
+            AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+            builder.setTitle(ctx.getString(R.string.popup_window_title_single));
+            builder.setMessage(ctx.getString(R.string.popup_areyousure) + " " + currentItem.getTitle() + "?");
+
+            // Set up the buttons
+            builder.setPositiveButton(R.string.popup_window_ok_button, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish(selectedResults);
+                }
+            });
+            builder.setNegativeButton(R.string.popup_window_cancel_button, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            builder.show();
+        }
+    }
+
+    public void hideKeyboard() {
+        InputMethodManager inputManager = (InputMethodManager) this
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        // check if no view has focus:
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            inputManager.hideSoftInputFromWindow(view.getWindowToken(),
+                    InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
+
+    public boolean feedExists(String feedURL) {
+        List<Feed> feeds = mFeedHelper.getAllFeeds(false);
+        for (int r = 0; r < feeds.size(); r++) {
+            if (feedURL.equals(feeds.get(r).getLink())) return true;
+        }
+        return false;
+    }
 }

@@ -19,7 +19,7 @@
     <string name="search_hint">Search Library</string>
     <string name="search_results">Search Results</string>
 
-    <string name="library_empty">Looks like your library is empty.<br> <a href="com.podhoarder.activity://navigate_add">Tap here to add your first Podcast.</a></br></string>
+    <string name="library_empty">:( \nLooks like your library is empty. \nTap the + in the toolbar add one!</string>
     
     <string name="timestamp_posted">Posted</string>
     
@@ -62,7 +62,7 @@
     <!-- Add Feed Popup Window -->
     <string name="popup_window_title_single">Add Podcast?</string>
     <string name="popup_window_title_multiple">Add Podcasts?</string>
-    <string name="popup_areyousure">Are you sure you want to add these</string>
+    <string name="popup_areyousure">Are you sure you want to add</string>
     <string name="popup_podcasts">podcasts</string>
     <string name="popup_window_ok_button">Yes</string>
     <string name="popup_window_cancel_button">No</string>

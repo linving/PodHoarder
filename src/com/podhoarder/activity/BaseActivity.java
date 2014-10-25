@@ -9,7 +9,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.RelativeLayout;
+import android.widget.FrameLayout;
 
 import com.podhoarderproject.podhoarder.R;
 
@@ -21,7 +21,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     private Toolbar mToolbar;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
-    private RelativeLayout mContentRoot;
+    private FrameLayout mContentRoot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +46,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     @Override
     public void setContentView(int layoutResID) {
         mDrawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_base, null);
-        mContentRoot = (RelativeLayout) mDrawerLayout.findViewById(R.id.root_container);
+        mContentRoot = (FrameLayout) mDrawerLayout.findViewById(R.id.root_container);
         // set the drawer layout as main_menu content view of Activity.
         setContentView(mDrawerLayout);
         // add layout of BaseActivities inside framelayout.i.e. frame_container

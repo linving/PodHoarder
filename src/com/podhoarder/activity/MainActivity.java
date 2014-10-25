@@ -16,7 +16,6 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -93,6 +92,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 	
 	//ACTIVITY RESULT
 	static final int ADD_PODCAST_REQUEST = 1;
+    static final int SETTINGS_REQUEST = 2;
 	
 	//HARDWARE INTENT RECEIVER
 	private HardwareIntentReceiver hardwareIntentReceiver;
@@ -189,6 +189,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.bringToFront();
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -283,7 +284,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
                     setFilter(ListFilter.ALL);
                     return true;
                 case R.id.action_settings:
-                    startActivity(new Intent(this, SettingsActivity.class));
+                    startSettingsActivity();
                     return true;
                 case R.id.action_add:
                     startAddActivity();
@@ -326,19 +327,28 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
-        if (requestCode == ADD_PODCAST_REQUEST) 
-        {
-            // Make sure the request was successful
-            if (resultCode == RESULT_OK) 
-            {
-                // The user picked a contact.
-                // The Intent's data Uri identifies which contact was selected.
-            	@SuppressWarnings("unchecked")
-				List<SearchResultRow> results = (List<SearchResultRow>) data.getExtras().getSerializable("Results");
-                for (SearchResultRow row : results) //Load all the XML files back into memory from the cache directory.
-                    row.loadXML();
-            	mPodcastHelper.addSearchResults(results);
-            }
+        switch (requestCode) {
+            case ADD_PODCAST_REQUEST:
+                // Make sure the request was successful
+                if (resultCode == RESULT_OK)
+                {
+                    // The user picked a contact.
+                    // The Intent's data Uri identifies which contact was selected.
+                    @SuppressWarnings("unchecked")
+                    List<SearchResultRow> results = (List<SearchResultRow>) data.getExtras().getSerializable(AddActivity.INTENT_RESULTS_ID);
+                    for (SearchResultRow row : results) //Load all the XML files back into memory from the cache directory.
+                        row.loadXML();
+                    mPodcastHelper.addSearchResults(results);
+                }
+                break;
+            case SETTINGS_REQUEST:
+                // Make sure the request was successful
+                if (resultCode == RESULT_OK) {
+                    if (data.getExtras().getBoolean(SettingsActivity.INTENT_RESULTS_ID)) {  //If any of the preferences were changed we'll redraw the Grid. (to reflect the UI changes)
+                        mPodcastHelper.mFeedsGridAdapter.notifyDataSetChanged();
+                    }
+                }
+                break;
         }
     }
     @Override
@@ -365,9 +375,9 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 
     //INTENT HANDLING
     private void handleIntent(Intent intent) {
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+        Log.i(LOG_TAG,"Received intent!");
+        if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            // Do work using string
         }
     }
 
@@ -390,7 +400,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 	private void setupListView()
 	{
 		mListView = (ListView) findViewById(R.id.episodesListView);
-		if (!this.mPodcastHelper.mEpisodesListAdapter.isEmpty())
+		if (this.mPodcastHelper.hasPodcasts())
 		{
 			Animation animation = AnimationUtils.loadAnimation( this, R.anim.grid_fade_in);
     		LayoutAnimationController animationController = new LayoutAnimationController(animation, 0.2f);
@@ -419,17 +429,15 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 		} 
 		else
 		{
-			// TODO: Show some kind of "list is empty" text instead of the mainlistview here.
-            TextView mEmptyText = (TextView) findViewById(R.id.emptyLibraryString);
-            mEmptyText.setVisibility(View.VISIBLE);
-            mEmptyText.setMovementMethod(LinkMovementMethod.getInstance());
+            //List is empty. So we show the "Click to add your first podcast" string.
+            setupEmptyText();
 		}
 	}
 	private void setupGridView()
     {
 		
 		mGridView = (GridView) findViewById(R.id.feedsGridView);
-    	if (!this.mPodcastHelper.mFeedsGridAdapter.isEmpty())
+    	if (this.mPodcastHelper.hasPodcasts())
     	{
     		
     		Animation animation = AnimationUtils.loadAnimation( this, R.anim.grid_fade_in);
@@ -461,12 +469,8 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
     	}
     	else
     	{
-    		//Grid is empty.
-    		//TODO: Add a hint and a link to the add feed fragment.
-            TextView mEmptyText = (TextView) findViewById(R.id.emptyLibraryString);
-            mEmptyText.setVisibility(View.VISIBLE);
-            mEmptyText.setMovementMethod(LinkMovementMethod.getInstance());
-    		
+            //Grid is empty. So we show the "Click to add your first podcast" string.
+            setupEmptyText();
     	}
     	
     }
@@ -508,8 +512,16 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
         });
         mFAB.setPlaying(mPlaybackService.isPlaying());
 
+        if (!mPodcastHelper.hasPodcasts()) mFAB.setVisibility(View.GONE);
+        else mFAB.setVisibility(View.VISIBLE);
     }
-
+    private void setupEmptyText()
+    {
+        TextView mEmptyText = (TextView) findViewById(R.id.emptyLibraryString);
+        if (mEmptyText.getVisibility() != View.VISIBLE) {
+            mEmptyText.setVisibility(View.VISIBLE);
+        }
+    }
 
 	//FILTERING
 	public enum ListFilter 
@@ -564,7 +576,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
     private void doSearch(String searchString)
     {
         mSearchEnabled = true;
-        mFilter.setSearchString(searchString);
+        mFilter.setSearchString(searchString.trim());
         setFilter(mFilter);
     }
 
@@ -586,6 +598,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 		Bundle b = new Bundle();
 		b.putInt("id", currentEp.getEpisodeId()); //Your id
 		b.putString("title", currentEp.getTitle());
+        b.putString("timeStamp", currentEp.getPubDate());
 		b.putString("description", currentEp.getDescription());
 		intent.putExtras(b); //Put your id to your next Intent
 		startActivity(intent);
@@ -603,6 +616,10 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 		startActivityForResult(intent, ADD_PODCAST_REQUEST);
 		overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
 	}
+    public void startSettingsActivity() {
+        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivityForResult(intent, SETTINGS_REQUEST);
+    }
 
 
     //MISC HELPER METHODS
@@ -632,6 +649,8 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
             mListView.setVisibility(View.VISIBLE);
             mListView.startLayoutAnimation();
         }
+
+
     }
     /**
      * Perform fade out animations on all of the grid items where position != pos
@@ -652,6 +671,15 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 
     }
 
+    /**
+     * Called when the first Podcast has been added to the library to create List/Grid adapters etc.
+     */
+    public void firstFeedAdded()
+    {
+        populate();
+        if (!mPodcastHelper.hasPodcasts()) mFAB.setVisibility(View.GONE);
+        else mFAB.setVisibility(View.VISIBLE);
+    }
 
     //GETTERS
     public PodcastHelper getPodcastHelper()

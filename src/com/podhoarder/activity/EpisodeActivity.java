@@ -36,11 +36,11 @@ public class EpisodeActivity extends BaseActivity
 	
 	private int mEpId;
 
-    private TextView episodeTitle, episodeDescription;
+    private TextView episodeTitle, episodeTimestamp, episodeDescription;
 
     private LinearLayout mTextContainer;
 
-    private String title, description;
+    private String title, timeStamp, description;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -55,10 +55,14 @@ public class EpisodeActivity extends BaseActivity
         Bundle b = getIntent().getExtras();
         new backgroundSetupTask().execute(b.getInt("id"));
         title = b.getString("title");
+        timeStamp = b.getString("timeStamp");
         description = b.getString("description");
 
         episodeTitle = (TextView)findViewById(R.id.episode_title);
         episodeTitle.setText(title);
+
+        episodeTimestamp = (TextView)findViewById(R.id.episode_timeStamp);
+        episodeTimestamp.setText(timeStamp);
 
         episodeDescription = (TextView)findViewById(R.id.episode_description);
         episodeDescription.setText(description);
@@ -70,8 +74,9 @@ public class EpisodeActivity extends BaseActivity
 
             @Override
             public void onClick(View v) {
-                mCurrentEpisode.setFavorite(!mCurrentEpisode.isFavorite());
-                ((FloatingToggleButton) v).setToggled(mCurrentEpisode.isFavorite());
+                mCurrentEpisode.setFavorite(!mCurrentEpisode.isFavorite()); //Set the object property
+                mEDB.updateEpisode(mCurrentEpisode);    //Commit update to the DB
+                ((FloatingToggleButton) v).setToggled(mCurrentEpisode.isFavorite());    //Toggle the button
             }
         });
         mFAB.setOnTouchListener(new OnTouchListener() {
@@ -190,7 +195,7 @@ public class EpisodeActivity extends BaseActivity
     private void colorUI(Palette p)
     {
         //Color the Floating Action Button
-        mFAB.setColor(mPalette.getVibrantColor(getResources().getColor(R.color.app_favorite)));
+        //mFAB.setColor(mPalette.getVibrantColor(getResources().getColor(R.color.app_favorite)));
         mTextContainer.invalidate();    //Force the overlaying layout to redraw with the correct button color
     }
 }

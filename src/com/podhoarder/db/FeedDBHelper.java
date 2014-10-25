@@ -178,7 +178,7 @@ public class FeedDBHelper
 	public Feed insertFeed(Feed feed) throws SQLiteConstraintException, CursorIndexOutOfBoundsException
 	{
 		boolean hasNullValues = hasNullValues(feed);
-		
+
 		if (!hasNullValues)
 		{
 			ContentValues values = new ContentValues();
@@ -298,11 +298,11 @@ public class FeedDBHelper
 	private Feed cursorToFeed(Cursor c, boolean shouldCreateImage)
 	{
 		Feed feed = new Feed(	Integer.parseInt(c.getString(0)),
-							c.getString(1), 
-							c.getString(2), 
-							c.getString(3), 
+							c.getString(1),
+							c.getString(2),
+							c.getString(3),
 							c.getString(4),
-							c.getString(5), 
+							c.getString(5),
 							c.getString(6), shouldCreateImage,
 							this.eph.getAllEpisodes(Integer.parseInt(c.getString(0))), 
 							this.ctx);

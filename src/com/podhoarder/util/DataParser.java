@@ -115,7 +115,7 @@ public class DataParser
 			
 			try
 			{
-				Date date = xmlFormat.parse(pubDate);									//Try to parse the date tag into the format the app handles.
+				Date date = xmlFormat.parse(pubDate);									//Try to parse the date tag into the format the app handles. xmlFormat is a definition of the most commonly used Date format.
 				return correctFormat.format(date);										//Return the correctly formatted string.
 			}
 			
@@ -123,16 +123,42 @@ public class DataParser
 			{
 				Log.e(LOG_TAG, "ParseException when parsing Podcast Publish date.");
 				e.printStackTrace();
-				return "";																//If we encounter something that we can't parse, we just return an empty string.
+
+
+				return tryParseDate(pubDate);	//If we encounter something that we can't parse, we use DateUtils to try and find the format and parse it, if it still doesnt work, we just return an empty string.
 			}
 		}
 		catch (NullPointerException e)
 		{
 			Log.e(LOG_TAG, "NullPointerException when parsing Episode Pubdate.");
 			e.printStackTrace();
-			return pubDate;
+			return tryParseDate(pubDate);
 		}
 	}
+
+    /**
+     * Used as a last effort to try and find the date format of a string and parse it. Loops through a lot of date format definitions so try to use sparingly.
+     * @param pubDate A date string that you want parsed.
+     * @return The date string formatted according to correctFormat.
+     */
+    private static String tryParseDate(String pubDate)
+    {
+        try {
+            String format = DateUtils.determineDateFormat(pubDate); //Calls for a method which loops through a lot of date format definitions to try and find the correct one.
+            if (format != null) {   //If the format string isn't null we found a valid format.
+                SimpleDateFormat newFormat = new SimpleDateFormat(format);  //Make a new SimpleDateFormat object for the matched format.
+                Date date = newFormat.parse(pubDate);   //Parse the pubDate String to a Date object.
+                Log.i(LOG_TAG,"Found correct format! It's: " + format);
+                return correctFormat.format(date);  //Return the pubDate as a String in a format that the application expects.
+            }
+            return "";  //If we haven't found the date format by now we'll just return an empty string.
+        }
+        catch (ParseException e) {
+            Log.e(LOG_TAG, "ParseException when trying to find date format.");
+            e.printStackTrace();
+            return "";  //If we haven't found the date format by now we'll just return an empty string.
+        }
+    }
 	
 	public static String parsePodcastCategory(NodeList itemLst)
 	{
@@ -203,8 +229,10 @@ public class DataParser
 			// Extract relevant data from the NodeList objects.
 			
 			ep.setTitle(parseEpisodeTitle(ielem));				//EPISODE TITLE
+            if (ep.getTitle() == null || ep.getTitle().isEmpty()) return null;
 			
 			ep.setLink(parseEpisodeLink(ielem));				//URL LINK
+            if (ep.getLink() == null || ep.getLink().isEmpty()) return null;
 			
 			ep.setPubDate(parseEpisodePubDate(ielem));			//PUBLISH DATE
 			

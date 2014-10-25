@@ -5,10 +5,11 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.podhoarder.adapter.GridAdapter;
+import com.podhoarder.activity.MainActivity;
 import com.podhoarder.db.FeedDBHelper;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
+import com.podhoarder.object.FeedImage;
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.util.DataParser;
 import com.podhoarder.util.ToastMessages;
@@ -19,12 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Task used for parsing an XML file that contains podcast data.
- * @author Emil
- *
+ * Created by Emil on 2014-10-24.
  */
-public class AddFeedFromSearchTask extends AsyncTask<SearchResultRow, Integer, Feed>
-{
+public class AddFeedFromSearchTaskNoUI  extends AsyncTask<SearchResultRow, Integer, Feed> implements FeedImage.ImageDownloadListener {
     private static          String      LOG_TAG = "com.podhoarder.async.AddFeedFromSearchTask";
 
     private Feed newFeed;
@@ -32,13 +30,11 @@ public class AddFeedFromSearchTask extends AsyncTask<SearchResultRow, Integer, F
 
     private Context mContext;
     private FeedDBHelper fDbH;
-    private GridAdapter mFeedsGridAdapter;
 
-    public AddFeedFromSearchTask(Context mContext, FeedDBHelper fDbH, GridAdapter mFeedsGridAdapter)
+    public AddFeedFromSearchTaskNoUI(Context mContext, FeedDBHelper fDbH)
     {
         this.mContext = mContext;
         this.fDbH = fDbH;
-        this.mFeedsGridAdapter = mFeedsGridAdapter;
     }
 
     protected Feed doInBackground(SearchResultRow... result)
@@ -78,7 +74,7 @@ public class AddFeedFromSearchTask extends AsyncTask<SearchResultRow, Integer, F
             this.newFeed = fDbH.insertFeed(this.newFeed);
             if (this.newFeed != null)
             {
-                this.newFeed.getFeedImage().setImageDownloadListener(mFeedsGridAdapter);
+                this.newFeed.getFeedImage().setImageDownloadListener(this);
                 return newFeed;
             }
             else
@@ -107,7 +103,6 @@ public class AddFeedFromSearchTask extends AsyncTask<SearchResultRow, Integer, F
             Log.i(LOG_TAG, "Added Feed: " + result.getTitle());
         else
         {
-            mFeedsGridAdapter.resetLoading();
             ToastMessages.AddFeedFailed(mContext);
             Log.e(LOG_TAG, "Couldn't Add Feed!");
         }
@@ -122,5 +117,10 @@ public class AddFeedFromSearchTask extends AsyncTask<SearchResultRow, Integer, F
     public void setProgressPercent(int progressPercent)
     {
         this.progressPercent = progressPercent;
+    }
+
+    @Override
+    public void downloadFinished(int feedId) {
+        ((MainActivity)mContext).firstFeedAdded();
     }
 }

@@ -4,7 +4,8 @@
 <android.support.v4.widget.SwipeRefreshLayout
 android:id="@+id/swipeLayout"
 android:layout_width="match_parent"
-android:layout_height="match_parent">
+android:layout_height="match_parent"
+    android:layout_marginTop="?actionBarSize">
 
 
 <FrameLayout
@@ -15,12 +16,13 @@ android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/emptyLibraryString"
-        style="@style/Base.TextAppearance.AppCompat.Caption"
+        style="@style/Base.TextAppearance.AppCompat.Medium"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal|center_vertical"
         android:layout_margin="25dp"
         android:text="@string/library_empty"
+        android:clickable="true"
         android:visibility="gone" />
 
     <ListView
@@ -65,8 +67,8 @@ android:layout_height="match_parent">
         android:layout_marginRight="16dp"
         android:layout_marginEnd="16dp"
         app:buttonColor="@color/colorAccent"
-        app:pauseDrawable="@drawable/ic_action_pause"
-        app:playDrawable="@drawable/ic_action_play"
+        app:pauseDrawable="@drawable/ic_pause_white_48dp"
+        app:playDrawable="@drawable/ic_play_arrow_white_48dp"
         app:shadowDx="0.5"
         app:shadowDy="1.0"
         app:shadowRadius="3.0" />

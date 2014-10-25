@@ -1,9 +1,5 @@
 package com.podhoarder.service;
 
-import com.podhoarder.activity.MainActivity;
-import com.podhoarder.object.Feed;
-import com.podhoarderproject.podhoarder.R;
-
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -11,6 +7,10 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
+
+import com.podhoarder.activity.MainActivity;
+import com.podhoarder.object.Feed;
+import com.podhoarderproject.podhoarder.R;
 
 public class ServiceNotification
 {
@@ -77,8 +77,8 @@ public class ServiceNotification
 
   public void showNotify(Service $context)
   {
-	  _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_action_pause);
-	  _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_action_pause);
+	  _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_pause_white_24dp);
+	  _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_pause_white_24dp);
 
     _playIntent.setAction("pause");
     _playPendingIntent = PendingIntent.getService($context, 0, _playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -91,8 +91,8 @@ public class ServiceNotification
 
   public void pauseNotify(Service $context)
   {
-	  _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_action_play);
-	  _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_action_play);
+	  _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_play_arrow_white_24dp);
+	  _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_play_arrow_white_24dp);
 
     _playIntent.setAction("play");
     _playPendingIntent = PendingIntent.getService($context, 0, _playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
