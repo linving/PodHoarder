@@ -212,7 +212,7 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener
 			try
 			{
 
-				if (PreferenceManager.getDefaultSharedPreferences(this.mContext).getBoolean(Constants.SETTINGS_KEY_GRIDSHOWTITLE, true) || this.mSelectionEnabled)
+				if (PreferenceManager.getDefaultSharedPreferences(this.mContext).getBoolean(Constants.SETTINGS_KEY_GRIDSHOWTITLE, true))
 				{
                     viewHolder.feedTitle.setBackgroundColor(currentFeed.getFeedImage().palette().getDarkVibrantColor(Color.parseColor("#80000000")));
                     viewHolder.feedTitle.setTextColor(currentFeed.getFeedImage().palette().getDarkVibrantSwatch().getTitleTextColor());

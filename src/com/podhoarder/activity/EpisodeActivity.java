@@ -183,8 +183,10 @@ public class EpisodeActivity extends BaseActivity
 	@Override
 	protected void onDestroy()
 	{
-		mEDB.closeDatabaseIfOpen();
-        mFDB.closeDatabaseIfOpen();
+        if (mEDB != null)
+		    mEDB.closeDatabaseIfOpen();
+        if (mFDB != null)
+            mFDB.closeDatabaseIfOpen();
 		super.onDestroy();
 	}
 
