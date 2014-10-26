@@ -159,7 +159,7 @@ public class AddFeedFromURLTask extends AsyncTask<String, Integer, Feed>
         else
         {
             mFeedsGridAdapter.resetLoading();
-            ToastMessages.AddFeedFailed(mContext);
+            ToastMessages.AddFeedFailed(mContext).show();
             Log.e(LOG_TAG, "Couldn't Add Feed!");
         }
     }

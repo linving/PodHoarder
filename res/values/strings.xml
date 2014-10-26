@@ -78,5 +78,6 @@
     <string name="toast_feeds_refreshed_failed">Can\'t refresh</string>
     <string name="toast_player_playback_failed">Can\'t play</string>
     <string name="toast_download_failed">Can\'t download</string>
-    <string name="toast_add_feed_failed">Can\'t add podcast</string>    
+    <string name="toast_add_feed_failed">Can\'t add podcast</string>
+    <string name="toast_no_network">No network available</string>
 </resources>

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -370,7 +371,7 @@ public class PlayerActivity extends BaseActivity implements PodHoarderService.St
         //Color the seekbar
         LayerDrawable ld = (LayerDrawable) mSeekBar.getProgressDrawable();
         final ClipDrawable pd = (ClipDrawable) ld.findDrawableByLayerId(android.R.id.progress);
-        pd.setColorFilter(mPalette.getVibrantColor(getResources().getColor(R.color.windowBackground)), PorterDuff.Mode.SRC_IN);
+        pd.setColorFilter(p.getLightVibrantColor(Color.parseColor("#000000")), PorterDuff.Mode.SRC_IN);
         //Color the Floating Action Button
        // mFAB.setColor(mPalette.getVibrantColor(getResources().getColor(R.color.windowBackground)));
 

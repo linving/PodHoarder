@@ -115,7 +115,7 @@ public class PodcastHelper {
             new FeedRefreshTask(mContext, fDbH, swipeRefreshLayout).execute(this.mFeedsGridAdapter.mItems);
         } else {
             swipeRefreshLayout.setRefreshing(false);
-            ToastMessages.RefreshFailed(this.mContext).show();
+            ToastMessages.NoNetworkAvailable(this.mContext).show();
         }
     }
 

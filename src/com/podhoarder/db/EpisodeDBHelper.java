@@ -377,10 +377,15 @@ public class EpisodeDBHelper
 	    {
 	    	this.db = this.dbHelper.getWritableDatabase();
 		    long insertId = this.db.insert(TABLE_NAME, null, values);
-		    Cursor cursor = this.db.query(TABLE_NAME, columns, columns[0] + " = " + insertId, null, null, null, null);
-		    Log.w(LOG_TAG,"Added Episode with id: " + insertId);
-		    cursor.moveToFirst();
-            return cursorToEpisode(cursor);
+            if (insertId != -1) {
+                Episode insertedEpisode = new Episode((int) insertId, ep.getTitle(), ep.getLink(), ep.getLocalLink(), ep.getPubDate(), ep.getDescription(), ep.getElapsedTime(), ep.getTotalTime(), false, feedId);
+                Log.i(LOG_TAG, "Added Episode with id: " + insertId);
+                return insertedEpisode;
+            }
+            else {
+                Log.i(LOG_TAG, "Failed to add episode");
+                return null;
+            }
 	    }
 	    catch (SQLiteConstraintException e)
 		{

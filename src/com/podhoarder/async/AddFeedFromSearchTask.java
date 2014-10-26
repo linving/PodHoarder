@@ -108,7 +108,7 @@ public class AddFeedFromSearchTask extends AsyncTask<SearchResultRow, Integer, F
         else
         {
             mFeedsGridAdapter.resetLoading();
-            ToastMessages.AddFeedFailed(mContext);
+            ToastMessages.AddFeedFailed(mContext).show();
             Log.e(LOG_TAG, "Couldn't Add Feed!");
         }
     }

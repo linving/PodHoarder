@@ -375,10 +375,9 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 
     //INTENT HANDLING
     private void handleIntent(Intent intent) {
-        Log.i(LOG_TAG,"Received intent!");
-        if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-        }
+        Log.i(LOG_TAG,"Received intent with action: " + intent.getAction());
+        if (intent.getAction().equals("navigate_player"))
+            startPlayerActivity();
     }
 
 
@@ -415,7 +414,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 					if (currentEp.isDownloaded() || NetworkUtils.isOnline(getApplication()))
 						mPlaybackService.playEpisode((Episode) mListView.getItemAtPosition(pos));
 					else
-						ToastMessages.PlaybackFailed(getApplication());
+						ToastMessages.PlaybackFailed(getApplication()).show();
 				}
 
 			});
@@ -612,9 +611,13 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 	}
 	public void startAddActivity()
 	{
-		Intent intent = new Intent(MainActivity.this, AddActivity.class);
-		startActivityForResult(intent, ADD_PODCAST_REQUEST);
-		overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
+        if (NetworkUtils.isOnline(MainActivity.this)) {
+            Intent intent = new Intent(MainActivity.this, AddActivity.class);
+            startActivityForResult(intent, ADD_PODCAST_REQUEST);
+            overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
+        }
+		else
+            ToastMessages.NoNetworkAvailable(MainActivity.this).show();
 	}
     public void startSettingsActivity() {
         Intent intent = new Intent(MainActivity.this, SettingsActivity.class);

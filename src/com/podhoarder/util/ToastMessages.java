@@ -81,4 +81,14 @@ public class ToastMessages
 	{
 		return Toast.makeText(ctx, ctx.getString(R.string.toast_feeds_refreshed_failed), Toast.LENGTH_SHORT);
 	}
+
+    /**
+     * Shows a "No network available" message.
+     * @param ctx Application Context.
+     * @return A Toast message object. Add .show() to show.
+     */
+    public static Toast NoNetworkAvailable(Context ctx)
+    {
+        return Toast.makeText(ctx, ctx.getString(R.string.toast_no_network), Toast.LENGTH_SHORT);
+    }
 }

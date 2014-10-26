@@ -212,9 +212,7 @@ public class FeedRefreshTask extends AsyncTask<List<Feed>, Integer, List<Feed>>
                         }
                     }
                 }
-
-
-                oldFeed.getFeedImage().imageObject().recycle();
+                //oldFeed.getFeedImage().imageObject().recycle();
                 //Update the Feed with the new Episodes in the db.
                 oldFeed = fDbH.updateFeed(oldFeed);
             }
