@@ -8,7 +8,7 @@ import android.content.res.Resources;
 import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
 
-import com.podhoarder.activity.MainActivity;
+import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.object.Feed;
 import com.podhoarderproject.podhoarder.R;
 
@@ -23,7 +23,7 @@ public class ServiceNotification
 
   public ServiceNotification(PodHoarderService $context)
   {
-	_navigateIntent = new Intent($context, MainActivity.class);
+	_navigateIntent = new Intent($context, LibraryActivity.class);
 	_navigateIntent.setAction("navigate_player");
 	_navigatePendingIntent = PendingIntent.getActivity($context, 0, _navigateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 	  
@@ -43,7 +43,7 @@ public class ServiceNotification
     _closeIntent.setAction("close");
     _closePendingIntent = PendingIntent.getService($context, 0, _closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     
-    Feed currentFeed = $context.mHelper.getFeed($context.mCurrentEpisode.getFeedId());
+    Feed currentFeed = $context.mDataManager.getFeed($context.mCurrentEpisode.getFeedId());
     
     _smallView = new RemoteViews($context.getPackageName(), R.layout.service_notification);
     _smallView.setOnClickPendingIntent(R.id.service_notification_playpausebutton, _playPendingIntent);

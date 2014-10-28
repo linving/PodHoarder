@@ -23,6 +23,7 @@
     <declare-styleable name="ToggleImageButton">
         <attr name="checkedDrawable" format="integer" />
         <attr name="unCheckedDrawable" format="integer" />
+        <attr name="toggled" format="boolean" />
     </declare-styleable>
     
     <declare-styleable name="ButteryProgressBar">

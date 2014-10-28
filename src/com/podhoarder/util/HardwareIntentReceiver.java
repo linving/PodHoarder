@@ -8,6 +8,7 @@ import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.service.PodHoarderService;
 
 /**
@@ -21,14 +22,14 @@ public class HardwareIntentReceiver extends BroadcastReceiver
 	
 	private PodHoarderService mPlaybackService;
 	
-	private PodcastHelper mPodcastHelper;
+	private LibraryActivityManager mLibraryActivityManager;
 	
 	private boolean mWasPlaying = false;
 	
-	public HardwareIntentReceiver(PodHoarderService playbackService, PodcastHelper podcastHelper)
+	public HardwareIntentReceiver(PodHoarderService playbackService, LibraryActivityManager podcastHelper)
 	{
 		mPlaybackService = playbackService;
-		mPodcastHelper = podcastHelper;
+		mLibraryActivityManager = podcastHelper;
 	}
 	
     @Override public void onReceive(Context context, Intent intent) 
@@ -83,18 +84,18 @@ public class HardwareIntentReceiver extends BroadcastReceiver
                 if (ni != null && ni.isConnectedOrConnecting()) 
                 {
                     Log.i(LOG_TAG, "Network " + ni.getTypeName() + " connected");
-                    mPodcastHelper.invalidate();
+                    mLibraryActivityManager.invalidate();
                 } 
                 else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) 
                 {
                 	if (mPlaybackService.isPlaying() && mPlaybackService.isStreaming())
                 	{
                 		mPlaybackService.stop();
-                		mPodcastHelper.invalidate();
+                		mLibraryActivityManager.invalidate();
                 	}
                 	else
                 	{
-                		mPodcastHelper.invalidate();
+                		mLibraryActivityManager.invalidate();
                 	}
                     Log.d(LOG_TAG, "There's no network connectivity");
                 }

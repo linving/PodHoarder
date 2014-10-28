@@ -12,8 +12,9 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.CheckBox;
 
-import com.podhoarder.activity.MainActivity;
+import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.EpisodesListAdapter;
+import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.EpisodeRowUtils;
@@ -157,10 +158,9 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     	for (int i : this.mSelectedItems)
     	{
     		Episode ep = (Episode) this.mParentListView.getItemAtPosition(i);
-    		if (((MainActivity)this.mContext).mPodcastHelper.mPlaylistAdapter.findEpisodeInPlaylist(ep) == -1)
-    			((MainActivity)this.mContext).mPodcastHelper.mPlaylistAdapter.addToPlaylist(ep);	//We only add items that aren't already in the playlist.
+    		if (((LibraryActivity)this.mContext).mDataManager.findEpisodeInPlaylist(ep) == -1)
+                ((LibraryActivity)this.mContext).mDataManager.addToPlaylist(ep);	//We only add items that aren't already in the playlist.
     	}
-    	((MainActivity)this.mContext).mPodcastHelper.refreshPlayList();
     	ToastMessages.EpisodeAddedToPlaylist(this.mContext).show();
     }
     
@@ -178,7 +178,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     		if (!ep.isListened())	//We only need to mark unlistened Episodes as listened. So we only add those that aren't already listened.
     			eps.add(ep);
     	}
-		((MainActivity)this.mContext).mPodcastHelper.markAsListened(eps);
+        ((LibraryActivityManager)((LibraryActivity)this.mContext).mDataManager).markAsListened(eps);
     }
     
     private void downloadSelectedItems()
@@ -192,7 +192,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     	}
     	for (Episode ep : eps)
     	{
-    		((MainActivity)this.mContext).mPodcastHelper.getDownloadManager().downloadEpisode(ep);
+    		((LibraryActivity)this.mContext).mDataManager.DownloadManager().downloadEpisode(ep);
     	}
     }
 

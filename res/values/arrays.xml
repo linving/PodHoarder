@@ -17,4 +17,21 @@
         <item>@string/filter_downloaded</item>
         <item>@string/filter_favorites</item>
     </string-array>
+
+    <!-- Nav Drawer Menu Items -->
+    <string-array name="nav_drawer_items">
+        <item >Library</item>
+        <item >Player</item>
+        <item >Settings</item>
+        <item >About</item>
+    </string-array>
+
+    <!-- Nav Drawer List Item Icons -->
+    <!-- Keep them in order as the titles are in -->
+    <array name="nav_drawer_icons">
+        <item>@drawable/ic_border_all_grey600_24dp</item>
+        <item>@drawable/ic_play_circle_outline_grey600_24dp</item>
+        <item>@drawable/ic_settings_grey600_24dp</item>
+        <item>@drawable/ic_info_grey600_24dp</item>
+    </array>
 </resources>

@@ -14,7 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
-import com.podhoarder.activity.MainActivity;
+import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.EpisodePointer;
 import com.podhoarder.util.Constants;
@@ -225,7 +225,7 @@ public class EpisodeDBHelper
 	 * @param currentFilter The currently used filter (with searchString set)
 	 * @return	List<Episode> containing the 100 most relevant results.
 	 */
-	public List<Episode> search(MainActivity.ListFilter currentFilter)
+	public List<Episode> search(LibraryActivity.ListFilter currentFilter)
 	{
         List<Episode> episodes = new ArrayList<Episode>();
         this.db = this.dbHelper.getWritableDatabase();
@@ -241,23 +241,6 @@ public class EpisodeDBHelper
                 whereString = DBHelper.colParentFeedId + "=" + currentFilter.getFeedId() + " AND ("     //Apply FEED filter.
                         + DBHelper.colEpisodeTitle + " LIKE ? OR " + DBHelper.colEpisodeDescription + " LIKE ?)"; //Apply search to title and description
                 args = new String[] {"%"+ currentFilter.getSearchString() + "%" , "%"+ currentFilter.getSearchString() + "%"};
-                break;
-            case NEW:
-                whereString = DBHelper.colEpisodeLocalLink + " IS NULL OR " //Apply NEW filter.
-                        + DBHelper.colEpisodeLocalLink + " = '' AND "
-                        + DBHelper.colEpisodeTotalTime + " = 0 AND "
-                        + DBHelper.colEpisodeElapsedTime + " = 0 AND ("
-                        + DBHelper.colEpisodeTitle + " LIKE ? OR " + DBHelper.colEpisodeDescription + " LIKE ?)"; //Apply search to title and description
-                args = new String[] {"%"+ currentFilter.getSearchString() + "%" , "%"+ currentFilter.getSearchString() + "%"};
-                break;
-            case DOWNLOADED:
-                whereString = DBHelper.colEpisodeLocalLink +" IS NOT NULL AND "+ DBHelper.colEpisodeLocalLink + " != '' AND ("   //Apply DOWNLOADED filter
-                        + DBHelper.colEpisodeTitle + " LIKE ? OR " + DBHelper.colEpisodeDescription + " LIKE ?)";    //Apply search to title and description
-                break;
-            case FAVORITES:
-                whereString =  columns[8] + "= ? AND ("  //Apply FAVORITES filter
-                        + DBHelper.colEpisodeTitle + " LIKE ? OR " + DBHelper.colEpisodeDescription + " LIKE ?)";    //Apply search to title and description
-                args = new String[] {"1", "%"+ currentFilter.getSearchString() + "%" , "%"+ currentFilter.getSearchString() + "%"};
                 break;
             default:
                 break;

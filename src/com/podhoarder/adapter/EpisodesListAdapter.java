@@ -4,9 +4,6 @@
  */
 package com.podhoarder.adapter;
 
-import java.text.ParseException;
-import java.util.List;
-
 import android.content.Context;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -19,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import com.podhoarder.activity.MainActivity;
+import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.util.DataParser;
@@ -27,6 +24,9 @@ import com.podhoarder.util.EpisodeRowUtils;
 import com.podhoarder.util.ImageUtils;
 import com.podhoarder.util.ViewHolders.EpisodeRowViewHolder;
 import com.podhoarderproject.podhoarder.R;
+
+import java.text.ParseException;
+import java.util.List;
 
 public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 {
@@ -110,7 +110,7 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 		
 		
 		final Episode currentEpisode = this.mEpisodes.get(position);
-		Feed currentFeed = ((MainActivity)mContext).mPodcastHelper.getFeed(currentEpisode.getFeedId());
+		Feed currentFeed = ((LibraryActivity)mContext).mDataManager.getFeed(currentEpisode.getFeedId());
 		
 		if(currentEpisode != null) {
 			//Set Episode Title
@@ -133,7 +133,7 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 				@Override
 				public void onClick(View v)
 				{
-					((MainActivity)mContext).startEpisodeDetailsActivity(currentEpisode);
+					((LibraryActivity)mContext).startEpisodeDetailsActivity(currentEpisode);
 				}
 			});
 			

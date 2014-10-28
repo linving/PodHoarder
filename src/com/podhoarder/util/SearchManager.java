@@ -1,5 +1,23 @@
 package com.podhoarder.util;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteConstraintException;
+import android.os.AsyncTask;
+import android.util.Log;
+
+import com.google.gson.Gson;
+import com.podhoarder.activity.AddActivity;
+import com.podhoarder.adapter.SearchResultsAdapter;
+import com.podhoarder.json.SearchResult;
+import com.podhoarder.json.SearchResultItem;
+import com.podhoarder.object.SearchResultRow;
+import com.podhoarder.view.ButteryProgressBar;
+
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,28 +32,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.database.sqlite.SQLiteConstraintException;
-import android.os.AsyncTask;
-import android.util.Log;
-
-import com.google.gson.Gson;
-import com.podhoarder.activity.AddActivity;
-import com.podhoarder.activity.MainActivity;
-import com.podhoarder.adapter.SearchResultsAdapter;
-import com.podhoarder.json.SearchResult;
-import com.podhoarder.json.SearchResultItem;
-import com.podhoarder.object.SearchResultRow;
-import com.podhoarder.view.ButteryProgressBar;
-import com.podhoarderproject.podhoarder.R;
 
 
 /**

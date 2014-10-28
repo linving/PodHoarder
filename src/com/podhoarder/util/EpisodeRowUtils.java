@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.ViewHolders.EpisodeRowViewHolder;
-import com.podhoarder.util.ViewHolders.PlaylistRowViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
 public class EpisodeRowUtils
@@ -35,7 +34,7 @@ public class EpisodeRowUtils
 		}
 	}
 	
-	public static void setRowListened(PlaylistRowViewHolder row, boolean listened)
+	/*public static void setRowListened(PlaylistRowViewHolder row, boolean listened)
 	{
 		if (listened)
 		{
@@ -53,7 +52,7 @@ public class EpisodeRowUtils
 			row.age.setAlpha(ALPHA_NORMAL);
 			row.timeListened.setAlpha(ALPHA_NORMAL);
 		}
-	}
+	}*/
 
 	public static void setRowIndicator(Context ctx, EpisodeRowViewHolder row, Episode ep)
 	{

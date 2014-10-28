@@ -81,6 +81,12 @@ public class AddActivity extends BaseActivity implements SearchView.OnQueryTextL
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
+    @Override
+    public void startMainActivity()
+    {
+        this.onBackPressed();
+    }
+
     public void finish(List<SearchResultRow> selectedResults) {
         for (SearchResultRow row : selectedResults)
             row.cacheXml();  //Cache the file. Most XML documents are too large to be passed as Intent Extras so we need to do this.

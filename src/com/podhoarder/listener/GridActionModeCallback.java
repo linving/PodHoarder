@@ -11,8 +11,9 @@ import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.RelativeLayout;
 
-import com.podhoarder.activity.MainActivity;
+import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.GridAdapter;
+import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Feed;
 import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.ViewHolders;
@@ -166,7 +167,7 @@ public class GridActionModeCallback implements ActionMode.Callback
     		ids.add(((Feed) this.mParentListView.getItemAtPosition(i)).getFeedId());	//Save the Feed ID for the db operation.
     		((GridAdapter)this.mParentListView.getAdapter()).mItems.remove(i);	//Remove the item from the adapter to quickly reflect changes.
     	}
-		((MainActivity)this.mContext).mPodcastHelper.deleteFeeds(ids);	//Perform the background operation on the DB.
+		((LibraryActivity)this.mContext).mDataManager.deleteFeeds(ids);	//Perform the background operation on the DB.
     }
     
     private void markSelectedItemsAsListened()
@@ -174,7 +175,7 @@ public class GridActionModeCallback implements ActionMode.Callback
     	for (int i : this.mSelectedItems)
     	{
     		Feed feed = (Feed) this.mParentListView.getItemAtPosition(i);
-    		((MainActivity)this.mContext).mPodcastHelper.markAsListened(feed);
+            ((LibraryActivityManager)((LibraryActivity)this.mContext).mDataManager).markAsListened(feed);
     	}
 		
     }

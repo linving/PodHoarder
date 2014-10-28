@@ -65,4 +65,5 @@ public class SettingsActivity extends PreferenceActivity
         finishActivity();
         super.onBackPressed();
     }
+
 }

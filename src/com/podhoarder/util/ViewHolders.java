@@ -33,10 +33,14 @@ public class ViewHolders
 		public boolean checked;
 	}
 
-	public static class PlaylistRowViewHolder extends EpisodeRowViewHolder
+    public static class QuickListRowViewHolder
+    {
+        public TextView title;
+        public ImageView icon;
+    }
+
+	public static class PlaylistRowViewHolder extends QuickListRowViewHolder
 	{
-		public TextView feedTitle;
-		public TextView timeListened;
 		public ImageView handle;
 	}
 

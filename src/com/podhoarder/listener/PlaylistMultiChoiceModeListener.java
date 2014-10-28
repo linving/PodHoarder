@@ -9,7 +9,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AbsListView.OnScrollListener;
 
-import com.podhoarder.activity.MainActivity;
+import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.NetworkUtils;
@@ -77,7 +77,7 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
         this.mActionMode = mode;
         this.mSelectedItems = new ArrayList<Integer>();
         this.mActive = true;
-        ((MainActivity)this.mContext).mPodcastHelper.mPlaylistAdapter.setReorderingEnabled(false);
+        ((LibraryActivity)this.mContext).mPlaylistAdapter.setReorderingEnabled(false);
         
         return true;
     }
@@ -149,7 +149,7 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
     	this.mSelectedItems = null;
     	this.mActive = false;
     	this.mActionMode = null;
-    	((MainActivity)this.mContext).mPodcastHelper.mPlaylistAdapter.setReorderingEnabled(true);
+        ((LibraryActivity)this.mContext).mPlaylistAdapter.setReorderingEnabled(true);
     }
     
     private void removeSelectedItemsFromPlaylist()
@@ -159,12 +159,12 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
 		for (int i : this.mSelectedItems)
 		{
 			Episode ep = (Episode) this.mParentListView.getItemAtPosition(i);
-			((MainActivity)this.mContext).deletingEpisode(ep.getEpisodeId());
+			((LibraryActivity)this.mContext).deletingEpisode(ep.getEpisodeId());
         	if (ep.isDownloaded())
-        		((MainActivity)this.mContext).mPodcastHelper.deleteEpisodeFile(ep);
-        	((MainActivity)this.mContext).mPodcastHelper.mPlaylistAdapter.removeFromPlaylist(ep);
+        		((LibraryActivity)this.mContext).mDataManager.deleteEpisodeFile(ep);
+            ((LibraryActivity)this.mContext).mDataManager.removeFromPlaylist(ep.getEpisodeId());
 		}
-    	((MainActivity)this.mContext).mPodcastHelper.refreshPlayList();
+    	//((LibraryActivity)this.mContext).mDataManager.reloadPlayList();
     }
     
     private void downloadSelectedItems()
@@ -178,7 +178,7 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
     	}
     	for (Episode ep : eps)
     	{
-    		((MainActivity)this.mContext).mPodcastHelper.getDownloadManager().downloadEpisode(ep);
+    		((LibraryActivity)this.mContext).mDataManager.DownloadManager().downloadEpisode(ep);
     	}
     }
 

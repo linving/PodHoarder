@@ -24,9 +24,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.podhoarder.activity.MainActivity;
+import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
+import com.podhoarder.util.ImageUtils;
 import com.podhoarder.util.ViewHolders.PlaylistRowViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
@@ -105,15 +106,14 @@ public final class DragNDropAdapter extends BaseAdapter {
         {
         	//Inflate
 			LayoutInflater inflater = (LayoutInflater) this.mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.fragment_player_list_row, null);
+            convertView = inflater.inflate(R.layout.drawer_quicklist_playlist_item, null);
 
             // Creates a ViewHolder and store references to the two children views
             // we want to bind data to.
             holder = new PlaylistRowViewHolder();
-            holder.title = (TextView) convertView.findViewById(R.id.player_list_row_episodeName);
-            holder.feedTitle = (TextView) convertView.findViewById(R.id.player_list_row_feedName);
-            holder.feedImage = (ImageView) convertView.findViewById(R.id.player_list_row_feedImage);
-            holder.handle = (ImageView) convertView.findViewById(R.id.player_list_row_handle);
+            holder.title = (TextView) convertView.findViewById(R.id.title);
+            holder.icon = (ImageView) convertView.findViewById(R.id.icon);
+            holder.handle = (ImageView) convertView.findViewById(R.id.handle);
 
             convertView.setTag(holder);
         } 
@@ -125,7 +125,7 @@ public final class DragNDropAdapter extends BaseAdapter {
         }
 
         Episode currentEpisode = this.mPlayList.get(position);
-        Feed currentFeed = ((MainActivity)mContext).mPodcastHelper.getFeed(currentEpisode.getFeedId());
+        Feed currentFeed = ((BaseActivity)mContext).mDataManager.getFeed(currentEpisode.getFeedId());
         
 		if(currentEpisode != null) 
 		{ 	
@@ -134,23 +134,17 @@ public final class DragNDropAdapter extends BaseAdapter {
 			else	
 				holder.handle.setVisibility(View.INVISIBLE);
 			 
-			holder.title.setText(currentEpisode.getTitle());	//Set Episode Title	
-			holder.feedTitle.setText(currentFeed.getTitle()); //Set Podcast title.
+			holder.title.setText(currentEpisode.getTitle());	//Set Episode Title
 			
 			if (position == findCurrentEpisodeIndex())
 			{
-				holder.feedImage.setImageResource(R.drawable.ic_play_arrow_black_24dp);
-				holder.feedImage.setPadding(15, 15, 15, 15);
-				holder.feedImage.setBackgroundColor(mContext.getResources().getColor(android.R.color.transparent));
+				holder.icon.setImageResource(R.drawable.ic_play_arrow_black_24dp);
 			}
 			else
 			{
-				holder.feedImage.setImageBitmap(currentFeed.getFeedImage().thumbnail());
-				holder.feedImage.setPadding(0,0,0,0);
-				holder.feedImage.setBackgroundResource(R.drawable.list_image);
+                holder.icon.setImageBitmap(ImageUtils.getCircularBitmapWithBorder(currentFeed.getFeedImage().thumbnail(), 1f));
 			}
-			
-			//EpisodeRowUtils.setRowIndicator(mContext, holder, currentEpisode);
+
 		}		
         return convertView;
     }
@@ -182,42 +176,7 @@ public final class DragNDropAdapter extends BaseAdapter {
 		}
 		return false;
     }
-    
-    public void addToPlaylist(Episode ep)
-    {
-    	this.mPlayList.add(ep);
-    	((MainActivity)mContext).mPodcastHelper.plDbH.savePlaylist(this.mPlayList);
-    	this.notifyDataSetChanged();
-    }
-       
-    public void removeFromPlaylist(Episode ep)
-    {
-    	int index = this.findEpisodeInPlaylist(ep);
-    	if (index >= 0)
-    	{
-    		this.mPlayList.remove(index);
-    		((MainActivity)mContext).mPodcastHelper.plDbH.deleteEntry(ep.getEpisodeId());
-    	}
-    	((MainActivity)mContext).mPodcastHelper.plDbH.savePlaylist(this.mPlayList);
-    	this.notifyDataSetChanged();
-    }
-    
-    /**
-	 * Returns the index of ep.
-	 * @param ep The Episode to find.
-	 * @return Index of ep, or -1 if it isn't found.
-	 */
-	public int findEpisodeInPlaylist(Episode ep)
-	{
-		for (int i=0; i<this.mPlayList.size(); i++)
-		{
-			if (ep.getEpisodeId() == this.mPlayList.get(i).getEpisodeId())
-			{
-				return i;
-			}
-		}
-		return -1;
-	}
+
 	
 	public int findCurrentEpisodeIndex()
 	{

@@ -1,6 +1,5 @@
 package com.podhoarder.activity;
 
-import android.app.ActionBar.OnNavigationListener;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,7 +9,6 @@ import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.widget.SearchView;
@@ -40,6 +38,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.faizmalkani.FloatingActionButton;
+import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.listener.EpisodeMultiChoiceModeListener;
 import com.podhoarder.listener.GridActionModeCallback;
 import com.podhoarder.object.Episode;
@@ -50,7 +49,6 @@ import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.HardwareIntentReceiver;
 import com.podhoarder.util.NetworkUtils;
-import com.podhoarder.util.PodcastHelper;
 import com.podhoarder.util.ToastMessages;
 import com.podhoarder.view.FloatingPlayPauseButton;
 import com.podhoarderproject.podhoarder.R;
@@ -59,13 +57,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends BaseActivity implements OnNavigationListener, OnRefreshListener, PodHoarderService.StateChangedListener, SearchView.OnQueryTextListener, SearchView.OnCloseListener
+public class LibraryActivity extends BaseActivity implements OnRefreshListener, PodHoarderService.StateChangedListener, SearchView.OnQueryTextListener, SearchView.OnCloseListener, BaseActivity.QuicklistItemClickListener
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarder.activity.MainActivity";
-   
-    //PODCAST HELPER
-    public PodcastHelper mPodcastHelper;
     
     //FILTER
     private ArrayList<CharSequence> mFilters;
@@ -158,13 +153,15 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 		    IntentFilter headsetFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
 		    IntentFilter callStateFilter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
 		    IntentFilter connectivityFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);  
-	        hardwareIntentReceiver = new HardwareIntentReceiver(mPlaybackService, mPodcastHelper);
+	        hardwareIntentReceiver = new HardwareIntentReceiver(mPlaybackService, ((LibraryActivityManager)mDataManager));
 	        registerReceiver(hardwareIntentReceiver, headsetFilter);
 	        registerReceiver(hardwareIntentReceiver, callStateFilter);
 	        registerReceiver(hardwareIntentReceiver, connectivityFilter);
 	        populate();
-	        mPlaybackService.setHelper(mPodcastHelper);
-	        mPlaybackService.setStateChangedListener(MainActivity.this);
+            mPlaybackService.setManager((LibraryActivityManager) mDataManager);
+	        mPlaybackService.setStateChangedListener(LibraryActivity.this);
+            updateDrawer();
+            mQuicklistItemClickListener = LibraryActivity.this;
 	        //TODO: Show player button here. The Service is now completely bound and safe to use.
 	        setupFAB();
 	    }
@@ -175,7 +172,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 	    	unregisterReceiver(hardwareIntentReceiver);
 	    	mIsMusicBound = false;
 	    }
-    };   
+    };
 
 
     //ACTIVITY OVERRIDES
@@ -185,7 +182,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
     	super.onCreate(savedInstanceState);
 
         // Initialisation
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_library);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -194,9 +191,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent, R.color.windowBackground, R.color.colorAccent, R.color.windowBackground);
-        loadFilter();
-        mPodcastHelper = new PodcastHelper(this);
-        
+        mFilter = ListFilter.ALL;
         if (!this.mIsMusicBound)	//If the service isn't bound, we need to start and bind it.
     	{
     		if(mPlayIntent==null)
@@ -220,7 +215,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
     	if (mPlaybackService != null && mFAB != null)
     	{
     		mFAB.setPlaying(mPlaybackService.isPlaying());
-            mPlaybackService.setStateChangedListener(MainActivity.this);
+            mPlaybackService.setStateChangedListener(LibraryActivity.this);
     	}
     	super.onResume();    	
     }
@@ -232,7 +227,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
     	unregisterReceiver(hardwareIntentReceiver);
 	    this.mPlaybackService=null;
 	    this.mIsMusicBound = false;
-	    mPodcastHelper.closeDbIfOpen();
+	    mDataManager.closeDbIfOpen();
 	    super.onDestroy();
     }
     @Override
@@ -248,6 +243,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 		{
 			case PLAYING:
 				mFAB.setPlaying(true);
+                //updateDrawer();
 				break;
 			case PAUSED:
 				mFAB.setPlaying(false);
@@ -301,12 +297,6 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 
     }
     @Override
-	public boolean onNavigationItemSelected(int pos, long itemId)
-	{
-		setFilter(ListFilter.values()[pos]);
-		return true;
-	}
-    @Override
     public void onBackPressed()
     {
         if (mSearchEnabled)
@@ -338,14 +328,14 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
                     List<SearchResultRow> results = (List<SearchResultRow>) data.getExtras().getSerializable(AddActivity.INTENT_RESULTS_ID);
                     for (SearchResultRow row : results) //Load all the XML files back into memory from the cache directory.
                         row.loadXML();
-                    mPodcastHelper.addSearchResults(results);
+                    ((LibraryActivityManager)mDataManager).addSearchResults(results);
                 }
                 break;
             case SETTINGS_REQUEST:
                 // Make sure the request was successful
                 if (resultCode == RESULT_OK) {
                     if (data.getExtras().getBoolean(SettingsActivity.INTENT_RESULTS_ID)) {  //If any of the preferences were changed we'll redraw the Grid. (to reflect the UI changes)
-                        mPodcastHelper.mFeedsGridAdapter.notifyDataSetChanged();
+                        ((LibraryActivityManager)mDataManager).mFeedsGridAdapter.notifyDataSetChanged();
                     }
                 }
                 break;
@@ -354,7 +344,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
     @Override
 	public void onRefresh()
 	{
-		mPodcastHelper.refreshFeeds(mSwipeRefreshLayout);
+        ((LibraryActivityManager)mDataManager).refreshFeeds(mSwipeRefreshLayout);
 	}
     @Override
     public boolean onQueryTextChange(String str)
@@ -368,6 +358,20 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
         return false;
     }
     @Override
+    public void onQuicklistItemClicked(View clickedView, int position, QuicklistFilter currentFilter) {
+        switch (currentFilter) {
+            case FAVORITES:
+                mPlaybackService.playEpisode(mDataManager.Favorites().get(position));
+                break;
+            case PLAYLIST:
+                mPlaybackService.playEpisode(mDataManager.Playlist().get(position));
+                break;
+            case NEW:
+                mPlaybackService.playEpisode(mDataManager.New().get(position));
+                break;
+        }
+    }
+    @Override
     public boolean onClose() {
         cancelSearch();
         return true;
@@ -376,12 +380,21 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
     //INTENT HANDLING
     private void handleIntent(Intent intent) {
         Log.i(LOG_TAG,"Received intent with action: " + intent.getAction());
-        if (intent.getAction().equals("navigate_player"))
-            startPlayerActivity();
+        if (intent.getAction() != null)
+        {
+            if (intent.getAction().equals("navigate_player"))
+                startPlayerActivity();
+        }
     }
 
 
     //VIEW SETUPS
+    //DATA MANAGER SETUP
+    @Override
+    protected void setupDataManager() {
+        if (mDataManager == null)
+            mDataManager = new LibraryActivityManager(this);
+    }
     private void setupActionBar()
     {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -399,12 +412,12 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 	private void setupListView()
 	{
 		mListView = (ListView) findViewById(R.id.episodesListView);
-		if (this.mPodcastHelper.hasPodcasts())
+		if (this.mDataManager.hasPodcasts())
 		{
 			Animation animation = AnimationUtils.loadAnimation( this, R.anim.grid_fade_in);
     		LayoutAnimationController animationController = new LayoutAnimationController(animation, 0.2f);
     		
-			this.mListView.setAdapter(this.mPodcastHelper.mEpisodesListAdapter);
+			this.mListView.setAdapter(((LibraryActivityManager)mDataManager).mEpisodesListAdapter);
 			this.mListView.setOnItemClickListener(new OnItemClickListener()
 			{
 				@Override
@@ -436,14 +449,14 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
     {
 		
 		mGridView = (GridView) findViewById(R.id.feedsGridView);
-    	if (this.mPodcastHelper.hasPodcasts())
+    	if (this.mDataManager.hasPodcasts())
     	{
     		
     		Animation animation = AnimationUtils.loadAnimation( this, R.anim.grid_fade_in);
     		GridLayoutAnimationController animationController = new GridLayoutAnimationController(animation, 0.15f, 0.45f);
-    		
-    		mPodcastHelper.mFeedsGridAdapter.setLoadingViews(setupLoadingViews());
-    		mGridView.setAdapter(mPodcastHelper.mFeedsGridAdapter);
+
+            ((LibraryActivityManager)mDataManager).mFeedsGridAdapter.setLoadingViews(setupLoadingViews());
+    		mGridView.setAdapter(((LibraryActivityManager)mDataManager).mFeedsGridAdapter);
     		
     		mGridView.setLayoutAnimation(animationController);
     		
@@ -457,7 +470,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 					if (mActionMode == null || !mActionModeCallback.isActive())
 					{
 						mActionMode = startActionMode(mActionModeCallback);
-						mPodcastHelper.mFeedsGridAdapter.setActionModeVars(mActionMode, mActionModeCallback);
+                        ((LibraryActivityManager)mDataManager).mFeedsGridAdapter.setActionModeVars(mActionMode, mActionModeCallback);
 					}
 					mActionModeCallback.onItemCheckedStateChanged(pos, !((CheckBox)v.findViewById(R.id.feeds_grid_item_checkmark)).isChecked());
 			        return true;  
@@ -511,7 +524,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
         });
         mFAB.setPlaying(mPlaybackService.isPlaying());
 
-        if (!mPodcastHelper.hasPodcasts()) mFAB.setVisibility(View.GONE);
+        if (!mDataManager.hasPodcasts()) mFAB.setVisibility(View.GONE);
         else mFAB.setVisibility(View.VISIBLE);
     }
     private void setupEmptyText()
@@ -522,10 +535,9 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
         }
     }
 
-	//FILTERING
-	public enum ListFilter 
-	{ 
-		ALL, NEW, DOWNLOADED, FAVORITES, FEED;
+    //FILTERING
+	public enum ListFilter {
+		ALL, FEED;
 		
 		public int getFeedId()
 		{
@@ -540,17 +552,11 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 		private int mFeedId = 0;
         private String searchString = "";
 	}
-	private void loadFilter()
-	{
-		int lastFilter = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(Constants.SETTINGS_KEY_LASTFILTER,"0"));
-		mFilter = ListFilter.values()[lastFilter];
-	}
 	public ListFilter getFilter()
 	{
 		return mFilter;
 	}
-	public void setFilter(ListFilter filterToSet)
-	{
+	public void setFilter(ListFilter filterToSet) {
         if (!filterToSet.getSearchString().isEmpty() || filterToSet != ListFilter.ALL ) {
             if (mFilter == ListFilter.ALL){ //If the current Filter is ALL, then the grid is showing and we need to toggle List/Grid view visibility properties.
                 mGridView.setVisibility(View.GONE);
@@ -568,7 +574,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 		}
 		
 		this.mFilter = filterToSet;
-		mPodcastHelper.switchLists();
+        ((LibraryActivityManager)mDataManager).switchLists();
 	}	
 
     //SEARCHING
@@ -593,7 +599,7 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 	{
 		//Animation slideOutAnim = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
 		//findViewById(R.id.root).startAnimation(slideOutAnim);
-		Intent intent = new Intent(MainActivity.this, EpisodeActivity.class);
+		Intent intent = new Intent(LibraryActivity.this, EpisodeActivity.class);
 		Bundle b = new Bundle();
 		b.putInt("id", currentEp.getEpisodeId()); //Your id
 		b.putString("title", currentEp.getTitle());
@@ -605,34 +611,48 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
 	}
 	public void startPlayerActivity()
 	{
-		Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+		Intent intent = new Intent(LibraryActivity.this, PlayerActivity.class);
 		startActivity(intent);
 		overridePendingTransition(R.anim.player_fade_in , R.anim.activity_stay_transition);
 	}
 	public void startAddActivity()
 	{
-        if (NetworkUtils.isOnline(MainActivity.this)) {
-            Intent intent = new Intent(MainActivity.this, AddActivity.class);
+        if (NetworkUtils.isOnline(LibraryActivity.this)) {
+            Intent intent = new Intent(LibraryActivity.this, AddActivity.class);
             startActivityForResult(intent, ADD_PODCAST_REQUEST);
             overridePendingTransition(R.anim.slide_in_right , R.anim.slide_out_left);
         }
 		else
-            ToastMessages.NoNetworkAvailable(MainActivity.this).show();
+            ToastMessages.NoNetworkAvailable(LibraryActivity.this).show();
 	}
+
+    @Override
     public void startSettingsActivity() {
-        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+        Intent intent = new Intent(this, SettingsActivity.class);
         startActivityForResult(intent, SETTINGS_REQUEST);
     }
 
 
     //MISC HELPER METHODS
+    private void updateDrawer()
+    {
+        if (mPlaybackService.mCurrentEpisode != null)
+        {
+            mNavDrawerBanner.setImageBitmap(
+                    mDataManager.getFeed(mPlaybackService.mCurrentEpisode.getFeedId()).getFeedImage().imageObject()
+            );
+
+        }
+
+    }
+
     public void deletingEpisode(int episodeId)
     {
         this.mPlaybackService.deletingEpisode(episodeId);
     }
     public void downloadEpisode(Episode ep)
     {
-        this.mPodcastHelper.getDownloadManager().downloadEpisode(ep);
+        this.mDataManager.DownloadManager().downloadEpisode(ep);
     }
     private void populate()
     {
@@ -680,14 +700,14 @@ public class MainActivity extends BaseActivity implements OnNavigationListener, 
     public void firstFeedAdded()
     {
         populate();
-        if (!mPodcastHelper.hasPodcasts()) mFAB.setVisibility(View.GONE);
+        if (!mDataManager.hasPodcasts()) mFAB.setVisibility(View.GONE);
         else mFAB.setVisibility(View.VISIBLE);
     }
 
     //GETTERS
-    public PodcastHelper getPodcastHelper()
+    public LibraryActivityManager getPodcastHelper()
     {
-        return mPodcastHelper;
+        return ((LibraryActivityManager)mDataManager);
     }
     public PodHoarderService getPlaybackService()
     {

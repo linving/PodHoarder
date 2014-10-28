@@ -12,10 +12,10 @@ import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.NetworkUtils;
-import com.podhoarder.util.PodcastHelper;
 import com.podhoarder.util.ToastMessages;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	private 	List<Episode> 	mPlayList;							//Episode list
 	public 		Episode 		mCurrentEpisode;						//The Episode object that's currently being played.
 	private 	final IBinder 	mMusicBinder = new PodHoarderBinder();	//Binder object
-	public 		PodcastHelper 	mHelper;								//Podcast helper.
+	public LibraryActivityManager mDataManager;								//Podcast helper.
 	private 	boolean 		mStreaming = false;					//Boolean to keep track of whether the player is streaming or playing a local file.
 	private		boolean			mLoading = false;					//Boolean that keeps track of whether the player is loading a track or not.
 	private		boolean			mCurrentTrackLoaded = false;		//Boolean to keep track of whether the current track is loaded and can be resumed, or if it needs to be reloaded.
@@ -68,26 +68,26 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	@Override
 	public void onCompletion(MediaPlayer arg0)
 	{
-		this.mCurrentTrackLoaded = false;
-		if (this.mCurrentEpisode != null)
+		mCurrentTrackLoaded = false;
+		if (mCurrentEpisode != null)
 		{
-			this.mCurrentEpisode.setElapsedTime(this.mCurrentEpisode.getTotalTime());	//Set elapsed time to total time (100% of the Episode)
-			this.mCurrentEpisode = mHelper.updateEpisodeNoRefresh(this.mCurrentEpisode);	//Update the db object.
-			final Episode lastEp = this.mCurrentEpisode;
-			int indexToDelete = this.mHelper.mPlaylistAdapter.findEpisodeInPlaylist(this.mCurrentEpisode);
-			boolean wasStreaming = this.mStreaming;
+			mCurrentEpisode.setElapsedTime(mCurrentEpisode.getTotalTime());	//Set elapsed time to total time (100% of the Episode)
+			mCurrentEpisode = mDataManager.updateEpisodeNoRefresh(mCurrentEpisode);	//Update the db object.
+			final Episode lastEp = mCurrentEpisode;
+			int indexToDelete = mDataManager.findEpisodeInPlaylist(mCurrentEpisode);
+			boolean wasStreaming = mStreaming;
 			
 			playNext();	//Play
 			
 			if (!wasStreaming)
 			{
-				this.mHelper.deleteEpisodeFile(lastEp);
+				this.mDataManager.deleteEpisodeFile(lastEp);
 			}
 			if (indexToDelete != -1)	
 			{
-				this.mHelper.mPlaylistAdapter.removeFromPlaylist(this.mPlayList.get(indexToDelete));
+                mDataManager.removeFromPlaylist(mPlayList.get(indexToDelete).getEpisodeId());
 			}
-			this.mHelper.refreshContent();
+			this.mDataManager.reloadListData();
 		}
 		else	ToastMessages.PlaybackFailed(getApplicationContext()).show();
 	}
@@ -120,7 +120,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		if (this.mCurrentEpisode.getTotalTime() == 0 || this.mCurrentEpisode.getTotalTime() == 100) 
 		{
 			this.mCurrentEpisode.setTotalTime(player.getDuration());
-			this.mCurrentEpisode = this.mHelper.updateEpisode(this.mCurrentEpisode);
+			this.mCurrentEpisode = this.mDataManager.updateEpisode(this.mCurrentEpisode);
 		}
 		this.mHandler.post(UpdateRunnable);
 	}
@@ -259,7 +259,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		int lastEpisodeId = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(Constants.SETTINGS_KEY_LASTEPISODE,"-1"));
 		if (lastEpisodeId != -1)
 		{
-			this.mCurrentEpisode = this.mHelper.getEpisode(lastEpisodeId);
+			this.mCurrentEpisode = this.mDataManager.getEpisode(lastEpisodeId);
 		}
 	}
 	
@@ -282,7 +282,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
         	if (isPlaying())
         	{
 	        	mCurrentEpisode.setElapsedTime(getPosn());
-	    		mHelper.updateEpisode(mCurrentEpisode); //Update the db.
+	    		mDataManager.updateEpisode(mCurrentEpisode); //Update the db.
 	        	mHandler.postDelayed(UpdateRunnable, 20000);
         	}
         }
@@ -299,7 +299,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
         	if (mCurrentEpisode != null)
         	{
             	mCurrentEpisode.setElapsedTime(getPosn());
-        		mHelper.updateEpisode(mCurrentEpisode); //Update the db.
+        		mDataManager.updateEpisode(mCurrentEpisode); //Update the db.
         	}
         }
     };
@@ -332,12 +332,12 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	{
 		this.mCurrentEpisode = this.mPlayList.get(episodeIndex);
 	}
-	
-	public void setHelper(PodcastHelper helper)
+
+	public void setManager(LibraryActivityManager dataManager)
 	{
-		mHelper = helper;
+		mDataManager = dataManager;
 	}
-	
+
 	public void setList(List<Episode> playList){
 		this.mPlayList = playList;
 	}
@@ -408,8 +408,8 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	
 	public void playNext()
 	{
-		int index = this.mHelper.mPlaylistAdapter.findEpisodeInPlaylist(this.mCurrentEpisode);
-		if(index < (this.mHelper.mPlaylistAdapter.getCount()-1) && this.mHelper.mPlaylistAdapter.getCount() > 1)	//Only change Episode when we're not at the end of the playlist or the current Episode isn't the only one in the playlist.
+		int index = mDataManager.findEpisodeInPlaylist(this.mCurrentEpisode);
+		if(index < (mDataManager.Playlist().size()-1) && mDataManager.Playlist().size() > 1)	//Only change Episode when we're not at the end of the playlist or the current Episode isn't the only one in the playlist.
 		{
 			playEpisode(index+1);
 			return;

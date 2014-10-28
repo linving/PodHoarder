@@ -190,6 +190,12 @@ public class EpisodeActivity extends BaseActivity
 		super.onDestroy();
 	}
 
+    @Override
+    public void startMainActivity()
+    {
+        this.onBackPressed();
+    }
+
     /**
      * Changes the UI components to fitting colors within the supplied Palette.
      * @param p Palette generated from something that you want colors matched to.

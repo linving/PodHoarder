@@ -16,8 +16,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.podhoarder.activity.MainActivity;
-import com.podhoarder.activity.MainActivity.ListFilter;
+import com.podhoarder.activity.LibraryActivity;
+import com.podhoarder.activity.LibraryActivity.ListFilter;
 import com.podhoarder.listener.GridActionModeCallback;
 import com.podhoarder.object.Feed;
 import com.podhoarder.object.FeedImage.ImageDownloadListener;
@@ -262,7 +262,7 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener
         						{
         							ListFilter filter = ListFilter.FEED;
             						filter.setFeedId(currentFeed.getFeedId());
-        							((MainActivity)mContext).setFilter(filter);
+        							((LibraryActivity)mContext).setFilter(filter);
         						}
     						}
     					}
@@ -270,7 +270,7 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener
     					{
     						ListFilter filter = ListFilter.FEED;
     						filter.setFeedId(currentFeed.getFeedId());
-    						((MainActivity)mContext).setFilter(filter);
+    						((LibraryActivity)mContext).setFilter(filter);
     					}
     				}
     			});
@@ -298,7 +298,7 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener
 		removeLoadingItem();
 		if (!isLoading())
 		{
-			((MainActivity)this.mContext).mPodcastHelper.forceRefreshContent();
+			((LibraryActivity)this.mContext).mDataManager.forceReloadListData();
 		}
 	}
 }

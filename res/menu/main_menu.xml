@@ -13,9 +13,4 @@
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_add_white_24dp"
         android:title="@string/action_add"/>
-	<item
-        android:id="@+id/action_settings"
-        app:showAsAction="never"
-        android:icon="@drawable/ic_settings_white_24dp"
-        android:title="@string/action_settings"/>
 </menu>

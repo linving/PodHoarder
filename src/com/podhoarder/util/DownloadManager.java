@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
+import com.podhoarder.datamanager.DataManager;
 import com.podhoarder.db.EpisodeDBHelper;
 import com.podhoarder.object.Episode;
 import com.podhoarderproject.podhoarder.R;
@@ -31,10 +32,10 @@ public class DownloadManager {
     private 				String 		storagePath;
     private 				String 		podcastDir;
 
-    private PodcastHelper mPodcastHelper;
+    private DataManager mDataManager;
 
 
-    public DownloadManager (Context mContext, PodcastHelper mParentHelper, EpisodeDBHelper mEPH)
+    public DownloadManager (Context mContext, DataManager mParentManager, EpisodeDBHelper mEPH)
     {
         this.mContext = mContext;
         mDownloadManager = (android.app.DownloadManager) this.mContext.getSystemService(Context.DOWNLOAD_SERVICE);
@@ -42,7 +43,7 @@ public class DownloadManager {
 
         mEpisodesDBHelper = mEPH;
 
-        mPodcastHelper = mParentHelper;
+        mDataManager = mParentManager;
 
         //TODO: Select external storage (preferable) or internal app memory depending on availability.
         storagePath = Environment.DIRECTORY_PODCASTS;
@@ -193,6 +194,6 @@ public class DownloadManager {
         mContext.unregisterReceiver(receiver);
         mBroadcastReceivers.remove(receiver);
 
-        mPodcastHelper.forceRefreshContent();
+        mDataManager.forceReloadListData();
     }
 }

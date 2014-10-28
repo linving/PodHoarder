@@ -18,14 +18,12 @@ public class ToggleImageButton extends ImageButton
 	{
 		super(context, attrs, defStyle);
 		loadAttributeSet(context, attrs);
-		this.setToggled(false);
 	}
 
 	public ToggleImageButton(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
 		loadAttributeSet(context, attrs);
-		this.setToggled(false);
 	}
 
 	public ToggleImageButton(Context context)
@@ -78,6 +76,7 @@ public class ToggleImageButton extends ImageButton
 		   {
 			   mOnDrawable = a.getDrawable(R.styleable.ToggleImageButton_checkedDrawable);
 			   mOffDrawable = a.getDrawable(R.styleable.ToggleImageButton_unCheckedDrawable);
+               mToggled = a.getBoolean(R.styleable.ToggleImageButton_toggled, false);
 		   } 
 		   finally 
 		   {

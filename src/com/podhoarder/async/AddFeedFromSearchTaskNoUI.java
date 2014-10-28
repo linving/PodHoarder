@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.podhoarder.activity.MainActivity;
+import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.db.FeedDBHelper;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
@@ -121,6 +121,6 @@ public class AddFeedFromSearchTaskNoUI  extends AsyncTask<SearchResultRow, Integ
 
     @Override
     public void downloadFinished(int feedId) {
-        ((MainActivity)mContext).firstFeedAdded();
+        ((LibraryActivity)mContext).firstFeedAdded();
     }
 }

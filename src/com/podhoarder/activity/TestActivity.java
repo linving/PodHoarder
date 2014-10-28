@@ -1,25 +1,25 @@
 package com.podhoarder.activity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.podhoarder.util.PodcastHelper;
-import com.podhoarderproject.podhoarder.R;
-
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.Menu;
 import android.widget.ExpandableListView;
 
+import com.podhoarder.datamanager.LibraryActivityManager;
+import com.podhoarderproject.podhoarder.R;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class TestActivity extends Activity
 {
-	private PodcastHelper helper;
+	private LibraryActivityManager helper;
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_test);
-		this.helper = new PodcastHelper(this);
+		this.helper = new LibraryActivityManager(this);
 		List<String> urls = new ArrayList<String>();
     	urls.add("http://smodcast.com/channels/plus-one/feed/");
 		//this.helper.updateEpisodeListened(1, 1, 45);

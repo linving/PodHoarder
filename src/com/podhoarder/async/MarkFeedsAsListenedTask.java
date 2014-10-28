@@ -6,10 +6,10 @@ package com.podhoarder.async;
 
 import android.os.AsyncTask;
 
+import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.db.EpisodeDBHelper;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
-import com.podhoarder.util.PodcastHelper;
 
 import java.io.File;
 
@@ -18,10 +18,10 @@ import java.io.File;
  */
 public class MarkFeedsAsListenedTask extends AsyncTask<Feed, Void, Void>
 {
-    private PodcastHelper mPodcastHelper;
+    private LibraryActivityManager mPodcastHelper;
     private EpisodeDBHelper mEPH;
 
-    public MarkFeedsAsListenedTask(PodcastHelper mPodcastHelper, EpisodeDBHelper eph)
+    public MarkFeedsAsListenedTask(LibraryActivityManager mPodcastHelper, EpisodeDBHelper eph)
     {
         this.mPodcastHelper = mPodcastHelper;
         this.mEPH = eph;
@@ -30,7 +30,7 @@ public class MarkFeedsAsListenedTask extends AsyncTask<Feed, Void, Void>
     @Override
     protected void onPostExecute(Void v)
     {
-        mPodcastHelper.refreshContent();
+        mPodcastHelper.reloadListData();
     }
 
     @Override

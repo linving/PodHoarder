@@ -4,19 +4,18 @@ package com.podhoarder.db;
  * @author Emil Almrot
  * 2013-03-16
  */
-import java.util.ArrayList;
-import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.EpisodePointer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlaylistDBHelper
 {
@@ -103,9 +102,8 @@ public class PlaylistDBHelper
 	 * 
 	 * Stores the playlist in the database. (Replaces the one already there!)
 	 * @param playlist Playlist to save.
-	 * @throws SQLiteConstraintException Throws an SQLiteConstrainException if the Feed added already exists in the database (duplicate entries not allowed)
 	 */
-	public void savePlaylist(List<Episode> playlist) throws SQLiteConstraintException, CursorIndexOutOfBoundsException
+	public void savePlaylist(List<Episode> playlist)
 	{
 		this.db = this.dbHelper.getWritableDatabase();
 	    this.db.delete(TABLE_NAME, null, null);	//Clear the table.
