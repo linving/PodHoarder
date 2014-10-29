@@ -10,6 +10,7 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AbsListView.OnScrollListener;
 
 import com.podhoarder.activity.LibraryActivity;
+import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.NetworkUtils;
@@ -77,7 +78,7 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
         this.mActionMode = mode;
         this.mSelectedItems = new ArrayList<Integer>();
         this.mActive = true;
-        ((LibraryActivity)this.mContext).mPlaylistAdapter.setReorderingEnabled(false);
+        ((LibraryActivityManager)((LibraryActivity)this.mContext).mDataManager).mPlaylistAdapter.setReorderingEnabled(false);
         
         return true;
     }
@@ -149,7 +150,7 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
     	this.mSelectedItems = null;
     	this.mActive = false;
     	this.mActionMode = null;
-        ((LibraryActivity)this.mContext).mPlaylistAdapter.setReorderingEnabled(true);
+        ((LibraryActivityManager)((LibraryActivity)this.mContext).mDataManager).mPlaylistAdapter.setReorderingEnabled(false);
     }
     
     private void removeSelectedItemsFromPlaylist()

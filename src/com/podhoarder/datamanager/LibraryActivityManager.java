@@ -5,10 +5,9 @@
 package com.podhoarder.datamanager;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 
-import com.podhoarder.activity.LibraryActivity;
-import com.podhoarder.activity.LibraryActivity.ListFilter;
 import com.podhoarder.adapter.EpisodesListAdapter;
 import com.podhoarder.adapter.GridAdapter;
 import com.podhoarder.async.AddFeedFromSearchTask;
@@ -16,9 +15,11 @@ import com.podhoarder.async.AddFeedFromSearchTaskNoUI;
 import com.podhoarder.async.FeedRefreshTask;
 import com.podhoarder.async.MarkEpisodesAsListenedTask;
 import com.podhoarder.async.MarkFeedsAsListenedTask;
+import com.podhoarder.fragment.LibraryFragment;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.object.SearchResultRow;
+import com.podhoarder.util.Constants;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ToastMessages;
 
@@ -43,7 +44,7 @@ public class LibraryActivityManager extends DataManager {
 
         mSearch = new ArrayList<Episode>();
 
-        setupAdapters();
+        setupAdapters(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context).getString(Constants.SETTINGS_KEY_GRIDITEMSIZE,"-1")));
     }
 
     //DATA FETCHING
@@ -174,10 +175,10 @@ public class LibraryActivityManager extends DataManager {
     /**
      * Initializes adapter objects.
      */
-    public void setupAdapters() {
+    public void setupAdapters(int gridItemSize) {
         //TODO: If the filter points to for example favorites, and the favorites list is empty, the listview will not initialize. Have to always start with items in list and gridviews.
         if (hasPodcasts()) {
-            mFeedsGridAdapter = new GridAdapter(mFeeds, mContext);
+            mFeedsGridAdapter = new GridAdapter(mFeeds, gridItemSize, mContext);
             mEpisodesListAdapter = new EpisodesListAdapter(mFeeds.get(0).getEpisodes(), mContext);
             new loadListDataTask().execute();
         }
@@ -187,8 +188,7 @@ public class LibraryActivityManager extends DataManager {
     /**
      * Performs the List/Grid adapter update which fills it with new or relevant items.
      */
-    public void switchLists() {
-        ListFilter mCurrentFilter = ((LibraryActivity) mContext).getFilter();
+    public void switchLists(LibraryFragment.ListFilter mCurrentFilter) {
         if (hasPodcasts()) {
             if (!mCurrentFilter.getSearchString().isEmpty()) {  //If a search string has been specified, we conduct a search with the current filter.
                 mSearch = mEpisodeDBHelper.search(mCurrentFilter);
@@ -200,7 +200,7 @@ public class LibraryActivityManager extends DataManager {
                         mFeedsGridAdapter.replaceItems(mFeeds);
                         break;
                     case FEED:
-                        int feedPos = getFeedPositionWithId(((LibraryActivity) mContext).getFilter().getFeedId());
+                        int feedPos = getFeedPositionWithId(mCurrentFilter.getFeedId());
                         mEpisodesListAdapter.replaceItems(mFeeds.get(feedPos).getEpisodes());
                         break;
                     default:
@@ -214,12 +214,10 @@ public class LibraryActivityManager extends DataManager {
     public void invalidate() {
         if (hasPodcasts())
         {
-            ListFilter mCurrentFilter = ((LibraryActivity) mContext).getFilter();
+            mFeedsGridAdapter.replaceItems(mFeeds);
             //Notify for UI updates.
-            if (mCurrentFilter == ListFilter.ALL && mCurrentFilter.getFeedId() == 0)
-                mFeedsGridAdapter.notifyDataSetChanged();
-            else
-                mEpisodesListAdapter.notifyDataSetChanged();
+            mFeedsGridAdapter.notifyDataSetChanged();
+            mEpisodesListAdapter.notifyDataSetChanged();
         }
     }
 

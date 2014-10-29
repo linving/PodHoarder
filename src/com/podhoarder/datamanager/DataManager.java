@@ -4,6 +4,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.podhoarder.activity.BaseActivity;
+import com.podhoarder.adapter.DragNDropAdapter;
+import com.podhoarder.adapter.QuickListAdapter;
 import com.podhoarder.db.EpisodeDBHelper;
 import com.podhoarder.db.FeedDBHelper;
 import com.podhoarder.db.PlaylistDBHelper;
@@ -21,18 +24,22 @@ public class DataManager {
     //Log Tag
     private static final String LOG_TAG = "com.podhoarderproject.datamanager.DataManager";
     //Context object
-    protected Context           mContext;
+    protected Context mContext;
     //Download Manager
     protected com.podhoarder.util.DownloadManager mDownloadManager;
     //Database Interfaces
-    protected FeedDBHelper      mFeedDBHelper;          //Handles saving the Feed objects to a database for persistence.
-    protected EpisodeDBHelper   mEpisodeDBHelper;       //Handles saving the Episode objects to a database for persistence.
-    protected PlaylistDBHelper  mPlaylistDBHelper;      //Handles saving the Playlist entries to a database for persistence.
+    protected FeedDBHelper mFeedDBHelper;          //Handles saving the Feed objects to a database for persistence.
+    protected EpisodeDBHelper mEpisodeDBHelper;       //Handles saving the Episode objects to a database for persistence.
+    protected PlaylistDBHelper mPlaylistDBHelper;      //Handles saving the Playlist entries to a database for persistence.
+    //Quick List Adapters
+    public DragNDropAdapter mPlaylistAdapter;
+    public QuickListAdapter mQuicklistAdapter;
+
     //List Objects.
-    protected List<Feed>        mFeeds;
-    protected List<Episode>     mFavorites,
-                                mNew,
-                                mPlaylist;
+    protected List<Feed> mFeeds;
+    protected List<Episode> mFavorites,
+            mNew,
+            mPlaylist;
     //Refresh check
     protected boolean mRefreshing;
 
@@ -50,7 +57,12 @@ public class DataManager {
         mNew = loadNew();
         mPlaylist = loadPlaylist();
 
-        mDownloadManager = new com.podhoarder.util.DownloadManager(context,this, mEpisodeDBHelper);
+        if (hasPodcasts()) {
+            mQuicklistAdapter = new QuickListAdapter(mFavorites, mContext);
+            mPlaylistAdapter = new DragNDropAdapter(mPlaylist,mContext);
+        }
+
+        mDownloadManager = new com.podhoarder.util.DownloadManager(context, this, mEpisodeDBHelper);
 
         mRefreshing = false;
     }
@@ -77,9 +89,13 @@ public class DataManager {
         mFeeds = mFeedDBHelper.getAllFeeds();
         return mFeeds;
     }
+
     protected class loadFeedsDataAsync extends AsyncTask<Void, Void, Void> {
         private boolean mLoadBitmaps;
-        public loadFeedsDataAsync(boolean loadBitmaps) { mLoadBitmaps = loadBitmaps; }
+
+        public loadFeedsDataAsync(boolean loadBitmaps) {
+            mLoadBitmaps = loadBitmaps;
+        }
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -97,6 +113,7 @@ public class DataManager {
         mFavorites = mEpisodeDBHelper.getFavoriteEpisodes();
         return mFavorites;
     }
+
     protected class loadFavoritesDataAsync extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
@@ -114,6 +131,7 @@ public class DataManager {
         mNew = mEpisodeDBHelper.getNewEpisodes();
         return mNew;
     }
+
     protected class loadNewDataAsync extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
@@ -131,6 +149,7 @@ public class DataManager {
         mPlaylist = mEpisodeDBHelper.getPlaylistEpisodes();
         return mPlaylist;
     }
+
     protected class loadPlaylistDataAsync extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
@@ -147,14 +166,22 @@ public class DataManager {
     public List<Feed> Feeds() {
         return mFeeds;
     }
+
     public List<Episode> Favorites() {
         return mFavorites;
     }
-    public List<Episode> New() { return mNew; }
+
+    public List<Episode> New() {
+        return mNew;
+    }
+
     public List<Episode> Playlist() {
         return mPlaylist;
     }
-    public DownloadManager DownloadManager() {return mDownloadManager; }
+
+    public DownloadManager DownloadManager() {
+        return mDownloadManager;
+    }
 
     /**
      * Retrieves a Feed object using a Feed ID as parameter.
@@ -170,12 +197,16 @@ public class DataManager {
 
         return mFeedDBHelper.getFeed(feedId);
     }
+
     /**
      * Saves an updated Feed object in the db.
      *
      * @param feed An already existing Feed object with new values.
      */
-    public Feed updateFeed(Feed feed) { return mFeedDBHelper.updateFeed(feed); }
+    public Feed updateFeed(Feed feed) {
+        return mFeedDBHelper.updateFeed(feed);
+    }
+
     /**
      * Deletes all the specified Feeds and all associated Episodes from storage.
      *
@@ -205,6 +236,7 @@ public class DataManager {
     public Episode getEpisode(int episodeId) {
         return mEpisodeDBHelper.getEpisode(episodeId);
     }
+
     /**
      * Saves an updated Episode object in the db.
      *
@@ -213,6 +245,7 @@ public class DataManager {
     public Episode updateEpisode(Episode ep) {
         return mEpisodeDBHelper.updateEpisode(ep);
     }
+
     /**
      * Deletes the physical mp3-file associated with an Episode, not the Episode object itself.
      *
@@ -235,24 +268,26 @@ public class DataManager {
         mPlaylistDBHelper.savePlaylist(playlist);
         mPlaylist = playlist;
     }
+
     public void removeFromPlaylist(int episodeId) {
         mPlaylistDBHelper.deleteEntry(episodeId);
         new loadPlaylistDataAsync().execute();
     }
+
     public void addToPlaylist(Episode ep) {
         mPlaylist.add(ep);
         updatePlaylist(mPlaylist);
     }
+
     /**
      * Returns the index of ep.
+     *
      * @param ep The Episode to find.
      * @return Index of ep, or -1 if it isn't found.
      */
     public int findEpisodeInPlaylist(Episode ep) {
-        for (int i=0; i<this.mPlaylist.size(); i++)
-        {
-            if (ep.getEpisodeId() == this.mPlaylist.get(i).getEpisodeId())
-            {
+        for (int i = 0; i < this.mPlaylist.size(); i++) {
+            if (ep.getEpisodeId() == this.mPlaylist.get(i).getEpisodeId()) {
                 return i;
             }
         }
@@ -261,9 +296,12 @@ public class DataManager {
 
     /**
      * A simple check to see if there are any podcasts or if the library is empty.
+     *
      * @return True if the library is empty. False if it contains anything.
      */
-    public boolean hasPodcasts() { return (mFeeds.size() > 0); }
+    public boolean hasPodcasts() {
+        return (mFeeds.size() > 0);
+    }
 
     /**
      * Refreshes the list or grid view.
@@ -274,11 +312,12 @@ public class DataManager {
         else
             Log.d(LOG_TAG, "Refresh currently in progress. Not running RefreshListsAsync()!");
     }
+
     /**
      * Forces a refresh on the list or grid view.
      */
     public void forceReloadListData() {
-        if(hasPodcasts()) {
+        if (hasPodcasts()) {
             new ListDataReloadTask().execute();
         }
     }
@@ -301,8 +340,7 @@ public class DataManager {
          * This function does all the work "in the background". (In this case it gets all the new data from the db)
          */
         @Override
-        protected Void doInBackground(Void... params)
-        {
+        protected Void doInBackground(Void... params) {
             if (!cancelled) {
                 mFeeds = mFeedDBHelper.refreshFeedData(mFeeds, false);
                 mFavorites = mEpisodeDBHelper.getFavoriteEpisodes();
@@ -329,8 +367,6 @@ public class DataManager {
         protected void onCancelled(Void result) {
             this.cancelled = true;
             mRefreshing = false;
-            //Notify for UI updates.
-            invalidate();
         }
     }
 
@@ -338,31 +374,59 @@ public class DataManager {
      * Should be used to notify the active list that the data has been invalidated.
      * To be overriden.
      */
-    protected void invalidate() {};
+    protected void invalidate() {
+    }
+
+    ;
 
     /**
      * Called when the "Feeds" data gets reloaded. Should notify any adapters.
      */
-    protected void onFeedsDataReloaded() {};
+    protected void onFeedsDataReloaded() {
+    }
+
+    ;
+
     /**
      * Called when the "Playlist" data gets reloaded. Should notify any adapters.
      */
-    protected void onPlaylistDataReloaded() {};
+    protected void onPlaylistDataReloaded() {
+        if (((BaseActivity)mContext).currentQuicklistFilter() == BaseActivity.QuicklistFilter.PLAYLIST) {
+            mPlaylistAdapter.replaceItems(mPlaylist);
+        }
+        mPlaylistAdapter.notifyDataSetChanged();
+    }
+
+    ;
+
     /**
      * Called when the "New" list data gets reloaded. Should notify any adapters.
      */
-    protected void onNewDataReloaded() {};
+    protected void onNewDataReloaded() {
+        if (((BaseActivity)mContext).currentQuicklistFilter() == BaseActivity.QuicklistFilter.NEW) {
+            mQuicklistAdapter.replaceItems(mNew);
+        }
+        mQuicklistAdapter.notifyDataSetChanged();
+    }
+
+    ;
+
     /**
      * Called when the "Favorited" list data gets reloaded. Should notify any adapters.
      */
-    protected void onFavoritesDataReloaded() {};
+    protected void onFavoritesDataReloaded() {
+        Log.i(LOG_TAG,"Favorites notified!");
+        if (((BaseActivity)mContext).currentQuicklistFilter() == BaseActivity.QuicklistFilter.FAVORITES) {
+            mQuicklistAdapter.replaceItems(mFavorites);
+        }
+        mQuicklistAdapter.notifyDataSetChanged();
+    }
 
 
     /**
      * Checks all stored links to make sure that the referenced files actually exist.
      * The function resets local links of files that can't be found, so that they may be downloaded again.
      * Files can be manually removed from the public external directories, thus this is necessary.
-     *
      */
     private void checkFileLinks() {
         for (Feed feed : mFeeds) {
@@ -378,6 +442,7 @@ public class DataManager {
             }
         }
     }
+
     public void closeDbIfOpen() {
         mEpisodeDBHelper.closeDatabaseIfOpen();
         mFeedDBHelper.closeDatabaseIfOpen();

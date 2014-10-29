@@ -14,7 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
-import com.podhoarder.activity.LibraryActivity;
+import com.podhoarder.fragment.LibraryFragment;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.EpisodePointer;
 import com.podhoarder.util.Constants;
@@ -225,7 +225,7 @@ public class EpisodeDBHelper
 	 * @param currentFilter The currently used filter (with searchString set)
 	 * @return	List<Episode> containing the 100 most relevant results.
 	 */
-	public List<Episode> search(LibraryActivity.ListFilter currentFilter)
+	public List<Episode> search(LibraryFragment.ListFilter currentFilter)
 	{
         List<Episode> episodes = new ArrayList<Episode>();
         this.db = this.dbHelper.getWritableDatabase();

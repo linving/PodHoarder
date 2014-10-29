@@ -36,10 +36,10 @@ public class SettingsActivity extends PreferenceActivity
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
             Preference lastEpisodePreference = findPreference(Constants.SETTINGS_KEY_LASTEPISODE);
-            Preference lastFilterPreference = findPreference(Constants.SETTINGS_KEY_LASTFILTER);
+            Preference gridItemPreference = findPreference(Constants.SETTINGS_KEY_GRIDITEMSIZE);
             PreferenceScreen preferenceScreen = getPreferenceScreen();
             preferenceScreen.removePreference(lastEpisodePreference);
-            preferenceScreen.removePreference(lastFilterPreference);
+            preferenceScreen.removePreference(gridItemPreference);
         }
     }
 

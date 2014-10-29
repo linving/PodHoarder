@@ -91,7 +91,7 @@
                 android:background="@android:color/transparent"
                 android:clickable="true"
                 app:buttonColor="@color/windowBackground"
-                app:offDrawable="@drawable/ic_favorite_outline_black_24dp"
+                app:offDrawable="@drawable/ic_favorite_grey600_24dp"
                 app:onDrawable="@drawable/ic_favorite_pink_24dp"
                 app:shadowDx="0.5"
                 app:shadowDy="1.0"

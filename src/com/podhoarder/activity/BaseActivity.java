@@ -5,11 +5,13 @@ import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,11 +20,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import com.podhoarder.adapter.DragNDropAdapter;
 import com.podhoarder.adapter.NavDrawerListAdapter;
-import com.podhoarder.adapter.QuickListAdapter;
 import com.podhoarder.datamanager.DataManager;
 import com.podhoarder.object.NavDrawerItem;
+import com.podhoarder.util.Constants;
 import com.podhoarder.view.ToggleImageButton;
 import com.podhoarderproject.podhoarder.R;
 
@@ -52,12 +53,12 @@ public abstract class BaseActivity extends ActionBarActivity {
 
     //Data Manager
     public DataManager mDataManager;
-    //Quick list adapter
-    public DragNDropAdapter mPlaylistAdapter;
-    public QuickListAdapter mQuicklistAdapter;
 
     //Quick list filter
     private QuicklistFilter mCurrentQuicklistFilter;
+
+    //Grid Item Size
+    protected int mGridItemSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,9 @@ public abstract class BaseActivity extends ActionBarActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+
+        mGridItemSize = setupScreenVars();
+
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, 0, 0) {
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
@@ -86,7 +90,7 @@ public abstract class BaseActivity extends ActionBarActivity {
         // set the drawer layout as main_menu content view of Activity.
         setContentView(mDrawerLayout);
         // add layout of BaseActivities inside framelayout.i.e. frame_container
-        getLayoutInflater().inflate(layoutResID, mContentRoot, true);
+        //getLayoutInflater().inflate(layoutResID, mContentRoot, true);
         setupDataManager();
         setupNavigationDrawer();
         setupQuicklistDrawer();
@@ -122,14 +126,23 @@ public abstract class BaseActivity extends ActionBarActivity {
             return false;
     }
 
-    public void quicklistFilterClicked(View v)
-    {
-        if (!((ToggleImageButton)v).isToggled()) {
+    @Override
+    public void onBackPressed() {
+        if (mDrawerLayout.isDrawerOpen(Gravity.LEFT))
+            mDrawerLayout.closeDrawer(Gravity.LEFT);
+        else if (mDrawerLayout.isDrawerOpen(Gravity.RIGHT))
+            mDrawerLayout.closeDrawer(Gravity.RIGHT);
+        else
+            super.onBackPressed();
+    }
+
+    public void quicklistFilterClicked(View v) {
+        if (!((ToggleImageButton) v).isToggled()) {
             switch (v.getId()) {
                 case R.id.right_drawer_list_filter_favorites:
                     mQuickDrawerPlaylistView.setVisibility(View.GONE);
                     mQuickDrawerListView.setVisibility(View.VISIBLE);
-                    mQuicklistAdapter.replaceItems(mDataManager.Favorites());
+                    mDataManager.mQuicklistAdapter.replaceItems(mDataManager.Favorites());
 
                     mQuicklistFilterFavorites.setToggled(true);
                     mQuicklistFilterPlaylist.setToggled(false);
@@ -150,7 +163,7 @@ public abstract class BaseActivity extends ActionBarActivity {
                 case R.id.right_drawer_list_filter_new:
                     mQuickDrawerPlaylistView.setVisibility(View.GONE);
                     mQuickDrawerListView.setVisibility(View.VISIBLE);
-                    mQuicklistAdapter.replaceItems(mDataManager.New());
+                    mDataManager.mQuicklistAdapter.replaceItems(mDataManager.New());
 
                     mQuicklistFilterFavorites.setToggled(false);
                     mQuicklistFilterPlaylist.setToggled(false);
@@ -167,18 +180,27 @@ public abstract class BaseActivity extends ActionBarActivity {
         mDataManager = new DataManager(this);
     }
 
+    //SCREEN VARS SETUP
+    private int setupScreenVars()   {
+        int storedGridItemSize = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(Constants.SETTINGS_KEY_GRIDITEMSIZE,"-1"));
+        if (storedGridItemSize == -1) {
+            DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+            storedGridItemSize = displayMetrics.widthPixels / 2;
+            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(Constants.SETTINGS_KEY_GRIDITEMSIZE, ""+storedGridItemSize).apply();
+        }
+        return storedGridItemSize;
+    }
+
     //NAVIGATION
     public void startSettingsActivity() {
         Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
+
     public void startPlayerActivity() {
-        Intent intent = new Intent(this, PlayerActivity.class);
-        startActivity(intent);
-        overridePendingTransition(R.anim.player_fade_in , R.anim.activity_stay_transition);
     }
+
     public void startMainActivity() {
-        Intent intent = new Intent(this, LibraryActivity.class);
-        startActivity(intent);
     }
 
     //UTILS
@@ -212,7 +234,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     private void setupNavigationDrawer() {
         //Setup the navigation drawer.
         mNavDrawerBanner = (ImageView) findViewById(R.id.left_drawer_list_banner);
-        mNavDrawerListView = (ListView)findViewById(R.id.left_drawer_list);
+        mNavDrawerListView = (ListView) findViewById(R.id.left_drawer_list);
         // setting the nav drawer list adapter
         NavDrawerListAdapter adapter = new NavDrawerListAdapter(getApplicationContext(), generateNavigationMenu());
         mNavDrawerListView.setAdapter(adapter);
@@ -224,10 +246,8 @@ public abstract class BaseActivity extends ActionBarActivity {
                 mDrawerLayout.closeDrawer(Gravity.START);   //Close the drawer
                 new Handler().postDelayed(new Runnable() {  //Post a delayed runnable that will start the new activity once the drawer has been closed. This is to prevent animation lag.
                     @Override
-                    public void run()
-                    {
-                        switch (pos)
-                        {
+                    public void run() {
+                        switch (pos) {
                             case LIBRARY:
                                 startMainActivity();
                                 break;
@@ -247,16 +267,16 @@ public abstract class BaseActivity extends ActionBarActivity {
             }
         });
     }
+
     private void setupQuicklistDrawer() {
 
-        mQuickDrawerListView = (ListView)findViewById(R.id.right_drawer_list);
-        mQuickDrawerPlaylistView = (ListView)findViewById(R.id.right_drawer_playlist);
-        mQuicklistFilterFavorites = (ToggleImageButton)findViewById(R.id.right_drawer_list_filter_favorites);
-        mQuicklistFilterPlaylist = (ToggleImageButton)findViewById(R.id.right_drawer_list_filter_playlist);
-        mQuicklistFilterNew = (ToggleImageButton)findViewById(R.id.right_drawer_list_filter_new);
+        mQuickDrawerListView = (ListView) findViewById(R.id.right_drawer_list);
+        mQuickDrawerPlaylistView = (ListView) findViewById(R.id.right_drawer_playlist);
+        mQuicklistFilterFavorites = (ToggleImageButton) findViewById(R.id.right_drawer_list_filter_favorites);
+        mQuicklistFilterPlaylist = (ToggleImageButton) findViewById(R.id.right_drawer_list_filter_playlist);
+        mQuicklistFilterNew = (ToggleImageButton) findViewById(R.id.right_drawer_list_filter_new);
 
-        mQuicklistAdapter = new QuickListAdapter(mDataManager.Favorites(), this);
-        mQuickDrawerListView.setAdapter(mQuicklistAdapter);
+        mQuickDrawerListView.setAdapter(mDataManager.mQuicklistAdapter);
         mQuickDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -264,8 +284,7 @@ public abstract class BaseActivity extends ActionBarActivity {
             }
         });
         mCurrentQuicklistFilter = QuicklistFilter.FAVORITES;
-        mPlaylistAdapter = new DragNDropAdapter(mDataManager.Playlist(),this);
-        mQuickDrawerPlaylistView.setAdapter(mPlaylistAdapter);
+        mQuickDrawerPlaylistView.setAdapter(mDataManager.mPlaylistAdapter);
         mQuickDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -277,12 +296,21 @@ public abstract class BaseActivity extends ActionBarActivity {
     //DRAWER CLICK INTERFACE
     public interface NavDrawerItemClickListener {
         public void onItemClicked(View clickedView, int position);
-        public static enum NavDrawerItemPosition {LIBRARY, PLAYER, SETTINGS, ABOUT};
+
+        public static enum NavDrawerItemPosition {LIBRARY, PLAYER, SETTINGS, ABOUT}
+
+        ;
     }
+
     public interface QuicklistItemClickListener {
         public void onQuicklistItemClicked(View clickedView, int position, QuicklistFilter currentFilter);
     }
 
     //QUICK LIST FILTER ENUM
-    public enum QuicklistFilter {FAVORITES, PLAYLIST, NEW}
+    public enum QuicklistFilter {
+        FAVORITES, PLAYLIST, NEW
+    }
+    public QuicklistFilter currentQuicklistFilter() {
+        return mCurrentQuicklistFilter;
+    }
 }

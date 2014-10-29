@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 
+import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.db.FeedDBHelper;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
@@ -217,6 +218,7 @@ public class FeedRefreshTask extends AsyncTask<List<Feed>, Integer, List<Feed>>
                 oldFeed = fDbH.updateFeed(oldFeed);
             }
             this.swipeRefreshLayout.setRefreshing(false);
+            ((LibraryActivity)mContext).mDataManager.forceReloadListData();
             ToastMessages.RefreshSuccessful(mContext).show();
         }
         catch (CursorIndexOutOfBoundsException e)

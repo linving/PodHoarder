@@ -11,18 +11,10 @@
 	        android:summary="@string/pref_gridShowTitle_summary"
 	        android:defaultValue="true" />
     </PreferenceCategory>
-    <ListPreference
-        android:key="pref_startTab"
-        android:title="@string/pref_startTab_title"
-        android:dialogTitle="@string/pref_startTab_dialogTitle"
-        android:summary="@string/pref_startTab_summary"
-        android:entries="@array/pref_startTab_entries"
-        android:entryValues="@array/pref_startTab_values"
-        android:defaultValue="2" />
     <Preference
         android:key="pref_lastEpisode"
         android:defaultValue="-1"/>
     <Preference
-        android:key="pref_lastFilter"
-        android:defaultValue="0"/>
+        android:key="pref_gridItemSize"
+        android:defaultValue="-1"/>
 </PreferenceScreen>

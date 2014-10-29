@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:paddingTop="?actionBarSize"
+    android:clipToPadding="false">
 
     <RelativeLayout
         android:id="@+id/episode_banner_container"
@@ -32,7 +34,7 @@
             android:background="@android:color/transparent"
             android:clickable="true"
             app:onDrawable="@drawable/ic_favorite_pink_24dp"
-            app:offDrawable="@drawable/ic_favorite_outline_black_24dp"
+            app:offDrawable="@drawable/ic_favorite_grey600_24dp"
             app:shadowDx="0.5"
             app:shadowDy="1.0"
             app:shadowRadius="3.0"

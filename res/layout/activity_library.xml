@@ -1,78 +1,79 @@
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-<android.support.v4.widget.SwipeRefreshLayout
-android:id="@+id/swipeLayout"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-    android:layout_marginTop="?actionBarSize">
-
-
-<FrameLayout
-    android:id="@+id/root"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <TextView
-        android:id="@+id/emptyLibraryString"
-        style="@style/Base.TextAppearance.AppCompat.Medium"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center_horizontal|center_vertical"
-        android:layout_margin="25dp"
-        android:text="@string/library_empty"
-        android:clickable="true"
-        android:visibility="gone" />
+        android:layout_marginTop="?actionBarSize">
 
-    <ListView
-        android:id="@+id/episodesListView"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:clickable="true"
-        android:clipToPadding="false"
-        android:divider="@drawable/list_divider"
-        android:dividerHeight="1px"
-        android:fastScrollAlwaysVisible="true"
-        android:fastScrollEnabled="true"
-        listSelector="@drawable/list_selector"
-        android:listSelector="@drawable/list_selector"
-        android:longClickable="true"
-        android:paddingBottom="8dp"
-        android:paddingTop="8dp"
-        android:visibility="gone" />
 
-    <GridView
-        android:id="@+id/feedsGridView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:clickable="true"
-        android:clipToPadding="false"
-        android:columnWidth="@dimen/fragment_feeds_grid_item"
-        android:horizontalSpacing="4dp"
-        android:longClickable="true"
-        android:numColumns="auto_fit"
-        android:padding="4dp"
-        android:stretchMode="none"
-        android:verticalSpacing="4dp"
-        android:visibility="gone" />
+        <FrameLayout
+            android:id="@+id/root"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <com.podhoarder.view.FloatingPlayPauseButton
-        android:id="@+id/fabbutton"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginEnd="16dp"
-        app:buttonColor="@color/colorAccent"
-        app:pauseDrawable="@drawable/ic_pause_white_48dp"
-        app:playDrawable="@drawable/ic_play_arrow_white_48dp"
-        app:shadowDx="0.5"
-        app:shadowDy="1.0"
-        app:shadowRadius="3.0" />
 
-</FrameLayout>
-</android.support.v4.widget.SwipeRefreshLayout>
-</merge>
+            <TextView
+                android:id="@+id/emptyLibraryString"
+                style="@style/Base.TextAppearance.AppCompat.Medium"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="25dp"
+                android:clickable="true"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/library_empty"
+                android:visibility="gone" />
+
+            <ListView
+                android:id="@+id/episodesListView"
+                listSelector="@drawable/list_selector"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:clickable="true"
+                android:clipToPadding="false"
+                android:divider="@drawable/list_divider"
+                android:dividerHeight="1px"
+                android:fastScrollAlwaysVisible="true"
+                android:fastScrollEnabled="true"
+                android:listSelector="@drawable/list_selector"
+                android:longClickable="true"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <GridView
+                android:id="@+id/feedsGridView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:clickable="true"
+                android:clipToPadding="false"
+                android:horizontalSpacing="4dp"
+                android:longClickable="true"
+                android:numColumns="auto_fit"
+                android:padding="4dp"
+                android:stretchMode="none"
+                android:verticalSpacing="4dp"
+                android:visibility="visible" />
+
+            <com.podhoarder.view.FloatingPlayPauseButton
+                android:id="@+id/fabbutton"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                app:buttonColor="@color/colorAccent"
+                app:pauseDrawable="@drawable/ic_pause_white_48dp"
+                app:playDrawable="@drawable/ic_play_arrow_white_48dp"
+                app:shadowDx="0.5"
+                app:shadowDy="1.0"
+                app:shadowRadius="3.0" />
+
+        </FrameLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>
+</LinearLayout>

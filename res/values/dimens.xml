@@ -10,7 +10,4 @@
     
     <dimen name="indicator_width">5dip</dimen>
     
-	<!-- Feeds Fragment -->
-    <dimen name="fragment_feeds_grid_item">150dp</dimen>
-    
 </resources>

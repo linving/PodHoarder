@@ -40,10 +40,6 @@
     <string name="pref_gridShowTitle_title">Show Podcast Titles In Grid</string>
     <string name="pref_gridShowTitle_summary">Disable to hide the text overlay in the podcast grid view.</string>
     
-    <string name="pref_startTab_title">Default View</string>
-    <string name="pref_startTab_dialogTitle">Select Default View</string>
-    <string name="pref_startTab_summary">Select which view to show when first starting the app.</string>
-    
     <!-- Menu -->
     <string name="menu_feed_markAsListened">Mark Episodes As Listened</string>
     <string name="menu_feed_delete">Delete Podcast</string>

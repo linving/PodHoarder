@@ -11,10 +11,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v7.graphics.Palette;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.podhoarder.util.Constants;
 import com.podhoarder.util.ImageUtils;
 
 import org.apache.http.Header;
@@ -308,9 +310,16 @@ public class FeedImage
      */
     private void setupImageDimensions()
     {
-    	DisplayMetrics displayMetrics = mContext.getResources().getDisplayMetrics();
-        this.mImageSize = displayMetrics.widthPixels / 2;
-        this.mThumbnailSize = this.mImageSize / 2;
+        int storedValue = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(mContext).getString(Constants.SETTINGS_KEY_GRIDITEMSIZE,"-1"));
+        if (storedValue > 0) {
+            mImageSize = storedValue;
+            mThumbnailSize = mImageSize / 2;
+        }
+        else {
+            DisplayMetrics displayMetrics = mContext.getResources().getDisplayMetrics();
+            this.mImageSize = displayMetrics.widthPixels / 2;
+            this.mThumbnailSize = this.mImageSize / 2;
+        }
     }
     
     private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) 
