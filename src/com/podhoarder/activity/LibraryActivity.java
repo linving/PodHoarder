@@ -84,14 +84,7 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
             mPlaybackService.setManager((LibraryActivityManager) mDataManager);
             updateDrawer();
             mQuicklistItemClickListener = LibraryActivity.this;
-            // Create a new Fragment to be placed in the activity layout
-            mCurrentFragment = new LibraryFragment();
-            // In case this activity was started with special instructions from an
-            // Intent, pass the Intent's extras to the fragment as arguments
-            mCurrentFragment.setArguments(getIntent().getExtras());
-            // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction().add(R.id.root_container, mCurrentFragment).commit();
-            handleIntent(getIntent());
+            mCurrentFragment.onServiceConnected();
         }
 
         @Override
@@ -121,6 +114,17 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
                 this.startService(mPlayIntent);
             }
         }
+
+        if (mCurrentFragment == null) {
+            // Create a new Fragment to be placed in the activity layout
+            mCurrentFragment = new LibraryFragment();
+            // In case this activity was started with special instructions from an
+            // Intent, pass the Intent's extras to the fragment as arguments
+            mCurrentFragment.setArguments(getIntent().getExtras());
+            // Add the fragment to the 'fragment_container' FrameLayout
+            getSupportFragmentManager().beginTransaction().add(R.id.root_container, mCurrentFragment).commit();
+        }
+        handleIntent(getIntent());
 
         if (savedInstanceState != null) {
             return;
@@ -290,37 +294,34 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     }
 
     //NAVIGATION
-    public void startEpisodeDetailsActivity(Episode currentEp) {
-/*      Intent intent = new Intent(LibraryActivity.this, EpisodeActivity.class);
-        Bundle b = new Bundle();
-        b.putInt("id", currentEp.getEpisodeId()); //Your id
-        b.putString("title", currentEp.getTitle());
-        b.putString("timeStamp", currentEp.getPubDate());
-        b.putString("description", currentEp.getDescription());
-        intent.putExtras(b); //Put your id to your next Intent
-        startActivity(intent);
-        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);*/
-        mCurrentFragment = EpisodeFragment.newInstance(currentEp.getEpisodeId());
-
-        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.root_container, mCurrentFragment);
-        ft.addToBackStack(null);
-        ft.commit();
+    @Override
+    public void startLibraryActivity() {
+        if (!((Object) mCurrentFragment).getClass().getName().equals(LibraryFragment.class.getName())) { //We check to see if the current fragment is a PlayerFragment. In that case we don't need to create a new one.
+            onBackPressed();
+            getSupportFragmentManager().popBackStack();
+        }
     }
-
+    @Override
+    public void startEpisodeActivity(Episode currentEp) {
+        if (!((Object) mCurrentFragment).getClass().getName().equals(EpisodeFragment.class.getName())) {
+            cancelSearch();
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+            ft.replace(R.id.root_container, EpisodeFragment.newInstance(currentEp.getEpisodeId()));
+            ft.addToBackStack(null);
+            ft.commit();
+        }
+    }
     @Override
     public void startPlayerActivity() {
-/*        Intent intent = new Intent(LibraryActivity.this, PlayerActivity.class);
-        startActivity(intent);
-        overridePendingTransition(R.anim.player_fade_in, R.anim.activity_stay_transition);*/
-        mCurrentFragment = new PlayerFragment();
-
-        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.root_container, mCurrentFragment);
-        ft.addToBackStack(null);
-        ft.commit();
+        if (!((Object) mCurrentFragment).getClass().getName().equals(PlayerFragment.class.getName())) { //We check to see if the current fragment is a PlayerFragment. In that case we don't need to create a new one.
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setCustomAnimations(R.anim.player_fade_in, R.anim.fade_out, R.anim.activity_stay_transition, R.anim.player_fade_out);
+            ft.replace(R.id.root_container, new PlayerFragment());
+            ft.addToBackStack(null);
+            ft.commit();
+        }
     }
-
     public void startAddActivity() {
         if (NetworkUtils.isOnline(LibraryActivity.this)) {
             Intent intent = new Intent(LibraryActivity.this, AddActivity.class);
@@ -329,7 +330,6 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
         } else
             ToastMessages.NoNetworkAvailable(LibraryActivity.this).show();
     }
-
     @Override
     public void startSettingsActivity() {
         Intent intent = new Intent(this, SettingsActivity.class);
@@ -337,12 +337,12 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     }
 
     //SEARCHING
-    private void doSearch(String searchString) {
+    public void doSearch(String searchString) {
         ((LibraryFragment)mCurrentFragment).doSearch(searchString);
     }
-    private void cancelSearch() {
+    public void cancelSearch() {
         mSearchView.onActionViewCollapsed();
-        ((LibraryFragment)mCurrentFragment).cancelSearch();
+        //((LibraryFragment)mCurrentFragment).cancelSearch();
     }
 
     //MISC HELPER METHODS

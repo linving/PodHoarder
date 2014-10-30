@@ -179,7 +179,6 @@ public class PlayerActivity extends BaseActivity implements PodHoarderService.St
 		super.onDestroy();
 	}
 
-    @Override
     public void startMainActivity()
     {
         this.onBackPressed();

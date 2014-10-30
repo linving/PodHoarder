@@ -1,5 +1,7 @@
 package com.podhoarder.adapter;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
@@ -8,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.OvershootInterpolator;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.GridView;
@@ -46,6 +49,8 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener {
     public int mGridItemSize;
 
     private boolean mSelectionEnabled;
+
+    final static OvershootInterpolator overshootInterpolator = new OvershootInterpolator();
 
     public GridAdapter(List<Feed> feeds, int gridItemSize, Context c) {
         mItems = feeds;
@@ -198,6 +203,7 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener {
                 if (newEpisodesCount > 0) {
                     viewHolder.feedNumberOfEpisodes.setVisibility(View.VISIBLE);
                     viewHolder.feedNumberOfEpisodes.setText("" + newEpisodesCount);    //Set number of Episodes
+                    animateNotification(viewHolder.feedNumberOfEpisodes);
                 } else {
                     viewHolder.feedNumberOfEpisodes.setVisibility(View.GONE);
                 }
@@ -248,6 +254,16 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener {
         }
     }
 
+    public void animateNotification(View v) {
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(v, "scaleX", 0f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(v, "scaleY", 0f, 1f);
+        AnimatorSet animSetXY = new AnimatorSet();
+        animSetXY.playTogether(scaleX, scaleY);
+        animSetXY.setInterpolator(overshootInterpolator);
+        animSetXY.setDuration(200);
+        animSetXY.start();
+    }
+
     public interface GridItemClickListener {
         public void onGridItemClicked(int pos, int feedId);
     }
@@ -255,4 +271,6 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener {
     {
         this.mGridItemClickListener = listener;
     }
+
+
 }

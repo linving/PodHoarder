@@ -190,7 +190,6 @@ public class EpisodeActivity extends BaseActivity
 		super.onDestroy();
 	}
 
-    @Override
     public void startMainActivity()
     {
         this.onBackPressed();

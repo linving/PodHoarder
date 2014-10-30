@@ -61,6 +61,7 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
     private EpisodeMultiChoiceModeListener mListSelectionListener;
     //Feeds Grid
     private GridView mGridView;
+    private int mGridItemSize;
     private GridActionModeCallback mActionModeCallback;
     private ActionMode mActionMode;
     //SwipeRefreshLayout
@@ -109,23 +110,18 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
         // Inflate the layout for this fragment
         mContentView = inflater.inflate(R.layout.activity_library, container, false);
 
-        mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
-        mPlaybackService.setStateChangedListener(LibraryFragment.this);
+
         mDataManager = ((LibraryActivity) getActivity()).getDataManager();
         mDataManager.mFeedsGridAdapter.setGridItemClickListener(this);
-
-        if (mDataManager.hasPodcasts())
-            setupFAB();
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) mContentView.findViewById(R.id.swipeLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent, R.color.windowBackground, R.color.colorAccent, R.color.windowBackground);
 
-        mFilter = ListFilter.ALL;
+        if (mFilter == null)
+            mFilter = ListFilter.ALL;
 
         populate();
-        //TODO: Make a nicer solution
-        mGridView.setColumnWidth(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(Constants.SETTINGS_KEY_GRIDITEMSIZE,"-1")));
 
         ((LibraryActivity)getActivity()).setCurrentFragment(this);
 
@@ -134,11 +130,24 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
 
     @Override
     public void onResume() {
-        if (mPlaybackService != null && mFAB != null) {
-            mFAB.setPlaying(mPlaybackService.isPlaying());
-            mPlaybackService.setStateChangedListener(this);
+        if (mPlaybackService != null) {
+            onServiceConnected();
         }
         super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onServiceConnected() {
+        mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
+        mPlaybackService.setStateChangedListener(LibraryFragment.this);
+
+        if (mDataManager.hasPodcasts())
+            setupFAB();
     }
 
     @Override
@@ -164,6 +173,7 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
 
     @Override
     public void onGridItemClicked(int pos, int feedId) {
+        fadeOtherGridItems(pos);
         LibraryFragment.ListFilter filter = LibraryFragment.ListFilter.FEED;
         filter.setFeedId(feedId);
         setFilter(filter);
@@ -194,7 +204,7 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
             Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.grid_fade_in);
             LayoutAnimationController animationController = new LayoutAnimationController(animation, 0.2f);
 
-            this.mListView.setAdapter(((LibraryActivityManager) mDataManager).mEpisodesListAdapter);
+            this.mListView.setAdapter(mDataManager.mEpisodesListAdapter);
             this.mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterview, View v, int pos, long id) {
@@ -222,13 +232,21 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
     private void setupGridView() {
 
         mGridView = (GridView) mContentView.findViewById(R.id.feedsGridView);
+
+
+
         if (this.mDataManager.hasPodcasts()) {
+            //TODO: Make a nicer solution
+            if (mGridItemSize == 0)
+                mGridItemSize = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(Constants.SETTINGS_KEY_GRIDITEMSIZE,"-1"));
+
+            mGridView.setColumnWidth(mGridItemSize);
 
             Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.grid_fade_in);
             GridLayoutAnimationController animationController = new GridLayoutAnimationController(animation, 0.15f, 0.45f);
 
-            ((LibraryActivityManager) mDataManager).mFeedsGridAdapter.setLoadingViews(setupLoadingViews());
-            mGridView.setAdapter(((LibraryActivityManager) mDataManager).mFeedsGridAdapter);
+            mDataManager.mFeedsGridAdapter.setLoadingViews(setupLoadingViews());
+            mGridView.setAdapter(mDataManager.mFeedsGridAdapter);
 
             mGridView.setLayoutAnimation(animationController);
 
@@ -342,6 +360,7 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
     public void cancelSearch() {
         mFilter.setSearchString("");
         setFilter(mFilter);
+        ((LibraryActivity)getActivity()).cancelSearch();
         mSearchEnabled = false;
     }
 
@@ -382,6 +401,8 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
             }
         } else {
             if (filterToSet == ListFilter.ALL && filterToSet.getSearchString().isEmpty() && mGridView.getVisibility() != View.VISIBLE) {
+                mListView.setSelectionFromTop(0,0);
+                mListView.smoothScrollToPosition(0);
                 mListView.setVisibility(View.GONE);
                 mGridView.setVisibility(View.VISIBLE);
                 mGridView.startLayoutAnimation();

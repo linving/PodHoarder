@@ -22,6 +22,7 @@ import android.widget.ListView;
 
 import com.podhoarder.adapter.NavDrawerListAdapter;
 import com.podhoarder.datamanager.DataManager;
+import com.podhoarder.object.Episode;
 import com.podhoarder.object.NavDrawerItem;
 import com.podhoarder.util.Constants;
 import com.podhoarder.view.ToggleImageButton;
@@ -200,7 +201,11 @@ public abstract class BaseActivity extends ActionBarActivity {
     public void startPlayerActivity() {
     }
 
-    public void startMainActivity() {
+    public void startLibraryActivity() {
+    }
+
+    public void startEpisodeActivity(Episode currentEp) {
+
     }
 
     //UTILS
@@ -249,7 +254,7 @@ public abstract class BaseActivity extends ActionBarActivity {
                     public void run() {
                         switch (pos) {
                             case LIBRARY:
-                                startMainActivity();
+                                startLibraryActivity();
                                 break;
                             case PLAYER:
                                 startPlayerActivity();

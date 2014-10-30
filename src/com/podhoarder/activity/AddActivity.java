@@ -81,7 +81,6 @@ public class AddActivity extends BaseActivity implements SearchView.OnQueryTextL
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
-    @Override
     public void startMainActivity()
     {
         this.onBackPressed();

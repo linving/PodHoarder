@@ -26,6 +26,7 @@ import com.podhoarder.util.ViewHolders.EpisodeRowViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
@@ -39,15 +40,16 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 	/**
 	 * Creates a LatestEpisodesListAdapter (Constructor).
 	 * 
-	 * @param latestEpisodes
-	 *            A List<Episode> containing the X latest episodes from all feeds.
+	 * @param episodes
+	 *            A List<Episode> containing the episodes you want to display.
 	 * @param context
 	 *            A Context object from the parent Activity.
 	 *            
 	 */
 	public EpisodesListAdapter(List<Episode> episodes, Context context)
 	{
-		this.mEpisodes = episodes;
+        this.mEpisodes = new ArrayList<Episode>();
+		this.mEpisodes.addAll(episodes);
 		this.mContext = context;
 	}
 	
@@ -57,7 +59,8 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 	 */
 	public void replaceItems(List<Episode> newItemCollection)
 	{
-		this.mEpisodes = newItemCollection;
+        this.mEpisodes.clear();
+        this.mEpisodes.addAll(newItemCollection);
 		this.notifyDataSetChanged();
 	}
 
@@ -133,7 +136,7 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 				@Override
 				public void onClick(View v)
 				{
-					((LibraryActivity)mContext).startEpisodeDetailsActivity(currentEpisode);
+					((LibraryActivity)mContext).startEpisodeActivity(currentEpisode);
 				}
 			});
 			

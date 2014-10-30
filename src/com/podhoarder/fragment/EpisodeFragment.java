@@ -70,8 +70,12 @@ public class EpisodeFragment extends BaseFragment {
 
     @Override
     public boolean onBackPressed() {
-        //getActivity().getSupportFragmentManager().popBackStack();
         return false;
+    }
+
+    @Override
+    public void onServiceConnected() {
+
     }
 
     private void setupUI() {
