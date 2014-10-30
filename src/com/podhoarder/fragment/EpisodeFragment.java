@@ -13,8 +13,13 @@ import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
+import com.podhoarder.util.DataParser;
 import com.podhoarder.view.FloatingToggleButton;
 import com.podhoarderproject.podhoarder.R;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
 
 /**
  * Created by Emil on 2014-10-29.
@@ -36,6 +41,8 @@ public class EpisodeFragment extends BaseFragment {
     private TextView episodeTitle, episodeTimestamp, episodeDescription;
     private LinearLayout textContainer, headlineContainer;
 
+    private DateFormat mDisplayFormat;
+
     /**
      * Create a new instance of DetailsFragment, initialized to
      * show the text at 'index'.
@@ -55,6 +62,8 @@ public class EpisodeFragment extends BaseFragment {
         mContentView = inflater.inflate(R.layout.activity_episode, container, false);
 
         mDataManager = ((LibraryActivity) getActivity()).getDataManager();
+
+        mDisplayFormat = android.text.format.DateFormat.getDateFormat(getActivity());
 
         int episodeId = getArguments().getInt("episodeId", 0);
 
@@ -87,7 +96,13 @@ public class EpisodeFragment extends BaseFragment {
         episodeTitle.setText(mCurrentEpisode.getTitle());
 
         episodeTimestamp = (TextView) mContentView.findViewById(R.id.episode_timeStamp);
-        episodeTimestamp.setText(mCurrentEpisode.getPubDate());
+        try {
+            Date date = DataParser.correctFormat.parse(mCurrentEpisode.getPubDate());
+            episodeTimestamp.setText(mDisplayFormat.format(date));
+        }
+        catch (ParseException e) {
+            episodeTimestamp.setText(mCurrentEpisode.getPubDate());
+        }
 
         episodeDescription = (TextView) mContentView.findViewById(R.id.episode_description);
         episodeDescription.setText(mCurrentEpisode.getDescription());

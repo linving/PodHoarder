@@ -28,6 +28,7 @@ import com.podhoarder.object.Episode;
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
+import com.podhoarder.util.Constants;
 import com.podhoarder.util.HardwareIntentReceiver;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ToastMessages;
@@ -223,7 +224,7 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
             case SETTINGS_REQUEST:
                 // Make sure the request was successful
                 if (resultCode == RESULT_OK) {
-                    if (data.getExtras().getBoolean(SettingsActivity.INTENT_RESULTS_ID)) {  //If any of the preferences were changed we'll redraw the Grid. (to reflect the UI changes)
+                    if (data.hasExtra(Constants.SETTINGS_KEY_GRIDSHOWTITLE) && data.getBooleanExtra(Constants.SETTINGS_KEY_GRIDSHOWTITLE,true)) {  //If any of the preferences were changed we'll redraw the Grid. (to reflect the UI changes)
                         ((LibraryActivityManager) mDataManager).mFeedsGridAdapter.notifyDataSetChanged();
                     }
                 }

@@ -91,7 +91,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:scaleType="centerInside"
-                app:checkedDrawable="@drawable/ic_queue_music_grey600_24dp"
+                app:checkedDrawable="@drawable/ic_queue_music_pink_24dp"
                 app:unCheckedDrawable="@drawable/ic_queue_music_grey600_24dp"
                 android:clickable="true"
                 android:onClick="quicklistFilterClicked" />
@@ -104,7 +104,7 @@
                 android:layout_weight="1"
                 android:background="?android:attr/selectableItemBackground"
                 android:scaleType="centerInside"
-                app:checkedDrawable="@drawable/ic_new_releases_grey600_24dp"
+                app:checkedDrawable="@drawable/ic_new_releases_pink_24dp"
                 app:unCheckedDrawable="@drawable/ic_new_releases_grey600_24dp"
                 android:clickable="true"
                 android:onClick="quicklistFilterClicked" />

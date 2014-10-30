@@ -13,10 +13,13 @@ import android.preference.PreferenceScreen;
 import com.podhoarder.util.Constants;
 import com.podhoarderproject.podhoarder.R;
 
+import java.util.Map;
+
 public class SettingsActivity extends PreferenceActivity
 {
-	private boolean mPrefChanged;
-    public final static String INTENT_RESULTS_ID = "prefChanged";
+	private Map mInitialPreferenceValues;
+    private Intent mResultsIntent;
+    private boolean mShowTitlesChanged;
 	
 	@Override
     protected void onCreate(final Bundle savedInstanceState)
@@ -24,7 +27,9 @@ public class SettingsActivity extends PreferenceActivity
         super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction().replace(android.R.id.content, new MyPreferenceFragment()).commit();
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-        mPrefChanged = false;
+        mShowTitlesChanged = false;
+        mResultsIntent = new Intent();
+        mInitialPreferenceValues = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getAll();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(spChanged);
     }
 
@@ -45,9 +50,7 @@ public class SettingsActivity extends PreferenceActivity
 
     private void finishActivity()
     {
-        Intent databackIntent = new Intent();
-        databackIntent.putExtra(INTENT_RESULTS_ID, mPrefChanged);
-        setResult(Activity.RESULT_OK, databackIntent);
+        setResult(Activity.RESULT_OK, mResultsIntent);
         finish();
     }
 
@@ -55,7 +58,9 @@ public class SettingsActivity extends PreferenceActivity
             SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                    mPrefChanged = true;
+                if (key.equals(Constants.SETTINGS_KEY_GRIDSHOWTITLE))
+                    mShowTitlesChanged = !mShowTitlesChanged;
+                    mResultsIntent.putExtra(key, mShowTitlesChanged);
                 }
                 // your stuff here
             };

@@ -60,7 +60,7 @@ public class EpisodeRowUtils
 		{
 			if (NetworkUtils.isOnline(ctx))
 			{
-				row.arrow.setImageResource(R.drawable.ic_new);
+				row.arrow.setImageResource(R.drawable.ic_new_releases_pink_24dp);
 				row.arrow.setAlpha(1f);
 				//row.episodeTitle.setTypeface(row.episodeTitle.getTypeface(), Typeface.BOLD);
 //				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
@@ -68,7 +68,7 @@ public class EpisodeRowUtils
 			}
 			else
 			{
-				row.arrow.setImageResource(R.drawable.ic_info);
+				row.arrow.setImageResource(R.drawable.ic_info_outline_black_24dp);
 				row.arrow.setAlpha(.54f);
 				//row.indicator.setStatus(Status.UNAVAILABLE);
 //				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
@@ -79,7 +79,7 @@ public class EpisodeRowUtils
 		{
 			if (ep.isDownloaded())
 			{
-				row.arrow.setImageResource(R.drawable.ic_info);
+				row.arrow.setImageResource(R.drawable.ic_info_outline_black_24dp);
 				row.arrow.setAlpha(.54f);
 //				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
 //				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
@@ -88,14 +88,14 @@ public class EpisodeRowUtils
 			{
 				if (NetworkUtils.isOnline(ctx))	//Phone has internet access, streaming is possible.
 				{
-					row.arrow.setImageResource(R.drawable.ic_info);
+					row.arrow.setImageResource(R.drawable.ic_info_outline_black_24dp);
 					row.arrow.setAlpha(.54f);
 //					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
 //					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
 				}
 				else	//Device does not have internet access, so all streaming episodes should be set to unavailable.
 				{
-					row.arrow.setImageResource(R.drawable.ic_info);
+					row.arrow.setImageResource(R.drawable.ic_info_outline_black_24dp);
 					row.arrow.setAlpha(.54f);
 //					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
 //					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));

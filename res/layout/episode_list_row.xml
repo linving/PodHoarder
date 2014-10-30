@@ -67,7 +67,7 @@
         android:paddingRight="16dp"
         android:paddingTop="20dp"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_info"
+        android:src="@drawable/ic_info_outline_black_24dp"
         android:visibility="visible" />
 
 </RelativeLayout>
