@@ -43,20 +43,6 @@
                 android:value="com.podhoarder.activity.MainActivity" />
         </activity>
         <activity
-            android:name="com.podhoarder.activity.EpisodeActivity"
-            android:theme="@style/Theme.Podhoarder.ToolbarOverlay"
-            android:parentActivityName="com.podhoarder.activity.LibraryActivity" >
-        </activity>
-        <activity
-            android:name="com.podhoarder.activity.PlayerActivity"
-            android:theme="@style/Theme.Podhoarder.ToolbarOverlay"
-            android:parentActivityName="com.podhoarder.activity.LibraryActivity" >
-        </activity>
-        <activity
-            android:name="com.podhoarder.activity.AddActivity"
-            android:parentActivityName="com.podhoarder.activity.LibraryActivity" >
-        </activity>
-        <activity
             android:name="com.podhoarder.activity.SettingsActivity"
             android:label="@string/action_settings" >
         </activity>

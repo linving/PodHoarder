@@ -1,9 +1,8 @@
 package com.podhoarder.listener;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,11 +11,12 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AbsListView.OnScrollListener;
 
-import com.podhoarder.activity.AddActivity;
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.util.AnimUtils;
-import com.podhoarder.util.DialogUtils;
 import com.podhoarderproject.podhoarder.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListener
 {
@@ -25,6 +25,7 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
 	private List<Integer> mSelectedItems;
 	private ActionMode mActionMode;
 	private boolean mActive = false;
+    private onDialogResultListener mOnDialogResultListener;
 	
 	public SearchResultMultiChoiceModeListener(Context context, AbsListView parent)
 	{
@@ -139,8 +140,56 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
     	{
     		selectedItems.add(((SearchResultRow) this.mParentListView.getItemAtPosition(i)));
     	}
-    	((AddActivity)mContext).addFeedsDialog(mContext, selectedItems);
+    	addFeedsDialog(mContext, selectedItems);
     }
+
+    public void addFeedsDialog(final Context ctx, final List<SearchResultRow> selectedResults) {
+        if (selectedResults.size() > 1) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+            builder.setTitle(ctx.getString(R.string.popup_window_title_multiple));
+            builder.setMessage(ctx.getString(R.string.popup_areyousure) + " " + selectedResults.size() + " " + ctx.getString(R.string.popup_podcasts) + "?");
+
+            // Set up the buttons
+            builder.setPositiveButton(R.string.popup_window_ok_button, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mOnDialogResultListener.onDialogResultReceived(1, selectedResults);
+                    dialog.dismiss();
+                }
+            });
+            builder.setNegativeButton(R.string.popup_window_cancel_button, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mOnDialogResultListener.onDialogResultReceived(0, null);
+                    dialog.dismiss();
+                }
+            });
+            builder.show();
+        } else if (selectedResults.size() == 1) {
+            final SearchResultRow currentItem = selectedResults.get(0);
+            AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+            builder.setTitle(ctx.getString(R.string.popup_window_title_single));
+            builder.setMessage(ctx.getString(R.string.popup_areyousure) + " " + currentItem.getTitle() + "?");
+
+            // Set up the buttons
+            builder.setPositiveButton(R.string.popup_window_ok_button, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mOnDialogResultListener.onDialogResultReceived(1, selectedResults);
+                    dialog.dismiss();
+                }
+            });
+            builder.setNegativeButton(R.string.popup_window_cancel_button, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mOnDialogResultListener.onDialogResultReceived(0, null);
+                    dialog.dismiss();
+                }
+            });
+            builder.show();
+        }
+    }
+
 
     /**
      * Finds the position of a View, relative to the currently visible subset.
@@ -161,5 +210,12 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
     	}
     	
     	return -1;
+    }
+
+    public void setmOnDialogResultListener(onDialogResultListener dialogResultListener) {
+        this.mOnDialogResultListener = dialogResultListener;
+    }
+    public interface onDialogResultListener {
+        public void onDialogResultReceived(int result, List<SearchResultRow> selectedResults);
     }
 }

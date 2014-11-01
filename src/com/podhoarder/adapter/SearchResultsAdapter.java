@@ -1,9 +1,5 @@
 package com.podhoarder.adapter;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.text.Html;
 import android.text.format.DateUtils;
@@ -21,6 +17,10 @@ import com.podhoarder.util.DataParser;
 import com.podhoarder.util.ViewHolders.SearchResultsAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 {
 	@SuppressWarnings("unused")
@@ -31,9 +31,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 
 	/**
 	 * Creates a LatestEpisodesListAdapter (Constructor).
-	 * 
-	 * @param latestEpisodes
-	 *            A List<Episode> containing the X latest episodes from all feeds.
+	 *
 	 * @param context
 	 *            A Context object from the parent Activity.
 	 *            

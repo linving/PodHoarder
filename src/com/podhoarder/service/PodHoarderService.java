@@ -87,7 +87,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			{
                 mDataManager.removeFromPlaylist(mPlayList.get(indexToDelete).getEpisodeId());
 			}
-			this.mDataManager.reloadListData();
+			this.mDataManager.reloadListData(true);
 		}
 		else	ToastMessages.PlaybackFailed(getApplicationContext()).show();
 	}

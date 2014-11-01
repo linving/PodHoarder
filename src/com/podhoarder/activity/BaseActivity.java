@@ -186,7 +186,7 @@ public abstract class BaseActivity extends ActionBarActivity {
         int storedGridItemSize = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(Constants.SETTINGS_KEY_GRIDITEMSIZE,"-1"));
         if (storedGridItemSize == -1) {
             DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-            storedGridItemSize = displayMetrics.widthPixels / 2;
+            storedGridItemSize = (displayMetrics.widthPixels / 2) - 20; //The -20 is to account for the total amount of padding (3x4 horizontal item padding + 2x4 for grid layout margin)
             PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(Constants.SETTINGS_KEY_GRIDITEMSIZE, ""+storedGridItemSize).apply();
         }
         return storedGridItemSize;

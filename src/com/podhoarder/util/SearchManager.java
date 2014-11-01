@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.podhoarder.activity.AddActivity;
+import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.SearchResultsAdapter;
 import com.podhoarder.json.SearchResult;
 import com.podhoarder.json.SearchResultItem;
@@ -162,7 +162,7 @@ public class SearchManager
 			for (SearchResultItem result : mResults.getResults())
 			{
 				
-				if (!((AddActivity)mContext).feedExists(result.getFeedUrl()) && !this.isCancelled())
+				if (!((LibraryActivity)mContext).mDataManager.hasPodcast(result.getFeedUrl()) && !this.isCancelled())
 				{
 					AsyncTask<String, Void, SearchResultRow > tempTask = new FeedParseTask();
 					tempTask.execute(result.getFeedUrl());

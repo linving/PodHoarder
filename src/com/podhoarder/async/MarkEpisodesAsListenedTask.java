@@ -30,7 +30,7 @@ public class MarkEpisodesAsListenedTask extends AsyncTask<List<Episode>, Void, V
     @Override
     protected void onPostExecute(Void v)
     {
-        mPodcastHelper.reloadListData();
+        mPodcastHelper.reloadListData(true);
     }
 
     @Override

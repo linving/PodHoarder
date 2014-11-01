@@ -20,22 +20,19 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.podhoarder.datamanager.LibraryActivityManager;
+import com.podhoarder.fragment.AddFragment;
 import com.podhoarder.fragment.BaseFragment;
 import com.podhoarder.fragment.EpisodeFragment;
 import com.podhoarder.fragment.LibraryFragment;
 import com.podhoarder.fragment.PlayerFragment;
 import com.podhoarder.object.Episode;
-import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
 import com.podhoarder.util.Constants;
 import com.podhoarder.util.HardwareIntentReceiver;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ToastMessages;
-import com.podhoarder.view.FloatingPlayPauseButton;
 import com.podhoarderproject.podhoarder.R;
-
-import java.util.List;
 
 
 public class LibraryActivity extends BaseActivity implements SearchView.OnQueryTextListener, SearchView.OnCloseListener, BaseActivity.QuicklistItemClickListener {
@@ -43,9 +40,6 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     private static final String LOG_TAG = "com.podhoarder.activity.MainActivity";
     //FRAGMENTS
     public BaseFragment mCurrentFragment;
-
-    //Floating Action Button
-    private FloatingPlayPauseButton mFAB;
 
     //SEARCH
     private MenuItem mSearchMenuItem;
@@ -62,6 +56,9 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     private PodHoarderService mPlaybackService;
     private Intent mPlayIntent;
     private boolean mIsMusicBound = false;
+
+    //INTERFACE LISTENER
+    private onFirstFeedAddedListener mOnFirstFeedAddedListener;
 
     private ServiceConnection podConnection = new ServiceConnection()    //connect to the service
     {
@@ -209,18 +206,6 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
         switch (requestCode) {
-            case ADD_PODCAST_REQUEST:
-                // Make sure the request was successful
-                if (resultCode == RESULT_OK) {
-                    // The user picked a contact.
-                    // The Intent's data Uri identifies which contact was selected.
-                    @SuppressWarnings("unchecked")
-                    List<SearchResultRow> results = (List<SearchResultRow>) data.getExtras().getSerializable(AddActivity.INTENT_RESULTS_ID);
-                    for (SearchResultRow row : results) //Load all the XML files back into memory from the cache directory.
-                        row.loadXML();
-                    ((LibraryActivityManager) mDataManager).addSearchResults(results);
-                }
-                break;
             case SETTINGS_REQUEST:
                 // Make sure the request was successful
                 if (resultCode == RESULT_OK) {
@@ -323,11 +308,15 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
             ft.commit();
         }
     }
-    public void startAddActivity() {
+    private void startAddActivity() {
         if (NetworkUtils.isOnline(LibraryActivity.this)) {
-            Intent intent = new Intent(LibraryActivity.this, AddActivity.class);
-            startActivityForResult(intent, ADD_PODCAST_REQUEST);
-            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+            if (!((Object) mCurrentFragment).getClass().getName().equals(AddFragment.class.getName())) {
+                final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+                ft.replace(R.id.root_container, new AddFragment());
+                ft.addToBackStack(null);
+                ft.commit();
+            }
         } else
             ToastMessages.NoNetworkAvailable(LibraryActivity.this).show();
     }
@@ -351,9 +340,7 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
      * Called when the first Podcast has been added to the library to create List/Grid adapters etc.
      */
     public void firstFeedAdded() {
-        //populate();
-        if (!mDataManager.hasPodcasts()) mFAB.setVisibility(View.GONE);
-        else mFAB.setVisibility(View.VISIBLE);
+        mOnFirstFeedAddedListener.onFirstFeedAdded();
     }
     private void updateDrawer() {
         if (mPlaybackService.mCurrentEpisode != null) {
@@ -369,6 +356,13 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     }
     public void downloadEpisode(Episode ep) {
         this.mDataManager.DownloadManager().downloadEpisode(ep);
+    }
+
+    public interface onFirstFeedAddedListener {
+        public void onFirstFeedAdded();
+    }
+    public void setOnFirstFeedAddedListener(onFirstFeedAddedListener listener) {
+        this.mOnFirstFeedAddedListener = listener;
     }
 
     //GETTERS

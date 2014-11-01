@@ -41,7 +41,7 @@ import java.util.List;
 /**
  * Created by Emil on 2014-10-28.
  */
-public class LibraryFragment extends BaseFragment implements PodHoarderService.StateChangedListener, SwipeRefreshLayout.OnRefreshListener, GridAdapter.GridItemClickListener {
+public class LibraryFragment extends BaseFragment implements PodHoarderService.StateChangedListener, SwipeRefreshLayout.OnRefreshListener, GridAdapter.GridItemClickListener, LibraryActivity.onFirstFeedAddedListener {
     @SuppressWarnings("unused")
     private static final String LOG_TAG = "com.podhoarder.fragment.LibraryFragment";
     //SERVICE
@@ -112,7 +112,8 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
 
 
         mDataManager = ((LibraryActivity) getActivity()).getDataManager();
-        mDataManager.mFeedsGridAdapter.setGridItemClickListener(this);
+        if (mDataManager.hasPodcasts())
+            mDataManager.mFeedsGridAdapter.setGridItemClickListener(this);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) mContentView.findViewById(R.id.swipeLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -123,6 +124,7 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
 
         populate();
 
+        ((LibraryActivity)getActivity()).setOnFirstFeedAddedListener(this);
         ((LibraryActivity)getActivity()).setCurrentFragment(this);
 
         return mContentView;
@@ -146,8 +148,7 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
         mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
         mPlaybackService.setStateChangedListener(LibraryFragment.this);
 
-        if (mDataManager.hasPodcasts())
-            setupFAB();
+        setupFAB();
     }
 
     @Override
@@ -177,6 +178,14 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
         LibraryFragment.ListFilter filter = LibraryFragment.ListFilter.FEED;
         filter.setFeedId(feedId);
         setFilter(filter);
+    }
+
+    @Override
+    public void onFirstFeedAdded() {
+
+        mDataManager.reloadListData(false);
+        populate();
+        if (mDataManager.hasPodcasts()) mFAB.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -223,18 +232,12 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
             this.mListSelectionListener = new EpisodeMultiChoiceModeListener(getActivity(), this.mListView);
             this.mListView.setMultiChoiceModeListener(this.mListSelectionListener);
             this.mListView.setOnScrollListener(mScrollListener);
-        } else {
-            //List is empty. So we show the "Click to add your first podcast" string.
-            setupEmptyText();
         }
     }
 
     private void setupGridView() {
 
         mGridView = (GridView) mContentView.findViewById(R.id.feedsGridView);
-
-
-
         if (this.mDataManager.hasPodcasts()) {
             //TODO: Make a nicer solution
             if (mGridItemSize == 0)
@@ -265,9 +268,6 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
             });
             mGridView.setOnScrollListener(mScrollListener);
 
-        } else {
-            //Grid is empty. So we show the "Click to add your first podcast" string.
-            setupEmptyText();
         }
 
     }
@@ -284,14 +284,20 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
 
     private void setupEmptyText() {
         TextView mEmptyText = (TextView) mContentView.findViewById(R.id.emptyLibraryString);
-        if (mEmptyText.getVisibility() != View.VISIBLE) {
-            mEmptyText.setVisibility(View.VISIBLE);
+        if (mDataManager.hasPodcasts()) {
+            mEmptyText.setVisibility(View.GONE);
         }
+        else {
+            if (mEmptyText.getVisibility() != View.VISIBLE) {
+                mEmptyText.setVisibility(View.VISIBLE);
+            }
+        }
+
     }
 
     private void setupFAB() {
         mFAB = (FloatingPlayPauseButton) mContentView.findViewById(R.id.fabbutton);
-
+        if (mDataManager.hasPodcasts()) mFAB.setVisibility(View.VISIBLE);
         mFAB.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -320,19 +326,23 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
     }
 
     private void populate() {
-        if (mFilter == ListFilter.ALL) {
-            setupGridView();
-            setupListView();
-            mGridView.setVisibility(View.VISIBLE);
-            mListView.setVisibility(View.GONE);
-            mGridView.startLayoutAnimation();
-        } else {
-            setupListView();
-            setupGridView();
-            mGridView.setVisibility(View.GONE);
-            mListView.setVisibility(View.VISIBLE);
-            mListView.startLayoutAnimation();
+        setupEmptyText();
+        if (mDataManager.hasPodcasts()) {
+            if (mFilter == ListFilter.ALL) {
+                setupGridView();
+                setupListView();
+                mGridView.setVisibility(View.VISIBLE);
+                mListView.setVisibility(View.GONE);
+                mGridView.startLayoutAnimation();
+            } else {
+                setupListView();
+                setupGridView();
+                mGridView.setVisibility(View.GONE);
+                mListView.setVisibility(View.VISIBLE);
+                mListView.startLayoutAnimation();
+            }
         }
+
     }
 
     //ANIMATIONS

@@ -98,7 +98,7 @@ public class LibraryActivityManager extends DataManager {
     @Override
     public void deleteFeeds(List<Integer> feedIds) {
         super.deleteFeeds(feedIds);
-        this.reloadListData();
+        this.reloadListData(false);
     }
 
     /**
@@ -109,7 +109,7 @@ public class LibraryActivityManager extends DataManager {
     @Override
     public Episode updateEpisode(Episode ep) {
         Episode temp = super.updateEpisode(ep);
-        this.reloadListData();
+        this.reloadListData(true);
         return temp;
     }
 
@@ -158,17 +158,10 @@ public class LibraryActivityManager extends DataManager {
         return retVal;
     }
 
-    /**
-     * Get a Feed by supplying an URL. If the URL matches any of the Feeds currently in the db, said Feed is returned.
-     *
-     * @param url URL of the Feed that should be returned.
-     * @return The Feed with a matching URL, or null if no match is found.
-     */
-    private Feed getFeedWithURL(String url) {
-        for (Feed currentFeed : this.mFeeds) {
-            if (url.equals(currentFeed.getLink())) return currentFeed;
-        }
-        return null;
+    @Override
+    protected void loadListData() {
+        super.loadListData();
+        setupAdapters(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(mContext).getString(Constants.SETTINGS_KEY_GRIDITEMSIZE,"-1")));
     }
 
     //LIST UTILS
@@ -225,22 +218,5 @@ public class LibraryActivityManager extends DataManager {
     public void onFeedsDataReloaded() {
         invalidate();
     }
-
-    /**
-     * Refreshes the playlist adapter.
-     */
-/*    public void reloadPlayList() {
-        this.mRefreshing = true;
-        //Playlist
-        if (this.mPlaylistAdapter != null)
-            this.mPlaylistAdapter.replaceItems(this.mEpisodeDBHelper.getPlaylistEpisodes());
-        else
-            this.mPlaylistAdapter = new DragNDropAdapter(this.mEpisodeDBHelper.getPlaylistEpisodes(), mContext);
-
-        //Notify for UI updates.
-        this.mPlaylistAdapter.notifyDataSetChanged();
-        this.mRefreshing = false;
-    }*/
-
 
 }

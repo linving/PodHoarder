@@ -218,7 +218,7 @@ public class FeedRefreshTask extends AsyncTask<List<Feed>, Integer, List<Feed>>
                 oldFeed = fDbH.updateFeed(oldFeed);
             }
             this.swipeRefreshLayout.setRefreshing(false);
-            ((LibraryActivity)mContext).mDataManager.forceReloadListData();
+            ((LibraryActivity)mContext).mDataManager.forceReloadListData(true);
             ToastMessages.RefreshSuccessful(mContext).show();
         }
         catch (CursorIndexOutOfBoundsException e)

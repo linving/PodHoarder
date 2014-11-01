@@ -194,6 +194,6 @@ public class DownloadManager {
         mContext.unregisterReceiver(receiver);
         mBroadcastReceivers.remove(receiver);
 
-        mDataManager.forceReloadListData();
+        mDataManager.forceReloadListData(true);
     }
 }

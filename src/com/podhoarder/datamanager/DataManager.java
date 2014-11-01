@@ -15,6 +15,7 @@ import com.podhoarder.object.Feed;
 import com.podhoarder.util.DownloadManager;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,6 +61,10 @@ public class DataManager {
         if (hasPodcasts()) {
             mQuicklistAdapter = new QuickListAdapter(mFavorites, mContext);
             mPlaylistAdapter = new DragNDropAdapter(mPlaylist,mContext);
+        }
+        else {
+            mQuicklistAdapter = new QuickListAdapter(new ArrayList<Episode>(), mContext);
+            mPlaylistAdapter = new DragNDropAdapter(new ArrayList<Episode>(), mContext);
         }
 
         mDownloadManager = new com.podhoarder.util.DownloadManager(context, this, mEpisodeDBHelper);
@@ -304,11 +309,26 @@ public class DataManager {
     }
 
     /**
+     * A simple check to see it a Podcast feed is already stored by supplying the URL of said Feed.
+     * @param url URL of the Feed.
+     * @return True if the podcast is already stored. False otherwise.
+     */
+    public boolean hasPodcast(String url) {
+        for (Feed feed : this.Feeds()) {
+            if (url.equals(feed.getLink())) return true;
+        }
+        return false;
+    }
+
+    /**
      * Refreshes the list or grid view.
      */
-    public void reloadListData() {
+    public void reloadListData(boolean reloadAsync) {
         if (!mRefreshing)
-            new ListDataReloadTask().execute();
+            if (reloadAsync)
+                new ListDataReloadTask().execute();
+            else
+                loadListData();
         else
             Log.d(LOG_TAG, "Refresh currently in progress. Not running RefreshListsAsync()!");
     }
@@ -316,10 +336,20 @@ public class DataManager {
     /**
      * Forces a refresh on the list or grid view.
      */
-    public void forceReloadListData() {
+    public void forceReloadListData(boolean reloadAsync) {
         if (hasPodcasts()) {
-            new ListDataReloadTask().execute();
+            if (reloadAsync)
+                new ListDataReloadTask().execute();
+            else
+                loadListData();
         }
+    }
+
+    protected void loadListData() {
+        mFeeds = mFeedDBHelper.getAllFeeds();
+        mFavorites = mEpisodeDBHelper.getFavoriteEpisodes();
+        mNew = mEpisodeDBHelper.getNewEpisodes();
+        mPlaylist = mEpisodeDBHelper.getPlaylistEpisodes();
     }
 
     /**

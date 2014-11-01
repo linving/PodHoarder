@@ -250,7 +250,7 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener {
     public void downloadFinished(int feedId) {
         removeLoadingItem();
         if (!isLoading()) {
-            ((LibraryActivity) this.mContext).mDataManager.forceReloadListData();
+            ((LibraryActivity) this.mContext).mDataManager.forceReloadListData(true);
         }
     }
 
