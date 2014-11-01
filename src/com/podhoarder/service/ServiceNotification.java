@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
 
@@ -67,6 +68,7 @@ public class ServiceNotification
                                                                                  .setLargeIcon(currentFeed.getFeedImage().thumbnail())
                                                                                  .setTicker(res.getString(R.string.app_name))
                                                                                  .setContentTitle(res.getString(R.string.app_name))
+                                                                                 .setCategory(Notification.CATEGORY_TRANSPORT)
                                                                                  .setContentIntent(_navigatePendingIntent);
     _notification = builder.build();
     _notification.contentView = _smallView;
@@ -77,8 +79,14 @@ public class ServiceNotification
 
   public void showNotify(Service $context)
   {
-	  _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_pause_white_24dp);
-	  _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_pause_white_24dp);
+      if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+          _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_pause_white_24dp);
+          _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_pause_white_24dp);
+      }
+	  else {
+          _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_pause_black_24dp);
+          _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_pause_black_24dp);
+      }
 
     _playIntent.setAction("pause");
     _playPendingIntent = PendingIntent.getService($context, 0, _playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -91,8 +99,15 @@ public class ServiceNotification
 
   public void pauseNotify(Service $context)
   {
-	  _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_play_arrow_white_24dp);
-	  _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_play_arrow_white_24dp);
+      if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+          _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_play_arrow_white_24dp);
+          _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_play_arrow_white_24dp);
+      }
+      else {
+          _smallView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_play_arrow_black_24dp);
+          _bigView.setInt(R.id.service_notification_playpausebutton, "setImageResource", R.drawable.ic_play_arrow_black_24dp);
+      }
+
 
     _playIntent.setAction("play");
     _playPendingIntent = PendingIntent.getService($context, 0, _playIntent, PendingIntent.FLAG_UPDATE_CURRENT);

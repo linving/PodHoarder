@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/service_notification_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="64dp">
+    <ImageView android:id="@+id/service_notification_image"
+        android:layout_width="64dp"
+        android:layout_height="match_parent"
+    	android:scaleType="fitXY"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="5dp"/>
+    <LinearLayout android:id="@+id/service_notification_text_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="110dp"
+        android:layout_toRightOf="@id/service_notification_image"
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
+	    <TextView android:id="@+id/service_notification_title"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:ellipsize="end"
+	        android:maxLines="1"
+	        style="@android:style/TextAppearance.Material.Notification.Title"/>
+	    <TextView android:id="@+id/service_notification_subtitle"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:ellipsize="end"
+	        android:maxLines="1"
+	        style="@android:style/TextAppearance.Material.Notification.Emphasis"/>
+    </LinearLayout>
+	    <ImageButton android:id="@+id/service_notification_closeButton"
+	        android:layout_width="56dp"
+	        android:layout_height="64dp"
+	        android:padding="5dp"
+	        android:layout_alignParentRight="true"
+	        android:src="@drawable/ic_close_black_24dp"
+	        android:background="?android:attr/selectableItemBackground"
+	        android:scaleType="centerInside"
+            android:alpha=".54" />
+	    <ImageButton
+	    	android:id="@+id/service_notification_playpausebutton"
+	        android:layout_width="64dp"
+	        android:layout_height="64dp"
+	        android:layout_toLeftOf="@id/service_notification_closeButton"
+		    android:padding="15dp"
+		    android:layout_centerVertical="true"
+	    	android:background="?android:attr/selectableItemBackground"
+	        android:scaleType="centerInside"
+		    android:alpha=".9"/>
+</RelativeLayout>

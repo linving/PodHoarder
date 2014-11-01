@@ -249,6 +249,11 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
         return true;
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //No call for super(). Bug on API Level > 11.
+    }
+
     //INTENT HANDLING
     private void handleIntent(Intent intent) {
         Log.i(LOG_TAG, "Received intent with action: " + intent.getAction());
@@ -305,7 +310,7 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
             ft.setCustomAnimations(R.anim.player_fade_in, R.anim.fade_out, R.anim.activity_stay_transition, R.anim.player_fade_out);
             ft.replace(R.id.root_container, new PlayerFragment());
             ft.addToBackStack(null);
-            ft.commit();
+            ft.commitAllowingStateLoss();
         }
     }
     private void startAddActivity() {
