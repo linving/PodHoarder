@@ -14,6 +14,7 @@
         <item name="actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
         <item name="windowActionBar">false</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="toolbarStyle">@style/Theme.Podhoarder.Toolbar</item>
         <!-- Properties using the android: namespace-->
         <item name="android:windowNoTitle">true</item>
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
@@ -23,22 +24,27 @@
 		<item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb</item>
 		<item name="android:scrollbarThumbVertical">@drawable/scroll_thumb</item>
         <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:toolbarStyle">@style/Theme.Podhoarder.Toolbar</item>
+        <item name="android:windowContentTransitions">true</item>
 
     </style>
 
     <style name="Theme.Podhoarder.ToolbarOverlay" parent="@style/Theme.Podhoarder">
         <!-- the theme applied to the application or activity -->
-        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:toolbarStyle">@style/Theme.Podhoarder.Toolbar.Overlay</item>
+
         <!-- Support library compatibility -->
-        <item name="windowActionBarOverlay">true</item>
-        <item name="android:actionBarSize">0dp</item>
-        <item name="actionBarSize">0dp</item>
+        <item name="toolbarStyle">@style/Theme.Podhoarder.Toolbar.Overlay</item>
     </style>
 
     <style name="Theme.Podhoarder.Toolbar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:background">?attr/colorPrimary</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+    </style>
+
+    <style name="Theme.Podhoarder.Toolbar.Overlay" parent="@style/Theme.Podhoarder.Toolbar">
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <style name="Theme.Podhoarder.Toolbar.DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">

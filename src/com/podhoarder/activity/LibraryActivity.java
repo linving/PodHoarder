@@ -11,19 +11,22 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
+import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.fragment.AddFragment;
 import com.podhoarder.fragment.BaseFragment;
 import com.podhoarder.fragment.EpisodeFragment;
+import com.podhoarder.fragment.GridFragment;
 import com.podhoarder.fragment.LibraryFragment;
+import com.podhoarder.fragment.ListFragment;
 import com.podhoarder.fragment.PlayerFragment;
 import com.podhoarder.object.Episode;
 import com.podhoarder.service.PodHoarderService;
@@ -46,7 +49,6 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     private SearchView mSearchView;
 
     //ACTIVITY RESULT
-    static final int ADD_PODCAST_REQUEST = 1;
     static final int SETTINGS_REQUEST = 2;
 
     //HARDWARE INTENT RECEIVER
@@ -97,13 +99,6 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Initialisation
-        //setContentView(R.layout.activity_base);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.bringToFront();
-
         if (!this.mIsMusicBound)    //If the service isn't bound, we need to start and bind it.
         {
             if (mPlayIntent == null) {
@@ -113,15 +108,6 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
             }
         }
 
-        if (mCurrentFragment == null) {
-            // Create a new Fragment to be placed in the activity layout
-            mCurrentFragment = new LibraryFragment();
-            // In case this activity was started with special instructions from an
-            // Intent, pass the Intent's extras to the fragment as arguments
-            mCurrentFragment.setArguments(getIntent().getExtras());
-            // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction().add(R.id.root_container, mCurrentFragment).commit();
-        }
         handleIntent(getIntent());
 
         if (savedInstanceState != null) {
@@ -132,6 +118,15 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     @Override
     protected void onStart() {
         super.onStart();
+        if (mCurrentFragment == null) {
+            // Create a new Fragment to be placed in the activity layout
+            mCurrentFragment = new GridFragment();
+            // In case this activity was started with special instructions from an
+            // Intent, pass the Intent's extras to the fragment as arguments
+            mCurrentFragment.setArguments(getIntent().getExtras());
+            // Add the fragment to the 'fragment_container' FrameLayout
+            getSupportFragmentManager().beginTransaction().add(R.id.root_container, mCurrentFragment).commit();
+        }
     }
 
     @Override
@@ -166,7 +161,6 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
 
         mSearchView.setOnQueryTextListener(this);
         mSearchView.setOnCloseListener(this);
-        setupActionBar();
         return true;
     }
 
@@ -270,26 +264,60 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
             mDataManager = new LibraryActivityManager(this);
     }
 
-    private void setupActionBar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(getString(R.string.title_library));
-/*        getSupportActionBar().setDisplayShowTitleEnabled(true);
-        //getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        String[] mFilterStrings = getResources().getStringArray(R.array.filters);
-        mFilters = new ArrayList<CharSequence>();
-        mFilters.addAll(Arrays.asList(mFilterStrings));
-        mFiltersAdapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item, mFilters);
-        //ArrayAdapter<CharSequence> list = ArrayAdapter.createFromResource(this, R.array.filters, android.R.layout.simple_spinner_item);
-        mFiltersAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        getActionBar().setListNavigationCallbacks(mFiltersAdapter, this);*/
-    }
 
     //NAVIGATION
     @Override
-    public void startLibraryActivity() {
-        if (!((Object) mCurrentFragment).getClass().getName().equals(LibraryFragment.class.getName())) { //We check to see if the current fragment is a PlayerFragment. In that case we don't need to create a new one.
+    public void startGridActivity() {
+        if (!((Object) mCurrentFragment).getClass().getName().equals(GridFragment.class.getName())) { //We check to see if the current fragment is a GridFragment. In that case we don't need to create a new one.
             onBackPressed();
             getSupportFragmentManager().popBackStack();
+        }
+    }
+
+    @Override
+    public void startListActivity(LibraryFragment.ListFilter filter) {
+        if (!((Object) mCurrentFragment).getClass().getName().equals(ListFragment.class.getName())) {
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+            ft.replace(R.id.root_container, ListFragment.newInstance(filter));
+            ft.addToBackStack(null);
+            ft.commit();
+        }
+        else {
+            ((ListFragment)mCurrentFragment).setFilter(filter);
+        }
+    }
+    @Override
+    public void startListActivityAnimateTransition(LibraryFragment.ListFilter filter, View transitionView) {
+        if (!((Object) mCurrentFragment).getClass().getName().equals(ListFragment.class.getName())) {
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            //ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+            ft.addSharedElement(transitionView, getResources().getString(R.string.transition_banner));
+            TransitionSet s = new TransitionSet();
+
+            s.setOrdering(TransitionSet.ORDERING_TOGETHER);
+            s.setInterpolator(new DecelerateInterpolator());
+            s.setDuration(150);
+            //s.addTransition(new AutoTransition());
+            //s.addTransition(new ChangeImageTransform());
+            //s.addTransition(new Slide());
+
+
+            //ft.setTransitionStyle(R.transition.grid_to_banner_transition);
+            mCurrentFragment.setAllowEnterTransitionOverlap(true);
+            mCurrentFragment.setAllowReturnTransitionOverlap(true);
+            mCurrentFragment.setSharedElementEnterTransition(s);
+            mCurrentFragment.setSharedElementReturnTransition(s);
+            ListFragment f = ListFragment.newInstance(filter);
+            f.setSharedElementEnterTransition(s);
+            f.setAllowEnterTransitionOverlap(true);
+            //mCurrentFragment.setExitTransition(new Slide());
+            ft.replace(R.id.root_container, f);
+            ft.addToBackStack(null);
+            ft.commit();
+        }
+        else {
+            ((ListFragment)mCurrentFragment).setFilter(filter);
         }
     }
     @Override
@@ -333,7 +361,7 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
 
     //SEARCHING
     public void doSearch(String searchString) {
-        ((LibraryFragment)mCurrentFragment).doSearch(searchString);
+        ((GridFragment)mCurrentFragment).doSearch(searchString);
     }
     public void cancelSearch() {
         mSearchView.onActionViewCollapsed();

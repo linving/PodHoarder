@@ -22,6 +22,7 @@ import android.widget.ListView;
 
 import com.podhoarder.adapter.NavDrawerListAdapter;
 import com.podhoarder.datamanager.DataManager;
+import com.podhoarder.fragment.LibraryFragment;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.NavDrawerItem;
 import com.podhoarder.util.Constants;
@@ -45,9 +46,9 @@ public abstract class BaseActivity extends ActionBarActivity {
     private ListView mQuickDrawerListView, mQuickDrawerPlaylistView;
     private ToggleImageButton mQuicklistFilterFavorites, mQuicklistFilterPlaylist, mQuicklistFilterNew;
     //Main Toolbar View
-    private Toolbar mToolbar;
+    public Toolbar mToolbar;
     //Main View
-    private FrameLayout mContentRoot;
+    public FrameLayout mContentRoot;
     //Listener interface
     protected NavDrawerItemClickListener mNavDrawerClickListener;
     protected QuicklistItemClickListener mQuicklistItemClickListener;
@@ -201,8 +202,13 @@ public abstract class BaseActivity extends ActionBarActivity {
     public void startPlayerActivity() {
     }
 
-    public void startLibraryActivity() {
+    public void startGridActivity() {
     }
+
+    public void startListActivity(LibraryFragment.ListFilter filter) {
+    }
+
+    public void startListActivityAnimateTransition(LibraryFragment.ListFilter filter, View transitionView) {}
 
     public void startEpisodeActivity(Episode currentEp) {
 
@@ -254,7 +260,7 @@ public abstract class BaseActivity extends ActionBarActivity {
                     public void run() {
                         switch (pos) {
                             case LIBRARY:
-                                startLibraryActivity();
+                                startGridActivity();
                                 break;
                             case PLAYER:
                                 startPlayerActivity();

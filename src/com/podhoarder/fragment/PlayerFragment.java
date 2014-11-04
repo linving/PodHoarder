@@ -15,7 +15,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.podhoarder.activity.LibraryActivity;
-import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.service.PodHoarderService;
@@ -27,14 +26,8 @@ import com.podhoarderproject.podhoarder.R;
  * Created by Emil on 2014-10-29.
  */
 public class PlayerFragment extends BaseFragment implements PodHoarderService.StateChangedListener {
-    //Log tag
-    private static final String LOG_TAG = "com.podhoarder.fragment.PlayerFragment";
-    //Fragment Content view
-    private View mContentView;
     //Playback Service
     private PodHoarderService mPlaybackService;
-    //Data Manager
-    private LibraryActivityManager mDataManager;
 
     //Current Feed & Episode
     private Feed mCurrentFeed;
@@ -56,6 +49,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        LOG_TAG = "com.podhoarder.fragment.PlayerFragment";
         mContentView = inflater.inflate(R.layout.activity_player, container, false);
         mDataManager = ((LibraryActivity) getActivity()).getDataManager();
 

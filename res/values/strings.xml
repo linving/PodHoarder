@@ -66,6 +66,9 @@
     <!--  Notifications -->
     <string name="notification_download_in_progress">Downloading</string>
     <string name="notification_by">by</string>
+
+    <!-- Transitions -->
+    <string name="transition_banner">transition_banner</string>
     
     <!-- Toast Notifications -->
     <string name="toast_downloading_podcast">Downloading</string>

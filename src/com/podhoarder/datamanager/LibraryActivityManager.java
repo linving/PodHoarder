@@ -15,7 +15,7 @@ import com.podhoarder.async.AddFeedFromSearchTaskNoUI;
 import com.podhoarder.async.FeedRefreshTask;
 import com.podhoarder.async.MarkEpisodesAsListenedTask;
 import com.podhoarder.async.MarkFeedsAsListenedTask;
-import com.podhoarder.fragment.LibraryFragment;
+import com.podhoarder.fragment.GridFragment;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.object.SearchResultRow;
@@ -181,7 +181,7 @@ public class LibraryActivityManager extends DataManager {
     /**
      * Performs the List/Grid adapter update which fills it with new or relevant items.
      */
-    public void switchLists(LibraryFragment.ListFilter mCurrentFilter) {
+    public void switchLists(GridFragment.ListFilter mCurrentFilter) {
         if (hasPodcasts()) {
             if (!mCurrentFilter.getSearchString().isEmpty()) {  //If a search string has been specified, we conduct a search with the current filter.
                 mSearch = mEpisodeDBHelper.search(mCurrentFilter);

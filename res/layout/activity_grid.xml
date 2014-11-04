@@ -1,13 +1,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?actionBarSize">
+        android:layout_height="match_parent">
 
 
         <FrameLayout
@@ -27,23 +27,6 @@
                 android:text="@string/library_empty"
                 android:visibility="gone" />
 
-            <ListView
-                android:id="@+id/episodesListView"
-                listSelector="@drawable/list_selector"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:clickable="true"
-                android:clipToPadding="false"
-                android:divider="@drawable/list_divider"
-                android:dividerHeight="1px"
-                android:fastScrollAlwaysVisible="true"
-                android:fastScrollEnabled="true"
-                android:listSelector="@drawable/list_selector"
-                android:longClickable="true"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp"
-                android:visibility="gone" />
-
             <GridView
                 android:id="@+id/feedsGridView"
                 android:layout_width="match_parent"
@@ -54,7 +37,9 @@
                 android:horizontalSpacing="4dp"
                 android:longClickable="true"
                 android:numColumns="auto_fit"
-                android:padding="4dp"
+                android:paddingTop="60dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
                 android:stretchMode="none"
                 android:verticalSpacing="4dp"
                 android:visibility="visible" />
@@ -71,6 +56,7 @@
                 app:buttonColor="@color/colorAccent"
                 app:pauseDrawable="@drawable/ic_pause_white_48dp"
                 app:playDrawable="@drawable/ic_play_arrow_white_48dp"
+                android:elevation="2dp"
                 app:shadowDx="0.5"
                 app:shadowDy="1.0"
                 app:shadowRadius="3.0" />

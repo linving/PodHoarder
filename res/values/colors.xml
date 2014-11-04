@@ -14,10 +14,10 @@
     <color name="grid_item_selected">#55DDDDDD</color>
     
     <!-- App Action bar -->
-    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimary">#03a9f4</color>
     
     <!-- Used for components such as scroll bars. -->
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryDark">#03a9f4</color>
     
     <!--  This is used for details that should be the focus of attention, such as circular seek bar track, selected item backgrounds etc -->
     <color name="colorAccent">#e91e63</color>

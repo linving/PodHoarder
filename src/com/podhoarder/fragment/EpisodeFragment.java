@@ -2,6 +2,7 @@ package com.podhoarder.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +10,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
-import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.util.DataParser;
@@ -26,11 +27,6 @@ import java.util.Date;
  */
 public class EpisodeFragment extends BaseFragment {
 
-
-    //Fragment Content View
-    private View mContentView;
-    //Data Manager
-    private LibraryActivityManager mDataManager;
     //Episode and Podcast
     private Feed mCurrentFeed;
     private Episode mCurrentEpisode;
@@ -43,13 +39,8 @@ public class EpisodeFragment extends BaseFragment {
 
     private DateFormat mDisplayFormat;
 
-    /**
-     * Create a new instance of DetailsFragment, initialized to
-     * show the text at 'index'.
-     */
     public static EpisodeFragment newInstance(int episodeId) {
         EpisodeFragment f = new EpisodeFragment();
-        // Supply index input as an argument.
         Bundle args = new Bundle();
         args.putInt("episodeId", episodeId);
         f.setArguments(args);
@@ -59,7 +50,10 @@ public class EpisodeFragment extends BaseFragment {
     //Overrides
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        LOG_TAG = "com.podhoarder.fragment.EpisodeFragment";
         mContentView = inflater.inflate(R.layout.activity_episode, container, false);
+
+        ((BaseActivity)getActivity()).mToolbar.setTranslationY(-172);
 
         mDataManager = ((LibraryActivity) getActivity()).getDataManager();
 
@@ -75,6 +69,12 @@ public class EpisodeFragment extends BaseFragment {
         ((LibraryActivity)getActivity()).setCurrentFragment(this);
 
         return mContentView;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.clear();
+        super.onPrepareOptionsMenu(menu);
     }
 
     @Override

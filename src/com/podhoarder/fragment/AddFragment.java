@@ -14,7 +14,6 @@ import android.widget.ListView;
 
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.SearchResultsAdapter;
-import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.listener.SearchResultMultiChoiceModeListener;
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.util.SearchManager;
@@ -28,12 +27,6 @@ import java.util.List;
  * Created by Emil on 2014-11-01.
  */
 public class AddFragment extends BaseFragment implements SearchView.OnQueryTextListener, SearchResultMultiChoiceModeListener.onDialogResultListener  {
-    private static final String LOG_TAG = "com.podhoarder.fragment.AddFragment";
-
-    //Fragment Content View
-    private View mContentView;
-    //Data Manager
-    private LibraryActivityManager mDataManager;
 
     private ListView mListView;
     private SearchResultsAdapter mListAdapter;
@@ -46,6 +39,7 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        LOG_TAG = "com.podhoarder.fragment.AddFragment";
         mContentView = inflater.inflate(R.layout.activity_add, container, false);
         setHasOptionsMenu(true);
         setupListView();

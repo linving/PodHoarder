@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:orientation="vertical"
-    android:paddingTop="?actionBarSize"
     android:clipToPadding="false">
 
     <RelativeLayout
@@ -90,12 +89,10 @@
                 android:layout_marginStart="8dp"
                 android:background="@android:color/transparent"
                 android:clickable="true"
+                android:elevation="2dp"
                 app:buttonColor="@color/windowBackground"
                 app:offDrawable="@drawable/ic_favorite_grey600_24dp"
-                app:onDrawable="@drawable/ic_favorite_pink_24dp"
-                app:shadowDx="0.5"
-                app:shadowDy="1.0"
-                app:shadowRadius="3.0" />
+                app:onDrawable="@drawable/ic_favorite_pink_24dp"/>
         </RelativeLayout>
 
 
