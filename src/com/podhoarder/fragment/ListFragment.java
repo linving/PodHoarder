@@ -5,6 +5,7 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
@@ -25,7 +26,7 @@ import com.podhoarderproject.podhoarder.R;
 /**
  * Created by Emil on 2014-11-03.
  */
-public class ListFragment extends LibraryFragment implements PodHoarderService.StateChangedListener  {
+public class ListFragment extends LibraryFragment implements PodHoarderService.StateChangedListener {
 
     //Episodes List
     private ListView mListView;
@@ -37,9 +38,9 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
     public static ListFragment newInstance(ListFilter filter) {
         ListFragment f = new ListFragment();
         Bundle b = new Bundle();
-        b.putInt("filter",filter.ordinal());
-        b.putInt("feedId",filter.getFeedId());
-        b.putString("search",filter.getSearchString());
+        b.putInt("filter", filter.ordinal());
+        b.putInt("feedId", filter.getFeedId());
+        b.putString("search", filter.getSearchString());
         f.setArguments(b);
         return f;
     }
@@ -56,7 +57,7 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
         mContentView = inflater.inflate(R.layout.activity_list, container, false);
         mPodcastBanner = (ImageView) mContentView.findViewById(R.id.podcast_banner);
 
-        mToolbar = ((BaseActivity)getActivity()).mToolbar;
+        mToolbar = ((BaseActivity) getActivity()).mToolbar;
         mToolbarSize = mToolbar.getMinimumHeight();
 
         if (mCurrentFilter == null) {
@@ -78,9 +79,15 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
 
         populate();
 
-        ((LibraryActivity)getActivity()).setCurrentFragment(this);
+        ((LibraryActivity) getActivity()).setCurrentFragment(this);
 
         return mContentView;
+    }
+
+    @Override
+    public void onResume() {
+        mPodcastBanner.setImageBitmap(mDataManager.getFeed(mCurrentFilter.getFeedId()).getFeedImage().largeImage());
+        super.onResume();
     }
 
     @Override
@@ -116,7 +123,9 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
             });
 
             mScrollListener = new AbsListView.OnScrollListener() {
-                private int bannerScrollDelta, toolbarScrollDelta;
+                private int bannerScrollDelta
+                        ,
+                        toolbarScrollDelta;
 
                 @Override
                 public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -124,42 +133,46 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
 
                 @Override
                 public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (mListView != null && mListView.getChildCount() > 0) {
-                        // check if the first item of the list is visible
-                        boolean firstItemVisible = mListView.getFirstVisiblePosition() == 0;
-
-                        if (mToolbar != null && firstItemVisible) {
+                    if (mListView != null && mPodcastBanner != null && mToolbar != null) {
+                        if (mListView != null && mListView.getChildCount() > 0) {
+                            // check if the first item of the list is visible
+                            boolean firstItemVisible = mListView.getFirstVisiblePosition() == 0;
 
                             int maxBannerTranslationY = -(mPodcastBanner.getMeasuredHeight());    //The banner should only be allowed to move until it is fully off screen.
                             int maxToolbarTranslationY = -(mToolbarSize);                           //The toolbar should only be allowed to move until it is fully off screen.
 
-                            int bannerTop = (mListView.getChildAt(0).getTop() - mPodcastBanner.getMeasuredHeight() - mToolbarSize);   //Calculate the distance to move by subtracting the toolbar height + gridview padding from the top line.
-                            int toolbarTop = (mListView.getChildAt(0).getTop() - mToolbarSize);
+                            if (firstItemVisible) {
 
-                            if (bannerTop < mToolbarSize && bannerTop > maxBannerTranslationY) {//If we are within the bounds where the app bar needs to move we should apply the moved distance.
-                                bannerScrollDelta = bannerTop;
-                            }
-                            else if (bannerTop <= maxBannerTranslationY) { //If the toolbar top is above the max translation line it should just align at the same height and stay there.
-                                bannerScrollDelta = maxBannerTranslationY * 2;
-                            }
-                            else
-                                bannerScrollDelta = 0;    //Default position.
+                                int bannerTop = (mListView.getChildAt(0).getTop() - mPodcastBanner.getMeasuredHeight() - mToolbarSize);   //Calculate the distance to move by subtracting the toolbar height + gridview padding from the top line.
+                                int toolbarTop = (mListView.getChildAt(0).getTop() - mToolbarSize);
 
-                            if (toolbarTop < 0 && toolbarTop > maxToolbarTranslationY) {//If we are within the bounds where the app bar needs to move we should apply the moved distance.
-                                toolbarScrollDelta = toolbarTop;
-                            }
-                            else if (toolbarTop <= maxToolbarTranslationY) { //If the toolbar top is above the max translation line it should just align at the same height and stay there.
-                                toolbarScrollDelta = maxToolbarTranslationY;
-                            }
-                            else
-                                toolbarScrollDelta = 0;    //Default position.
+                                if (bannerTop < mToolbarSize && bannerTop > maxBannerTranslationY) {//If we are within the bounds where the app bar needs to move we should apply the moved distance.
+                                    bannerScrollDelta = bannerTop;
+                                } else if (bannerTop <= maxBannerTranslationY) { //If the toolbar top is above the max translation line it should just align at the same height and stay there.
+                                    bannerScrollDelta = maxBannerTranslationY * 2;
+                                } else
+                                    bannerScrollDelta = 0;    //Default position.
 
-                            mPodcastBanner.setTranslationY(bannerScrollDelta /2);  //Move the banner vertically.
-                            mPodcastBanner.setAlpha((Math.abs(maxBannerTranslationY)-Math.abs((float) bannerScrollDelta))/Math.abs(maxBannerTranslationY));    //Fade out the banner. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
+                                if (toolbarTop < 0 && toolbarTop > maxToolbarTranslationY) {//If we are within the bounds where the app bar needs to move we should apply the moved distance.
+                                    toolbarScrollDelta = toolbarTop;
+                                } else if (toolbarTop <= maxToolbarTranslationY) { //If the toolbar top is above the max translation line it should just align at the same height and stay there.
+                                    toolbarScrollDelta = maxToolbarTranslationY;
+                                } else
+                                    toolbarScrollDelta = 0;    //Default position.
 
-                            mToolbar.setTranslationY(toolbarScrollDelta);  //Move the toolbar vertically.
-                            mToolbar.setAlpha((Math.abs(maxToolbarTranslationY)-Math.abs((float)toolbarScrollDelta))/Math.abs(maxToolbarTranslationY));    //Fade out the toolbar. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
+                                mPodcastBanner.setTranslationY(bannerScrollDelta / 2);  //Move the banner vertically.
+                                mPodcastBanner.setAlpha((Math.abs(maxBannerTranslationY) - Math.abs((float) bannerScrollDelta)) / Math.abs(maxBannerTranslationY));    //Fade out the banner. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
+
+                                mToolbar.setTranslationY(toolbarScrollDelta);  //Move the toolbar vertically.
+                                mToolbar.setAlpha((Math.abs(maxToolbarTranslationY) - Math.abs((float) toolbarScrollDelta)) / Math.abs(maxToolbarTranslationY));    //Fade out the toolbar. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
+                            } else {
+                                mPodcastBanner.setTranslationY(maxBannerTranslationY);  //Move the banner vertically.
+                                mPodcastBanner.setAlpha(0f);    //Fade out the banner. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
+
+                                mToolbar.animate().translationY(maxToolbarTranslationY).alpha(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
+                            }
                         }
+
                     }
 
                 }
@@ -168,9 +181,9 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
             DisplayMetrics displaymetrics = new DisplayMetrics();
             getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
             if (!mSearchEnabled)
-                this.mListView.setPadding(0,displaymetrics.widthPixels + mToolbarSize,0,0);
+                this.mListView.setPadding(0, displaymetrics.widthPixels + mToolbarSize, 0, 0);
             else
-                this.mListView.setPadding(0,mToolbarSize,0,0);
+                this.mListView.setPadding(0, mToolbarSize, 0, 0);
 
             this.mListView.setLayoutAnimation(animationController);
 

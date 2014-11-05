@@ -78,6 +78,8 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
 
         mToolbar = ((BaseActivity)getActivity()).mToolbar;
         mToolbarSize = mToolbar.getMinimumHeight();
+        mToolbar.setTranslationY(0f);
+        mToolbar.setAlpha(1.0f);
 
         ((LibraryActivity)getActivity()).setCurrentFragment(this);
 
@@ -89,6 +91,7 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
         if (mPlaybackService != null) {
             onServiceConnected();
         }
+        mToolbar = ((BaseActivity)getActivity()).mToolbar;
         super.onResume();
     }
 
@@ -180,34 +183,42 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
                 @Override
                 public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                     boolean enable = false;
-                    if (mGridView != null && mGridView.getChildCount() > 0) {
-                        // check if the first item of the list is visible
-                        boolean firstItemVisible = mGridView.getFirstVisiblePosition() == 0;
-                        // check if the top of the first item is visible
-                        boolean topOfFirstItemVisible = mGridView.getChildAt(0).getTop() > 0;
-                        // enabling or disabling the refresh layout
-                        enable = firstItemVisible && topOfFirstItemVisible;
-                        if (mToolbar != null) {
-                            int maxTranslationY = -(mToolbarSize+4);    //The toolbar should only be allowed to move until it is fully off screen.
+                    if (mGridView != null && mToolbar != null) {
+                        if (mGridView.getChildCount() > 0) {
+                            // check if the first item of the list is visible
+                            boolean firstItemVisible = mGridView.getFirstVisiblePosition() == 0;
+                            // check if the top of the first item is visible
+                            boolean topOfFirstItemVisible = mGridView.getChildAt(0).getTop() > 0;
+                            // enabling or disabling the refresh layout
+                            enable = firstItemVisible && topOfFirstItemVisible;
 
+                            int maxTranslationY = -(mToolbarSize+4);    //The toolbar should only be allowed to move until it is fully off screen.
                             int toolbarTop = (mGridView.getChildAt(0).getTop() - (mToolbarSize+4));   //Calculate the distance to move by subtracting the toolbar height + gridview padding from the top line.
 
-                            if (toolbarTop < 0 && toolbarTop > maxTranslationY) {//If we are within the bounds where the app bar needs to move we should apply the moved distance.
-                                scrollDelta = toolbarTop;
-                                enable = false;
-                            }
-                            else if (toolbarTop <= maxTranslationY) { //If the toolbar top is above the max translation line it should just align at the same height and stay there.
-                                scrollDelta = maxTranslationY;
-                                enable = false;
-                            }
-                            else
-                                scrollDelta = 0;    //Default position.
+                            if (firstItemVisible) {
+                                if (toolbarTop < 0 && toolbarTop > maxTranslationY) {//If we are within the bounds where the app bar needs to move we should apply the moved distance.
+                                    scrollDelta = toolbarTop;
+                                    enable = false;
+                                }
+                                else if (toolbarTop <= maxTranslationY) { //If the toolbar top is above the max translation line it should just align at the same height and stay there.
+                                    scrollDelta = maxTranslationY;
+                                    enable = false;
+                                }
+                                else
+                                    scrollDelta = 0;    //Default position.
 
-                            mToolbar.setTranslationY(scrollDelta);  //Move the toolbar vertically.
-                            mToolbar.setAlpha((Math.abs(maxTranslationY)-Math.abs((float)scrollDelta))/Math.abs(maxTranslationY));    //Fade out the toolbar. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
+                                mToolbar.setTranslationY(scrollDelta);  //Move the toolbar vertically.
+                                mToolbar.setAlpha((Math.abs(maxTranslationY)-Math.abs((float)scrollDelta))/Math.abs(maxTranslationY));    //Fade out the toolbar. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
+                            }
+                            else {
+                                enable = false;
+                                mToolbar.animate().translationY(maxTranslationY).alpha(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
+                            }
+                        }
+                        else {
+                            mToolbar.animate().translationY(0f).alpha(1.0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
                         }
                     }
-
                     mSwipeRefreshLayout.setEnabled(enable);
                 }
 

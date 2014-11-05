@@ -324,6 +324,7 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     public void startEpisodeActivity(Episode currentEp) {
         if (!((Object) mCurrentFragment).getClass().getName().equals(EpisodeFragment.class.getName())) {
             cancelSearch();
+            //mToolbar.animate().scaleY(mToolbar.getMinimumHeight() * 2).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100);
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
             ft.replace(R.id.root_container, EpisodeFragment.newInstance(currentEp.getEpisodeId()));

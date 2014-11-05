@@ -1,12 +1,12 @@
 package com.podhoarder.fragment;
 
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -32,10 +32,10 @@ public class EpisodeFragment extends BaseFragment {
     private Episode mCurrentEpisode;
 
     //UI Views
-    private ImageView banner;
     private FloatingToggleButton mFAB;
     private TextView episodeTitle, episodeTimestamp, episodeDescription;
     private LinearLayout textContainer, headlineContainer;
+    private Toolbar mToolbar;
 
     private DateFormat mDisplayFormat;
 
@@ -53,7 +53,9 @@ public class EpisodeFragment extends BaseFragment {
         LOG_TAG = "com.podhoarder.fragment.EpisodeFragment";
         mContentView = inflater.inflate(R.layout.activity_episode, container, false);
 
-        ((BaseActivity)getActivity()).mToolbar.setTranslationY(-172);
+        mToolbar = ((BaseActivity)getActivity()).mToolbar;
+        mToolbar.setAlpha(0f);
+        //mToolbar.animate().translationY(0f).alpha(1.0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
 
         mDataManager = ((LibraryActivity) getActivity()).getDataManager();
 
@@ -69,6 +71,12 @@ public class EpisodeFragment extends BaseFragment {
         ((LibraryActivity)getActivity()).setCurrentFragment(this);
 
         return mContentView;
+    }
+
+    @Override
+    public void onDestroy() {
+        //mToolbar.animate().scaleY().setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100);
+        super.onDestroy();
     }
 
     @Override
@@ -88,9 +96,6 @@ public class EpisodeFragment extends BaseFragment {
     }
 
     private void setupUI() {
-
-        banner = (ImageView) mContentView.findViewById(R.id.episode_banner);
-        banner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
 
         episodeTitle = (TextView) mContentView.findViewById(R.id.episode_title);
         episodeTitle.setText(mCurrentEpisode.getTitle());

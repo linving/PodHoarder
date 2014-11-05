@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:minWidth="200dp"
             android:minHeight="200dp"
-            android:layout_marginTop="56dp"
+            android:layout_marginTop="?actionBarSize"
             android:background="@android:color/transparent"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
