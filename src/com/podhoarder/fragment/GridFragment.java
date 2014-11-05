@@ -178,6 +178,7 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
 
                 @Override
                 public void onScrollStateChanged(AbsListView view, int scrollState) {
+
                 }
 
                 @Override
@@ -212,11 +213,13 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
                             }
                             else {
                                 enable = false;
-                                mToolbar.animate().translationY(maxTranslationY).alpha(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
+                                mToolbar.setTranslationY(maxTranslationY);
+                                //mToolbar.setAlpha(.0f);
                             }
                         }
                         else {
-                            mToolbar.animate().translationY(0f).alpha(1.0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
+                            mToolbar.setTranslationY(0f);
+                            mToolbar.setAlpha(1.0f);
                         }
                     }
                     mSwipeRefreshLayout.setEnabled(enable);

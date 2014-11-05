@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +53,7 @@ public class EpisodeFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LOG_TAG = "com.podhoarder.fragment.EpisodeFragment";
         mContentView = inflater.inflate(R.layout.activity_episode, container, false);
+        setHasOptionsMenu(true);
 
         mToolbar = ((BaseActivity)getActivity()).mToolbar;
         mToolbar.setAlpha(0f);
@@ -80,9 +82,9 @@ public class EpisodeFragment extends BaseFragment {
     }
 
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        menu.clear();
-        super.onPrepareOptionsMenu(menu);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.contextual_menu_episode, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -114,6 +116,7 @@ public class EpisodeFragment extends BaseFragment {
 
         textContainer = (LinearLayout) mContentView.findViewById(R.id.episode_text_container);
         headlineContainer = (LinearLayout) mContentView.findViewById(R.id.episode_headline_text_container);
+        headlineContainer.setMinimumHeight(mToolbar.getMinimumHeight()*2);
 
         mFAB = (FloatingToggleButton) mContentView.findViewById(R.id.episode_favorite_toggle);
         mFAB.setOnClickListener(new View.OnClickListener() {

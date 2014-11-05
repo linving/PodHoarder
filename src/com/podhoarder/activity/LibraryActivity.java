@@ -321,15 +321,15 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
         }
     }
     @Override
-    public void startEpisodeActivity(Episode currentEp) {
+    public void startEpisodeActivity(final Episode currentEp) {
         if (!((Object) mCurrentFragment).getClass().getName().equals(EpisodeFragment.class.getName())) {
             cancelSearch();
-            //mToolbar.animate().scaleY(mToolbar.getMinimumHeight() * 2).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100);
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+            //ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
             ft.replace(R.id.root_container, EpisodeFragment.newInstance(currentEp.getEpisodeId()));
             ft.addToBackStack(null);
             ft.commit();
+
         }
     }
     @Override
