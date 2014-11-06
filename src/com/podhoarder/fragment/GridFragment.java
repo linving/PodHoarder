@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -235,9 +234,6 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
 
                                 mToolbar.setTranslationY(scrollDelta);  //Move the toolbar vertically.
                                 mToolbar.setAlpha((Math.abs(maxTranslationY)-Math.abs((float)scrollDelta))/Math.abs(maxTranslationY));    //Fade out the toolbar. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
-
-                                Log.i(LOG_TAG,"TranslationY: " + mToolbar.getTranslationY());
-                                Log.i(LOG_TAG,"Alpha: " + mToolbar.getAlpha() + "f");
                             }
                             else {
                                 enable = false;

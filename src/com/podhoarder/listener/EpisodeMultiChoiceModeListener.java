@@ -9,8 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.CheckBox;
 
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.EpisodesListAdapter;
@@ -37,34 +35,23 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
 	{
 		this.mContext = context;
 		this.mParentListView = parent;
-		this.mParentListView.setOnScrollListener(new OnScrollListener()
-		{
-			
-			@Override
-			public void onScrollStateChanged(AbsListView view, int scrollState)
-			{
-				
-			}
-			
-			@Override
-			public void onScroll(AbsListView view, int firstVisibleItem,
-					int visibleItemCount, int totalItemCount)
-			{
-				if (mSelectedItems != null)
-				{
-					for (int i : mSelectedItems)
-					{
-						i = getViewPosition(i);
-						if (i != -1)
-						{
-							view.getChildAt(i).setSelected(true);
-							((CheckBox)view.getChildAt(i).findViewById(R.id.list_episode_row_checkbox)).setChecked(true);
-						}
-					}
-				}
-			}
-		});
+
 	}
+
+    public void onScroll(AbsListView parentListView, int firstVisibleItem,
+                         int visibleItemCount, int totalItemCount) {
+        if (mSelectedItems != null)
+        {
+            for (int i : mSelectedItems)
+            {
+                i = getViewPosition(i);
+                if (i != -1)
+                {
+                    ((ViewHolders.EpisodeRowViewHolder) parentListView.getChildAt(i).getTag()).checkbox.setChecked(true);
+                }
+            }
+        }
+    }
 
 	public ActionMode getActionMode()
 	{
@@ -125,16 +112,14 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
 		int i = getViewPosition(position);
 		if (i != -1) {
             ViewHolders.EpisodeRowViewHolder viewHolder = ((ViewHolders.EpisodeRowViewHolder) mParentListView.getChildAt(i).getTag());
-            viewHolder.checked = checked;
             viewHolder.checkbox.setChecked(checked);
-            mParentListView.getChildAt(i).invalidate();
+            //mParentListView.getChildAt(i).invalidate();
             if (checked)
                 this.mSelectedItems.add(position);    //save the list position of the selected view.
             else
                 this.mSelectedItems.remove((Object) position);    //remove the list position of the unselected view.
         }
 	}
-	
 
 	@Override
     public void onDestroyActionMode(ActionMode mode) 
@@ -145,7 +130,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     	{
     		i = getViewPosition(i);
     		if (i != -1)
-    			((ViewHolders.EpisodeRowViewHolder)mParentListView.getChildAt(i).getTag()).checked = false;	//Deselect the view if it's not recycled.
+    			((ViewHolders.EpisodeRowViewHolder)mParentListView.getChildAt(i).getTag()).checkbox.setChecked(false);	//Deselect the view if it's not recycled.
     	}
     	this.mSelectedItems.clear();
     	this.mSelectedItems = null;
@@ -153,7 +138,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     	this.mActionMode = null;
     	((EpisodesListAdapter)mParentListView.getAdapter()).setSelectionEnabled(false);
     }
-	
+
 	private void addSelectedItemsToPlaylist()
     {
     	for (int i : this.mSelectedItems)
@@ -200,7 +185,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     /**
      * Finds the position of a View, relative to the currently visible subset.
      * @param pos Position of the view to find.
-     * @return	An index that enables you to access the View at pos.
+     * @return	An index that enables you to access the View at pos. -1 if the View is not visible.
      */
     private int getViewPosition(int pos)
     {

@@ -134,7 +134,7 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
                 @Override
                 public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                     if (mListView != null && mPodcastBanner != null && mToolbar != null) {
-                        if (mListView != null && mListView.getChildCount() > 0) {
+                        if (mListView.getChildCount() > 0) {
                             // check if the first item of the list is visible
                             boolean firstItemVisible = mListView.getFirstVisiblePosition() == 0;
 
@@ -171,8 +171,11 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
 
                                 mToolbar.setTranslationY(maxToolbarTranslationY);
                             }
-                        }
+                            if (mListSelectionListener.isActive()) {
+                                mListSelectionListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+                            }
 
+                        }
                     }
 
                 }

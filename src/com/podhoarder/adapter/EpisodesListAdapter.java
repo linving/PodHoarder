@@ -87,7 +87,7 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
-		EpisodeRowViewHolder viewHolder;
+		final EpisodeRowViewHolder viewHolder;
 		
 		if (convertView == null)
 		{
@@ -102,7 +102,6 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.list_episode_row_feed_image);
 	        viewHolder.checkbox = (CheckBox) convertView.findViewById(R.id.list_episode_row_checkbox);
 	        viewHolder.arrow = (ImageView) convertView.findViewById(R.id.list_episode_row_info);
-	        viewHolder.checked = false;
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
 		}
@@ -142,7 +141,8 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 			
 			if (mSelectionEnabled)
 			{
-				viewHolder.checkbox.setVisibility(View.VISIBLE);
+                viewHolder.checkbox.setVisibility(View.VISIBLE);
+
 				viewHolder.feedImage.setVisibility(View.GONE);
 				viewHolder.arrow.setVisibility(View.GONE);
 			}
@@ -153,8 +153,8 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 				viewHolder.arrow.setVisibility(View.VISIBLE);
 				viewHolder.feedImage.setImageBitmap(ImageUtils.getCircularBitmapWithBorder(currentFeed.getFeedImage().thumbnail(), 1f));
 			}
-			
-			viewHolder.checkbox.setChecked(viewHolder.checked);				
+
+            viewHolder.checkbox.setChecked(false);
 			
 			EpisodeRowUtils.setRowIndicator(this.mContext, viewHolder, currentEpisode);
 			EpisodeRowUtils.setRowListened(viewHolder, currentEpisode.isListened());

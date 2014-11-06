@@ -30,7 +30,6 @@ public class ViewHolders
 		public ImageView arrow;
 		public ImageView feedImage;
 		public CheckBox checkbox;
-		public boolean checked;
 	}
 
     public static class QuickListRowViewHolder
