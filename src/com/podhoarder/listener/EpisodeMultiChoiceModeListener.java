@@ -16,7 +16,6 @@ import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.EpisodesListAdapter;
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Episode;
-import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.EpisodeRowUtils;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ToastMessages;
@@ -124,14 +123,16 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
 	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked)
 	{
 		int i = getViewPosition(position);
-		if (i != -1)
-			AnimUtils.listSelectionAnimation(mParentListView.getChildAt(i));
-			((ViewHolders.EpisodeRowViewHolder)mParentListView.getChildAt(i).getTag()).checked = checked;
-			((CheckBox)mParentListView.getChildAt(i).findViewById(R.id.list_episode_row_checkbox)).setChecked(checked);
-    	if (checked)
-    		this.mSelectedItems.add(position);	//save the list position of the selected view.
-    	else
-    		this.mSelectedItems.remove((Object)position);	//remove the list position of the unselected view.
+		if (i != -1) {
+            ViewHolders.EpisodeRowViewHolder viewHolder = ((ViewHolders.EpisodeRowViewHolder) mParentListView.getChildAt(i).getTag());
+            viewHolder.checked = checked;
+            viewHolder.checkbox.setChecked(checked);
+            mParentListView.getChildAt(i).invalidate();
+            if (checked)
+                this.mSelectedItems.add(position);    //save the list position of the selected view.
+            else
+                this.mSelectedItems.remove((Object) position);    //remove the list position of the unselected view.
+        }
 	}
 	
 

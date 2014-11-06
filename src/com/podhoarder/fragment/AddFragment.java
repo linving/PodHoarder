@@ -78,6 +78,11 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
     }
 
     @Override
+    public void onFragmentResumed() {
+
+    }
+
+    @Override
     public boolean onQueryTextChange(String arg0) {
         // TODO Auto-generated method stub
         return false;

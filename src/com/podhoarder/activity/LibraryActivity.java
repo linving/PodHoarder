@@ -9,16 +9,15 @@ import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.SearchView;
 import android.telephony.TelephonyManager;
-import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.DecelerateInterpolator;
 
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.fragment.AddFragment;
@@ -118,6 +117,12 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     @Override
     protected void onStart() {
         super.onStart();
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                mCurrentFragment.onFragmentResumed();
+            }
+        });
         if (mCurrentFragment == null) {
             // Create a new Fragment to be placed in the activity layout
             mCurrentFragment = new GridFragment();
@@ -277,44 +282,10 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     @Override
     public void startListActivity(LibraryFragment.ListFilter filter) {
         if (!((Object) mCurrentFragment).getClass().getName().equals(ListFragment.class.getName())) {
-            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
-            ft.replace(R.id.root_container, ListFragment.newInstance(filter));
-            ft.addToBackStack(null);
-            ft.commit();
-        }
-        else {
-            ((ListFragment)mCurrentFragment).setFilter(filter);
-        }
-    }
-    @Override
-    public void startListActivityAnimateTransition(LibraryFragment.ListFilter filter, View transitionView) {
-        if (!((Object) mCurrentFragment).getClass().getName().equals(ListFragment.class.getName())) {
-            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            //ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
-            ft.addSharedElement(transitionView, getResources().getString(R.string.transition_banner));
-            TransitionSet s = new TransitionSet();
-
-            s.setOrdering(TransitionSet.ORDERING_TOGETHER);
-            s.setInterpolator(new DecelerateInterpolator());
-            s.setDuration(150);
-            //s.addTransition(new AutoTransition());
-            //s.addTransition(new ChangeImageTransform());
-            //s.addTransition(new Slide());
-
-
-            //ft.setTransitionStyle(R.transition.grid_to_banner_transition);
-            mCurrentFragment.setAllowEnterTransitionOverlap(true);
-            mCurrentFragment.setAllowReturnTransitionOverlap(true);
-            mCurrentFragment.setSharedElementEnterTransition(s);
-            mCurrentFragment.setSharedElementReturnTransition(s);
-            ListFragment f = ListFragment.newInstance(filter);
-            f.setSharedElementEnterTransition(s);
-            f.setAllowEnterTransitionOverlap(true);
-            //mCurrentFragment.setExitTransition(new Slide());
-            ft.replace(R.id.root_container, f);
-            ft.addToBackStack(null);
-            ft.commit();
+                final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.root_container, ListFragment.newInstance(filter));
+                ft.addToBackStack(null);
+                ft.commit();
         }
         else {
             ((ListFragment)mCurrentFragment).setFilter(filter);

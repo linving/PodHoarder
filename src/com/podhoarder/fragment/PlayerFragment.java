@@ -83,6 +83,11 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     }
 
     @Override
+    public void onFragmentResumed() {
+
+    }
+
+    @Override
     public void onStateChanged(PodHoarderService.PlayerState newPlayerState) {
         Log.i(LOG_TAG, "New player state: " + newPlayerState);
         switch (newPlayerState) {

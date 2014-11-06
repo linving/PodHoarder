@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="72dp"
-    android:background="@color/windowBackground"
+    android:background="@drawable/list_item_background"
     android:descendantFocusability="blocksDescendants"
     android:orientation="vertical" >
 
@@ -13,7 +13,7 @@
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
     <CheckBox
         android:id="@+id/list_episode_row_checkbox"
@@ -23,7 +23,8 @@
         android:layout_centerVertical="true"
         android:layout_margin="16dp"
         android:clickable="false"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:background="?attr/selectableItemBackgroundBorderless"/>
 
     <LinearLayout
         android:id="@+id/list_episode_row_text_container"
@@ -61,7 +62,6 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:alpha=".54"
-        android:background="@drawable/list_selector"
         android:paddingBottom="20dp"
         android:paddingLeft="20dp"
         android:paddingRight="16dp"

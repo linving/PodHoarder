@@ -9,13 +9,11 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.CheckBox;
 import android.widget.GridView;
-import android.widget.RelativeLayout;
 
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.GridAdapter;
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Feed;
-import com.podhoarder.util.AnimUtils;
 import com.podhoarder.util.ViewHolders;
 import com.podhoarderproject.podhoarder.R;
 
@@ -52,7 +50,7 @@ public class GridActionModeCallback implements ActionMode.Callback
 			}
 			
 			@Override
-			public void onScroll(AbsListView view, int firstVisibleItem,
+			public void onScroll(AbsListView parentListView, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount)
 			{
 				if (mSelectedItems != null)
@@ -62,9 +60,9 @@ public class GridActionModeCallback implements ActionMode.Callback
 						i = getViewPosition(i);
 						if (i != -1)
 						{
-							RelativeLayout item = (RelativeLayout)view.getChildAt(i);
-							CheckBox checkmark = ((CheckBox)item.findViewById(R.id.feeds_grid_item_checkmark));
-							checkmark.setChecked(true);
+                            ViewHolders.FeedsAdapterViewHolder viewHolder = ((ViewHolders.FeedsAdapterViewHolder)parentListView.getChildAt(i).getTag());
+                            viewHolder.checked = true;
+                            viewHolder.checkmark.setChecked(true);
 						}
 					}
 				}
@@ -115,11 +113,10 @@ public class GridActionModeCallback implements ActionMode.Callback
 		int i = getViewPosition(position);
 		if (i != -1)
 		{
-			RelativeLayout view = (RelativeLayout)this.mParentListView.getChildAt(i);
-			((ViewHolders.FeedsAdapterViewHolder)view.getTag()).checked = checked;
-			CheckBox checkmark = ((CheckBox)view.findViewById(R.id.feeds_grid_item_checkmark));
-			checkmark.setChecked(checked);
-			AnimUtils.gridSelectionAnimation(view);
+            ViewHolders.FeedsAdapterViewHolder viewHolder = ((ViewHolders.FeedsAdapterViewHolder)this.mParentListView.getChildAt(i).getTag());
+            viewHolder.checked = checked;
+            viewHolder.checkmark.setChecked(checked);
+			//AnimUtils.gridSelectionAnimation(view);
 		}
     	if (checked)
     		this.mSelectedItems.add(position);	//save the list position of the selected view.

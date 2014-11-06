@@ -115,7 +115,12 @@ public class AnimUtils
 			@Override
 			public void run()
 			{
-				viewToAnimate.animate().scaleXBy(0.05f).scaleYBy(0.05f).setDuration(0);
+				viewToAnimate.animate().scaleXBy(0.05f).scaleYBy(0.05f).setDuration(0).withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        viewToAnimate.invalidate();
+                    }
+                });
 			}
 		});
 	}

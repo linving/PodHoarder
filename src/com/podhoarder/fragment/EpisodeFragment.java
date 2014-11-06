@@ -97,6 +97,11 @@ public class EpisodeFragment extends BaseFragment {
 
     }
 
+    @Override
+    public void onFragmentResumed() {
+
+    }
+
     private void setupUI() {
 
         episodeTitle = (TextView) mContentView.findViewById(R.id.episode_title);

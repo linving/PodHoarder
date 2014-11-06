@@ -16,4 +16,5 @@ public abstract class BaseFragment extends Fragment {
 
     public abstract boolean onBackPressed();
     public abstract void onServiceConnected();
+    public abstract void onFragmentResumed();
 }

@@ -63,7 +63,6 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
     public boolean onBackPressed() {
         if (mSearchEnabled) {
             cancelSearch();
-            return true;
         }
         return false;
     }
@@ -76,6 +75,11 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
         setupFAB();
     }
 
+    @Override
+    public void onFragmentResumed() {
+
+    }
+
     //SEARCHING
     public void doSearch(String searchString) {
         mSearchEnabled = true;
@@ -85,6 +89,7 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
 
     public void cancelSearch() {
         ((LibraryActivity)getActivity()).cancelSearch();
+        mCurrentFilter.setSearchString("");
         mSearchEnabled = false;
     }
 
@@ -167,19 +172,9 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
                 mSearchEnabled = true;
             ((BaseActivity) getActivity()).startListActivity(mCurrentFilter);
         }
-        else
-            ((BaseActivity)getActivity()).startGridActivity();
-    }
-
-    public void setFilterAnimateTransition(ListFilter filterToSet, View transitionView) {
-        mCurrentFilter = filterToSet;
-        if (mCurrentFilter != ListFilter.ALL || !mCurrentFilter.getSearchString().isEmpty()) {
-            if (!mCurrentFilter.getSearchString().isEmpty())
-                mSearchEnabled = true;
-            ((BaseActivity) getActivity()).startListActivityAnimateTransition(mCurrentFilter, transitionView);
+        else {
+            ((BaseActivity) getActivity()).startGridActivity();
         }
-        else
-            ((BaseActivity)getActivity()).startGridActivity();
     }
 
 }

@@ -1,14 +1,17 @@
 package com.podhoarder.fragment;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -46,6 +49,9 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
     private GridActionModeCallback mActionModeCallback;
     private ActionMode mActionMode;
 
+    //Feeds Grid Persistent Values
+    int mSelectedGridItemLeft = Integer.MAX_VALUE, mSelectedGridItemTop = Integer.MAX_VALUE, mSelectedGridItemIndex = -1; //The mSelectedGridItem variables are set to the max value of an Integer per default, so we can know if they have been set.
+
     //SwipeRefreshLayout
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -62,6 +68,16 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
         super.onCreateView(inflater, container, savedInstanceState);
         // Inflate the layout for this fragment
         mContentView = inflater.inflate(R.layout.activity_grid, container, false);
+        ViewTreeObserver vto = mContentView.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mContentView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                if (mSelectedGridItemTop != Integer.MAX_VALUE && mSelectedGridItemLeft != Integer.MAX_VALUE && mSelectedGridItemIndex != -1) {   //A Check to see if the selected item variables were set.
+                    onFragmentRedrawn();
+                }
+            }
+        });
 
         mCurrentFilter = ListFilter.ALL;
 
@@ -78,8 +94,6 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
 
         mToolbar = ((BaseActivity)getActivity()).mToolbar;
         mToolbarSize = mToolbar.getMinimumHeight();
-        mToolbar.setTranslationY(0f);
-        mToolbar.setAlpha(1.0f);
 
         ((LibraryActivity)getActivity()).setCurrentFragment(this);
 
@@ -88,11 +102,22 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
 
     @Override
     public void onResume() {
+        super.onResume();
         if (mPlaybackService != null) {
             onServiceConnected();
         }
         mToolbar = ((BaseActivity)getActivity()).mToolbar;
-        super.onResume();
+        mToolbar.setAlpha(1.0f);
+        mToolbar.setTranslationY(0f);
+    }
+
+    @Override
+    public void onFragmentResumed() {
+
+    }
+
+    public void onFragmentRedrawn() {
+        reverseGridItemSelectionAnimation(mSelectedGridItemIndex, mSelectedGridItemTop, mSelectedGridItemLeft);
     }
 
     @Override
@@ -193,7 +218,7 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
                             // enabling or disabling the refresh layout
                             enable = firstItemVisible && topOfFirstItemVisible;
 
-                            int maxTranslationY = -(mToolbarSize+4);    //The toolbar should only be allowed to move until it is fully off screen.
+                            int maxTranslationY = -(mToolbarSize);    //The toolbar should only be allowed to move until it is fully off screen.
                             int toolbarTop = (mGridView.getChildAt(0).getTop() - (mToolbarSize+4));   //Calculate the distance to move by subtracting the toolbar height + gridview padding from the top line.
 
                             if (firstItemVisible) {
@@ -210,6 +235,9 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
 
                                 mToolbar.setTranslationY(scrollDelta);  //Move the toolbar vertically.
                                 mToolbar.setAlpha((Math.abs(maxTranslationY)-Math.abs((float)scrollDelta))/Math.abs(maxTranslationY));    //Fade out the toolbar. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
+
+                                Log.i(LOG_TAG,"TranslationY: " + mToolbar.getTranslationY());
+                                Log.i(LOG_TAG,"Alpha: " + mToolbar.getAlpha() + "f");
                             }
                             else {
                                 enable = false;
@@ -268,6 +296,9 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
     public void onGridFaded(final int pos, final int feedId) {
         final int actualPos = getGridChildPositionWithIndex(pos);
         View v = mGridView.getChildAt(actualPos);
+        mSelectedGridItemLeft = v.getLeft();
+        mSelectedGridItemTop = v.getTop();
+        mSelectedGridItemIndex = actualPos;
 
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
@@ -307,12 +338,69 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
         v.startAnimation(set);
     }
 
+    public void reverseGridItemSelectionAnimation(int index, int originalTop, int originalLeft) {
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+
+        final View v = mGridView.getChildAt(index);
+
+        Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.grid_fade_in);
+        animation.setFillAfter(true);
+
+        for (int i = mGridView.getFirstVisiblePosition(); i < mGridView.getChildCount(); i++) {
+            if (i != index) {
+                mGridView.getChildAt(i).startAnimation(animation);
+            }
+        }
+
+        if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP)
+            v.setZ(5f);
+
+        float gridItemScaleFactor = displaymetrics.widthPixels / (float)mGridItemSize; //Calculate the percent value of the grid image as opposed to the entire screen width (which will be the final width & height)
+
+        ScaleAnimation scaleAnim = new ScaleAnimation(gridItemScaleFactor, 1.0f, gridItemScaleFactor, 1.0f, 1f, 1f);
+        scaleAnim.setFillAfter(true);
+        scaleAnim.setDuration(250);
+        TranslateAnimation moveAnim =  new TranslateAnimation(TranslateAnimation.ABSOLUTE, (0 - originalLeft)/gridItemScaleFactor,0, 0,
+                TranslateAnimation.ABSOLUTE, (mToolbarSize - originalTop)/gridItemScaleFactor, 0, 0);
+        moveAnim.setDuration(250);
+        moveAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+        moveAnim.setFillAfter(true);
+        AnimationSet set = new AnimationSet(true);
+        set.addAnimation(moveAnim);
+        set.addAnimation(scaleAnim);
+        set.setFillAfter(true);
+        if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
+            set.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+
+                        v.setZ(1f);
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+        }
+        v.startAnimation(set);
+        mSelectedGridItemIndex = -1;
+        mSelectedGridItemTop = Integer.MAX_VALUE;
+        mSelectedGridItemLeft = Integer.MAX_VALUE;
+    }
+
     public void onImageRepositioned(int pos, int feedId) {
-        ListFilter filter = ListFilter.FEED;
-        filter.setFeedId(feedId);
+        mCurrentFilter = ListFilter.FEED;
+        mCurrentFilter.setFeedId(feedId);
         ImageView v = (ImageView) mGridView.getChildAt(pos).findViewById(R.id.feeds_grid_item_image);
-        v.setTransitionName(getString(R.string.transition_banner));
-        setFilterAnimateTransition(filter, v);
+        setFilter(mCurrentFilter);
     }
 
     public int getGridChildPositionWithIndex(int index) {
@@ -328,10 +416,5 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
         }
         return -1;
     }
-
-
-
-
-
 
 }
