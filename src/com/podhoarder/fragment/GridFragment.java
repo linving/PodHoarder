@@ -22,6 +22,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -85,6 +86,8 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) mContentView.findViewById(R.id.swipeLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setProgressViewOffset(true,100,200);
+        mSwipeRefreshLayout.setDistanceToTriggerSync(200);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent, R.color.windowBackground, R.color.colorAccent, R.color.windowBackground);
 
         populate();
@@ -106,7 +109,7 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
             onServiceConnected();
         }
         mToolbar = ((BaseActivity)getActivity()).mToolbar;
-        mToolbar.setAlpha(1.0f);
+        //mToolbar.setAlpha(1.0f);
         mToolbar.setTranslationY(0f);
     }
 
@@ -126,7 +129,7 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
 
     @Override
     public void onGridItemClicked(final int pos, final int feedId) {
-        mToolbar.setAlpha(1.0f);
+        //mToolbar.setAlpha(1.0f);
         mToolbar.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
         Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.grid_fade_out);
         animation.setFillAfter(true);
@@ -233,7 +236,7 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
                                     scrollDelta = 0;    //Default position.
 
                                 mToolbar.setTranslationY(scrollDelta);  //Move the toolbar vertically.
-                                mToolbar.setAlpha((Math.abs(maxTranslationY)-Math.abs((float)scrollDelta))/Math.abs(maxTranslationY));    //Fade out the toolbar. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
+                                //mToolbar.setAlpha((Math.abs(maxTranslationY)-Math.abs((float)scrollDelta))/Math.abs(maxTranslationY));    //Fade out the toolbar. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
                             }
                             else {
                                 enable = false;
@@ -243,7 +246,7 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
                         }
                         else {
                             mToolbar.setTranslationY(0f);
-                            mToolbar.setAlpha(1.0f);
+                            //mToolbar.setAlpha(1.0f);
                         }
                     }
                     mSwipeRefreshLayout.setEnabled(enable);
@@ -278,6 +281,19 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
                 mEmptyText.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    @Override
+    protected void setupFAB() {
+        mFAB = (ImageButton) mContentView.findViewById(R.id.fab);
+        if (mDataManager.hasPodcasts()) mFAB.setVisibility(View.VISIBLE);
+        mFAB.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                ((LibraryActivity)getActivity()).startAddActivity();
+            }
+        });
     }
 
     private void populate() {

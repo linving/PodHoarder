@@ -2,23 +2,21 @@ package com.podhoarder.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
-import android.widget.TextView;
 
+import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.service.PodHoarderService;
-import com.podhoarder.view.FloatingToggleButton;
 import com.podhoarder.view.ToggleImageButton;
 import com.podhoarderproject.podhoarder.R;
 
@@ -44,8 +42,11 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     private ToggleImageButton mPlayPauseButton;
     private ImageButton mRewindButton, mForwardButton;
     private ProgressBar mLoadingCircle;
-    private FloatingToggleButton mFAB;
-    private LinearLayout mTextContainer;
+    private ToggleImageButton mFAB;
+
+    //Toolbar
+    private Toolbar mToolbar;
+    private float mOriginalToolbarElevation = 2f;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,12 +64,19 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
         mHandler = new Handler();
 
+        mToolbar = ((BaseActivity)getActivity()).mToolbar;
+
         setupUI();
         setupPlayerControls();
 
         ((LibraryActivity)getActivity()).setCurrentFragment(this);
 
         return mContentView;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -134,33 +142,21 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     private void setupUI() {
         ImageView banner = (ImageView) mContentView.findViewById(R.id.episode_banner);
         banner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
-
-        TextView mTitle = (TextView) mContentView.findViewById(R.id.episode_title);
-        mTitle.setText(mCurrentEpisode.getTitle());
-
-        TextView mPodcastName = (TextView) mContentView.findViewById(R.id.podcast_title);
-        mPodcastName.setText(mCurrentFeed.getTitle());
+        //((BaseActivity)getActivity()).colorUI(mCurrentFeed.getFeedImage().palette());
+        //mToolbar.setTitle(mCurrentEpisode.getTitle());
+        //mToolbar.setSubtitle(mCurrentFeed.getTitle());
     }
 
     private void setupPlayerControls() {
 
-        mFAB = (FloatingToggleButton) mContentView.findViewById(R.id.episode_favorite_toggle);
-        mTextContainer = (LinearLayout) mContentView.findViewById(R.id.episode_text_container);
+        mFAB = (ToggleImageButton) mContentView.findViewById(R.id.fab);
         mFAB.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 mCurrentEpisode.setFavorite(!mCurrentEpisode.isFavorite()); //Toggle favorite status of the Episode.
                 mDataManager.updateEpisode(mCurrentEpisode);    //Update the db with the new value
-                ((FloatingToggleButton) v).setToggled(mCurrentEpisode.isFavorite());    //Toggle the button.
-            }
-        });
-        mFAB.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                mTextContainer.invalidate();
-                return false;
+                ((ToggleImageButton) v).setToggled(mCurrentEpisode.isFavorite());    //Toggle the button.
             }
         });
         mFAB.setToggled(mCurrentEpisode.isFavorite());

@@ -1,18 +1,24 @@
 package com.podhoarder.fragment;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ImageButton;
 
 import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.service.PodHoarderService;
-import com.podhoarder.view.FloatingPlayPauseButton;
 import com.podhoarderproject.podhoarder.R;
 
 /**
@@ -25,14 +31,15 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
     protected int mToolbarSize;
 
     //Floating Action Button
-    protected FloatingPlayPauseButton mFAB;
+    protected ImageButton mFAB;
 
     //Service
     protected PodHoarderService mPlaybackService;
 
     //Searching
+    private MenuItem mSearchMenuItem;
+    private SearchView mSearchView;
     protected boolean mSearchEnabled;
-
     protected ListFilter mCurrentFilter;
 
     //Scroll Listener
@@ -45,6 +52,7 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mContentView = super.onCreateView(inflater, container, savedInstanceState);
+        setHasOptionsMenu(true);
         mDataManager = ((LibraryActivity)getActivity()).getDataManager();
         mPlaybackService = ((LibraryActivity)getActivity()).getPlaybackService();
 
@@ -80,6 +88,22 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
 
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.main_menu, menu);
+
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        mSearchMenuItem = menu.findItem(R.id.action_search);
+        mSearchView = (SearchView) mSearchMenuItem.getActionView();
+        if (null != mSearchView) {
+            mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+        }
+
+        mSearchView.setOnQueryTextListener((LibraryActivity)getActivity());
+        mSearchView.setOnCloseListener((LibraryActivity)getActivity());
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
     //SEARCHING
     public void doSearch(String searchString) {
         mSearchEnabled = true;
@@ -88,39 +112,13 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
     }
 
     public void cancelSearch() {
-        ((LibraryActivity)getActivity()).cancelSearch();
+        mSearchView.onActionViewCollapsed();
         mCurrentFilter.setSearchString("");
         mSearchEnabled = false;
     }
 
     protected void setupFAB() {
-        mFAB = (FloatingPlayPauseButton) mContentView.findViewById(R.id.fabbutton);
-        if (mDataManager.hasPodcasts()) mFAB.setVisibility(View.VISIBLE);
-        mFAB.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                if (mPlaybackService.isPlaying())
-                    mPlaybackService.pause();
-                else
-                    mPlaybackService.play();
-            }
-        });
-        mFAB.setOnLongClickListener(new View.OnLongClickListener() {
-
-            @Override
-            public boolean onLongClick(View v) {
-                ((BaseActivity)getActivity()).startPlayerActivity();
-                return false;
-            }
-        });
-        mFAB.setPlaying(mPlaybackService.isPlaying());
-
-        if (!mDataManager.hasPodcasts()) mFAB.setVisibility(View.GONE);
-        else {
-            mFAB.setVisibility(View.VISIBLE);
-           // mFAB.animateButton();
-        }
     }
 
 
@@ -128,17 +126,7 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
     @Override
     public void onStateChanged(PodHoarderService.PlayerState newPlayerState) {
         Log.i(LOG_TAG, "New player state: " + newPlayerState);
-        switch (newPlayerState) {
-            case PLAYING:
-                mFAB.setPlaying(true);
-                //updateDrawer();
-                break;
-            case PAUSED:
-                mFAB.setPlaying(false);
-                break;
-            case LOADING:
-                break;
-        }
+
     }
 
     //FILTERING

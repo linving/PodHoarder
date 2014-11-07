@@ -47,6 +47,7 @@
     <string name="menu_episode_add_playlist">Add To Playlist</string>
     <string name="menu_episode_available_offline">Make Available Offline</string>
     <string name="menu_episode_markAsListened">Mark As Listened</string>
+    <string name="menu_episode_playnow">Play Now</string>
     
     <string name="menu_playlist_delete">Remove From Playlist</string>
     <string name="menu_playlist_available_offline">Make Available Offline</string>

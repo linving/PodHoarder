@@ -1,25 +1,30 @@
 package com.podhoarder.fragment;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.listener.EpisodeMultiChoiceModeListener;
 import com.podhoarder.object.Episode;
 import com.podhoarder.service.PodHoarderService;
-import com.podhoarder.util.NetworkUtils;
-import com.podhoarder.util.ToastMessages;
 import com.podhoarderproject.podhoarder.R;
 
 /**
@@ -106,18 +111,16 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
     private void setupListView() {
         mListView = (ListView) mContentView.findViewById(R.id.episodesListView);
         if (this.mDataManager.hasPodcasts()) {
-            Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.grid_fade_in);
-            LayoutAnimationController animationController = new LayoutAnimationController(animation, 0.2f);
+            Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_in_top);
+            //LayoutAnimationController animationController = new LayoutAnimationController(animation, 0.2f);
 
             this.mListView.setAdapter(mDataManager.mEpisodesListAdapter);
             this.mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterview, View v, int pos, long id) {
                     Episode currentEp = (Episode) mListView.getItemAtPosition(pos);
-                    if (currentEp.isDownloaded() || NetworkUtils.isOnline(getActivity()))
-                        mPlaybackService.playEpisode((Episode) mListView.getItemAtPosition(pos));
-                    else
-                        ToastMessages.PlaybackFailed(getActivity()).show();
+                    onListItemClicked(mListView,v,pos, currentEp);
+                    //((LibraryActivity)getActivity()).startEpisodeActivity(currentEp);
                 }
 
             });
@@ -144,7 +147,7 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
                             if (firstItemVisible) {
 
                                 int bannerTop = (mListView.getChildAt(0).getTop() - mPodcastBanner.getMeasuredHeight() - mToolbarSize);   //Calculate the distance to move by subtracting the toolbar height + gridview padding from the top line.
-                                int toolbarTop = (mListView.getChildAt(0).getTop() - (mToolbarSize + 4));
+                                int toolbarTop = (mListView.getChildAt(0).getTop() - (mToolbarSize));
 
                                 if (bannerTop < mToolbarSize && bannerTop > maxBannerTranslationY) {//If we are within the bounds where the app bar needs to move we should apply the moved distance.
                                     bannerScrollDelta = bannerTop;
@@ -161,13 +164,10 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
                                     toolbarScrollDelta = 0;    //Default position.
 
                                 mPodcastBanner.setTranslationY(bannerScrollDelta / 2);  //Move the banner vertically.
-                                mPodcastBanner.setAlpha((Math.abs(maxBannerTranslationY) - Math.abs((float) bannerScrollDelta)) / Math.abs(maxBannerTranslationY));    //Fade out the banner. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
 
                                 mToolbar.setTranslationY(toolbarScrollDelta);  //Move the toolbar vertically.
-                                mToolbar.setAlpha((Math.abs(maxToolbarTranslationY) - Math.abs((float) toolbarScrollDelta)) / Math.abs(maxToolbarTranslationY));    //Fade out the toolbar. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
                             } else {
                                 mPodcastBanner.setTranslationY(maxBannerTranslationY);  //Move the banner vertically.
-                                mPodcastBanner.setAlpha(1f);    //Fade out the banner. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
 
                                 mToolbar.setTranslationY(maxToolbarTranslationY);
                             }
@@ -188,7 +188,7 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
             else
                 this.mListView.setPadding(0, mToolbarSize, 0, 0);
 
-            this.mListView.setLayoutAnimation(animationController);
+            //this.mListView.setLayoutAnimation(animationController);
 
             this.mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
             this.mListSelectionListener = new EpisodeMultiChoiceModeListener(getActivity(), this.mListView);
@@ -205,6 +205,117 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
 
     }
 
+    private void onListItemClicked(AbsListView listView, final View clickedView, int clickedViewPos, final Episode ep) {
+
+        final int ANIMATION_DURATION = 200;
+
+        mToolbar.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(ANIMATION_DURATION).start();
+
+        mPodcastBanner.animate().translationY(-(mPodcastBanner.getMeasuredHeight()+20f)).alpha(0f).setDuration(ANIMATION_DURATION/2).setInterpolator(new AccelerateInterpolator()).start();
+        for (int i=listView.getFirstVisiblePosition(); i<=listView.getLastVisiblePosition(); i++) {
+            int relativePos = getViewPosition(i);
+            if (relativePos != getViewPosition(clickedViewPos))
+                listView.getChildAt(relativePos).animate().alpha(0f).setDuration(100).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+        }
+
+        clickedView.findViewById(R.id.list_episode_row_feed_image).animate().alpha(0f).setDuration(ANIMATION_DURATION).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+        clickedView.findViewById(R.id.list_episode_row_checkbox).animate().alpha(0f).setDuration(ANIMATION_DURATION).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+        clickedView.findViewById(R.id.list_episode_row_info).animate().alpha(0f).setDuration(ANIMATION_DURATION).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+
+        float widthFactor = (float)displaymetrics.widthPixels / clickedView.getMeasuredWidth();
+        float heightFactor = (float) ((LibraryActivity)getActivity()).mToolbar.getMeasuredHeight()*2 / clickedView.getMeasuredHeight();
+
+
+        ScaleAnimation scaleAnim = new
+                ScaleAnimation(1.0f, widthFactor, 1.0f, heightFactor, 1f, 1f);
+        scaleAnim.setFillAfter(true);
+        scaleAnim.setDuration(ANIMATION_DURATION/2);
+        TranslateAnimation moveAnim =  new TranslateAnimation(
+                0, 0,
+                TranslateAnimation.ABSOLUTE, (0 - clickedView.getLeft())/widthFactor,
+                0, 0,
+                TranslateAnimation.ABSOLUTE, (mToolbarSize - clickedView.getTop())/heightFactor);
+        moveAnim.setDuration(ANIMATION_DURATION);
+        moveAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+        moveAnim.setFillAfter(true);
+        moveAnim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                ((LibraryActivity) getActivity()).startEpisodeActivity(ep);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        AnimationSet set = new AnimationSet(true);
+        set.addAnimation(moveAnim);
+        set.addAnimation(scaleAnim);
+        set.setFillAfter(true);
+
+        Integer backgroundColorFrom = getResources().getColor(R.color.windowBackground);
+        Integer backgroundColorTo = getResources().getColor(R.color.colorPrimary);
+        ValueAnimator backgroundColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), backgroundColorFrom, backgroundColorTo);
+        backgroundColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                clickedView.setBackgroundColor((Integer) animator.getAnimatedValue());
+            }
+
+        });
+        backgroundColorAnimation.setDuration(ANIMATION_DURATION);
+
+        final TextView title = (TextView) clickedView.findViewById(R.id.list_episode_row_episodeName);
+        final TextView timestamp = (TextView) clickedView.findViewById(R.id.list_episode_row_episodeAge);
+
+        Integer textColorFrom = title.getCurrentTextColor();
+        Integer textColorTo = getResources().getColor(android.R.color.primary_text_dark);
+        ValueAnimator textColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), textColorFrom, textColorTo);
+        textColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                title.setTextColor((Integer) animator.getAnimatedValue());
+                timestamp.setTextColor((Integer)animator.getAnimatedValue());
+            }
+
+        });
+        textColorAnimation.setDuration(ANIMATION_DURATION);
+
+
+
+
+        clickedView.startAnimation(set);
+        backgroundColorAnimation.start();
+        textColorAnimation.start();
+    }
+
+    private int getViewPosition(int pos)
+    {
+        final int numVisibleChildren = this.mListView.getChildCount();
+        final int firstVisiblePosition = this.mListView.getFirstVisiblePosition();
+
+        for ( int i = 0; i < numVisibleChildren; i++ ) {
+            int positionOfView = firstVisiblePosition + i;
+
+            if (positionOfView == pos) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     @Override
     public void onServiceConnected() {
         mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
@@ -215,15 +326,6 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
 
     @Override
     public void onStateChanged(PodHoarderService.PlayerState newPlayerState) {
-        switch (newPlayerState) {
-            case PLAYING:
-                mFAB.setPlaying(true);
-                break;
-            case PAUSED:
-                mFAB.setPlaying(false);
-                break;
-            case LOADING:
-                break;
-        }
+
     }
 }

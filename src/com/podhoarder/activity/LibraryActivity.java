@@ -1,6 +1,5 @@
 package com.podhoarder.activity;
 
-import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +14,6 @@ import android.support.v7.widget.SearchView;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -43,9 +41,7 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     //FRAGMENTS
     public BaseFragment mCurrentFragment;
 
-    //SEARCH
-    private MenuItem mSearchMenuItem;
-    private SearchView mSearchView;
+
 
     //ACTIVITY RESULT
     static final int SETTINGS_REQUEST = 2;
@@ -154,18 +150,9 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
 
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        mSearchMenuItem = menu.findItem(R.id.action_search);
-        mSearchView = (SearchView) mSearchMenuItem.getActionView();
-        if (null != mSearchView) {
-            mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        }
 
-        mSearchView.setOnQueryTextListener(this);
-        mSearchView.setOnCloseListener(this);
+
         return true;
     }
 
@@ -244,7 +231,6 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
 
     @Override
     public boolean onClose() {
-        cancelSearch();
         return true;
     }
 
@@ -294,9 +280,8 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     @Override
     public void startEpisodeActivity(final Episode currentEp) {
         if (!((Object) mCurrentFragment).getClass().getName().equals(EpisodeFragment.class.getName())) {
-            cancelSearch();
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            //ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+            ft.setCustomAnimations(0, 0, R.anim.slide_in_top, 0);
             ft.replace(R.id.root_container, EpisodeFragment.newInstance(currentEp.getEpisodeId()));
             ft.addToBackStack(null);
             ft.commit();
@@ -313,7 +298,8 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
             ft.commitAllowingStateLoss();
         }
     }
-    private void startAddActivity() {
+    @Override
+    public void startAddActivity() {
         if (NetworkUtils.isOnline(LibraryActivity.this)) {
             if (!((Object) mCurrentFragment).getClass().getName().equals(AddFragment.class.getName())) {
                 final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -329,15 +315,6 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     public void startSettingsActivity() {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivityForResult(intent, SETTINGS_REQUEST);
-    }
-
-    //SEARCHING
-    public void doSearch(String searchString) {
-        ((GridFragment)mCurrentFragment).doSearch(searchString);
-    }
-    public void cancelSearch() {
-        mSearchView.onActionViewCollapsed();
-        //((LibraryFragment)mCurrentFragment).cancelSearch();
     }
 
     //MISC HELPER METHODS

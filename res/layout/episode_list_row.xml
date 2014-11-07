@@ -57,6 +57,7 @@
 
     <ImageView
         android:id="@+id/list_episode_row_info"
+        android:background="?attr/selectableItemBackground"
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:layout_alignParentRight="true"
@@ -67,7 +68,7 @@
         android:paddingRight="16dp"
         android:paddingTop="20dp"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_info_outline_black_24dp"
+        android:src="@drawable/ic_more_vert_grey600_24dp"
         android:visibility="visible" />
 
 </RelativeLayout>

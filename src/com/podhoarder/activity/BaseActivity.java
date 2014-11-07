@@ -1,8 +1,13 @@
 package com.podhoarder.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -10,6 +15,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -30,6 +36,7 @@ import com.podhoarder.view.ToggleImageButton;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Emil on 2014-10-21.
@@ -208,9 +215,11 @@ public abstract class BaseActivity extends ActionBarActivity {
     public void startListActivity(LibraryFragment.ListFilter filter) {
     }
 
-    public void startListActivityAnimateTransition(LibraryFragment.ListFilter filter, View transitionView) {}
+    public void startAddActivity() {
 
+    }
     public void startEpisodeActivity(Episode currentEp) {
+
 
     }
 
@@ -239,6 +248,47 @@ public abstract class BaseActivity extends ActionBarActivity {
         navMenuIcons.recycle();
 
         return navDrawerItems;
+    }
+
+    public void colorUI(Palette p) {
+        if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
+            AnimatorSet set = new AnimatorSet();
+
+            int defaultPrimaryDark = getResources().getColor(R.color.colorPrimaryDark);
+            int defaultPrimary = getResources().getColor(R.color.colorPrimary);
+
+            ValueAnimator primaryDarkColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), defaultPrimaryDark, p.getDarkVibrantColor(defaultPrimaryDark));
+            primaryDarkColorAnimation.setDuration(300);
+            ValueAnimator primaryColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), defaultPrimary, p.getVibrantColor(defaultPrimary));
+            primaryColorAnimation.setDuration(300);
+            primaryColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                @Override
+                public void onAnimationUpdate(ValueAnimator animator) {
+                    getWindow().setNavigationBarColor((Integer)animator.getAnimatedValue());
+                    mToolbar.setBackgroundColor((Integer)animator.getAnimatedValue());
+                    mToolbar.invalidate();
+                }
+
+            });
+            primaryDarkColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                @Override
+                public void onAnimationUpdate(ValueAnimator animator) {
+                    getWindow().setStatusBarColor((Integer) animator.getAnimatedValue());
+                }
+
+            });
+
+            List<Animator> animators = new ArrayList<Animator>();
+            animators.add(primaryColorAnimation);
+            animators.add(primaryDarkColorAnimation);
+
+            primaryColorAnimation.start();
+            primaryDarkColorAnimation.start();
+            set.playTogether(animators);
+        }
+
     }
 
     //DRAWER SETUP

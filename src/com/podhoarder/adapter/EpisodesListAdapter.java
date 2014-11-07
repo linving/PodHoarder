@@ -14,6 +14,7 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.podhoarder.activity.LibraryActivity;
@@ -131,11 +132,11 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 			
 			viewHolder.arrow.setOnClickListener(new OnClickListener()
 			{
-				
 				@Override
 				public void onClick(View v)
 				{
-					((LibraryActivity)mContext).startEpisodeActivity(currentEpisode);
+					PopupMenu menu = EpisodeRowUtils.getContextMenu(mContext,viewHolder.arrow,currentEpisode);
+                    menu.show();
 				}
 			});
 			
