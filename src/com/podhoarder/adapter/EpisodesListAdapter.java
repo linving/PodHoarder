@@ -17,12 +17,9 @@ import android.widget.ListAdapter;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.object.Episode;
-import com.podhoarder.object.Feed;
 import com.podhoarder.util.DataParser;
 import com.podhoarder.util.EpisodeRowUtils;
-import com.podhoarder.util.ImageUtils;
 import com.podhoarder.util.ViewHolders.EpisodeRowViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
@@ -100,9 +97,9 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 	        viewHolder = new EpisodeRowViewHolder();
 	        viewHolder.title = (TextView) convertView.findViewById(R.id.list_episode_row_episodeName);
 	        viewHolder.age = (TextView) convertView.findViewById(R.id.list_episode_row_episodeAge);
-	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.list_episode_row_feed_image);
+	        viewHolder.icon = (ImageView) convertView.findViewById(R.id.list_episode_row_feed_image);
 	        viewHolder.checkbox = (CheckBox) convertView.findViewById(R.id.list_episode_row_checkbox);
-	        viewHolder.arrow = (ImageView) convertView.findViewById(R.id.list_episode_row_info);
+	        viewHolder.menu = (ImageView) convertView.findViewById(R.id.list_episode_row_info);
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
 		}
@@ -113,7 +110,6 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 		
 		
 		final Episode currentEpisode = this.mEpisodes.get(position);
-		Feed currentFeed = ((LibraryActivity)mContext).mDataManager.getFeed(currentEpisode.getFeedId());
 		
 		if(currentEpisode != null) {
 			//Set Episode Title
@@ -130,29 +126,25 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 				e.printStackTrace();
 			}
 			
-			viewHolder.arrow.setOnClickListener(new OnClickListener()
+			viewHolder.menu.setOnClickListener(new OnClickListener()
 			{
 				@Override
 				public void onClick(View v)
 				{
-					PopupMenu menu = EpisodeRowUtils.getContextMenu(mContext,viewHolder.arrow,currentEpisode);
+					PopupMenu menu = EpisodeRowUtils.getContextMenu(mContext,viewHolder.menu,currentEpisode);
                     menu.show();
 				}
 			});
 			
 			if (mSelectionEnabled)
 			{
+				viewHolder.menu.setVisibility(View.GONE);
                 viewHolder.checkbox.setVisibility(View.VISIBLE);
-
-				viewHolder.feedImage.setVisibility(View.GONE);
-				viewHolder.arrow.setVisibility(View.GONE);
 			}
 			else
 			{
 				viewHolder.checkbox.setVisibility(View.GONE);
-				viewHolder.feedImage.setVisibility(View.VISIBLE);
-				viewHolder.arrow.setVisibility(View.VISIBLE);
-				viewHolder.feedImage.setImageBitmap(ImageUtils.getCircularBitmapWithBorder(currentFeed.getFeedImage().thumbnail(), 1f));
+				viewHolder.menu.setVisibility(View.VISIBLE);
 			}
 
             viewHolder.checkbox.setChecked(false);

@@ -74,7 +74,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			mCurrentEpisode.setElapsedTime(mCurrentEpisode.getTotalTime());	//Set elapsed time to total time (100% of the Episode)
 			mCurrentEpisode = mDataManager.updateEpisodeNoRefresh(mCurrentEpisode);	//Update the db object.
 			final Episode lastEp = mCurrentEpisode;
-			int indexToDelete = mDataManager.findEpisodeInPlaylist(mCurrentEpisode);
 			boolean wasStreaming = mStreaming;
 			
 			playNext();	//Play
@@ -83,10 +82,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			{
 				this.mDataManager.deleteEpisodeFile(lastEp);
 			}
-			if (indexToDelete != -1)	
-			{
-                mDataManager.removeFromPlaylist(mPlayList.get(indexToDelete).getEpisodeId());
-			}
+            mDataManager.removeFromPlaylist(mCurrentEpisode);
 			this.mDataManager.reloadListData(true);
 		}
 		else	ToastMessages.PlaybackFailed(getApplicationContext()).show();

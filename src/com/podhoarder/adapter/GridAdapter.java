@@ -209,7 +209,7 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener {
                 }
 
                 viewHolder.feedImage.setImageBitmap(currentFeed.getFeedImage().imageObject());
-                //viewHolder.feedImage.setTransitionName(mContext.getString(R.string.transition_banner) + currentFeed.getFeedId());
+                //viewHolder.icon.setTransitionName(mContext.getString(R.string.transition_banner) + currentFeed.getFeedId());
                 viewHolder.feedImage.setSelected(viewHolder.checked);
 
                 if (this.mSelectionEnabled)

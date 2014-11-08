@@ -274,9 +274,11 @@ public class DataManager {
         mPlaylist = playlist;
     }
 
-    public void removeFromPlaylist(int episodeId) {
-        mPlaylistDBHelper.deleteEntry(episodeId);
-        new loadPlaylistDataAsync().execute();
+    public void removeFromPlaylist(Episode episodeToRemove) {
+        if (findEpisodeInPlaylist(episodeToRemove) != -1) {
+            mPlaylistDBHelper.deleteEntry(episodeToRemove.getEpisodeId());
+            new loadPlaylistDataAsync().execute();
+        }
     }
 
     public void addToPlaylist(Episode ep) {

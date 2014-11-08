@@ -27,8 +27,8 @@ public class ViewHolders
 	{
 		public TextView title;
 		public TextView age;
-		public ImageView arrow;
-		public ImageView feedImage;
+		public ImageView menu;
+		public ImageView icon;
 		public CheckBox checkbox;
 	}
 

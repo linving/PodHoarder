@@ -163,7 +163,7 @@ public class PlaylistMultiChoiceModeListener implements MultiChoiceModeListener
 			((LibraryActivity)this.mContext).deletingEpisode(ep.getEpisodeId());
         	if (ep.isDownloaded())
         		((LibraryActivity)this.mContext).mDataManager.deleteEpisodeFile(ep);
-            ((LibraryActivity)this.mContext).mDataManager.removeFromPlaylist(ep.getEpisodeId());
+            ((LibraryActivity)this.mContext).mDataManager.removeFromPlaylist(ep);
 		}
     	//((LibraryActivity)this.mContext).mDataManager.reloadPlayList();
     }

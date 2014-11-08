@@ -70,6 +70,9 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
         inflater.inflate(R.menu.contextual_menu_episode, menu);
         if (!NetworkUtils.isOnline(mContext))
         	menu.findItem(R.id.menu_episode_available_offline).setVisible(false);
+
+        menu.findItem(R.id.menu_episode_playnow).setVisible(false);
+
         this.mActionMode = mode;
         this.mSelectedItems = new ArrayList<Integer>();
         this.mActive = true;

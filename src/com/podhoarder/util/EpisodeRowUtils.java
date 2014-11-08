@@ -78,56 +78,35 @@ public class EpisodeRowUtils
 	
 	public static void setRowListened(EpisodeRowViewHolder row, boolean listened)
 	{
-		if (listened)
+/*		if (listened)
 		{
-			row.feedImage.setAlpha(ALPHA_LISTENED);
 			row.title.setAlpha(ALPHA_LISTENED);
 			row.age.setAlpha(ALPHA_LISTENED);
 		}
 		else
 		{
-			row.feedImage.setAlpha(ALPHA_NORMAL);
 			row.title.setAlpha(ALPHA_NORMAL);
 			row.age.setAlpha(ALPHA_NORMAL);
-		}
+		}*/
 	}
-	
-	/*public static void setRowListened(PlaylistRowViewHolder row, boolean listened)
-	{
-		if (listened)
-		{
-			row.feedImage.setAlpha(ALPHA_LISTENED);
-			row.title.setAlpha(ALPHA_LISTENED);
-			row.feedTitle.setAlpha(ALPHA_LISTENED);
-			row.age.setAlpha(ALPHA_LISTENED);
-			row.timeListened.setAlpha(ALPHA_LISTENED);
-		}
-		else
-		{
-			row.feedImage.setAlpha(ALPHA_NORMAL);
-			row.title.setAlpha(ALPHA_NORMAL);
-			row.feedTitle.setAlpha(ALPHA_NORMAL);
-			row.age.setAlpha(ALPHA_NORMAL);
-			row.timeListened.setAlpha(ALPHA_NORMAL);
-		}
-	}*/
+
 
 	public static void setRowIndicator(Context ctx, EpisodeRowViewHolder row, Episode ep)
 	{
 		if (ep.isNew())
 		{
+            row.icon.setAlpha(1f);
+            row.icon.setBackgroundResource(R.drawable.list_icon_outline_new);
 			if (NetworkUtils.isOnline(ctx))
 			{
-				row.arrow.setImageResource(R.drawable.ic_new_releases_pink_24dp);
-				row.arrow.setAlpha(1f);
+				row.icon.setImageResource(R.drawable.ic_cloud_white_24dp);
 				//row.episodeTitle.setTypeface(row.episodeTitle.getTypeface(), Typeface.BOLD);
 //				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
 //				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
 			}
 			else
 			{
-				row.arrow.setImageResource(R.drawable.ic_more_vert_grey600_24dp);
-				row.arrow.setAlpha(.54f);
+				row.icon.setImageResource(R.drawable.ic_cloud_off_white_24dp);
 				//row.indicator.setStatus(Status.UNAVAILABLE);
 //				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
 //				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
@@ -135,10 +114,11 @@ public class EpisodeRowUtils
 		} 
 		else
 		{
+            row.icon.setAlpha(.26f);
+            row.icon.setBackgroundResource(R.drawable.list_icon_outline);
 			if (ep.isDownloaded())
 			{
-				row.arrow.setImageResource(R.drawable.ic_more_vert_grey600_24dp);
-				row.arrow.setAlpha(.54f);
+				row.icon.setImageResource(R.drawable.ic_folder_white_24dp);
 //				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
 //				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
 			}
@@ -146,15 +126,13 @@ public class EpisodeRowUtils
 			{
 				if (NetworkUtils.isOnline(ctx))	//Phone has internet access, streaming is possible.
 				{
-					row.arrow.setImageResource(R.drawable.ic_more_vert_grey600_24dp);
-					row.arrow.setAlpha(.54f);
+					row.icon.setImageResource(R.drawable.ic_cloud_white_24dp);
 //					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
 //					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
 				}
 				else	//Device does not have internet access, so all streaming episodes should be set to unavailable.
 				{
-					row.arrow.setImageResource(R.drawable.ic_more_vert_grey600_24dp);
-					row.arrow.setAlpha(.54f);
+					row.icon.setImageResource(R.drawable.ic_cloud_off_white_24dp);
 //					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
 //					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
 				}

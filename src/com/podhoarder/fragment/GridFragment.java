@@ -285,15 +285,17 @@ public class GridFragment extends LibraryFragment implements SwipeRefreshLayout.
 
     @Override
     protected void setupFAB() {
-        mFAB = (ImageButton) mContentView.findViewById(R.id.fab);
-        if (mDataManager.hasPodcasts()) mFAB.setVisibility(View.VISIBLE);
-        mFAB.setOnClickListener(new View.OnClickListener() {
+        if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
+            mFAB = (ImageButton) mContentView.findViewById(R.id.fab);
+            mFAB.setVisibility(View.VISIBLE);
+            mFAB.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                ((LibraryActivity)getActivity()).startAddActivity();
-            }
-        });
+                @Override
+                public void onClick(View v) {
+                    ((LibraryActivity)getActivity()).startAddActivity();
+                }
+            });
+        }
     }
 
     private void populate() {

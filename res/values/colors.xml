@@ -31,6 +31,8 @@
     <color name="textColorSecondary">#000000</color>
     <color name="textColorPrimaryInverse">#FFFFFF</color>
     <color name="textColorNotification">#e91e63</color>
+
+    <color name="episode_icon_background">#000000</color>
     
     <!-- Episode Row Indicators -->
     <color name="indicator_new">#e91e63</color>

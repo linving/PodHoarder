@@ -320,8 +320,6 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
     public void onServiceConnected() {
         mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
         mPlaybackService.setStateChangedListener(ListFragment.this);
-
-        setupFAB();
     }
 
     @Override
