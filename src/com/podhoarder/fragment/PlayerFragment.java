@@ -2,7 +2,6 @@ package com.podhoarder.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 
-import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
@@ -45,12 +43,12 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     private ToggleImageButton mFAB;
 
     //Toolbar
-    private Toolbar mToolbar;
-    private float mOriginalToolbarElevation = 2f;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LOG_TAG = "com.podhoarder.fragment.PlayerFragment";
+
+        super.onCreateView(inflater, container, savedInstanceState);
         mContentView = inflater.inflate(R.layout.activity_player, container, false);
         mDataManager = ((LibraryActivity) getActivity()).getDataManager();
 
@@ -63,8 +61,6 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
         mCurrentFeed = mDataManager.getFeed(mCurrentEpisode.getFeedId());
 
         mHandler = new Handler();
-
-        mToolbar = ((BaseActivity)getActivity()).mToolbar;
 
         setupUI();
         setupPlayerControls();
@@ -142,9 +138,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     private void setupUI() {
         ImageView banner = (ImageView) mContentView.findViewById(R.id.episode_banner);
         banner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
-        //((BaseActivity)getActivity()).colorUI(mCurrentFeed.getFeedImage().palette());
-        //mToolbar.setTitle(mCurrentEpisode.getTitle());
-        //mToolbar.setSubtitle(mCurrentFeed.getTitle());
+        setToolbarTransparent(true);
     }
 
     private void setupPlayerControls() {

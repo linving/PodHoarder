@@ -1,6 +1,8 @@
 package com.podhoarder.fragment;
 
+import android.animation.Animator;
 import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -8,11 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -30,7 +29,7 @@ import com.podhoarderproject.podhoarder.R;
 /**
  * Created by Emil on 2014-11-03.
  */
-public class ListFragment extends LibraryFragment implements PodHoarderService.StateChangedListener {
+public class ListFragment extends CollectionFragment implements PodHoarderService.StateChangedListener {
 
     //Episodes List
     private ListView mListView;
@@ -49,10 +48,6 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
         return f;
     }
 
-    public ListFragment() {
-        super();
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LOG_TAG = "com.podhoarder.fragment.ListFragment";
@@ -61,8 +56,6 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
         mContentView = inflater.inflate(R.layout.activity_list, container, false);
         mPodcastBanner = (ImageView) mContentView.findViewById(R.id.podcast_banner);
 
-        mToolbar = ((BaseActivity) getActivity()).mToolbar;
-        mToolbarSize = mToolbar.getMinimumHeight();
 
         if (mCurrentFilter == null) {
             mCurrentFilter = ListFilter.values()[getArguments().getInt("filter")];
@@ -71,7 +64,6 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
                 mPodcastBanner.setMinimumHeight(mDataManager.mFeedsGridAdapter.mGridItemSize);
                 mPodcastBanner.setMinimumWidth(mDataManager.mFeedsGridAdapter.mGridItemSize);
                 mPodcastBanner.setImageBitmap(mDataManager.getFeed(mCurrentFilter.getFeedId()).getFeedImage().largeImage());
-//                mPodcastBanner.setTransitionName(getString(R.string.transition_banner) + mCurrentFilter.getFeedId());
             }
             mCurrentFilter.setSearchString(getArguments().getString("search"));
             if (!mCurrentFilter.getSearchString().isEmpty())
@@ -90,9 +82,11 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
 
     @Override
     public void onResume() {
+        super.onResume();
         if (!mSearchEnabled && mCurrentFilter.getSearchString().isEmpty())
             mPodcastBanner.setImageBitmap(mDataManager.getFeed(mCurrentFilter.getFeedId()).getFeedImage().largeImage());
-        super.onResume();
+
+        setToolbarTransparent(true);
     }
 
     @Override
@@ -141,12 +135,12 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
                             // check if the first item of the list is visible
                             boolean firstItemVisible = mListView.getFirstVisiblePosition() == 0;
 
-                            int maxBannerTranslationY = -(mPodcastBanner.getMeasuredHeight() + mToolbarSize);    //The banner should only be allowed to move until it is fully off screen.
+                            int maxBannerTranslationY = -(mPodcastBanner.getMeasuredHeight());    //The banner should only be allowed to move until it is fully off screen.
                             int maxToolbarTranslationY = -(mToolbarSize);                           //The toolbar should only be allowed to move until it is fully off screen.
 
                             if (firstItemVisible) {
 
-                                int bannerTop = (mListView.getChildAt(0).getTop() - mPodcastBanner.getMeasuredHeight() - mToolbarSize);   //Calculate the distance to move by subtracting the toolbar height + gridview padding from the top line.
+                                int bannerTop = (mListView.getChildAt(0).getTop() - mPodcastBanner.getMeasuredHeight());   //Calculate the distance to move by subtracting the toolbar height + gridview padding from the top line.
                                 int toolbarTop = (mListView.getChildAt(0).getTop() - (mToolbarSize));
 
                                 if (bannerTop < mToolbarSize && bannerTop > maxBannerTranslationY) {//If we are within the bounds where the app bar needs to move we should apply the moved distance.
@@ -165,11 +159,11 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
 
                                 mPodcastBanner.setTranslationY(bannerScrollDelta / 2);  //Move the banner vertically.
 
-                                mToolbar.setTranslationY(toolbarScrollDelta);  //Move the toolbar vertically.
+                                mToolbarContainer.setTranslationY(toolbarScrollDelta);  //Move the toolbar vertically.
                             } else {
                                 mPodcastBanner.setTranslationY(maxBannerTranslationY);  //Move the banner vertically.
 
-                                mToolbar.setTranslationY(maxToolbarTranslationY);
+                                mToolbarContainer.setTranslationY(maxToolbarTranslationY);
                             }
                             if (mListSelectionListener.isActive()) {
                                 mListSelectionListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
@@ -184,9 +178,9 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
             DisplayMetrics displaymetrics = new DisplayMetrics();
             getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
             if (!mSearchEnabled)
-                this.mListView.setPadding(0, displaymetrics.widthPixels + mToolbarSize, 0, 0);
+                this.mListView.setPadding(0, displaymetrics.widthPixels, 0, 0);
             else
-                this.mListView.setPadding(0, mToolbarSize, 0, 0);
+                this.mListView.setPadding(0, 0, 0, 0);
 
             //this.mListView.setLayoutAnimation(animationController);
 
@@ -206,98 +200,24 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
     }
 
     private void onListItemClicked(AbsListView listView, final View clickedView, int clickedViewPos, final Episode ep) {
-
-        final int ANIMATION_DURATION = 200;
-
-        mToolbar.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(ANIMATION_DURATION).start();
-
-        mPodcastBanner.animate().translationY(-(mPodcastBanner.getMeasuredHeight()+20f)).alpha(0f).setDuration(ANIMATION_DURATION/2).setInterpolator(new AccelerateInterpolator()).start();
-        for (int i=listView.getFirstVisiblePosition(); i<=listView.getLastVisiblePosition(); i++) {
-            int relativePos = getViewPosition(i);
-            if (relativePos != getViewPosition(clickedViewPos))
-                listView.getChildAt(relativePos).animate().alpha(0f).setDuration(100).setInterpolator(new AccelerateDecelerateInterpolator()).start();
-        }
-
-        clickedView.findViewById(R.id.list_episode_row_feed_image).animate().alpha(0f).setDuration(ANIMATION_DURATION).setInterpolator(new AccelerateDecelerateInterpolator()).start();
-        clickedView.findViewById(R.id.list_episode_row_checkbox).animate().alpha(0f).setDuration(ANIMATION_DURATION).setInterpolator(new AccelerateDecelerateInterpolator()).start();
-        clickedView.findViewById(R.id.list_episode_row_info).animate().alpha(0f).setDuration(ANIMATION_DURATION).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+        final int ANIMATION_DURATION = 250;
 
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 
-        float widthFactor = (float)displaymetrics.widthPixels / clickedView.getMeasuredWidth();
-        float heightFactor = (float) ((LibraryActivity)getActivity()).mToolbar.getMeasuredHeight()*2 / clickedView.getMeasuredHeight();
+        mToolbarContainer.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(ANIMATION_DURATION).start();
+        mPodcastBanner.startAnimation(bannerMoveAnimation(mPodcastBanner, ANIMATION_DURATION));
 
+        fadeOtherRows(clickedViewPos, ANIMATION_DURATION);
 
-        ScaleAnimation scaleAnim = new
-                ScaleAnimation(1.0f, widthFactor, 1.0f, heightFactor, 1f, 1f);
-        scaleAnim.setFillAfter(true);
-        scaleAnim.setDuration(ANIMATION_DURATION/2);
-        TranslateAnimation moveAnim =  new TranslateAnimation(
-                0, 0,
-                TranslateAnimation.ABSOLUTE, (0 - clickedView.getLeft())/widthFactor,
-                0, 0,
-                TranslateAnimation.ABSOLUTE, (mToolbarSize - clickedView.getTop())/heightFactor);
-        moveAnim.setDuration(ANIMATION_DURATION);
-        moveAnim.setInterpolator(new AccelerateDecelerateInterpolator());
-        moveAnim.setFillAfter(true);
-        moveAnim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                ((LibraryActivity) getActivity()).startEpisodeActivity(ep);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-        AnimationSet set = new AnimationSet(true);
-        set.addAnimation(moveAnim);
-        set.addAnimation(scaleAnim);
-        set.setFillAfter(true);
-
-        Integer backgroundColorFrom = getResources().getColor(R.color.windowBackground);
-        Integer backgroundColorTo = getResources().getColor(R.color.colorPrimary);
-        ValueAnimator backgroundColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), backgroundColorFrom, backgroundColorTo);
-        backgroundColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                clickedView.setBackgroundColor((Integer) animator.getAnimatedValue());
-            }
-
-        });
-        backgroundColorAnimation.setDuration(ANIMATION_DURATION);
-
-        final TextView title = (TextView) clickedView.findViewById(R.id.list_episode_row_episodeName);
-        final TextView timestamp = (TextView) clickedView.findViewById(R.id.list_episode_row_episodeAge);
-
-        Integer textColorFrom = title.getCurrentTextColor();
-        Integer textColorTo = getResources().getColor(android.R.color.primary_text_dark);
-        ValueAnimator textColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), textColorFrom, textColorTo);
-        textColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                title.setTextColor((Integer) animator.getAnimatedValue());
-                timestamp.setTextColor((Integer)animator.getAnimatedValue());
-            }
-
-        });
-        textColorAnimation.setDuration(ANIMATION_DURATION);
-
-
-
-
-        clickedView.startAnimation(set);
-        backgroundColorAnimation.start();
-        textColorAnimation.start();
+        clickedView.startAnimation(rowMoveAnimation(clickedView, ANIMATION_DURATION, ep));
+        rowBackgroundColorAnimation(clickedView,ANIMATION_DURATION).start();
+        rowTextColorAnimation(clickedView, ANIMATION_DURATION).start();
+        rowTextSizeAnimation(clickedView, displaymetrics, ANIMATION_DURATION).start();
+        rowTextAlphaAnimation(clickedView, ANIMATION_DURATION).start();
+        rowScaleHeightAnimation(clickedView, ANIMATION_DURATION).start();
+        rowScaleWidthAnimation(clickedView,displaymetrics, ANIMATION_DURATION).start();
+        rowTopPaddingAnimation(clickedView,ANIMATION_DURATION).start();
     }
 
     private int getViewPosition(int pos)
@@ -322,8 +242,154 @@ public class ListFragment extends LibraryFragment implements PodHoarderService.S
         mPlaybackService.setStateChangedListener(ListFragment.this);
     }
 
-    @Override
-    public void onStateChanged(PodHoarderService.PlayerState newPlayerState) {
+    public Animation bannerMoveAnimation(ImageView banner, int duration) {
+        TranslateAnimation moveAnim =  new TranslateAnimation(
+                0, 0,
+                0, 0,
+                0, 0,
+                TranslateAnimation.ABSOLUTE, -(banner.getMeasuredHeight()+20f));
+        moveAnim.setDuration(duration);
+        moveAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+        return moveAnim;
+    }
 
+    public void fadeOtherRows(int clickedViewPos, int duration) {
+        for (int i=mListView.getFirstVisiblePosition(); i<=mListView.getLastVisiblePosition(); i++) {
+            int relativePos = getViewPosition(i);
+            if (relativePos != getViewPosition(clickedViewPos))
+                mListView.getChildAt(relativePos).animate().alpha(0f).setDuration(duration/2).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+        }
+    }
+    public Animation rowMoveAnimation(View clickedView, int duration, final Episode ep) {
+        TranslateAnimation moveAnim =  new TranslateAnimation(
+                0, 0,
+                TranslateAnimation.ABSOLUTE, (0 - clickedView.getLeft()),
+                0, 0,
+                TranslateAnimation.ABSOLUTE, (0 - clickedView.getTop()));
+        moveAnim.setDuration(duration);
+        moveAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+        moveAnim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                ((LibraryActivity) getActivity()).startEpisodeActivity(ep);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        return moveAnim;
+    }
+
+    public Animator rowTextAlphaAnimation(View clickedView, int duration) {
+        final TextView title = (TextView) clickedView.findViewById(R.id.list_episode_row_episodeName);
+        final TextView timestamp = (TextView) clickedView.findViewById(R.id.list_episode_row_episodeAge);
+
+        ValueAnimator textScaleAnimator = ValueAnimator.ofFloat(1f, 0f);
+        textScaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                title.setAlpha((Float) animator.getAnimatedValue());
+                timestamp.setAlpha((Float) animator.getAnimatedValue());
+            }
+
+        });
+        textScaleAnimator.setDuration(duration / 2);
+        textScaleAnimator.setStartDelay(duration/2);
+        return textScaleAnimator;
+    }
+    public Animator rowTextSizeAnimation(View clickedView, DisplayMetrics displayMetrics, int duration) {
+        float currentTextSize = ((TextView)clickedView.findViewById(R.id.list_episode_row_episodeName)).getTextSize()/displayMetrics.density;
+        ObjectAnimator textSizeAnimator = ObjectAnimator.ofFloat(clickedView.findViewById(R.id.list_episode_row_episodeName),"textSize",currentTextSize,currentTextSize*1.5f);
+        textSizeAnimator.setDuration(duration);
+        return textSizeAnimator;
+   }
+    public Animator rowScaleWidthAnimation(final View clickedView, DisplayMetrics displayMetrics, int duration) {
+        ValueAnimator anim = ValueAnimator.ofInt(clickedView.getMeasuredWidth(), displayMetrics.widthPixels);
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                int val = (Integer) valueAnimator.getAnimatedValue();
+                ViewGroup.LayoutParams layoutParams = clickedView.getLayoutParams();
+                layoutParams.width = val;
+                clickedView.setLayoutParams(layoutParams);
+            }
+        });
+        anim.setDuration(duration);
+        return anim;
+    }
+    public Animator rowScaleHeightAnimation(final View clickedView, int duration) {
+
+        ValueAnimator anim = ValueAnimator.ofInt(clickedView.getMeasuredHeight(), mToolbarSize * 3);
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                int val = (Integer) valueAnimator.getAnimatedValue();
+                ViewGroup.LayoutParams layoutParams = clickedView.getLayoutParams();
+                layoutParams.height = val;
+                clickedView.setLayoutParams(layoutParams);
+            }
+        });
+        anim.setDuration(duration);
+        return anim;
+    }
+    public Animator rowTopPaddingAnimation(final View clickedView, int duration) {
+        ValueAnimator anim = ValueAnimator.ofInt(0, mToolbarSize+10);
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                int val = (Integer) valueAnimator.getAnimatedValue();
+                clickedView.setPadding((val/3),val,0,0);
+            }
+        });
+        anim.setDuration(duration);
+        return anim;
+    }
+    public Animator rowBackgroundColorAnimation(final View clickedView, int duration) {
+
+        Integer backgroundColorFrom = getResources().getColor(R.color.windowBackground);
+        Integer backgroundColorTo = ((BaseActivity)getActivity()).getCurrentPrimaryColorDark();
+        ValueAnimator backgroundColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), backgroundColorFrom, backgroundColorTo);
+        backgroundColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                clickedView.setBackgroundColor((Integer) animator.getAnimatedValue());
+            }
+
+        });
+        backgroundColorAnimation.setDuration(duration);
+
+        clickedView.findViewById(R.id.list_episode_row_feed_image).animate().alpha(0f).setDuration(duration/2).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+        clickedView.findViewById(R.id.list_episode_row_checkbox).animate().alpha(0f).setDuration(duration/2).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+        clickedView.findViewById(R.id.list_episode_row_info).animate().alpha(0f).setDuration(duration/2).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+
+        return backgroundColorAnimation;
+    }
+    public Animator rowTextColorAnimation(final View clickedView, int duration) {
+        final TextView title = (TextView) clickedView.findViewById(R.id.list_episode_row_episodeName);
+        final TextView timestamp = (TextView) clickedView.findViewById(R.id.list_episode_row_episodeAge);
+
+        Integer textColorFrom = title.getCurrentTextColor();
+        Integer textColorTo = getResources().getColor(android.R.color.primary_text_dark);
+
+        ValueAnimator textColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), textColorFrom, textColorTo);
+        textColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                title.setTextColor((Integer) animator.getAnimatedValue());
+                timestamp.setTextColor((Integer)animator.getAnimatedValue());
+            }
+
+        });
+        textColorAnimation.setDuration(duration);
+        return textColorAnimation;
     }
 }

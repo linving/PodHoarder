@@ -28,7 +28,7 @@ import android.widget.ListView;
 
 import com.podhoarder.adapter.NavDrawerListAdapter;
 import com.podhoarder.datamanager.DataManager;
-import com.podhoarder.fragment.LibraryFragment;
+import com.podhoarder.fragment.CollectionFragment;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.NavDrawerItem;
 import com.podhoarder.util.Constants;
@@ -54,6 +54,14 @@ public abstract class BaseActivity extends ActionBarActivity {
     private ToggleImageButton mQuicklistFilterFavorites, mQuicklistFilterPlaylist, mQuicklistFilterNew;
     //Main Toolbar View
     public Toolbar mToolbar;
+    public int mToolbarSize;
+    public FrameLayout mToolbarContainer;
+    public View mToolbarBackground;
+
+    //Colors
+    private int mCurrentPrimaryColor;
+    private int mCurrentPrimaryColorDark;
+
     //Main View
     public FrameLayout mContentRoot;
     //Listener interface
@@ -73,10 +81,17 @@ public abstract class BaseActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
+
+        mToolbarContainer = (FrameLayout) findViewById(R.id.toolbar_container);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbarBackground = findViewById(R.id.toolbar_background);
+        mToolbarSize = mToolbar.getMinimumHeight();
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+
+        mCurrentPrimaryColor = getResources().getColor(R.color.colorPrimary);
+        mCurrentPrimaryColorDark = getResources().getColor(R.color.colorPrimaryDark);
 
         mGridItemSize = setupScreenVars();
 
@@ -212,7 +227,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     public void startGridActivity() {
     }
 
-    public void startListActivity(LibraryFragment.ListFilter filter) {
+    public void startListActivity(CollectionFragment.ListFilter filter) {
     }
 
     public void startAddActivity() {
@@ -250,24 +265,24 @@ public abstract class BaseActivity extends ActionBarActivity {
         return navDrawerItems;
     }
 
-    public void colorUI(Palette p) {
+    public void colorUI(Palette p, final boolean isToolbarTransparent) {
         if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
             AnimatorSet set = new AnimatorSet();
 
             int defaultPrimaryDark = getResources().getColor(R.color.colorPrimaryDark);
             int defaultPrimary = getResources().getColor(R.color.colorPrimary);
 
-            ValueAnimator primaryDarkColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), defaultPrimaryDark, p.getDarkVibrantColor(defaultPrimaryDark));
+            ValueAnimator primaryDarkColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), mCurrentPrimaryColorDark, p.getDarkVibrantColor(defaultPrimaryDark));
             primaryDarkColorAnimation.setDuration(300);
-            ValueAnimator primaryColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), defaultPrimary, p.getVibrantColor(defaultPrimary));
+            ValueAnimator primaryColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), mCurrentPrimaryColor, p.getVibrantColor(defaultPrimary));
             primaryColorAnimation.setDuration(300);
             primaryColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
                 @Override
                 public void onAnimationUpdate(ValueAnimator animator) {
-                    getWindow().setNavigationBarColor((Integer)animator.getAnimatedValue());
-                    mToolbar.setBackgroundColor((Integer)animator.getAnimatedValue());
-                    mToolbar.invalidate();
+                    mCurrentPrimaryColor = (Integer)animator.getAnimatedValue();
+                    if (!isToolbarTransparent)
+                        mToolbarBackground.setBackgroundColor(mCurrentPrimaryColor);
                 }
 
             });
@@ -275,7 +290,9 @@ public abstract class BaseActivity extends ActionBarActivity {
 
                 @Override
                 public void onAnimationUpdate(ValueAnimator animator) {
-                    getWindow().setStatusBarColor((Integer) animator.getAnimatedValue());
+                    mCurrentPrimaryColorDark = (Integer) animator.getAnimatedValue();
+                    getWindow().setStatusBarColor(mCurrentPrimaryColorDark);
+                    getWindow().setNavigationBarColor(mCurrentPrimaryColorDark);
                 }
 
             });
@@ -289,6 +306,12 @@ public abstract class BaseActivity extends ActionBarActivity {
             set.playTogether(animators);
         }
 
+    }
+    public int getCurrentPrimaryColor() {
+        return mCurrentPrimaryColor;
+    }
+    public int getCurrentPrimaryColorDark() {
+        return mCurrentPrimaryColorDark;
     }
 
     //DRAWER SETUP

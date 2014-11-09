@@ -2,7 +2,6 @@ package com.podhoarder.fragment;
 
 import android.animation.Animator;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -35,7 +35,6 @@ public class EpisodeFragment extends BaseFragment {
     private ToggleImageButton mFAB;
     private TextView mEpisodeDescription;
     private LinearLayout mTextContainer, mHeadlineContainer;
-    private Toolbar mToolbar;
     private float mOriginalToolbarElevation = 2f;
 
     private boolean mExitAnimationsFinished = false;
@@ -52,13 +51,10 @@ public class EpisodeFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LOG_TAG = "com.podhoarder.fragment.EpisodeFragment";
+        super.onCreateView(inflater, container, savedInstanceState);
         mContentView = inflater.inflate(R.layout.activity_episode, container, false);
-        setHasOptionsMenu(true);
 
-        mToolbar = ((BaseActivity)getActivity()).mToolbar;
         mOriginalToolbarElevation = mToolbar.getElevation();
-
-
         mDataManager = ((LibraryActivity) getActivity()).getDataManager();
 
         int episodeId = getArguments().getInt("episodeId", 0);
@@ -106,9 +102,12 @@ public class EpisodeFragment extends BaseFragment {
 
     private void setupUI() {
 
-        mToolbar.setElevation(0f);
+        //mToolbar.setElevation(0f);
         TextView episodeTitle = (TextView) mContentView.findViewById(R.id.episode_title);
         episodeTitle.setText(mCurrentEpisode.getTitle());
+        //episodeTitle.setScaleX(0f);
+        episodeTitle.setAlpha(0f);
+        episodeTitle.animate().alpha(1f).setDuration(200).setInterpolator(new AccelerateInterpolator()).start();
 
         TextView episodeTimestamp = (TextView) mContentView.findViewById(R.id.episode_timeStamp);
         try {
@@ -126,6 +125,9 @@ public class EpisodeFragment extends BaseFragment {
 
         mTextContainer = (LinearLayout) mContentView.findViewById(R.id.episode_text_container);
         mHeadlineContainer = (LinearLayout) mContentView.findViewById(R.id.episode_headline_text_container);
+        int currentColor = ((BaseActivity)getActivity()).getCurrentPrimaryColorDark();
+        mHeadlineContainer.setBackgroundColor(currentColor);
+        setToolbarTransparent(false);
         mHeadlineContainer.setMinimumHeight(mToolbar.getMinimumHeight() * 2);
 
         mFAB = (ToggleImageButton) mContentView.findViewById(R.id.fab);

@@ -38,7 +38,7 @@
     </style>
 
     <style name="Theme.Podhoarder.Toolbar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="android:background">?attr/colorPrimary</item>
+        <!--<item name="android:background">?attr/colorPrimary</item>-->
         <item name="windowActionModeOverlay">true</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>

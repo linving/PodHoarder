@@ -114,11 +114,12 @@ public class EpisodeRowUtils
 		} 
 		else
 		{
-            row.icon.setAlpha(.26f);
-            row.icon.setBackgroundResource(R.drawable.list_icon_outline);
 			if (ep.isDownloaded())
 			{
+                row.icon.setAlpha(1f);
+                row.icon.setBackgroundResource(R.drawable.list_icon_outline_local);
 				row.icon.setImageResource(R.drawable.ic_folder_white_24dp);
+
 //				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
 //				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
 			}
@@ -126,12 +127,16 @@ public class EpisodeRowUtils
 			{
 				if (NetworkUtils.isOnline(ctx))	//Phone has internet access, streaming is possible.
 				{
+                    row.icon.setAlpha(1f);
+                    row.icon.setBackgroundResource(R.drawable.list_icon_outline_stream);
 					row.icon.setImageResource(R.drawable.ic_cloud_white_24dp);
 //					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
 //					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
 				}
 				else	//Device does not have internet access, so all streaming episodes should be set to unavailable.
 				{
+                    row.icon.setAlpha(.26f);
+                    row.icon.setBackgroundResource(R.drawable.list_icon_outline_default);
 					row.icon.setImageResource(R.drawable.ic_cloud_off_white_24dp);
 //					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
 //					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));

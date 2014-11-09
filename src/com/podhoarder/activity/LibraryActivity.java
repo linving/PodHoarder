@@ -20,9 +20,9 @@ import android.view.View;
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.fragment.AddFragment;
 import com.podhoarder.fragment.BaseFragment;
+import com.podhoarder.fragment.CollectionFragment;
 import com.podhoarder.fragment.EpisodeFragment;
 import com.podhoarder.fragment.GridFragment;
-import com.podhoarder.fragment.LibraryFragment;
 import com.podhoarder.fragment.ListFragment;
 import com.podhoarder.fragment.PlayerFragment;
 import com.podhoarder.object.Episode;
@@ -210,7 +210,7 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
 
     @Override
     public boolean onQueryTextSubmit(String str) {
-        ((LibraryFragment)mCurrentFragment).doSearch(str);
+        ((CollectionFragment)mCurrentFragment).doSearch(str);
         return false;
     }
 
@@ -266,7 +266,7 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     }
 
     @Override
-    public void startListActivity(LibraryFragment.ListFilter filter) {
+    public void startListActivity(CollectionFragment.ListFilter filter) {
         if (!((Object) mCurrentFragment).getClass().getName().equals(ListFragment.class.getName())) {
                 final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.root_container, ListFragment.newInstance(filter));

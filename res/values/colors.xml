@@ -31,13 +31,10 @@
     <color name="textColorSecondary">#000000</color>
     <color name="textColorPrimaryInverse">#FFFFFF</color>
     <color name="textColorNotification">#e91e63</color>
-
-    <color name="episode_icon_background">#000000</color>
     
     <!-- Episode Row Indicators -->
-    <color name="indicator_new">#e91e63</color>
-    <color name="indicator_stream">#08bed5</color>
-    <color name="indicator_downloaded">#00AD82</color>
-    <color name="indicator_unavailable">#9aa4ad</color>
+    <color name="indicator_stream">#03A9F4</color>
+    <color name="indicator_local">#009688</color>
+    <color name="indicator_default">#000000</color>
     
 </resources>

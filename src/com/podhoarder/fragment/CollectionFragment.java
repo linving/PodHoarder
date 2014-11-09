@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,17 +24,10 @@ import com.podhoarderproject.podhoarder.R;
 /**
  * Created by Emil on 2014-11-03.
  */
-public class LibraryFragment extends BaseFragment implements PodHoarderService.StateChangedListener {
-
-    //App bar
-    protected Toolbar mToolbar;
-    protected int mToolbarSize;
+public class CollectionFragment extends BaseFragment implements PodHoarderService.StateChangedListener {
 
     //Floating Action Button
     protected ImageButton mFAB;
-
-    //Service
-    protected PodHoarderService mPlaybackService;
 
     //Searching
     private MenuItem mSearchMenuItem;
@@ -46,18 +38,13 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
     //Scroll Listener
     protected AbsListView.OnScrollListener mScrollListener;
 
-    public LibraryFragment() {
+    public CollectionFragment() {
 
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mContentView = super.onCreateView(inflater, container, savedInstanceState);
-        setHasOptionsMenu(true);
-        mDataManager = ((LibraryActivity)getActivity()).getDataManager();
-        mPlaybackService = ((LibraryActivity)getActivity()).getPlaybackService();
-
-        return mContentView;
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -72,6 +59,7 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
     public boolean onBackPressed() {
         if (mSearchEnabled) {
             cancelSearch();
+            return true;
         }
         return false;
     }
@@ -79,9 +67,7 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
     @Override
     public void onServiceConnected() {
         mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
-        mPlaybackService.setStateChangedListener(LibraryFragment.this);
-
-        setupFAB();
+        mPlaybackService.setStateChangedListener(CollectionFragment.this);
     }
 
     @Override
@@ -104,7 +90,13 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
         }
 
         mSearchView.setOnQueryTextListener((LibraryActivity)getActivity());
-        mSearchView.setOnCloseListener((LibraryActivity)getActivity());
+        mSearchView.setOnCloseListener((LibraryActivity) getActivity());
+        mSearchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSearchEnabled = true;
+            }
+        });
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -120,12 +112,6 @@ public class LibraryFragment extends BaseFragment implements PodHoarderService.S
         mCurrentFilter.setSearchString("");
         mSearchEnabled = false;
     }
-
-    protected void setupFAB() {
-
-    }
-
-
 
     @Override
     public void onStateChanged(PodHoarderService.PlayerState newPlayerState) {

@@ -14,7 +14,7 @@
         android:layout_marginRight="16dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:background="@drawable/list_icon_outline"
+        android:background="@drawable/list_icon_outline_default"
         android:alpha=".26"
         android:src="@drawable/ic_cloud_white_24dp"
         android:scaleType="centerInside"
@@ -45,7 +45,7 @@
             android:id="@+id/list_episode_row_episodeAge"
             style="@style/Base.TextAppearance.AppCompat.Body1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:ellipsize="end"
             android:text="yesterday"
             android:maxLines="1" />
