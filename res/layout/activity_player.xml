@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"/>
 
-        <com.podhoarder.view.ToggleImageButton
+        <com.podhoarder.view.CheckableImageButton
             android:id="@+id/fab"
             android:layout_width="@dimen/fab_size"
             android:layout_height="@dimen/fab_size"
@@ -46,8 +46,8 @@
             android:background="@drawable/fab_ripple_light"
             android:elevation="4dp"
             android:stateListAnimator="@anim/fab_anim"
-            app:checkedDrawable="@drawable/ic_favorite_pink_24dp"
-            app:unCheckedDrawable="@drawable/ic_favorite_grey600_24dp" />
+            android:src="@drawable/ic_favorite_black_24dp"
+            app:accentColor="?attr/colorAccent" />
 
         <SeekBar
             android:id="@+id/player_controls_seekbar"

@@ -260,8 +260,10 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     @Override
     public void startGridActivity() {
         if (!((Object) mCurrentFragment).getClass().getName().equals(GridFragment.class.getName())) { //We check to see if the current fragment is a GridFragment. In that case we don't need to create a new one.
-            onBackPressed();
-            getSupportFragmentManager().popBackStack();
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.root_container, GridFragment.newInstance());
+            ft.addToBackStack(null);
+            ft.commit();
         }
     }
 

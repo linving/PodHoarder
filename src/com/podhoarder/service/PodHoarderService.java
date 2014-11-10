@@ -82,7 +82,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			{
 				this.mDataManager.deleteEpisodeFile(lastEp);
 			}
-            mDataManager.removeFromPlaylist(mCurrentEpisode);
+            mDataManager.removeFromPlaylist(lastEp);
 			this.mDataManager.reloadListData(true);
 		}
 		else	ToastMessages.PlaybackFailed(getApplicationContext()).show();
@@ -187,7 +187,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	
 	public void playEpisode(int epPos)
 	{
-		playEpisode(mPlayList.get(epPos));
+		playEpisode(mDataManager.Playlist().get(epPos));
 	}
 	
 	public void playEpisode(Episode ep)

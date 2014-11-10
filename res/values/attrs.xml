@@ -1,25 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="FloatingActionButton">
-        <attr name="drawable" format="integer" />
-        <attr name="buttonColor" format="color" />
-        <attr name="shadowRadius" format="float" />
-        <attr name="shadowDx" format="float" />
-        <attr name="shadowDy" format="float" />
-        <attr name="shadowColor" format="integer" />
+    <declare-styleable name="CheckableImageButton">
+        <attr name="accentColor" format="integer" />
     </declare-styleable>
-    
-    <declare-styleable name="FloatingPlayPauseButton">
-        <attr name="playDrawable" format="integer" />
-        <attr name="pauseDrawable" format="integer" />
-    </declare-styleable>
-    
-    <declare-styleable name="FloatingToggleButton">
-        <attr name="onDrawable" format="integer" />
-        <attr name="offDrawable" format="integer" />
-    </declare-styleable>
-    
+
     <declare-styleable name="ToggleImageButton">
         <attr name="checkedDrawable" format="integer" />
         <attr name="unCheckedDrawable" format="integer" />

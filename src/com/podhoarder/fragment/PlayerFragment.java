@@ -15,6 +15,7 @@ import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.service.PodHoarderService;
+import com.podhoarder.view.CheckableImageButton;
 import com.podhoarder.view.ToggleImageButton;
 import com.podhoarderproject.podhoarder.R;
 
@@ -40,7 +41,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     private ToggleImageButton mPlayPauseButton;
     private ImageButton mRewindButton, mForwardButton;
     private ProgressBar mLoadingCircle;
-    private ToggleImageButton mFAB;
+    private CheckableImageButton mFAB;
 
     //Toolbar
 
@@ -143,17 +144,17 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
     private void setupPlayerControls() {
 
-        mFAB = (ToggleImageButton) mContentView.findViewById(R.id.fab);
+        mFAB = (CheckableImageButton) mContentView.findViewById(R.id.fab);
         mFAB.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 mCurrentEpisode.setFavorite(!mCurrentEpisode.isFavorite()); //Toggle favorite status of the Episode.
                 mDataManager.updateEpisode(mCurrentEpisode);    //Update the db with the new value
-                ((ToggleImageButton) v).setToggled(mCurrentEpisode.isFavorite());    //Toggle the button.
+                ((CheckableImageButton) v).setChecked(mCurrentEpisode.isFavorite());    //Toggle the button.
             }
         });
-        mFAB.setToggled(mCurrentEpisode.isFavorite());
+        mFAB.setChecked(mCurrentEpisode.isFavorite());
 
         mPlayPauseButton = (ToggleImageButton) mContentView.findViewById(R.id.player_controls_button_playpause);
         mPlayPauseButton.setOnClickListener(new View.OnClickListener() {

@@ -55,9 +55,8 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
     //SwipeRefreshLayout
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    public static GridFragment newInstance(ListFilter filter) {
+    public static GridFragment newInstance() {
         GridFragment f = new GridFragment();
-        f.setFilter(ListFilter.ALL);
         return f;
     }
 

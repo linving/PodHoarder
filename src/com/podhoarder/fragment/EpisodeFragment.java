@@ -18,7 +18,7 @@ import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.DataParser;
-import com.podhoarder.view.ToggleImageButton;
+import com.podhoarder.view.CheckableImageButton;
 import com.podhoarderproject.podhoarder.R;
 
 import java.text.ParseException;
@@ -32,7 +32,7 @@ public class EpisodeFragment extends BaseFragment {
     private Episode mCurrentEpisode;
 
     //UI Views
-    private ToggleImageButton mFAB;
+    private CheckableImageButton mFAB;
     private TextView mEpisodeDescription;
     private LinearLayout mTextContainer, mHeadlineContainer;
     private float mOriginalToolbarElevation = 2f;
@@ -117,6 +117,7 @@ public class EpisodeFragment extends BaseFragment {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        episodeTimestamp.animate().alpha(1f).setDuration(200).setInterpolator(new AccelerateInterpolator()).start();
 
         mEpisodeDescription = (TextView) mContentView.findViewById(R.id.episode_description);
         mEpisodeDescription.setText(mCurrentEpisode.getDescription());
@@ -130,13 +131,13 @@ public class EpisodeFragment extends BaseFragment {
         setToolbarTransparent(false);
         mHeadlineContainer.setMinimumHeight(mToolbar.getMinimumHeight() * 2);
 
-        mFAB = (ToggleImageButton) mContentView.findViewById(R.id.fab);
+        mFAB = (CheckableImageButton) mContentView.findViewById(R.id.fab);
         mFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mCurrentEpisode.setFavorite(!mCurrentEpisode.isFavorite()); //Set the object property
                 mDataManager.updateEpisode(mCurrentEpisode);    //Commit update to the DB
-                ((ToggleImageButton) v).setToggled(mCurrentEpisode.isFavorite());    //Toggle the button
+                ((CheckableImageButton) v).setChecked(mCurrentEpisode.isFavorite());    //Toggle the button
             }
         });
         mFAB.setOnTouchListener(new View.OnTouchListener() {
@@ -147,7 +148,7 @@ public class EpisodeFragment extends BaseFragment {
                 return false;
             }
         });
-        mFAB.setToggled(mCurrentEpisode.isFavorite());
+        mFAB.setChecked(mCurrentEpisode.isFavorite());
 
         mFAB.setScaleY(0f);
         mFAB.animate().scaleY(1f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();

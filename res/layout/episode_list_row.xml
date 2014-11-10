@@ -73,7 +73,7 @@
         android:alpha=".54"
         android:layout_marginRight="16dp"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_more_vert_grey600_24dp"
+        android:src="@drawable/ic_more_vert_black_24dp"
         android:visibility="visible" />
 
 </RelativeLayout>

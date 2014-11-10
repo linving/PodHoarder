@@ -1,32 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="48dp"
-    android:background="@drawable/list_selector">
+    android:minHeight="48dp"
+    android:orientation="horizontal"
+    android:background="?android:activatedBackgroundIndicator">
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="25dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="12dp"
-        android:layout_marginRight="12dp"
-        android:src="@drawable/ic_settings_grey600_24dp" />
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:src="@drawable/ic_settings_black_24dp"
+        android:alpha=".54"/>
 
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/icon"
-        android:layout_toEndOf="@id/icon"
-        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
         android:gravity="center_vertical"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:textColor="#000000"
-        android:alpha=".54"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall"/>
+        style="@style/Podhoarder.Text.NavigationDrawer.NavigationItem"/>
 
 
-</RelativeLayout>
+</LinearLayout>

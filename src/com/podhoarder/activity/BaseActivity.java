@@ -32,7 +32,7 @@ import com.podhoarder.fragment.CollectionFragment;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.NavDrawerItem;
 import com.podhoarder.util.Constants;
-import com.podhoarder.view.ToggleImageButton;
+import com.podhoarder.view.CheckableImageButton;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     //Drawer ListView
     private ListView mNavDrawerListView;
     private ListView mQuickDrawerListView, mQuickDrawerPlaylistView;
-    private ToggleImageButton mQuicklistFilterFavorites, mQuicklistFilterPlaylist, mQuicklistFilterNew;
+    private CheckableImageButton mQuicklistFilterFavorites, mQuicklistFilterPlaylist, mQuicklistFilterNew;
     //Main Toolbar View
     public Toolbar mToolbar;
     public int mToolbarSize;
@@ -161,16 +161,16 @@ public abstract class BaseActivity extends ActionBarActivity {
     }
 
     public void quicklistFilterClicked(View v) {
-        if (!((ToggleImageButton) v).isToggled()) {
+        if (!((CheckableImageButton) v).isChecked()) {
             switch (v.getId()) {
                 case R.id.right_drawer_list_filter_favorites:
                     mQuickDrawerPlaylistView.setVisibility(View.GONE);
                     mQuickDrawerListView.setVisibility(View.VISIBLE);
                     mDataManager.mQuicklistAdapter.replaceItems(mDataManager.Favorites());
 
-                    mQuicklistFilterFavorites.setToggled(true);
-                    mQuicklistFilterPlaylist.setToggled(false);
-                    mQuicklistFilterNew.setToggled(false);
+                    mQuicklistFilterFavorites.setChecked(true);
+                    mQuicklistFilterPlaylist.setChecked(false);
+                    mQuicklistFilterNew.setChecked(false);
 
                     mCurrentQuicklistFilter = QuicklistFilter.FAVORITES;
                     break;
@@ -178,9 +178,9 @@ public abstract class BaseActivity extends ActionBarActivity {
                     mQuickDrawerListView.setVisibility(View.GONE);
                     mQuickDrawerPlaylistView.setVisibility(View.VISIBLE);
 
-                    mQuicklistFilterFavorites.setToggled(false);
-                    mQuicklistFilterPlaylist.setToggled(true);
-                    mQuicklistFilterNew.setToggled(false);
+                    mQuicklistFilterPlaylist.setChecked(true);
+                    mQuicklistFilterNew.setChecked(false);
+                    mQuicklistFilterFavorites.setChecked(false);
 
                     mCurrentQuicklistFilter = QuicklistFilter.PLAYLIST;
                     break;
@@ -189,9 +189,9 @@ public abstract class BaseActivity extends ActionBarActivity {
                     mQuickDrawerListView.setVisibility(View.VISIBLE);
                     mDataManager.mQuicklistAdapter.replaceItems(mDataManager.New());
 
-                    mQuicklistFilterFavorites.setToggled(false);
-                    mQuicklistFilterPlaylist.setToggled(false);
-                    mQuicklistFilterNew.setToggled(true);
+                    mQuicklistFilterNew.setChecked(true);
+                    mQuicklistFilterPlaylist.setChecked(false);
+                    mQuicklistFilterFavorites.setChecked(false);
 
                     mCurrentQuicklistFilter = QuicklistFilter.NEW;
                     break;
@@ -350,15 +350,16 @@ public abstract class BaseActivity extends ActionBarActivity {
                 }, 150);
             }
         });
+        mNavDrawerListView.setSelection(0);
     }
 
     private void setupQuicklistDrawer() {
 
         mQuickDrawerListView = (ListView) findViewById(R.id.right_drawer_list);
         mQuickDrawerPlaylistView = (ListView) findViewById(R.id.right_drawer_playlist);
-        mQuicklistFilterFavorites = (ToggleImageButton) findViewById(R.id.right_drawer_list_filter_favorites);
-        mQuicklistFilterPlaylist = (ToggleImageButton) findViewById(R.id.right_drawer_list_filter_playlist);
-        mQuicklistFilterNew = (ToggleImageButton) findViewById(R.id.right_drawer_list_filter_new);
+        mQuicklistFilterFavorites = (CheckableImageButton) findViewById(R.id.right_drawer_list_filter_favorites);
+        mQuicklistFilterPlaylist = (CheckableImageButton) findViewById(R.id.right_drawer_list_filter_playlist);
+        mQuicklistFilterNew = (CheckableImageButton) findViewById(R.id.right_drawer_list_filter_new);
 
         mQuickDrawerListView.setAdapter(mDataManager.mQuicklistAdapter);
         mQuickDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -368,8 +369,9 @@ public abstract class BaseActivity extends ActionBarActivity {
             }
         });
         mCurrentQuicklistFilter = QuicklistFilter.FAVORITES;
+        mQuicklistFilterFavorites.setChecked(true);
         mQuickDrawerPlaylistView.setAdapter(mDataManager.mPlaylistAdapter);
-        mQuickDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mQuickDrawerPlaylistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mQuicklistItemClickListener.onQuicklistItemClicked(view, position, mCurrentQuicklistFilter);
@@ -381,9 +383,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     public interface NavDrawerItemClickListener {
         public void onItemClicked(View clickedView, int position);
 
-        public static enum NavDrawerItemPosition {LIBRARY, PLAYER, SETTINGS, ABOUT}
-
-        ;
+        public static enum NavDrawerItemPosition {LIBRARY, PLAYER, SETTINGS, ABOUT};
     }
 
     public interface QuicklistItemClickListener {
