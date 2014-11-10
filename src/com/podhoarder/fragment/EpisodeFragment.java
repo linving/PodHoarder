@@ -117,12 +117,13 @@ public class EpisodeFragment extends BaseFragment {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        episodeTimestamp.setAlpha(0f);
         episodeTimestamp.animate().alpha(1f).setDuration(200).setInterpolator(new AccelerateInterpolator()).start();
 
         mEpisodeDescription = (TextView) mContentView.findViewById(R.id.episode_description);
         mEpisodeDescription.setText(mCurrentEpisode.getDescription());
-        mEpisodeDescription.setTranslationY(-1000f);
-        mEpisodeDescription.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(300).start();
+        mEpisodeDescription.setAlpha(0f);
+        mEpisodeDescription.animate().alpha(1f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(300).start();
 
         mTextContainer = (LinearLayout) mContentView.findViewById(R.id.episode_text_container);
         mHeadlineContainer = (LinearLayout) mContentView.findViewById(R.id.episode_headline_text_container);

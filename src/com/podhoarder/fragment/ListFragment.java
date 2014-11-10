@@ -300,8 +300,8 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
             }
 
         });
-        textScaleAnimator.setDuration(duration / 2);
-        textScaleAnimator.setStartDelay(duration/2);
+        textScaleAnimator.setDuration(duration / 3);
+        textScaleAnimator.setStartDelay((duration/3)*2);
         return textScaleAnimator;
     }
     public Animator rowTextSizeAnimation(View clickedView, DisplayMetrics displayMetrics, int duration) {

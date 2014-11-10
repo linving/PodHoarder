@@ -371,7 +371,7 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
             scaleAnim.setFillAfter(true);
             scaleAnim.setDuration(250);
             TranslateAnimation moveAnim =  new TranslateAnimation(TranslateAnimation.ABSOLUTE, (0 - originalLeft)/gridItemScaleFactor,0, 0,
-                    TranslateAnimation.ABSOLUTE, (mToolbarSize - originalTop)/gridItemScaleFactor, 0, 0);
+                    TranslateAnimation.ABSOLUTE, (0 - originalTop)/gridItemScaleFactor, 0, 0);
             moveAnim.setDuration(250);
             moveAnim.setInterpolator(new AccelerateDecelerateInterpolator());
             moveAnim.setFillAfter(true);
