@@ -11,6 +11,19 @@
 	        android:summary="@string/pref_gridShowTitle_summary"
 	        android:defaultValue="true" />
     </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/pref_group_behavior_title"
+        android:key="pref_behavior">
+        <ListPreference
+            android:key="pref_defaultEpisodeAction"
+            android:title="@string/pref_defaultEpisodeAction_title"
+            android:dialogTitle="@string/pref_defaultEpisodeAction_dialogTitle"
+            android:summary="@string/pref_defaultEpisodeAction_summary"
+            android:entries="@array/pref_defaultEpisodeBehavior_entries"
+            android:entryValues="@array/pref_defaultEpisodeBehavior_values"
+            android:defaultValue="1" />
+    </PreferenceCategory>
+
     <Preference
         android:key="pref_lastEpisode"
         android:defaultValue="-1"/>

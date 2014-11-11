@@ -40,9 +40,16 @@
     
     <!-- Settings -->    
     <string name="pref_group_ui_title">UI Options</string>
+    <string name="pref_group_behavior_title">Behavior</string>
     
     <string name="pref_gridShowTitle_title">Show Podcast Titles In Grid</string>
     <string name="pref_gridShowTitle_summary">Disable to hide the text overlay in the podcast grid view.</string>
+
+    <string name="pref_defaultEpisodeAction_title">Default Episode Action</string>
+    <string name="pref_defaultEpisodeAction_dialogTitle">Select Default Episode Action</string>
+    <string name="pref_defaultEpisodeAction_summary">Controls the default behavior when tapping an Episode.</string>
+    <string name="pref_defaultEpisodeAction_showInfo">Show Episode Information</string>
+    <string name="pref_defaultEpisodeAction_playEpisode">Play Episode</string>
     
     <!-- Menu -->
     <string name="menu_feed_markAsListened">Mark Episodes As Listened</string>
@@ -52,6 +59,8 @@
     <string name="menu_episode_available_offline">Make Available Offline</string>
     <string name="menu_episode_markAsListened">Mark As Listened</string>
     <string name="menu_episode_playnow">Play Now</string>
+    <string name="menu_episode_deletefile">Delete File</string>
+    <string name="menu_episode_showinfo">Show Information</string>
     
     <string name="menu_playlist_delete">Remove From Playlist</string>
     <string name="menu_playlist_available_offline">Make Available Offline</string>

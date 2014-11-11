@@ -1,11 +1,13 @@
 package com.podhoarder.fragment;
 
 import android.animation.Animator;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +18,18 @@ import android.widget.TextView;
 
 import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
+import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.DataParser;
+import com.podhoarder.util.EpisodeRowUtils;
+import com.podhoarder.util.NetworkUtils;
+import com.podhoarder.util.ToastMessages;
 import com.podhoarder.view.CheckableImageButton;
 import com.podhoarderproject.podhoarder.R;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Emil on 2014-10-29.
@@ -78,7 +86,40 @@ public class EpisodeFragment extends BaseFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.contextual_menu_episode, menu);
+        EpisodeRowUtils.configureMenu(getActivity(),menu,mCurrentEpisode);
         //super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Context context = getActivity();
+        switch (item.getItemId()) {
+            case R.id.menu_episode_markAsListened:
+                List<Episode> eps = new ArrayList<Episode>();
+                eps.add(mCurrentEpisode);
+                ((LibraryActivityManager) ((LibraryActivity) context).mDataManager).markAsListened(eps);
+                break;
+            case R.id.menu_episode_add_playlist:
+                if (((LibraryActivity) context).mDataManager.findEpisodeInPlaylist(mCurrentEpisode) == -1)
+                    ((LibraryActivity) context).mDataManager.addToPlaylist(mCurrentEpisode);    //We only add items that aren't already in the playlist.
+                break;
+            case R.id.menu_episode_available_offline:
+                ((LibraryActivity) context).mDataManager.DownloadManager().downloadEpisode(mCurrentEpisode);
+                break;
+            case R.id.menu_episode_playnow:
+                if (mCurrentEpisode.isDownloaded() || NetworkUtils.isOnline(context))
+                    ((LibraryActivity) context).getPlaybackService().playEpisode(mCurrentEpisode);
+                else
+                    ToastMessages.PlaybackFailed(context).show();
+                break;
+            case R.id.menu_episode_delete_file:
+                if (mCurrentEpisode.isDownloaded())
+                    ((LibraryActivity) context).mDataManager.deleteEpisodeFile(mCurrentEpisode);
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.podhoarder.util;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,6 +12,7 @@ import android.widget.PopupMenu;
 
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.datamanager.LibraryActivityManager;
+import com.podhoarder.fragment.ListFragment;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.ViewHolders.EpisodeRowViewHolder;
 import com.podhoarderproject.podhoarder.R;
@@ -26,8 +28,7 @@ public class EpisodeRowUtils
     public static Menu getMultiSelectionMenu(Context context, ActionMode mode, Menu menu) {
         // Inflate the menu for the CAB
         MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.contextual_menu_episode, menu);
-        menu.findItem(R.id.menu_episode_playnow).setVisible(false);
+        inflater.inflate(R.menu.contextual_menu_episodes, menu);
 
         if (!NetworkUtils.isOnline(context))
             menu.findItem(R.id.menu_episode_available_offline).setVisible(false);
@@ -35,9 +36,13 @@ public class EpisodeRowUtils
         return menu;
     }
 
-    public static PopupMenu getContextMenu(final Context context, View v, final Episode ep) {
+    public static PopupMenu getContextMenu(final Context context, final View v, final Episode ep) {
         PopupMenu popupMenu = new PopupMenu(context, v);
+
+
         popupMenu.getMenuInflater().inflate(R.menu.contextual_menu_episode, popupMenu.getMenu());
+
+        configureMenu(context,popupMenu.getMenu(),ep);
 
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 
@@ -62,6 +67,12 @@ public class EpisodeRowUtils
                         else
                             ToastMessages.PlaybackFailed(context).show();
                         break;
+                    case R.id.menu_episode_delete_file:
+                        if (ep.isDownloaded())
+                            ((LibraryActivity) context).mDataManager.deleteEpisodeFile(ep);
+                        break;
+                    case R.id.menu_episode_show_info:
+                        ((ListFragment)((LibraryActivity) context).mCurrentFragment).goToEpisodeFragment(ep);
                     default:
                         break;
                 }
@@ -69,6 +80,24 @@ public class EpisodeRowUtils
             }
         });
         return popupMenu;
+    }
+
+    public static void configureMenu(Context context, Menu menu, final Episode ep) {
+
+        if (ep.isDownloaded() || !NetworkUtils.isOnline(context)) {
+            menu.findItem(R.id.menu_episode_available_offline).setVisible(false);
+        }
+        else {
+            menu.findItem(R.id.menu_episode_delete_file).setVisible(false);
+        }
+        int pref = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context).getString("pref_defaultEpisodeAction", "1"));
+        if (pref == 1) {
+            menu.findItem(R.id.menu_episode_show_info).setVisible(false);
+        }
+        else {
+            menu.findItem(R.id.menu_episode_playnow).setVisible(false);
+        }
+
     }
 
 	public static void setRowListened(ViewGroup row, boolean listened)

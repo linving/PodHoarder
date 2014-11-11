@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.SearchView;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
@@ -35,7 +34,7 @@ import com.podhoarder.util.ToastMessages;
 import com.podhoarderproject.podhoarder.R;
 
 
-public class LibraryActivity extends BaseActivity implements SearchView.OnQueryTextListener, SearchView.OnCloseListener, BaseActivity.QuicklistItemClickListener {
+public class LibraryActivity extends BaseActivity implements BaseActivity.QuicklistItemClickListener {
     @SuppressWarnings("unused")
     private static final String LOG_TAG = "com.podhoarder.activity.MainActivity";
     //FRAGMENTS
@@ -203,16 +202,6 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
         }
     }
 
-    @Override
-    public boolean onQueryTextChange(String str) {
-        return false;
-    }
-
-    @Override
-    public boolean onQueryTextSubmit(String str) {
-        ((CollectionFragment)mCurrentFragment).doSearch(str);
-        return false;
-    }
 
     @Override
     public void onQuicklistItemClicked(View clickedView, int position, QuicklistFilter currentFilter) {
@@ -227,11 +216,6 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
                 mPlaybackService.playEpisode(mDataManager.New().get(position));
                 break;
         }
-    }
-
-    @Override
-    public boolean onClose() {
-        return true;
     }
 
     @Override
@@ -348,6 +332,8 @@ public class LibraryActivity extends BaseActivity implements SearchView.OnQueryT
     public void setOnFirstFeedAddedListener(onFirstFeedAddedListener listener) {
         this.mOnFirstFeedAddedListener = listener;
     }
+
+
 
     //GETTERS
     public LibraryActivityManager getDataManager() {

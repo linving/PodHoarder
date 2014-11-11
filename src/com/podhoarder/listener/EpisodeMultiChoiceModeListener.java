@@ -3,7 +3,6 @@ package com.podhoarder.listener;
 import android.content.Context;
 import android.view.ActionMode;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,6 @@ import com.podhoarder.adapter.EpisodesListAdapter;
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.EpisodeRowUtils;
-import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ToastMessages;
 import com.podhoarder.util.ViewHolders;
 import com.podhoarderproject.podhoarder.R;
@@ -66,12 +64,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
 	@Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         // Inflate the menu for the CAB
-        MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.contextual_menu_episode, menu);
-        if (!NetworkUtils.isOnline(mContext))
-        	menu.findItem(R.id.menu_episode_available_offline).setVisible(false);
-
-        menu.findItem(R.id.menu_episode_playnow).setVisible(false);
+        EpisodeRowUtils.getMultiSelectionMenu(mContext,mode,menu);
 
         this.mActionMode = mode;
         this.mSelectedItems = new ArrayList<Integer>();

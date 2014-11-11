@@ -5,13 +5,13 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -24,6 +24,8 @@ import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.listener.EpisodeMultiChoiceModeListener;
 import com.podhoarder.object.Episode;
 import com.podhoarder.service.PodHoarderService;
+import com.podhoarder.util.NetworkUtils;
+import com.podhoarder.util.ToastMessages;
 import com.podhoarderproject.podhoarder.R;
 
 /**
@@ -105,23 +107,27 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
     private void setupListView() {
         mListView = (ListView) mContentView.findViewById(R.id.episodesListView);
         if (this.mDataManager.hasPodcasts()) {
-            Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_in_top);
-            //LayoutAnimationController animationController = new LayoutAnimationController(animation, 0.2f);
 
             this.mListView.setAdapter(mDataManager.mEpisodesListAdapter);
             this.mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterview, View v, int pos, long id) {
                     Episode currentEp = (Episode) mListView.getItemAtPosition(pos);
-                    onListItemClicked(mListView,v,pos, currentEp);
-                    //((LibraryActivity)getActivity()).startEpisodeActivity(currentEp);
+                    int pref = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("pref_defaultEpisodeAction", "1"));
+                    if (pref == 1) {  //If the preference is set to open episode info on click, we play the animations.
+                        onListItemClicked(mListView, v, pos, currentEp);
+                    }
+                    else {
+                        if (currentEp.isDownloaded() || NetworkUtils.isOnline(getActivity()))
+                            ((LibraryActivity) getActivity()).getPlaybackService().playEpisode(currentEp);
+                        else
+                            ToastMessages.PlaybackFailed(getActivity()).show();
+                    }
                 }
-
             });
 
             mScrollListener = new AbsListView.OnScrollListener() {
-                private int bannerScrollDelta
-                        ,
+                private int bannerScrollDelta,
                         toolbarScrollDelta;
 
                 @Override
@@ -192,6 +198,11 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         }
     }
 
+    public void goToEpisodeFragment(Episode ep) {
+        int pos = getViewPosition(ep);
+        onListItemClicked(mListView, mListView.getChildAt(pos), pos, ep);
+    }
+
     private void populate() {
         if (mDataManager.hasPodcasts()) {
             setupListView();
@@ -236,13 +247,23 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         return -1;
     }
 
+    private int getViewPosition(Episode ep) {
+
+        for (int i=mListView.getFirstVisiblePosition(); i<=mListView.getLastVisiblePosition(); i++) {
+            if (mListView.getAdapter().getItem(i).equals(ep)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     @Override
     public void onServiceConnected() {
         mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
         mPlaybackService.setStateChangedListener(ListFragment.this);
     }
 
-    public Animation bannerMoveAnimation(ImageView banner, int duration) {
+    private Animation bannerMoveAnimation(ImageView banner, int duration) {
         TranslateAnimation moveAnim =  new TranslateAnimation(
                 0, 0,
                 0, 0,
@@ -253,14 +274,14 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         return moveAnim;
     }
 
-    public void fadeOtherRows(int clickedViewPos, int duration) {
+    private void fadeOtherRows(int clickedViewPos, int duration) {
         for (int i=mListView.getFirstVisiblePosition(); i<=mListView.getLastVisiblePosition(); i++) {
             int relativePos = getViewPosition(i);
             if (relativePos != getViewPosition(clickedViewPos))
                 mListView.getChildAt(relativePos).animate().alpha(0f).setDuration(duration/2).setInterpolator(new AccelerateDecelerateInterpolator()).start();
         }
     }
-    public Animation rowMoveAnimation(View clickedView, int duration, final Episode ep) {
+    private Animation rowMoveAnimation(View clickedView, int duration, final Episode ep) {
         TranslateAnimation moveAnim =  new TranslateAnimation(
                 0, 0,
                 TranslateAnimation.ABSOLUTE, (0 - clickedView.getLeft()),
@@ -286,7 +307,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         return moveAnim;
     }
 
-    public Animator rowTextAlphaAnimation(View clickedView, int duration) {
+    private Animator rowTextAlphaAnimation(View clickedView, int duration) {
         final TextView title = (TextView) clickedView.findViewById(R.id.list_episode_row_episodeName);
         final TextView timestamp = (TextView) clickedView.findViewById(R.id.list_episode_row_episodeAge);
 
@@ -304,13 +325,13 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         textScaleAnimator.setStartDelay((duration/3)*2);
         return textScaleAnimator;
     }
-    public Animator rowTextSizeAnimation(View clickedView, DisplayMetrics displayMetrics, int duration) {
+    private Animator rowTextSizeAnimation(View clickedView, DisplayMetrics displayMetrics, int duration) {
         float currentTextSize = ((TextView)clickedView.findViewById(R.id.list_episode_row_episodeName)).getTextSize()/displayMetrics.density;
         ObjectAnimator textSizeAnimator = ObjectAnimator.ofFloat(clickedView.findViewById(R.id.list_episode_row_episodeName),"textSize",currentTextSize,currentTextSize*1.5f);
         textSizeAnimator.setDuration(duration);
         return textSizeAnimator;
    }
-    public Animator rowScaleWidthAnimation(final View clickedView, DisplayMetrics displayMetrics, int duration) {
+    private Animator rowScaleWidthAnimation(final View clickedView, DisplayMetrics displayMetrics, int duration) {
         ValueAnimator anim = ValueAnimator.ofInt(clickedView.getMeasuredWidth(), displayMetrics.widthPixels);
         anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -324,7 +345,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         anim.setDuration(duration);
         return anim;
     }
-    public Animator rowScaleHeightAnimation(final View clickedView, int duration) {
+    private Animator rowScaleHeightAnimation(final View clickedView, int duration) {
 
         ValueAnimator anim = ValueAnimator.ofInt(clickedView.getMeasuredHeight(), mToolbarSize * 3);
         anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -339,7 +360,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         anim.setDuration(duration);
         return anim;
     }
-    public Animator rowTopPaddingAnimation(final View clickedView, int duration) {
+    private Animator rowTopPaddingAnimation(final View clickedView, int duration) {
         ValueAnimator anim = ValueAnimator.ofInt(0, mToolbarSize+10);
         anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -351,7 +372,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         anim.setDuration(duration);
         return anim;
     }
-    public Animator rowBackgroundColorAnimation(final View clickedView, int duration) {
+    private Animator rowBackgroundColorAnimation(final View clickedView, int duration) {
 
         Integer backgroundColorFrom = getResources().getColor(R.color.windowBackground);
         Integer backgroundColorTo = ((BaseActivity)getActivity()).getCurrentPrimaryColorDark();
@@ -372,7 +393,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
 
         return backgroundColorAnimation;
     }
-    public Animator rowTextColorAnimation(final View clickedView, int duration) {
+    private Animator rowTextColorAnimation(final View clickedView, int duration) {
         final TextView title = (TextView) clickedView.findViewById(R.id.list_episode_row_episodeName);
         final TextView timestamp = (TextView) clickedView.findViewById(R.id.list_episode_row_episodeAge);
 

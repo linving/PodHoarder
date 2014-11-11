@@ -16,4 +16,13 @@
         <item>@drawable/ic_settings_black_24dp</item>
         <item>@drawable/ic_info_outline_black_24dp</item>
     </array>
+
+    <string-array name="pref_defaultEpisodeBehavior_entries">
+        <item >@string/pref_defaultEpisodeAction_showInfo</item>
+        <item >@string/pref_defaultEpisodeAction_playEpisode</item>
+    </string-array>
+    <string-array name="pref_defaultEpisodeBehavior_values">
+        <item >1</item>
+        <item >2</item>
+    </string-array>
 </resources>
