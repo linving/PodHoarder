@@ -42,6 +42,8 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
         LOG_TAG = "com.podhoarder.fragment.AddFragment";
         mContentView = inflater.inflate(R.layout.activity_add, container, false);
         setHasOptionsMenu(true);
+        if (isDrawerIconEnabled())
+            setDrawerIconEnabled(false,300);
         setupListView();
         mProgressBar = (ButteryProgressBar) mContentView.findViewById(R.id.search_progressBar);
 

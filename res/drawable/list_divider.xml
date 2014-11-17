@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <layer-list>
+<layer-list>
     <item xmlns:android="http://schemas.android.com/apk/res/android">
-    <shape android:shape="rectangle">
-        <solid android:color="@color/windowBackground"/>
-    </shape>
-    <inset
-        android:insetLeft="88dp">
-        <shape>
-            <solid android:color="@color/list_separator"/>
-        </shape>
-    </inset>
-</item>
+        <inset android:insetLeft="72dp">
+            <shape>
+                <solid android:color="@color/list_separator" />
+            </shape>
+        </inset>
+    </item>
 </layer-list>

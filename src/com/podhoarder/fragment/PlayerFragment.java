@@ -2,20 +2,22 @@ package com.podhoarder.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.graphics.Palette;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.service.PodHoarderService;
-import com.podhoarder.view.CheckableImageButton;
 import com.podhoarder.view.ToggleImageButton;
 import com.podhoarderproject.podhoarder.R;
 
@@ -41,7 +43,9 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     private ToggleImageButton mPlayPauseButton;
     private ImageButton mRewindButton, mForwardButton;
     private ProgressBar mLoadingCircle;
-    private CheckableImageButton mFAB;
+    private ImageView mPodcastBanner;
+    private ImageButton mFAB;
+    private ListView mPlaylist;
 
     //Toolbar
 
@@ -50,6 +54,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
         LOG_TAG = "com.podhoarder.fragment.PlayerFragment";
 
         super.onCreateView(inflater, container, savedInstanceState);
+
         mContentView = inflater.inflate(R.layout.activity_player, container, false);
         mDataManager = ((LibraryActivity) getActivity()).getDataManager();
 
@@ -64,9 +69,10 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
         mHandler = new Handler();
 
         setupUI();
-        setupPlayerControls();
 
         ((LibraryActivity)getActivity()).setCurrentFragment(this);
+
+        setDrawerIconEnabled(false, 0);
 
         return mContentView;
     }
@@ -137,24 +143,49 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     };
 
     private void setupUI() {
-        ImageView banner = (ImageView) mContentView.findViewById(R.id.episode_banner);
-        banner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
         setToolbarTransparent(true);
+        setupViews();
+        colorUI(mCurrentFeed.getFeedImage().palette());
+    }
+
+    private void setupViews() {
+
+        if (mCurrentEpisode != null) {
+            TextView title = (TextView) mContentView.findViewById(R.id.nowplaying_title);
+            TextView subtitle = (TextView) mContentView.findViewById(R.id.nowplaying_subtitle);
+
+            title.setText(mCurrentEpisode.getTitle());
+            subtitle.setText(mCurrentFeed.getTitle());
+        }
+
+        mPodcastBanner = (ImageView) mContentView.findViewById(R.id.episode_banner);
+        mPodcastBanner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
+        mPodcastBanner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPlaybackService.isPlaying())
+                    mPlaybackService.pause();
+                else
+                    mPlaybackService.play();
+            }
+        });
+
+        mPlaylist = (ListView) mContentView.findViewById(R.id.playlist);
+        mPlaylist.setAdapter(mDataManager.mPlaylistAdapter);
+
+        setupPlayerControls();
     }
 
     private void setupPlayerControls() {
 
-        mFAB = (CheckableImageButton) mContentView.findViewById(R.id.fab);
+        mFAB = (ImageButton) mContentView.findViewById(R.id.fab);
         mFAB.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                mCurrentEpisode.setFavorite(!mCurrentEpisode.isFavorite()); //Toggle favorite status of the Episode.
-                mDataManager.updateEpisode(mCurrentEpisode);    //Update the db with the new value
-                ((CheckableImageButton) v).setChecked(mCurrentEpisode.isFavorite());    //Toggle the button.
+                //Do something
             }
         });
-        mFAB.setChecked(mCurrentEpisode.isFavorite());
 
         mPlayPauseButton = (ToggleImageButton) mContentView.findViewById(R.id.player_controls_button_playpause);
         mPlayPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -220,5 +251,9 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
         if (mPlaybackService.isPlaying())
             mHandler.post(UpdateRunnable);
+    }
+
+    private void colorUI(Palette p) {
+
     }
 }

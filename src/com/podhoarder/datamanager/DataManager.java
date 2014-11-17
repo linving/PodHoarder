@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.podhoarder.activity.BaseActivity;
-import com.podhoarder.adapter.DragNDropAdapter;
+import com.podhoarder.adapter.QueueAdapter;
 import com.podhoarder.adapter.QuickListAdapter;
 import com.podhoarder.db.EpisodeDBHelper;
 import com.podhoarder.db.FeedDBHelper;
@@ -13,10 +13,13 @@ import com.podhoarder.db.PlaylistDBHelper;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.util.DownloadManager;
+import com.podhoarderproject.podhoarder.R;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * Created by Emil on 2014-10-27.
@@ -33,14 +36,14 @@ public class DataManager {
     protected EpisodeDBHelper mEpisodeDBHelper;       //Handles saving the Episode objects to a database for persistence.
     protected PlaylistDBHelper mPlaylistDBHelper;      //Handles saving the Playlist entries to a database for persistence.
     //Quick List Adapters
-    public DragNDropAdapter mPlaylistAdapter;
+    public QueueAdapter mPlaylistAdapter;
     public QuickListAdapter mQuicklistAdapter;
 
     //List Objects.
     protected List<Feed> mFeeds;
     protected List<Episode> mFavorites,
-            mNew,
-            mPlaylist;
+            mNew;
+    protected LinkedList<Episode> mPlaylist;
     //Refresh check
     protected boolean mRefreshing;
 
@@ -56,15 +59,15 @@ public class DataManager {
         checkFileLinks();
         mFavorites = loadFavorites();
         mNew = loadNew();
-        mPlaylist = loadPlaylist();
+        mPlaylist = new LinkedList<Episode>(loadPlaylist());
 
         if (hasPodcasts()) {
             mQuicklistAdapter = new QuickListAdapter(mFavorites, mContext);
-            mPlaylistAdapter = new DragNDropAdapter(mPlaylist,mContext);
+            mPlaylistAdapter = new QueueAdapter(mPlaylist, R.layout.episode_list_row, mContext);
         }
         else {
             mQuicklistAdapter = new QuickListAdapter(new ArrayList<Episode>(), mContext);
-            mPlaylistAdapter = new DragNDropAdapter(new ArrayList<Episode>(), mContext);
+            mPlaylistAdapter = new QueueAdapter(new LinkedList<Episode>(), R.layout.episode_list_row,  mContext);
         }
 
         mDownloadManager = new com.podhoarder.util.DownloadManager(context, this, mEpisodeDBHelper);
@@ -85,7 +88,7 @@ public class DataManager {
             if (mNew.isEmpty())
                 mNew = mEpisodeDBHelper.getNewEpisodes();
             if (mPlaylist.isEmpty())
-                mPlaylist = mEpisodeDBHelper.getPlaylistEpisodes();
+                mPlaylist = new LinkedList<Episode>(mEpisodeDBHelper.getPlaylistEpisodes());
             return null;
         }
     }
@@ -150,15 +153,15 @@ public class DataManager {
         }
     }
 
-    private List<Episode> loadPlaylist() {
-        mPlaylist = mEpisodeDBHelper.getPlaylistEpisodes();
+    private Queue<Episode> loadPlaylist() {
+        mPlaylist = new LinkedList<Episode>(mEpisodeDBHelper.getPlaylistEpisodes());
         return mPlaylist;
     }
 
     protected class loadPlaylistDataAsync extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            mPlaylist = mEpisodeDBHelper.getPlaylistEpisodes();
+            mPlaylist = new LinkedList<Episode>(mEpisodeDBHelper.getPlaylistEpisodes());
             return null;
         }
 
@@ -180,7 +183,7 @@ public class DataManager {
         return mNew;
     }
 
-    public List<Episode> Playlist() {
+    public Queue<Episode> Playlist() {
         return mPlaylist;
     }
 
@@ -269,18 +272,10 @@ public class DataManager {
         }
     }
 
-    public void updatePlaylist(List<Episode> playlist) {
+    public void updatePlaylist(Queue<Episode> playlist) {
         mPlaylistDBHelper.savePlaylist(playlist);
     }
 
-    public void removeFromPlaylist(Episode episodeToRemove) {
-        int i = findEpisodeInPlaylist(episodeToRemove);
-        if (i != -1) {
-            mPlaylist.remove(i);
-            mPlaylistAdapter.notifyDataSetChanged();
-            updatePlaylist(mPlaylist);
-        }
-    }
 
     public void addToPlaylist(Episode ep) {
         mPlaylist.add(ep);
@@ -288,19 +283,10 @@ public class DataManager {
         updatePlaylist(mPlaylist);
     }
 
-    /**
-     * Returns the index of ep.
-     *
-     * @param ep The Episode to find.
-     * @return Index of ep, or -1 if it isn't found.
-     */
-    public int findEpisodeInPlaylist(Episode ep) {
-        for (int i = 0; i < this.mPlaylist.size(); i++) {
-            if (ep.getEpisodeId() == this.mPlaylist.get(i).getEpisodeId()) {
-                return i;
-            }
-        }
-        return -1;
+    public void addToPlaylistAsNext(Episode ep) {
+        mPlaylist.addFirst(ep);
+        mPlaylistAdapter.notifyDataSetChanged();
+        updatePlaylist(mPlaylist);
     }
 
     /**
@@ -353,7 +339,7 @@ public class DataManager {
         mFeeds = mFeedDBHelper.getAllFeeds();
         mFavorites = mEpisodeDBHelper.getFavoriteEpisodes();
         mNew = mEpisodeDBHelper.getNewEpisodes();
-        mPlaylist = mEpisodeDBHelper.getPlaylistEpisodes();
+        mPlaylist = new LinkedList<Episode>(mEpisodeDBHelper.getPlaylistEpisodes());
     }
 
     /**
@@ -379,7 +365,7 @@ public class DataManager {
                 mFeeds = mFeedDBHelper.refreshFeedData(mFeeds, false);
                 mFavorites = mEpisodeDBHelper.getFavoriteEpisodes();
                 mNew = mEpisodeDBHelper.getNewEpisodes();
-                mPlaylist = mEpisodeDBHelper.getPlaylistEpisodes();
+                mPlaylist = new LinkedList<Episode>(mEpisodeDBHelper.getPlaylistEpisodes());
             }
             return null;
         }

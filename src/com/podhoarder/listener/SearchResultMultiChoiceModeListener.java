@@ -71,7 +71,7 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
 
 	@Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-        // Inflate the menu for the CAB
+        // Inflate the secondaryAction for the CAB
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate(R.menu.contextual_menu_search, menu);
         this.mActionMode = mode;

@@ -31,6 +31,8 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
     //Service
     protected PodHoarderService mPlaybackService;
 
+    protected int mStatusBarHeight;
+
     //Toolbar
     protected Toolbar mToolbar;
     protected int mToolbarSize;
@@ -48,6 +50,9 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
         mToolbarSize = ((BaseActivity)getActivity()).mToolbarSize;
         mToolbarBackground = ((BaseActivity)getActivity()).mToolbarBackground;
         mToolbarContainer = ((BaseActivity)getActivity()).mToolbarContainer;
+        mStatusBarHeight = ((BaseActivity)getActivity()).mStatusBarHeight;
+
+        //setDrawerIconEnabled(true, 300);
 
         return mContentView;
     }
@@ -76,6 +81,14 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
         if (transparent)
             mToolbarBackground.setBackgroundColor(Color.parseColor("#00000000"));
         else
-            mToolbarBackground.setBackgroundColor(((BaseActivity)getActivity()).getCurrentPrimaryColorDark());
+            mToolbarBackground.setBackgroundColor(((BaseActivity)getActivity()).getCurrentPrimaryColor());
+    }
+
+    protected void setDrawerIconEnabled(final boolean enabled, int animationDuration) {
+        ((BaseActivity)getActivity()).setDrawerIconEnabled(enabled, animationDuration);
+    }
+
+    protected boolean isDrawerIconEnabled() {
+        return ((BaseActivity)getActivity()).isDrawerIconEnabled();
     }
 }

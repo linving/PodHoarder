@@ -63,7 +63,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
 
 	@Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-        // Inflate the menu for the CAB
+        // Inflate the secondaryAction for the CAB
         EpisodeRowUtils.getMultiSelectionMenu(mContext,mode,menu);
 
         this.mActionMode = mode;
@@ -140,8 +140,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     	for (int i : this.mSelectedItems)
     	{
     		Episode ep = (Episode) this.mParentListView.getItemAtPosition(i);
-    		if (((LibraryActivity)this.mContext).mDataManager.findEpisodeInPlaylist(ep) == -1)
-                ((LibraryActivity)this.mContext).mDataManager.addToPlaylist(ep);	//We only add items that aren't already in the playlist.
+    		((LibraryActivity)this.mContext).mDataManager.addToPlaylist(ep);
     	}
     	ToastMessages.EpisodeAddedToPlaylist(this.mContext).show();
     }

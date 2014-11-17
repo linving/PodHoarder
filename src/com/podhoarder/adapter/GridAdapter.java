@@ -41,8 +41,8 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener {
     private List<View> mLoadingViews;
     private int mLoadingItemsCount;
 
-    private GridActionModeCallback mActionModeCallback;  //This comes from the parent fragment and is used to keep track of whether the ActionMode context bar is enabled.
-    private ActionMode mActionMode;  //This comes from the parent fragment and is used to keep track of whether the ActionMode context bar is enabled.
+    private GridActionModeCallback mActionModeCallback;  //This comes from the parent fragment and is used to keep track of whether the ActionMode mContext bar is enabled.
+    private ActionMode mActionMode;  //This comes from the parent fragment and is used to keep track of whether the ActionMode mContext bar is enabled.
 
     private GridItemClickListener mGridItemClickListener;
 
@@ -193,8 +193,8 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener {
             try {
 
                 if (PreferenceManager.getDefaultSharedPreferences(this.mContext).getBoolean(Constants.SETTINGS_KEY_GRIDSHOWTITLE, true)) {
-                    viewHolder.feedTitle.setBackgroundColor(currentFeed.getFeedImage().palette().getDarkVibrantColor(Color.parseColor("#80000000")));
-                    viewHolder.feedTitle.setTextColor(currentFeed.getFeedImage().palette().getDarkVibrantSwatch().getTitleTextColor());
+                    viewHolder.feedTitle.setBackgroundColor(currentFeed.getFeedImage().palette().getMutedColor(Color.parseColor("#80000000")));
+                    viewHolder.feedTitle.setTextColor(currentFeed.getFeedImage().palette().getMutedSwatch().getTitleTextColor());
                     viewHolder.feedTitle.setText(currentFeed.getTitle());    //Set Feed Title
                     viewHolder.feedTitle.setVisibility(View.VISIBLE);
                 } else viewHolder.feedTitle.setVisibility(View.GONE);

@@ -17,7 +17,7 @@ import com.podhoarderproject.podhoarder.R;
 
 public class CheckableImageButton extends ImageButton implements Checkable {
     private OnCheckedChangeListener onCheckedChangeListener;
-    private int mAccentColor;
+    private int mAccentColor, mDefaultColor;
 
     public CheckableImageButton(Context context) {
         super(context);
@@ -41,6 +41,7 @@ public class CheckableImageButton extends ImageButton implements Checkable {
 
     private void setChecked(AttributeSet attrs) {
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.CheckableImageButton);
+        mDefaultColor = a.getColor(R.styleable.CheckableImageButton_defaultColor, Color.BLACK);
         mAccentColor = a.getColor(R.styleable.CheckableImageButton_accentColor, Color.BLACK);
         a.recycle();
         setChecked(isSelected());
@@ -60,6 +61,19 @@ public class CheckableImageButton extends ImageButton implements Checkable {
         return new ColorMatrixColorFilter(matrix);
     }
 
+    private ColorFilter defaultColorFilter() {
+        int red = (mDefaultColor & 0xFF0000) / 0xFFFF;
+        int green = (mDefaultColor & 0xFF00) / 0xFF;
+        int blue = mDefaultColor & 0xFF;
+
+        float[] matrix = { 0, 0, 0, 0, red
+                , 0, 0, 0, 0, green
+                , 0, 0, 0, 0, blue
+                , 0, 0, 0, 1, 0 };
+
+        return new ColorMatrixColorFilter(matrix);
+    }
+
     @Override
     public boolean isChecked() {
         return isSelected();
@@ -70,7 +84,7 @@ public class CheckableImageButton extends ImageButton implements Checkable {
         if (checked)
             getDrawable().setColorFilter(checkedColorFilter());
         else
-            getDrawable().clearColorFilter();
+            getDrawable().setColorFilter(defaultColorFilter());
 
         setSelected(checked);
 
@@ -82,6 +96,22 @@ public class CheckableImageButton extends ImageButton implements Checkable {
     @Override
     public void toggle() {
         setChecked(!isChecked());
+    }
+
+    public void setAccentColor(int color) {
+        mAccentColor = color;
+    }
+
+    public int getAccentColor() {
+        return mAccentColor;
+    }
+
+    public void setDefaultColor(int color) {
+        mDefaultColor = color;
+    }
+
+    public int getDefaultColor() {
+        return mDefaultColor;
     }
 
     @Override

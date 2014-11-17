@@ -26,7 +26,7 @@ public class EpisodeRowUtils
 	private static float ALPHA_NORMAL = 1f;
 
     public static Menu getMultiSelectionMenu(Context context, ActionMode mode, Menu menu) {
-        // Inflate the menu for the CAB
+        // Inflate the secondaryAction for the CAB
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate(R.menu.contextual_menu_episodes, menu);
 
@@ -55,8 +55,7 @@ public class EpisodeRowUtils
                         ((LibraryActivityManager) ((LibraryActivity) context).mDataManager).markAsListened(eps);
                         break;
                     case R.id.menu_episode_add_playlist:
-                        if (((LibraryActivity) context).mDataManager.findEpisodeInPlaylist(ep) == -1)
-                            ((LibraryActivity) context).mDataManager.addToPlaylist(ep);    //We only add items that aren't already in the playlist.
+                        ((LibraryActivity) context).mDataManager.addToPlaylist(ep);
                         break;
                     case R.id.menu_episode_available_offline:
                         ((LibraryActivity) context).mDataManager.DownloadManager().downloadEpisode(ep);
@@ -110,12 +109,12 @@ public class EpisodeRowUtils
 /*		if (listened)
 		{
 			row.title.setAlpha(ALPHA_LISTENED);
-			row.age.setAlpha(ALPHA_LISTENED);
+			row.subtitle.setAlpha(ALPHA_LISTENED);
 		}
 		else
 		{
 			row.title.setAlpha(ALPHA_NORMAL);
-			row.age.setAlpha(ALPHA_NORMAL);
+			row.subtitle.setAlpha(ALPHA_NORMAL);
 		}*/
 	}
 

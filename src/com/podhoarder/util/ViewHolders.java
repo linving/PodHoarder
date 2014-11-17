@@ -26,8 +26,8 @@ public class ViewHolders
 	public static class EpisodeRowViewHolder
 	{
 		public TextView title;
-		public TextView age;
-		public ImageView menu;
+		public TextView subtitle;
+		public ImageView secondaryAction;
 		public ImageView icon;
 		public CheckBox checkbox;
 	}
@@ -38,10 +38,7 @@ public class ViewHolders
         public ImageView icon;
     }
 
-	public static class PlaylistRowViewHolder extends QuickListRowViewHolder
-	{
-		public ImageView handle;
-	}
+
 
 	public static class SearchResultsAdapterViewHolder
 	{

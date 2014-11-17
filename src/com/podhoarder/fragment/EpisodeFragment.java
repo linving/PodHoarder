@@ -3,6 +3,7 @@ package com.podhoarder.fragment;
 import android.animation.Animator;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.graphics.Palette;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,13 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Episode;
+import com.podhoarder.object.Feed;
 import com.podhoarder.util.DataParser;
 import com.podhoarder.util.EpisodeRowUtils;
 import com.podhoarder.util.NetworkUtils;
@@ -38,8 +40,10 @@ public class EpisodeFragment extends BaseFragment {
 
     //Episode and Podcast
     private Episode mCurrentEpisode;
+    private Feed mCurrentFeed;
 
     //UI Views
+    private ImageView mPodcastBanner;
     private CheckableImageButton mFAB;
     private TextView mEpisodeDescription;
     private LinearLayout mTextContainer, mHeadlineContainer;
@@ -68,10 +72,14 @@ public class EpisodeFragment extends BaseFragment {
         int episodeId = getArguments().getInt("episodeId", 0);
 
         mCurrentEpisode = mDataManager.getEpisode(episodeId);
+        mCurrentFeed = mDataManager.getFeed(mCurrentEpisode.getFeedId());
 
         setupUI();
 
         ((LibraryActivity)getActivity()).setCurrentFragment(this);
+        if (isDrawerIconEnabled()) {
+            setDrawerIconEnabled(false,300);
+        }
 
         return mContentView;
     }
@@ -87,7 +95,7 @@ public class EpisodeFragment extends BaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.contextual_menu_episode, menu);
         EpisodeRowUtils.configureMenu(getActivity(),menu,mCurrentEpisode);
-        //super.onCreateOptionsMenu(menu, inflater);
+        //super.onCreateOptionsMenu(secondaryAction, inflater);
     }
 
     @Override
@@ -100,8 +108,7 @@ public class EpisodeFragment extends BaseFragment {
                 ((LibraryActivityManager) ((LibraryActivity) context).mDataManager).markAsListened(eps);
                 break;
             case R.id.menu_episode_add_playlist:
-                if (((LibraryActivity) context).mDataManager.findEpisodeInPlaylist(mCurrentEpisode) == -1)
-                    ((LibraryActivity) context).mDataManager.addToPlaylist(mCurrentEpisode);    //We only add items that aren't already in the playlist.
+                ((LibraryActivity) context).mDataManager.addToPlaylist(mCurrentEpisode);
                 break;
             case R.id.menu_episode_available_offline:
                 ((LibraryActivity) context).mDataManager.DownloadManager().downloadEpisode(mCurrentEpisode);
@@ -142,10 +149,18 @@ public class EpisodeFragment extends BaseFragment {
     }
 
     private void setupUI() {
+        setToolbarTransparent(true);
+
+        mPodcastBanner = (ImageView) mContentView.findViewById(R.id.podcast_banner);
+        mPodcastBanner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
+
+        Palette.Swatch colorSwatch = mCurrentFeed.getFeedImage().palette().getDarkVibrantSwatch();
+
 
         //mToolbar.setElevation(0f);
         TextView episodeTitle = (TextView) mContentView.findViewById(R.id.episode_title);
         episodeTitle.setText(mCurrentEpisode.getTitle());
+        episodeTitle.setTextColor(colorSwatch.getBodyTextColor());
         //episodeTitle.setScaleX(0f);
         episodeTitle.setAlpha(0f);
         episodeTitle.animate().alpha(1f).setDuration(200).setInterpolator(new AccelerateInterpolator()).start();
@@ -158,6 +173,7 @@ public class EpisodeFragment extends BaseFragment {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        episodeTimestamp.setTextColor(colorSwatch.getTitleTextColor());
         episodeTimestamp.setAlpha(0f);
         episodeTimestamp.animate().alpha(1f).setDuration(200).setInterpolator(new AccelerateInterpolator()).start();
 
@@ -168,9 +184,7 @@ public class EpisodeFragment extends BaseFragment {
 
         mTextContainer = (LinearLayout) mContentView.findViewById(R.id.episode_text_container);
         mHeadlineContainer = (LinearLayout) mContentView.findViewById(R.id.episode_headline_text_container);
-        int currentColor = ((BaseActivity)getActivity()).getCurrentPrimaryColorDark();
-        mHeadlineContainer.setBackgroundColor(currentColor);
-        setToolbarTransparent(false);
+        mHeadlineContainer.setBackgroundColor(colorSwatch.getRgb());
         mHeadlineContainer.setMinimumHeight(mToolbar.getMinimumHeight() * 2);
 
         mFAB = (CheckableImageButton) mContentView.findViewById(R.id.fab);
@@ -197,34 +211,11 @@ public class EpisodeFragment extends BaseFragment {
     }
 
     private void endFragmentAnimation() {
+        if (!isDrawerIconEnabled()) {
+            setDrawerIconEnabled(true,300);
+        }
         mFAB.animate().scaleY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
-        mEpisodeDescription.animate().translationY(-(mEpisodeDescription.getMeasuredHeight()+10)).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).setListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                onAnimationFinished();
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-    }
-
-    private void onAnimationFinished() {
-        mFAB.setAlpha(0f);
-        mEpisodeDescription.setAlpha(0f);
-        mHeadlineContainer.animate().translationY(-mHeadlineContainer.getMeasuredHeight()).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).setListener(new Animator.AnimatorListener() {
+        mEpisodeDescription.animate().alpha(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -246,7 +237,8 @@ public class EpisodeFragment extends BaseFragment {
             public void onAnimationRepeat(Animator animation) {
 
             }
-        }).start();
+        });
     }
+
 
 }

@@ -2,6 +2,7 @@
 <resources>
 
     <declare-styleable name="CheckableImageButton">
+        <attr name="defaultColor" format="integer" />
         <attr name="accentColor" format="integer" />
     </declare-styleable>
 

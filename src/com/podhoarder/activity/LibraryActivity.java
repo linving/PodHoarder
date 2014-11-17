@@ -209,9 +209,6 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
             case FAVORITES:
                 mPlaybackService.playEpisode(mDataManager.Favorites().get(position));
                 break;
-            case PLAYLIST:
-                mPlaybackService.playEpisode(mDataManager.Playlist().get(position));
-                break;
             case NEW:
                 mPlaybackService.playEpisode(mDataManager.New().get(position));
                 break;
@@ -267,7 +264,7 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     public void startEpisodeActivity(final Episode currentEp) {
         if (!((Object) mCurrentFragment).getClass().getName().equals(EpisodeFragment.class.getName())) {
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setCustomAnimations(0, 0, R.anim.slide_in_top, 0);
+            ft.setCustomAnimations(0, 0, 0, 0);
             ft.replace(R.id.root_container, EpisodeFragment.newInstance(currentEp.getEpisodeId()));
             ft.addToBackStack(null);
             ft.commit();

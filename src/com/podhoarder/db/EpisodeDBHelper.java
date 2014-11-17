@@ -20,7 +20,9 @@ import com.podhoarder.object.EpisodePointer;
 import com.podhoarder.util.Constants;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class EpisodeDBHelper
 {
@@ -261,10 +263,10 @@ public class EpisodeDBHelper
 	 * Retrieves a list of all Episodes referenced in the Playlist db.
 	 * @return List<Episode> containing all the Episodes referenced in the Playlist db.
 	 */
-	public List<Episode> getPlaylistEpisodes()
+	public Queue<Episode> getPlaylistEpisodes()
 	{
-		List<Episode> ret = new ArrayList<Episode>();
-		List<Episode> unordered = new ArrayList<Episode>();
+		LinkedList<Episode> ret = new LinkedList<Episode>();
+        LinkedList<Episode> unordered = new LinkedList<Episode>();
 		List<EpisodePointer> pointers = plDbH.loadPlaylistPointers();
 		
 		if (pointers.size() > 0)
@@ -283,11 +285,11 @@ public class EpisodeDBHelper
 			{
 				do
 				{
-					unordered.add(cursorToEpisode(cursor));
+					unordered.addFirst(cursorToEpisode(cursor));
 				} while (cursor.moveToNext());
 			}
 			
-			//Now that we have the correct order in pointers we need to reorder the playlist accordingly.
+			/*//Now that we have the correct order in pointers we need to reorder the playlist accordingly.
 			for (EpisodePointer pointer:pointers)
 			{
 
@@ -308,9 +310,9 @@ public class EpisodeDBHelper
 					if (!ret.contains(ep)) ret.add(ep);	//Add the missing entry at the last index.
 				}
 				this.plDbH.savePlaylist(ret);	//Save the appended playlist to the db before returning.
-			}
+			}*/
 		}
-		return ret;
+		return unordered;
 	}
 	
 	/**

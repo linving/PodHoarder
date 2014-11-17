@@ -12,12 +12,13 @@
         android:id="@+id/root_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:clipChildren="false">
 
         <include
             layout="@layout/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?actionBarSize" />
+            android:layout_height="wrap_content" />
     </FrameLayout>
 
     <LinearLayout
@@ -100,24 +101,10 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:src="@drawable/ic_favorite_black_24dp"
                 android:scaleType="centerInside"
-                app:accentColor="?attr/colorAccent"
-                android:alpha=".26"
+                app:defaultColor="@color/colorNotFavorite"
+                app:accentColor="@color/colorFavorite"
                 android:clickable="true"
                 android:onClick="quicklistFilterClicked"/>
-
-            <com.podhoarder.view.CheckableImageButton
-                android:id="@+id/right_drawer_list_filter_playlist"
-                background="?android:attr/selectableItemBackground"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="?android:attr/selectableItemBackground"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_queue_music_black_24dp"
-                app:accentColor="?attr/colorAccent"
-                android:alpha=".26"
-                android:clickable="true"
-                android:onClick="quicklistFilterClicked" />
 
             <com.podhoarder.view.CheckableImageButton
                 android:id="@+id/right_drawer_list_filter_new"
@@ -128,8 +115,8 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_new_releases_black_24dp"
-                app:accentColor="?attr/colorAccent"
-                android:alpha=".26"
+                app:defaultColor="@color/colorNotFavorite"
+                app:accentColor="@color/colorFavorite"
                 android:clickable="true"
                 android:onClick="quicklistFilterClicked" />
         </LinearLayout>
@@ -142,17 +129,6 @@
             android:layout_alignParentTop="true"
             android:background="@color/windowBackground"
             android:choiceMode="none"
-            android:divider="@android:color/transparent"
-            android:dividerHeight="0dp" />
-        <ListView
-            android:id="@+id/right_drawer_playlist"
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:layout_marginBottom="56dp"
-            android:layout_alignParentTop="true"
-            android:background="@color/windowBackground"
-            android:choiceMode="none"
-            android:visibility="gone"
             android:divider="@android:color/transparent"
             android:dividerHeight="0dp" />
     </RelativeLayout>

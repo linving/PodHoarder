@@ -7,7 +7,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:navigationBarColor">@color/colorPrimary</item>
+        <!--<item name="android:navigationBarColor">@color/colorPrimary</item>-->
         <item name="drawerArrowStyle">@style/Theme.Podhoarder.Toolbar.DrawerArrowStyle</item>
         <item name="searchViewStyle">@style/Theme.Podhoarder.Toolbar.SearchView</item>
         <item name="actionModeBackground">@color/colorPrimary</item>
@@ -24,6 +24,8 @@
 		<item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb</item>
 		<item name="android:scrollbarThumbVertical">@drawable/scroll_thumb</item>
         <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:fitsSystemWindows">false</item>
         <item name="android:toolbarStyle">@style/Theme.Podhoarder.Toolbar</item>
         <item name="android:windowContentTransitions">true</item>
 
@@ -32,6 +34,8 @@
     <style name="Theme.Podhoarder.ToolbarOverlay" parent="@style/Theme.Podhoarder">
         <!-- the theme applied to the application or activity -->
         <item name="android:toolbarStyle">@style/Theme.Podhoarder.Toolbar.Overlay</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:fitsSystemWindows">false</item>
 
         <!-- Support library compatibility -->
         <item name="toolbarStyle">@style/Theme.Podhoarder.Toolbar.Overlay</item>

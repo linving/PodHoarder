@@ -82,7 +82,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			{
 				this.mDataManager.deleteEpisodeFile(lastEp);
 			}
-            mDataManager.removeFromPlaylist(lastEp);
 			this.mDataManager.reloadListData(true);
 		}
 		else	ToastMessages.PlaybackFailed(getApplicationContext()).show();
@@ -183,11 +182,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 				play();
 			}
 		}
-	}
-	
-	public void playEpisode(int epPos)
-	{
-		playEpisode(mDataManager.Playlist().get(epPos));
 	}
 	
 	public void playEpisode(Episode ep)
@@ -381,33 +375,12 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			mHandler.post(SingleUpdateRunnable);	
 		}
 	}
-
-	public void playPrev()
-	{
-		for (int i=0; i<this.mPlayList.size(); i++)
-		{
-			if (this.mCurrentEpisode.getEpisodeId() == this.mPlayList.get(i).getEpisodeId())
-			{
-				if (i > 0 && this.mPlayList.size() > 1)	//Only change Episode when we're not at the start of the playlist or the current Episode isn't the only one in the playlist.
-				{
-					playEpisode(i-1);
-					break;
-				}
-				else
-				{
-					this.stop();
-					break;
-				}
-			}
-		}		
-	}
 	
 	public void playNext()
 	{
-		int index = mDataManager.findEpisodeInPlaylist(this.mCurrentEpisode);
-		if(index < (mDataManager.Playlist().size()-1) && mDataManager.Playlist().size() > 1)	//Only change Episode when we're not at the end of the playlist or the current Episode isn't the only one in the playlist.
+		if(mDataManager.Playlist().peek() != null)	//Only change Episode when we're not at the end of the playlist or the current Episode isn't the only one in the playlist.
 		{
-			playEpisode(index+1);
+			playEpisode(mDataManager.Playlist().poll());
 			return;
 		}
 		else

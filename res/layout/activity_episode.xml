@@ -4,10 +4,20 @@
     android:id="@+id/fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="?actionBarSize"
     android:clipChildren="false"
     android:orientation="vertical"
     android:clipToPadding="false">
+    
+    <ImageView
+        android:id="@+id/podcast_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minWidth="200dp"
+        android:minHeight="200dp"
+        android:layout_marginBottom="-72dp"
+        android:background="@android:color/transparent"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"/>
 
     <LinearLayout
         android:id="@+id/episode_text_container"
@@ -78,7 +88,8 @@
                 android:background="@drawable/fab_ripple_light"
                 android:stateListAnimator="@anim/fab_anim"
                 android:src="@drawable/ic_favorite_black_24dp"
-                app:accentColor="?attr/colorAccent"
+                app:defaultColor="@color/colorNotFavorite"
+                app:accentColor="@color/colorFavorite"
                 android:elevation="2dp"/>
         </RelativeLayout>
 

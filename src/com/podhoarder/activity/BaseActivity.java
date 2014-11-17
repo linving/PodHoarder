@@ -1,13 +1,9 @@
 package com.podhoarder.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -15,12 +11,13 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -36,7 +33,6 @@ import com.podhoarder.view.CheckableImageButton;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Emil on 2014-10-21.
@@ -45,18 +41,23 @@ public abstract class BaseActivity extends ActionBarActivity {
     //Top layout
     private DrawerLayout mDrawerLayout;
     //Drawer toggle
-    private ActionBarDrawerToggle mDrawerToggle;
+    protected ActionBarDrawerToggle mDrawerToggle;
+    private boolean mDrawerToggleEnabled;
     //Drawer ListView Banner
     protected ImageView mNavDrawerBanner;
+
     //Drawer ListView
     private ListView mNavDrawerListView;
-    private ListView mQuickDrawerListView, mQuickDrawerPlaylistView;
-    private CheckableImageButton mQuicklistFilterFavorites, mQuicklistFilterPlaylist, mQuicklistFilterNew;
+    private ListView mQuickDrawerListView;
+    private CheckableImageButton mQuicklistFilterFavorites, mQuicklistFilterNew;
+
     //Main Toolbar View
     public Toolbar mToolbar;
     public int mToolbarSize;
     public FrameLayout mToolbarContainer;
     public View mToolbarBackground;
+
+    public int mStatusBarHeight;
 
     //Colors
     private int mCurrentPrimaryColor;
@@ -82,10 +83,20 @@ public abstract class BaseActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
 
+        mStatusBarHeight = getStatusBarHeight();
         mToolbarContainer = (FrameLayout) findViewById(R.id.toolbar_container);
+
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        mToolbarBackground = findViewById(R.id.toolbar_background);
+        mToolbar.setPadding(0,mStatusBarHeight,0,0);
         mToolbarSize = mToolbar.getMinimumHeight();
+
+        mToolbarBackground = findViewById(R.id.toolbar_background);
+        mToolbarBackground.setMinimumHeight(mToolbarSize + mStatusBarHeight);
+
+        ViewGroup.LayoutParams params = mToolbarContainer.getLayoutParams();
+        params.height = mToolbarSize + mStatusBarHeight;
+        mToolbarContainer.setLayoutParams(params);
+
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -105,6 +116,7 @@ public abstract class BaseActivity extends ActionBarActivity {
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerToggleEnabled = true;
     }
 
     @Override
@@ -139,15 +151,22 @@ public abstract class BaseActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Pass the event to ActionBarDrawerToggle, if it returns
-        // true, then it has handled the app icon touch event
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            mDrawerLayout.openDrawer(GravityCompat.START);
-            return true;
+        //We only handle the menu drawer / home button here. Anything else is handled in the fragments.
+        if (item.getItemId() == android.R.id.home) {
+            //If the drawer toggle is enabled that means the user clicked the menu button and we should open the drawer.
+            if (mDrawerToggleEnabled) {
+                if (mDrawerToggle.onOptionsItemSelected(item))
+                    mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            }
+            //If the drawer toggle is not enabled that means the user pressed the back button and expects back button behavior.
+            else {
+                onBackPressed();
+                return true;
+            }
         }
         // Return false to let subclasses know that the event wasn't handled here.
-        else
-            return false;
+        return false;
     }
 
     @Override
@@ -164,33 +183,17 @@ public abstract class BaseActivity extends ActionBarActivity {
         if (!((CheckableImageButton) v).isChecked()) {
             switch (v.getId()) {
                 case R.id.right_drawer_list_filter_favorites:
-                    mQuickDrawerPlaylistView.setVisibility(View.GONE);
-                    mQuickDrawerListView.setVisibility(View.VISIBLE);
                     mDataManager.mQuicklistAdapter.replaceItems(mDataManager.Favorites());
 
                     mQuicklistFilterFavorites.setChecked(true);
-                    mQuicklistFilterPlaylist.setChecked(false);
                     mQuicklistFilterNew.setChecked(false);
 
                     mCurrentQuicklistFilter = QuicklistFilter.FAVORITES;
                     break;
-                case R.id.right_drawer_list_filter_playlist:
-                    mQuickDrawerListView.setVisibility(View.GONE);
-                    mQuickDrawerPlaylistView.setVisibility(View.VISIBLE);
-
-                    mQuicklistFilterPlaylist.setChecked(true);
-                    mQuicklistFilterNew.setChecked(false);
-                    mQuicklistFilterFavorites.setChecked(false);
-
-                    mCurrentQuicklistFilter = QuicklistFilter.PLAYLIST;
-                    break;
                 case R.id.right_drawer_list_filter_new:
-                    mQuickDrawerPlaylistView.setVisibility(View.GONE);
-                    mQuickDrawerListView.setVisibility(View.VISIBLE);
                     mDataManager.mQuicklistAdapter.replaceItems(mDataManager.New());
 
                     mQuicklistFilterNew.setChecked(true);
-                    mQuicklistFilterPlaylist.setChecked(false);
                     mQuicklistFilterFavorites.setChecked(false);
 
                     mCurrentQuicklistFilter = QuicklistFilter.NEW;
@@ -205,12 +208,12 @@ public abstract class BaseActivity extends ActionBarActivity {
     }
 
     //SCREEN VARS SETUP
-    private int setupScreenVars()   {
-        int storedGridItemSize = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(Constants.SETTINGS_KEY_GRIDITEMSIZE,"-1"));
+    private int setupScreenVars() {
+        int storedGridItemSize = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(Constants.SETTINGS_KEY_GRIDITEMSIZE, "-1"));
         if (storedGridItemSize == -1) {
             DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
             storedGridItemSize = (displayMetrics.widthPixels / 2) - 20; //The -20 is to account for the total amount of padding (3x4 horizontal item padding + 2x4 for grid layout margin)
-            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(Constants.SETTINGS_KEY_GRIDITEMSIZE, ""+storedGridItemSize).apply();
+            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(Constants.SETTINGS_KEY_GRIDITEMSIZE, "" + storedGridItemSize).apply();
         }
         return storedGridItemSize;
     }
@@ -233,6 +236,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     public void startAddActivity() {
 
     }
+
     public void startEpisodeActivity(Episode currentEp) {
 
 
@@ -242,7 +246,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     private ArrayList<NavDrawerItem> generateNavigationMenu() {
         ArrayList<NavDrawerItem> navDrawerItems = new ArrayList<NavDrawerItem>();
 
-        // load slide menu items
+        // load slide secondaryAction items
         String[] navMenuTitles = getResources().getStringArray(R.array.nav_drawer_items);
 
         // nav drawer icons from resources
@@ -265,53 +269,22 @@ public abstract class BaseActivity extends ActionBarActivity {
         return navDrawerItems;
     }
 
-    public void colorUI(Palette p, final boolean isToolbarTransparent) {
-        if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
-            AnimatorSet set = new AnimatorSet();
 
-            int defaultPrimaryDark = getResources().getColor(R.color.colorPrimaryDark);
-            int defaultPrimary = getResources().getColor(R.color.colorPrimary);
-
-            ValueAnimator primaryDarkColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), mCurrentPrimaryColorDark, p.getDarkVibrantColor(defaultPrimaryDark));
-            primaryDarkColorAnimation.setDuration(300);
-            ValueAnimator primaryColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), mCurrentPrimaryColor, p.getVibrantColor(defaultPrimary));
-            primaryColorAnimation.setDuration(300);
-            primaryColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                @Override
-                public void onAnimationUpdate(ValueAnimator animator) {
-                    mCurrentPrimaryColor = (Integer)animator.getAnimatedValue();
-                    if (!isToolbarTransparent)
-                        mToolbarBackground.setBackgroundColor(mCurrentPrimaryColor);
-                }
-
-            });
-            primaryDarkColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-                @Override
-                public void onAnimationUpdate(ValueAnimator animator) {
-                    mCurrentPrimaryColorDark = (Integer) animator.getAnimatedValue();
-                    getWindow().setStatusBarColor(mCurrentPrimaryColorDark);
-                    getWindow().setNavigationBarColor(mCurrentPrimaryColorDark);
-                }
-
-            });
-
-            List<Animator> animators = new ArrayList<Animator>();
-            animators.add(primaryColorAnimation);
-            animators.add(primaryDarkColorAnimation);
-
-            primaryColorAnimation.start();
-            primaryDarkColorAnimation.start();
-            set.playTogether(animators);
-        }
-
-    }
     public int getCurrentPrimaryColor() {
         return mCurrentPrimaryColor;
     }
+
     public int getCurrentPrimaryColorDark() {
         return mCurrentPrimaryColorDark;
+    }
+
+    private int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 
     //DRAWER SETUP
@@ -353,12 +326,42 @@ public abstract class BaseActivity extends ActionBarActivity {
         mNavDrawerListView.setSelection(0);
     }
 
+    public void setDrawerIconEnabled(final boolean enabled, final int duration) {
+        if ((enabled && !mDrawerToggleEnabled) || (!enabled && mDrawerToggleEnabled)) {   //Only play the animation if the drawer indicator isn't already in the desired state.
+            mDrawerToggleEnabled = enabled;
+            if (enabled) {
+                mDrawerLayout.setDrawerListener(mDrawerToggle);
+            } else {
+                mDrawerLayout.setDrawerListener(null);
+            }
+
+            ValueAnimator anim = ValueAnimator.ofFloat(0f, 1f);
+            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    float slideOffset = (Float) valueAnimator.getAnimatedValue();
+                    if (enabled) {
+                        slideOffset = 1f - slideOffset;
+                    }
+                    mDrawerToggle.onDrawerSlide(null, slideOffset);
+                }
+            });
+            anim.setInterpolator(new DecelerateInterpolator());
+            // You can change this duration to more closely match that of the default animation.
+            anim.setDuration(duration);
+
+            anim.start();
+        }
+    }
+
+    public boolean isDrawerIconEnabled() {
+        return mDrawerToggleEnabled;
+    }
+
     private void setupQuicklistDrawer() {
 
         mQuickDrawerListView = (ListView) findViewById(R.id.right_drawer_list);
-        mQuickDrawerPlaylistView = (ListView) findViewById(R.id.right_drawer_playlist);
         mQuicklistFilterFavorites = (CheckableImageButton) findViewById(R.id.right_drawer_list_filter_favorites);
-        mQuicklistFilterPlaylist = (CheckableImageButton) findViewById(R.id.right_drawer_list_filter_playlist);
         mQuicklistFilterNew = (CheckableImageButton) findViewById(R.id.right_drawer_list_filter_new);
 
         mQuickDrawerListView.setAdapter(mDataManager.mQuicklistAdapter);
@@ -369,21 +372,16 @@ public abstract class BaseActivity extends ActionBarActivity {
             }
         });
         mCurrentQuicklistFilter = QuicklistFilter.FAVORITES;
-        mQuicklistFilterFavorites.setChecked(true);
-        mQuickDrawerPlaylistView.setAdapter(mDataManager.mPlaylistAdapter);
-        mQuickDrawerPlaylistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mQuicklistItemClickListener.onQuicklistItemClicked(view, position, mCurrentQuicklistFilter);
-            }
-        });
+        mQuicklistFilterFavorites.toggle();
     }
 
     //DRAWER CLICK INTERFACE
     public interface NavDrawerItemClickListener {
         public void onItemClicked(View clickedView, int position);
 
-        public static enum NavDrawerItemPosition {LIBRARY, PLAYER, SETTINGS, ABOUT};
+        public static enum NavDrawerItemPosition {LIBRARY, PLAYER, SETTINGS, ABOUT}
+
+        ;
     }
 
     public interface QuicklistItemClickListener {
@@ -394,6 +392,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     public enum QuicklistFilter {
         FAVORITES, PLAYLIST, NEW
     }
+
     public QuicklistFilter currentQuicklistFilter() {
         return mCurrentQuicklistFilter;
     }

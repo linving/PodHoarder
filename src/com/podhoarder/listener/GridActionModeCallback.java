@@ -72,7 +72,7 @@ public class GridActionModeCallback implements ActionMode.Callback
 
 	@Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-        // Inflate the menu for the CAB
+        // Inflate the secondaryAction for the CAB
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate(R.menu.contextual_menu_feed, menu);
         this.mActionMode = mode;

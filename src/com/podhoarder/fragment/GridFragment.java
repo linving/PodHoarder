@@ -12,9 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.GridLayoutAnimationController;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
@@ -27,11 +29,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.GridAdapter;
 import com.podhoarder.listener.GridActionModeCallback;
 import com.podhoarder.util.Constants;
+import com.podhoarder.util.ImageUtils;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.ArrayList;
@@ -43,6 +45,7 @@ import java.util.List;
  */
 public class GridFragment extends CollectionFragment implements SwipeRefreshLayout.OnRefreshListener, GridAdapter.GridItemClickListener, LibraryActivity.onFirstFeedAddedListener {
 
+    protected boolean FABVisible;
     //Feeds Grid
     private GridView mGridView;
     private int mGridItemSize;
@@ -113,6 +116,7 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
 
     }
 
+    @Override
     public void onFragmentRedrawn() {
         reverseGridItemSelectionAnimation(mSelectedGridItemIndex, mSelectedGridItemTop, mSelectedGridItemLeft);
     }
@@ -135,23 +139,29 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
                 mGridView.getChildAt(i).startAnimation(animation);
             }
         }
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                onGridFaded(pos, feedId);
+        if (animation.hasStarted()) {
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    onGridFaded(pos, feedId);
 
-            }
+                }
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
+                @Override
+                public void onAnimationEnd(Animation animation) {
 
-            }
+                }
 
-            @Override
-            public void onAnimationRepeat(Animation animation) {
+                @Override
+                public void onAnimationRepeat(Animation animation) {
 
-            }
-        });
+                }
+            });
+        }
+        else {
+            onGridFaded(pos, feedId);
+        }
+
     }
 
     @Override
@@ -172,6 +182,8 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
                 mGridItemSize = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(Constants.SETTINGS_KEY_GRIDITEMSIZE,"-1"));
 
             mGridView.setColumnWidth(mGridItemSize);
+            mGridView.setPadding((int)ImageUtils.pixelsToDip(getActivity(),4),(mToolbarSize + mStatusBarHeight + (int)ImageUtils.pixelsToDip(getActivity(),4)),(int)ImageUtils.pixelsToDip(getActivity(),4),0);
+
 
             Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.grid_fade_in);
             GridLayoutAnimationController animationController = new GridLayoutAnimationController(animation, 0.15f, 0.45f);
@@ -215,8 +227,8 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
                             // enabling or disabling the refresh layout
                             enable = firstItemVisible && topOfFirstItemVisible;
 
-                            int maxTranslationY = -(mToolbarSize);    //The toolbar should only be allowed to move until it is fully off screen.
-                            int toolbarTop = (mGridView.getChildAt(0).getTop() - (mToolbarSize+4));   //Calculate the distance to move by subtracting the toolbar height + gridview padding from the top line.
+                            int maxTranslationY = -(mToolbarSize + mStatusBarHeight);    //The toolbar should only be allowed to move until it is fully off screen.
+                            int toolbarTop = (mGridView.getChildAt(0).getTop() - (mToolbarSize+mStatusBarHeight+4));   //Calculate the distance to move by subtracting the toolbar height + gridview padding from the top line.
 
                             if (firstItemVisible) {
                                 if (toolbarTop < 0 && toolbarTop > maxTranslationY) {//If we are within the bounds where the app bar needs to move we should apply the moved distance.
@@ -231,7 +243,15 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
                                     scrollDelta = 0;    //Default position.
 
                                 mToolbarContainer.setTranslationY(scrollDelta);  //Move the toolbar vertically.
-                                //mToolbar.setAlpha((Math.abs(maxTranslationY)-Math.abs((float)scrollDelta))/Math.abs(maxTranslationY));    //Fade out the toolbar. When it is fully off screen that alpha is .0f, and when it is fully visible it's 1f.
+
+                                if (!topOfFirstItemVisible && FABVisible) {
+                                    mFAB.animate().translationY(mFAB.getMeasuredHeight() * 2).setDuration(100).setInterpolator(new AccelerateInterpolator());
+                                    FABVisible = false;
+                                }
+                                else if (topOfFirstItemVisible && !FABVisible) {
+                                    mFAB.animate().translationY(0f).setDuration(100).setInterpolator(new DecelerateInterpolator());
+                                    FABVisible = true;
+                                }
                             }
                             else {
                                 enable = false;
@@ -244,6 +264,7 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
                             //mToolbar.setAlpha(1.0f);
                         }
                     }
+
                     mSwipeRefreshLayout.setEnabled(enable);
                 }
 
@@ -289,7 +310,9 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
                     ((LibraryActivity)getActivity()).startAddActivity();
                 }
             });
+            FABVisible = true;
         }
+        FABVisible = false;
     }
 
     private void populate() {
@@ -343,7 +366,6 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
         set.addAnimation(scaleAnim);
         //set.setFillAfter(true);
         v.startAnimation(set);
-        ((BaseActivity)getActivity()).colorUI(mDataManager.getFeed(feedId).getFeedImage().palette(), true);
     }
 
     public void reverseGridItemSelectionAnimation(int index, int originalTop, int originalLeft) {

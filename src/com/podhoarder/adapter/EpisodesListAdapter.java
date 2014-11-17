@@ -95,11 +95,11 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 			
 			// Set up the ViewHolder
 	        viewHolder = new EpisodeRowViewHolder();
-	        viewHolder.title = (TextView) convertView.findViewById(R.id.list_episode_row_episodeName);
-	        viewHolder.age = (TextView) convertView.findViewById(R.id.list_episode_row_episodeAge);
-	        viewHolder.icon = (ImageView) convertView.findViewById(R.id.list_episode_row_feed_image);
+	        viewHolder.title = (TextView) convertView.findViewById(R.id.list_episode_row_title);
+	        viewHolder.subtitle = (TextView) convertView.findViewById(R.id.list_episode_row_subtitle);
+	        viewHolder.icon = (ImageView) convertView.findViewById(R.id.list_episode_row_icon);
 	        viewHolder.checkbox = (CheckBox) convertView.findViewById(R.id.list_episode_row_checkbox);
-	        viewHolder.menu = (ImageView) convertView.findViewById(R.id.list_episode_row_info);
+	        viewHolder.secondaryAction = (ImageView) convertView.findViewById(R.id.list_episode_row_secondary_action);
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
 		}
@@ -107,7 +107,6 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 		{
 			viewHolder = (EpisodeRowViewHolder) convertView.getTag();
 		}
-		
 		
 		final Episode currentEpisode = this.mEpisodes.get(position);
 		
@@ -117,7 +116,7 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 			//Set Episode Timestamp.
 			try
 			{
-					viewHolder.age.setText(DateUtils.getRelativeTimeSpanString(
+					viewHolder.subtitle.setText(DateUtils.getRelativeTimeSpanString(
 									DataParser.correctFormat.parse(
 											currentEpisode.getPubDate()).getTime()));	//Set a time stamp since Episode publication.
 			} 
@@ -126,31 +125,32 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 				e.printStackTrace();
 			}
 			
-			viewHolder.menu.setOnClickListener(new OnClickListener()
+			viewHolder.secondaryAction.setOnClickListener(new OnClickListener()
 			{
 				@Override
 				public void onClick(View v)
 				{
-					PopupMenu menu = EpisodeRowUtils.getContextMenu(mContext,viewHolder.menu,currentEpisode);
+					PopupMenu menu = EpisodeRowUtils.getContextMenu(mContext,viewHolder.secondaryAction,currentEpisode);
                     menu.show();
 				}
 			});
 			
 			if (mSelectionEnabled)
 			{
-				viewHolder.menu.setVisibility(View.GONE);
+				viewHolder.secondaryAction.setVisibility(View.GONE);
                 viewHolder.checkbox.setVisibility(View.VISIBLE);
 			}
 			else
 			{
 				viewHolder.checkbox.setVisibility(View.GONE);
-				viewHolder.menu.setVisibility(View.VISIBLE);
+				viewHolder.secondaryAction.setVisibility(View.VISIBLE);
 			}
 
             viewHolder.checkbox.setChecked(false);
 			
 			EpisodeRowUtils.setRowIndicator(this.mContext, viewHolder, currentEpisode);
 			EpisodeRowUtils.setRowListened(viewHolder, currentEpisode.isListened());
+
 		}
 		
 		return convertView;
