@@ -5,19 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
-    android:orientation="vertical"
-    android:clipToPadding="false">
-    
-    <ImageView
-        android:id="@+id/podcast_banner"
+    android:clipToPadding="false"
+    android:orientation="vertical">
+
+    <include layout="@layout/podcast_banner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minWidth="200dp"
-        android:minHeight="200dp"
-        android:layout_marginBottom="-72dp"
-        android:background="@android:color/transparent"
-        android:adjustViewBounds="true"
-        android:scaleType="fitXY"/>
+        android:layout_marginBottom="-72dp"/>
 
     <LinearLayout
         android:id="@+id/episode_text_container"
@@ -34,8 +28,8 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:clipChildren="false"
-            android:translationZ="2dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:translationZ="2dp">
 
             <LinearLayout
                 android:id="@+id/episode_headline_text_container"
@@ -43,18 +37,18 @@
                 android:layout_height="wrap_content"
                 android:background="?colorPrimary"
                 android:elevation="2dp"
-                android:orientation="vertical"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/episode_title"
                     style="@style/Base.TextAppearance.AppCompat.Title.Inverse"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginLeft="88dp"
-                    android:layout_marginRight="16dp"
-                    android:layout_marginStart="88dp"
+                    android:paddingEnd="16dp"
+                    android:paddingLeft="88dp"
+                    android:paddingRight="16dp"
+                    android:paddingStart="88dp"
                     android:layout_marginTop="8dp"
                     android:ellipsize="end"
                     android:maxLines="2" />
@@ -65,11 +59,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/episode_title"
+                    android:layout_marginBottom="8dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginLeft="88dp"
                     android:layout_marginRight="16dp"
                     android:layout_marginStart="88dp"
-                    android:layout_marginBottom="8dp"
                     android:ellipsize="end"
                     android:maxLines="1" />
             </LinearLayout>
@@ -81,16 +75,16 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_below="@id/episode_headline_text_container"
-                android:layout_marginTop="-28dp"
+                android:layout_marginBottom="8dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="-28dp"
                 android:background="@drawable/fab_ripple_light"
-                android:stateListAnimator="@anim/fab_anim"
+                android:elevation="2dp"
                 android:src="@drawable/ic_favorite_black_24dp"
-                app:defaultColor="@color/colorNotFavorite"
+                android:stateListAnimator="@anim/fab_anim"
                 app:accentColor="@color/colorFavorite"
-                android:elevation="2dp"/>
+                app:defaultColor="@color/colorNotFavorite" />
         </RelativeLayout>
 
 
@@ -99,14 +93,14 @@
             style="@style/Base.TextAppearance.AppCompat.Body1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:translationZ="0dp"
             android:layout_gravity="start"
             android:layout_marginEnd="16dp"
             android:layout_marginLeft="88dp"
             android:layout_marginRight="16dp"
             android:layout_marginStart="88dp"
             android:layout_marginTop="-28dp"
-            android:ellipsize="end" />
+            android:ellipsize="end"
+            android:translationZ="0dp" />
     </LinearLayout>
 
 </LinearLayout>

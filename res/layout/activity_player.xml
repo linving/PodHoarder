@@ -1,43 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/player_root"
+    android:id="@+id/fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:orientation="vertical">
 
-    <RelativeLayout
+    <include layout="@layout/podcast_banner"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipChildren="false">
+        android:layout_height="wrap_content"/>
 
-        <ImageView
-            android:id="@+id/episode_banner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:background="@android:color/transparent"
-            android:clickable="false"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:minHeight="200dp"
-            android:minWidth="200dp"
-            android:scaleType="fitXY" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <ImageButton
             android:id="@+id/fab"
             android:layout_width="@dimen/fab_size"
             android:layout_height="@dimen/fab_size"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/episode_banner"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="-28dp"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="36dp"
+            android:layout_marginBottom="-28dp"
             android:background="@drawable/fab_ripple"
             android:elevation="4dp"
             android:src="@drawable/abc_ic_menu_moreoverflow_mtrl_alpha"
             android:stateListAnimator="@anim/fab_anim" />
-    </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/player_text_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="8dp"
+            android:paddingEnd="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp">
+
+            <TextView
+                android:id="@+id/nowplaying_title"
+                style="@style/Base.TextAppearance.AppCompat.Headline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:maxLines="1"
+                android:paddingBottom="8dp" />
+
+            <TextView
+                android:id="@+id/nowplaying_subtitle"
+                style="@style/Base.TextAppearance.AppCompat.Subhead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </FrameLayout>
+
 
     <LinearLayout
         android:id="@+id/player_panel_container"
@@ -60,24 +81,6 @@
                 android:layout_height="wrap_content"
                 android:minHeight="3dp" />
 
-            <TextView
-                android:id="@+id/nowplaying_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_gravity="center_vertical"
-                android:paddingBottom="8dp"
-                android:paddingTop="28dp"
-                android:maxLines="1"
-                style="@style/Base.TextAppearance.AppCompat.Headline"/>
-
-            <TextView
-                android:id="@+id/nowplaying_subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="16dp"
-                style="@style/Base.TextAppearance.AppCompat.Subhead"/>
 
             <include
                 android:id="@+id/player_controls"
@@ -85,7 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/player_controls_seekbar"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
 
         </LinearLayout>

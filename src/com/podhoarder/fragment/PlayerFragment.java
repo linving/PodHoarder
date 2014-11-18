@@ -5,6 +5,8 @@ import android.os.Handler;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -56,7 +58,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
         super.onCreateView(inflater, container, savedInstanceState);
 
         mContentView = inflater.inflate(R.layout.activity_player, container, false);
-        mDataManager = ((LibraryActivity) getActivity()).getDataManager();
+        setHasOptionsMenu(true);
 
         mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
         mPlaybackService.setStateChangedListener(PlayerFragment.this);
@@ -78,6 +80,15 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (mPlaybackService != null) {
+            onServiceConnected();
+        }
+        mToolbarContainer.setTranslationY(0f);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
     }
@@ -86,6 +97,12 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     public boolean onBackPressed() {
         //getActivity().getSupportFragmentManager().popBackStack();
         return false;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.player_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -144,6 +161,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
     private void setupUI() {
         setToolbarTransparent(true);
+        trySetScrimPadding();
         setupViews();
         colorUI(mCurrentFeed.getFeedImage().palette());
     }
@@ -158,7 +176,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
             subtitle.setText(mCurrentFeed.getTitle());
         }
 
-        mPodcastBanner = (ImageView) mContentView.findViewById(R.id.episode_banner);
+        mPodcastBanner = (ImageView) mContentView.findViewById(R.id.podcast_banner);
         mPodcastBanner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
         mPodcastBanner.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -254,6 +272,11 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     }
 
     private void colorUI(Palette p) {
-
+        Palette.Swatch s = p.getDarkVibrantSwatch();
+        View container = mContentView.findViewById(R.id.player_text_container);
+        container.setBackgroundColor(s.getRgb());
+        ((TextView)container.findViewById(R.id.nowplaying_title)).setTextColor(s.getTitleTextColor());
+        ((TextView)container.findViewById(R.id.nowplaying_subtitle)).setTextColor(s.getBodyTextColor());
+        //mToolbarBackground.setBackgroundColor(s.getRgb());
     }
 }

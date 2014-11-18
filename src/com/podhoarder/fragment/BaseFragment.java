@@ -15,6 +15,7 @@ import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.service.PodHoarderService;
+import com.podhoarderproject.podhoarder.R;
 
 /**
  * Created by Emil on 2014-10-28.
@@ -90,5 +91,19 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
 
     protected boolean isDrawerIconEnabled() {
         return ((BaseActivity)getActivity()).isDrawerIconEnabled();
+    }
+
+    /**
+     * Tries to set top padding of the top banner scrim / shadow.
+     * @return True if padding was set. False otherwise.
+     */
+    protected boolean trySetScrimPadding() {
+        View scrim = mContentView.findViewById(R.id.banner_scrim);
+        if (scrim != null) {
+            scrim.setPadding(0,mStatusBarHeight,0,0);
+            return true;
+        }
+        else
+            return false;
     }
 }

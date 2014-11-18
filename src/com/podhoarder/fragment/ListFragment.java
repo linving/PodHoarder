@@ -113,6 +113,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         }
 
         setToolbarTransparent(true);
+        trySetScrimPadding();
     }
 
     @Override
@@ -258,24 +259,30 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         mSelectedListItemIndex = clickedViewPos;
         mSelectedListItemTop = clickedView.getTop();
 
-        mToolbarContainer.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(ANIMATION_DURATION).start();
-        //mPodcastBanner.startAnimation(bannerMoveAnimation(mPodcastBanner, ANIMATION_DURATION));
-        bannerMoveAnimation(mPodcastBanner, ANIMATION_DURATION).start();
-        fadeOtherRows(clickedViewPos, ANIMATION_DURATION);
+        //bannerMoveAnimation(mPodcastBanner, ANIMATION_DURATION).start();
+        fadeOtherRows(clickedViewPos, ANIMATION_DURATION, true);
         fadeComponents(clickedView,ANIMATION_DURATION);
         clickedView.startAnimation(rowMoveAnimation(clickedView, displaymetrics, ANIMATION_DURATION, ep));
         rowBackgroundColorAnimation(clickedView,ANIMATION_DURATION).start();
         rowTextColorAnimation(clickedView, ANIMATION_DURATION).start();
         rowTextSizeAnimation(clickedView, displaymetrics, ANIMATION_DURATION).start();
-        rowTextAlphaAnimation(clickedView, ANIMATION_DURATION).start();
+        rowTextAlphaAnimation(clickedView, ANIMATION_DURATION-100).start();
         rowScaleHeightAnimation(clickedView, ANIMATION_DURATION).start();
-        rowScaleWidthAnimation(clickedView,displaymetrics, ANIMATION_DURATION).start();
-        rowTopPaddingAnimation(clickedView,ANIMATION_DURATION).start();
+        rowScaleWidthAnimation(clickedView.findViewById(R.id.list_episode_row_title),displaymetrics, ANIMATION_DURATION).start();
+
+        rowLeftPaddingAnimation(clickedView,ANIMATION_DURATION).start();
+        rowRightPaddingAnimation(clickedView,ANIMATION_DURATION).start();
+
+        mToolbarContainer.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(ANIMATION_DURATION).start();
+        mPodcastBanner.animate().translationY(0f).setDuration(ANIMATION_DURATION).setInterpolator(new AccelerateDecelerateInterpolator()).start();
         setDrawerIconEnabled(false,250);
     }
 
     private void reverseListItemSelectionAnimation(int clickedViewPos, int clickedViewTop) {
         final int ANIMATION_DURATION = 350;
+        if (!isDrawerIconEnabled()) {
+            setDrawerIconEnabled(true,ANIMATION_DURATION-100);
+        }
         View clickedView = mListView.getChildAt(clickedViewPos);
         if (clickedView != null) {
             ViewGroup.LayoutParams layoutParams = clickedView.getLayoutParams();
@@ -285,11 +292,13 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
             DisplayMetrics displaymetrics = new DisplayMetrics();
             getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 
+            fadeOtherRows(clickedViewPos, ANIMATION_DURATION, false);
+
             reverseFadeComponents(clickedView, ANIMATION_DURATION);
 
             clickedView.startAnimation(reverseRowMoveAnimation(clickedView, displaymetrics, ANIMATION_DURATION));
 
-            Animator rowScaleHeightAnimator = rowScaleHeightAnimation(clickedView,ANIMATION_DURATION);
+            Animator rowScaleHeightAnimator = rowScaleHeightAnimation(clickedView, ANIMATION_DURATION);
             rowScaleHeightAnimator.setInterpolator(new ReverseInterpolator());
             rowScaleHeightAnimator.start();
 
@@ -297,19 +306,22 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
             backgroundColorAnimator.setInterpolator(new ReverseInterpolator());
             backgroundColorAnimator.start();
 
-            Animator rowTextColorAnimator = rowTextColorAnimation(clickedView, ANIMATION_DURATION);
-            rowTextColorAnimator.setInterpolator(new ReverseInterpolator());
-            rowTextColorAnimator.start();
+            reverseRowTextColorAnimation(clickedView,ANIMATION_DURATION).start();
 
             Animator rowTextSizeAnimator = rowTextSizeAnimation(clickedView, displaymetrics, ANIMATION_DURATION);
             rowTextSizeAnimator.setInterpolator(new ReverseInterpolator());
             rowTextSizeAnimator.start();
+
+            clickedView.findViewById(R.id.list_episode_row_title).setAlpha(0f);
+            clickedView.findViewById(R.id.list_episode_row_subtitle).setAlpha(0f);
+            Animator rowAlphaAnimator = rowTextAlphaAnimation(clickedView, ANIMATION_DURATION-100);
+            rowAlphaAnimator.setInterpolator(new ReverseInterpolator());
+            rowAlphaAnimator.start();
         }
 
     }
 
-    private int getViewPosition(int pos)
-    {
+    private int getViewPosition(int pos) {
         final int numVisibleChildren = this.mListView.getChildCount();
         final int firstVisiblePosition = this.mListView.getFirstVisiblePosition();
 
@@ -348,13 +360,20 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         return bannerTranslationAnimator;
     }
 
-    private void fadeOtherRows(int clickedViewPos, int duration) {
+    private void fadeOtherRows(int clickedViewPos, int duration, boolean fadeOut) {
         for (int i=mListView.getFirstVisiblePosition(); i<=mListView.getLastVisiblePosition(); i++) {
             int relativePos = getViewPosition(i);
-            if (relativePos != getViewPosition(clickedViewPos))
-                mListView.getChildAt(relativePos).animate().alpha(0f).setDuration(duration/2).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+            if (relativePos != getViewPosition(clickedViewPos)) {
+                if (fadeOut)
+                    mListView.getChildAt(relativePos).animate().alpha(0f).setDuration(duration / 2).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+                else {
+                    mListView.getChildAt(relativePos).setAlpha(0f);
+                    mListView.getChildAt(relativePos).animate().alpha(1f).setDuration(duration / 2).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+                }
+            }
         }
     }
+
     private Animation rowMoveAnimation(View clickedView, DisplayMetrics displaymetrics, int duration, final Episode ep) {
         TranslateAnimation moveAnim =  new TranslateAnimation(
                 0, 0,
@@ -444,15 +463,31 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         anim.setDuration(duration);
         return anim;
     }
-    private Animator rowTopPaddingAnimation(final View clickedView, int duration) {
-        ValueAnimator anim = ValueAnimator.ofInt(0, mStatusBarHeight);
+    private Animator rowLeftPaddingAnimation(final View clickedView, int duration) {
+        ValueAnimator anim = ValueAnimator.ofInt(0, 88);
         anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 int val = (Integer) valueAnimator.getAnimatedValue();
-                clickedView.setPadding((val/3),val,0,0);
+                clickedView.setPadding(val,0,0,0);
             }
         });
+
+
+        anim.setDuration(duration);
+        return anim;
+    }
+    private Animator rowRightPaddingAnimation(final View clickedView, int duration) {
+        ValueAnimator anim = ValueAnimator.ofInt(55, 16);
+        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                int val = (Integer) valueAnimator.getAnimatedValue();
+                clickedView.setPadding(0,0,val,0);
+            }
+        });
+
+
         anim.setDuration(duration);
         return anim;
     }
@@ -497,6 +532,26 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
 
         Integer textColorFrom = title.getCurrentTextColor();
         Integer textColorTo = getResources().getColor(android.R.color.primary_text_dark);
+
+        ValueAnimator textColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), textColorFrom, textColorTo);
+        textColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                title.setTextColor((Integer) animator.getAnimatedValue());
+                timestamp.setTextColor((Integer)animator.getAnimatedValue());
+            }
+
+        });
+        textColorAnimation.setDuration(duration);
+        return textColorAnimation;
+    }
+    private Animator reverseRowTextColorAnimation(final View clickedView, int duration) {
+        final TextView title = (TextView) clickedView.findViewById(R.id.list_episode_row_title);
+        final TextView timestamp = (TextView) clickedView.findViewById(R.id.list_episode_row_subtitle);
+
+        Integer textColorFrom = mColorSwatch.getBodyTextColor();
+        Integer textColorTo = title.getCurrentTextColor();
 
         ValueAnimator textColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), textColorFrom, textColorTo);
         textColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {

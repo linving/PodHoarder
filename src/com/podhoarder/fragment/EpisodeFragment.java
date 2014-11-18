@@ -67,7 +67,6 @@ public class EpisodeFragment extends BaseFragment {
         mContentView = inflater.inflate(R.layout.activity_episode, container, false);
 
         mOriginalToolbarElevation = mToolbar.getElevation();
-        mDataManager = ((LibraryActivity) getActivity()).getDataManager();
 
         int episodeId = getArguments().getInt("episodeId", 0);
 
@@ -150,6 +149,7 @@ public class EpisodeFragment extends BaseFragment {
 
     private void setupUI() {
         setToolbarTransparent(true);
+        trySetScrimPadding();
 
         mPodcastBanner = (ImageView) mContentView.findViewById(R.id.podcast_banner);
         mPodcastBanner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
@@ -211,9 +211,7 @@ public class EpisodeFragment extends BaseFragment {
     }
 
     private void endFragmentAnimation() {
-        if (!isDrawerIconEnabled()) {
-            setDrawerIconEnabled(true,300);
-        }
+
         mFAB.animate().scaleY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
         mEpisodeDescription.animate().alpha(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).setListener(new Animator.AnimatorListener() {
             @Override

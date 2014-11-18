@@ -47,7 +47,6 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
         setupListView();
         mProgressBar = (ButteryProgressBar) mContentView.findViewById(R.id.search_progressBar);
 
-        mDataManager = ((LibraryActivity) getActivity()).getDataManager();
         mSearchManager = new SearchManager(getActivity(), mListAdapter, mProgressBar);
 
         ((LibraryActivity)getActivity()).setCurrentFragment(this);

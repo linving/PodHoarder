@@ -90,7 +90,7 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) mContentView.findViewById(R.id.swipeLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setProgressViewOffset(true,100,200);
+        mSwipeRefreshLayout.setProgressViewOffset(true,(mToolbarSize),(mToolbarSize) + 200);
         mSwipeRefreshLayout.setDistanceToTriggerSync(200);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent, R.color.windowBackground, R.color.colorAccent, R.color.windowBackground);
 

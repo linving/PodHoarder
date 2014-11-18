@@ -275,7 +275,7 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     public void startPlayerActivity() {
         if (!((Object) mCurrentFragment).getClass().getName().equals(PlayerFragment.class.getName())) { //We check to see if the current fragment is a PlayerFragment. In that case we don't need to create a new one.
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setCustomAnimations(R.anim.player_fade_in, R.anim.fade_out, R.anim.activity_stay_transition, R.anim.player_fade_out);
+            //ft.setCustomAnimations(0, 0, 0, 0);
             ft.replace(R.id.root_container, new PlayerFragment());
             ft.addToBackStack(null);
             ft.commitAllowingStateLoss();
