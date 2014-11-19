@@ -63,7 +63,7 @@ public class DataManager {
 
         if (hasPodcasts()) {
             mQuicklistAdapter = new QuickListAdapter(mFavorites, mContext);
-            mPlaylistAdapter = new QueueAdapter(mPlaylist, R.layout.episode_list_row, mContext);
+            mPlaylistAdapter = new QueueAdapter(mPlaylist, R.layout.queue_episode_list_row, mContext);
         }
         else {
             mQuicklistAdapter = new QuickListAdapter(new ArrayList<Episode>(), mContext);
@@ -289,6 +289,16 @@ public class DataManager {
         updatePlaylist(mPlaylist);
     }
 
+    public void removeFromPlaylist(int pos) {
+        mPlaylist.remove(pos);
+        mPlaylistAdapter.notifyDataSetChanged();
+        updatePlaylist(mPlaylist);
+    }
+
+    public void removeFromPlaylist(Episode ep) {
+        removeFromPlaylist(mPlaylist.indexOf(ep));
+    }
+
     /**
      * A simple check to see if there are any podcasts or if the library is empty.
      *
@@ -397,7 +407,6 @@ public class DataManager {
     protected void invalidate() {
     }
 
-    ;
 
     /**
      * Called when the "Feeds" data gets reloaded. Should notify any adapters.
@@ -405,19 +414,13 @@ public class DataManager {
     protected void onFeedsDataReloaded() {
     }
 
-    ;
-
     /**
      * Called when the "Playlist" data gets reloaded. Should notify any adapters.
      */
     protected void onPlaylistDataReloaded() {
-        if (((BaseActivity)mContext).currentQuicklistFilter() == BaseActivity.QuicklistFilter.PLAYLIST) {
-            mPlaylistAdapter.replaceItems(mPlaylist);
-        }
+        mPlaylistAdapter.replaceItems(mPlaylist);
         mPlaylistAdapter.notifyDataSetChanged();
     }
-
-    ;
 
     /**
      * Called when the "New" list data gets reloaded. Should notify any adapters.
@@ -428,8 +431,6 @@ public class DataManager {
         }
         mQuicklistAdapter.notifyDataSetChanged();
     }
-
-    ;
 
     /**
      * Called when the "Favorited" list data gets reloaded. Should notify any adapters.

@@ -273,9 +273,10 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     }
     @Override
     public void startPlayerActivity() {
+
         if (!((Object) mCurrentFragment).getClass().getName().equals(PlayerFragment.class.getName())) { //We check to see if the current fragment is a PlayerFragment. In that case we don't need to create a new one.
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            //ft.setCustomAnimations(0, 0, 0, 0);
+            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
             ft.replace(R.id.root_container, new PlayerFragment());
             ft.addToBackStack(null);
             ft.commitAllowingStateLoss();
@@ -296,6 +297,7 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     }
     @Override
     public void startSettingsActivity() {
+        setSelectedNavigationItem(NAVIGATION_SETTINGS);
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivityForResult(intent, SETTINGS_REQUEST);
     }
@@ -330,8 +332,6 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
         this.mOnFirstFeedAddedListener = listener;
     }
 
-
-
     //GETTERS
     public LibraryActivityManager getDataManager() {
         return ((LibraryActivityManager) mDataManager);
@@ -345,5 +345,15 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
 
     public void setCurrentFragment(BaseFragment currentFragment)  {
         this.mCurrentFragment = currentFragment;
+
+        if (((Object) mCurrentFragment).getClass().getName().equals(AddFragment.class.getName()) ||
+             ((Object) mCurrentFragment).getClass().getName().equals(GridFragment.class.getName()) ||
+             ((Object) mCurrentFragment).getClass().getName().equals(ListFragment.class.getName()) ||
+             ((Object) mCurrentFragment).getClass().getName().equals(EpisodeFragment.class.getName())) {
+            setSelectedNavigationItem(NAVIGATION_LIBRARY);
+        }
+        else if (((Object) mCurrentFragment).getClass().getName().equals(PlayerFragment.class.getName())) {
+            setSelectedNavigationItem(NAVIGATION_PLAYER);
+        }
     }
 }

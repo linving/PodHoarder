@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+
         <FrameLayout
             android:id="@+id/root"
             android:layout_width="match_parent"
@@ -50,7 +51,7 @@
                 android:layout_gravity="bottom|right"
                 android:layout_marginRight="16dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/fab_no_ripple"
+                android:background="@drawable/fab_ripple"
                 android:stateListAnimator="@anim/fab_anim"
                 android:src="@drawable/ic_add_white_24dp"
                 android:elevation="4dp"

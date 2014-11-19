@@ -4,12 +4,12 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.podhoarder.object.Episode;
-import com.podhoarder.util.EpisodeRowUtils;
 import com.podhoarder.util.ViewHolders;
 import com.podhoarderproject.podhoarder.R;
 
@@ -18,17 +18,32 @@ import java.util.LinkedList;
 /**
  * Created by Emil on 2014-11-12.
  */
-public class QueueAdapter extends ArrayAdapter<Episode> {
+public class QueueAdapter extends BaseAdapter implements ListAdapter {
 
-    Context mContext;
-    int layoutResourceId;
-    LinkedList<Episode> data;
+    private Context mContext;
+    private int layoutResourceId;
+    private LinkedList<Episode> data;
+    private OnItemSecondaryActionClickedListener mOnItemSecondaryActionClickedListener;
 
     public QueueAdapter(LinkedList<Episode> data, int layoutResourceId, Context context) {
-        super(context, layoutResourceId, data);
         this.layoutResourceId = layoutResourceId;
         this.mContext = context;
         this.data = data;
+    }
+
+    @Override
+    public int getCount() {
+        return data.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return data.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return data.get(position).getEpisodeId();
     }
 
     @Override
@@ -45,7 +60,6 @@ public class QueueAdapter extends ArrayAdapter<Episode> {
             holder = new ViewHolders.EpisodeRowViewHolder();
             holder.title = (TextView) convertView.findViewById(R.id.list_episode_row_title);
             holder.subtitle = (TextView) convertView.findViewById(R.id.list_episode_row_subtitle);
-            holder.icon = (ImageView) convertView.findViewById(R.id.list_episode_row_icon);
             holder.secondaryAction = (ImageView) convertView.findViewById(R.id.list_episode_row_secondary_action);
 
             convertView.setTag(holder);
@@ -56,11 +70,17 @@ public class QueueAdapter extends ArrayAdapter<Episode> {
         Episode currentEpisode = data.get(position);
 
         if(currentEpisode != null) {
-            holder.secondaryAction.setVisibility(View.INVISIBLE);
-
+            holder.secondaryAction.setImageResource(R.drawable.ic_close_black_24dp);
+            final int pos = position;
+            holder.secondaryAction.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mOnItemSecondaryActionClickedListener != null)
+                        mOnItemSecondaryActionClickedListener.onItemSecondaryActionClicked(v,pos);
+                }
+            });
             holder.title.setText(currentEpisode.getTitle());	//Set Episode Title
-
-            EpisodeRowUtils.setRowIndicator(this.mContext, holder, currentEpisode);
+            holder.subtitle.setVisibility(View.GONE);
         }
 
         return convertView;
@@ -70,5 +90,17 @@ public class QueueAdapter extends ArrayAdapter<Episode> {
         data.clear();
         data = newCollection;
         notifyDataSetChanged();
+    }
+
+    public interface OnItemSecondaryActionClickedListener {
+        public void onItemSecondaryActionClicked(View v, int pos);
+    }
+
+    public OnItemSecondaryActionClickedListener getOnItemSecondaryActionClickedListener() {
+        return mOnItemSecondaryActionClickedListener;
+    }
+
+    public void setOnItemSecondaryActionClickListener(OnItemSecondaryActionClickedListener listener) {
+        mOnItemSecondaryActionClickedListener = listener;
     }
 }

@@ -45,7 +45,7 @@ import java.util.List;
  */
 public class GridFragment extends CollectionFragment implements SwipeRefreshLayout.OnRefreshListener, GridAdapter.GridItemClickListener, LibraryActivity.onFirstFeedAddedListener {
 
-    protected boolean FABVisible;
+    protected boolean FABVisible = false;
     //Feeds Grid
     private GridView mGridView;
     private int mGridItemSize;
@@ -97,7 +97,6 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
         populate();
         ((LibraryActivity)getActivity()).setOnFirstFeedAddedListener(this);
         setupFAB();
-        ((LibraryActivity)getActivity()).setCurrentFragment(this);
 
         return mContentView;
     }
@@ -109,6 +108,7 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
             onServiceConnected();
         }
         mToolbarContainer.setTranslationY(0f);
+        ((LibraryActivity)getActivity()).setCurrentFragment(this);
     }
 
     @Override
@@ -244,11 +244,11 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
 
                                 mToolbarContainer.setTranslationY(scrollDelta);  //Move the toolbar vertically.
 
-                                if (!topOfFirstItemVisible && FABVisible) {
+                                if (!topOfFirstItemVisible && FABVisible && mFAB != null) {
                                     mFAB.animate().translationY(mFAB.getMeasuredHeight() * 2).setDuration(100).setInterpolator(new AccelerateInterpolator());
                                     FABVisible = false;
                                 }
-                                else if (topOfFirstItemVisible && !FABVisible) {
+                                else if (topOfFirstItemVisible && !FABVisible && mFAB != null) {
                                     mFAB.animate().translationY(0f).setDuration(100).setInterpolator(new DecelerateInterpolator());
                                     FABVisible = true;
                                 }

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/list_episode_row_text_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingEnd="40dp"
+        android:paddingRight="40dp"
+        android:paddingLeft="16dp"
+        android:paddingStart="16dp"  >
+
+        <TextView
+            android:id="@+id/list_episode_row_title"
+            style="@style/Base.TextAppearance.AppCompat.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:text=""
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/list_episode_row_subtitle"
+            style="@style/Base.TextAppearance.AppCompat"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ellipsize="end"
+            android:text=""
+            android:maxLines="1"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/list_episode_row_secondary_action"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:maxHeight="24dp"
+        android:maxWidth="24dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:alpha=".54"
+        android:paddingRight="16dp"
+        android:paddingEnd="16dp"
+        android:paddingLeft="16dp"
+        android:paddingStart="16dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_more_vert_black_24dp" />
+
+</RelativeLayout>

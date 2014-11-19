@@ -98,8 +98,6 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
 
         populate();
 
-        ((LibraryActivity) getActivity()).setCurrentFragment(this);
-
         return mContentView;
     }
 
@@ -114,11 +112,14 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
 
         setToolbarTransparent(true);
         trySetScrimPadding();
+        ((LibraryActivity) getActivity()).setCurrentFragment(this);
     }
 
     @Override
     public void onFragmentRedrawn() {
         reverseListItemSelectionAnimation(mSelectedListItemIndex, mSelectedListItemTop);
+        mSelectedListItemTop = Integer.MAX_VALUE;
+        mSelectedListItemIndex = -1;
     }
 
     @Override
@@ -283,7 +284,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         if (!isDrawerIconEnabled()) {
             setDrawerIconEnabled(true,ANIMATION_DURATION-100);
         }
-        View clickedView = mListView.getChildAt(clickedViewPos);
+        View clickedView = mListView.getChildAt(getViewPosition(clickedViewPos));
         if (clickedView != null) {
             ViewGroup.LayoutParams layoutParams = clickedView.getLayoutParams();
             layoutParams.height = mToolbarSize*2;

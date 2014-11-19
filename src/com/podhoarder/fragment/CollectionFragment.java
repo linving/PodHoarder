@@ -1,7 +1,5 @@
 package com.podhoarder.fragment;
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Build;
@@ -15,7 +13,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.ImageButton;
 
@@ -179,38 +176,5 @@ public class CollectionFragment extends BaseFragment implements PodHoarderServic
         else {
             ((BaseActivity) getActivity()).startGridActivity();
         }
-    }
-
-
-    //ANIMATION
-    public Animator viewCloseAnimation(final View v, int duration) {
-        ValueAnimator anim = ValueAnimator.ofInt(v.getMeasuredWidth(), v.getMinimumWidth());
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                int val = (Integer) valueAnimator.getAnimatedValue();
-                ViewGroup.LayoutParams layoutParams = v.getLayoutParams();
-                layoutParams.width = val;
-                v.setLayoutParams(layoutParams);
-            }
-        });
-        anim.setInterpolator(new AccelerateDecelerateInterpolator());
-        anim.setDuration(duration);
-        return anim;
-    }
-    public Animator viewOpenAnimation(final View v, int duration, int targetWidth) {
-        ValueAnimator anim = ValueAnimator.ofInt(0, targetWidth);
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                int val = (Integer) valueAnimator.getAnimatedValue();
-                ViewGroup.LayoutParams layoutParams = v.getLayoutParams();
-                layoutParams.width = val;
-                v.setLayoutParams(layoutParams);
-            }
-        });
-        anim.setInterpolator(new AccelerateDecelerateInterpolator());
-        anim.setDuration(duration);
-        return anim;
     }
 }

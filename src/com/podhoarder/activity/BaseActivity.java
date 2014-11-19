@@ -21,7 +21,9 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 import com.podhoarder.adapter.NavDrawerListAdapter;
 import com.podhoarder.datamanager.DataManager;
@@ -38,8 +40,11 @@ import java.util.ArrayList;
  * Created by Emil on 2014-10-21.
  */
 public abstract class BaseActivity extends ActionBarActivity {
+    public static final int NAVIGATION_LIBRARY = 0, NAVIGATION_PLAYER = 1, NAVIGATION_SETTINGS = 2, NAVIGATION_ABOUT = 3;
     //Top layout
     private DrawerLayout mDrawerLayout;
+    protected LinearLayout mLeftDrawer;
+    protected RelativeLayout mRightDrawer;
     //Drawer toggle
     protected ActionBarDrawerToggle mDrawerToggle;
     private boolean mDrawerToggleEnabled;
@@ -66,7 +71,6 @@ public abstract class BaseActivity extends ActionBarActivity {
     //Main View
     public FrameLayout mContentRoot;
     //Listener interface
-    protected NavDrawerItemClickListener mNavDrawerClickListener;
     protected QuicklistItemClickListener mQuicklistItemClickListener;
 
     //Data Manager
@@ -117,11 +121,15 @@ public abstract class BaseActivity extends ActionBarActivity {
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggleEnabled = true;
+
+        mToolbarContainer.bringToFront();
     }
 
     @Override
     public void setContentView(int layoutResID) {
         mDrawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_base, null);
+        mLeftDrawer = (LinearLayout) mDrawerLayout.findViewById(R.id.left_drawer);
+        mRightDrawer = (RelativeLayout) mDrawerLayout.findViewById(R.id.right_drawer);
         mContentRoot = (FrameLayout) mDrawerLayout.findViewById(R.id.root_container);
         // set the drawer layout as main_menu content view of Activity.
         setContentView(mDrawerLayout);
@@ -269,6 +277,12 @@ public abstract class BaseActivity extends ActionBarActivity {
         return navDrawerItems;
     }
 
+    protected void setSelectedNavigationItem(int pos) {
+        if (mNavDrawerListView.getChildAt(pos) != null)
+            mNavDrawerListView.getChildAt(pos).setSelected(true);
+
+        ((NavDrawerListAdapter)mNavDrawerListView.getAdapter()).notifyDataSetChanged();
+    }
 
     public int getCurrentPrimaryColor() {
         return mCurrentPrimaryColor;
@@ -293,28 +307,30 @@ public abstract class BaseActivity extends ActionBarActivity {
         mNavDrawerBanner = (ImageView) findViewById(R.id.left_drawer_list_banner);
         mNavDrawerListView = (ListView) findViewById(R.id.left_drawer_list);
         // setting the nav drawer list adapter
-        NavDrawerListAdapter adapter = new NavDrawerListAdapter(getApplicationContext(), generateNavigationMenu());
+        final NavDrawerListAdapter adapter = new NavDrawerListAdapter(getApplicationContext(), generateNavigationMenu());
         mNavDrawerListView.setAdapter(adapter);
         mNavDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //mNavDrawerClickListener.onQuicklistItemClicked(view, position);
-                final NavDrawerItemClickListener.NavDrawerItemPosition pos = NavDrawerItemClickListener.NavDrawerItemPosition.values()[position];
+                view.setSelected(true);
+                adapter.notifyDataSetChanged();
                 mDrawerLayout.closeDrawer(Gravity.START);   //Close the drawer
+                final int pos = position;
                 new Handler().postDelayed(new Runnable() {  //Post a delayed runnable that will start the new activity once the drawer has been closed. This is to prevent animation lag.
                     @Override
                     public void run() {
                         switch (pos) {
-                            case LIBRARY:
+                            case NAVIGATION_LIBRARY:
                                 startGridActivity();
                                 break;
-                            case PLAYER:
+                            case NAVIGATION_PLAYER:
                                 startPlayerActivity();
                                 break;
-                            case SETTINGS:
+                            case NAVIGATION_SETTINGS:
                                 startSettingsActivity();
                                 break;
-                            case ABOUT:
+                            case NAVIGATION_ABOUT:
                                 break;
                             default:
                                 break;
@@ -323,7 +339,6 @@ public abstract class BaseActivity extends ActionBarActivity {
                 }, 150);
             }
         });
-        mNavDrawerListView.setSelection(0);
     }
 
     public void setDrawerIconEnabled(final boolean enabled, final int duration) {
@@ -373,25 +388,19 @@ public abstract class BaseActivity extends ActionBarActivity {
         });
         mCurrentQuicklistFilter = QuicklistFilter.FAVORITES;
         mQuicklistFilterFavorites.toggle();
+        mQuicklistFilterFavorites.invalidate();
     }
 
     //DRAWER CLICK INTERFACE
-    public interface NavDrawerItemClickListener {
-        public void onItemClicked(View clickedView, int position);
-
-        public static enum NavDrawerItemPosition {LIBRARY, PLAYER, SETTINGS, ABOUT}
-
-        ;
-    }
-
     public interface QuicklistItemClickListener {
         public void onQuicklistItemClicked(View clickedView, int position, QuicklistFilter currentFilter);
     }
 
     //QUICK LIST FILTER ENUM
     public enum QuicklistFilter {
-        FAVORITES, PLAYLIST, NEW
+        FAVORITES, NEW
     }
+
 
     public QuicklistFilter currentQuicklistFilter() {
         return mCurrentQuicklistFilter;

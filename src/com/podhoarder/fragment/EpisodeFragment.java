@@ -75,12 +75,17 @@ public class EpisodeFragment extends BaseFragment {
 
         setupUI();
 
-        ((LibraryActivity)getActivity()).setCurrentFragment(this);
         if (isDrawerIconEnabled()) {
             setDrawerIconEnabled(false,300);
         }
 
         return mContentView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((LibraryActivity)getActivity()).setCurrentFragment(this);
     }
 
     @Override

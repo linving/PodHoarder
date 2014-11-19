@@ -1,5 +1,9 @@
 package com.podhoarder.fragment;
 
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.graphics.Palette;
@@ -17,6 +21,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.podhoarder.activity.LibraryActivity;
+import com.podhoarder.adapter.QueueAdapter;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.service.PodHoarderService;
@@ -26,7 +31,7 @@ import com.podhoarderproject.podhoarder.R;
 /**
  * Created by Emil on 2014-10-29.
  */
-public class PlayerFragment extends BaseFragment implements PodHoarderService.StateChangedListener {
+public class PlayerFragment extends BaseFragment implements PodHoarderService.StateChangedListener, QueueAdapter.OnItemSecondaryActionClickedListener {
     //Playback Service
     private PodHoarderService mPlaybackService;
 
@@ -72,8 +77,6 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
         setupUI();
 
-        ((LibraryActivity)getActivity()).setCurrentFragment(this);
-
         setDrawerIconEnabled(false, 0);
 
         return mContentView;
@@ -86,6 +89,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
             onServiceConnected();
         }
         mToolbarContainer.setTranslationY(0f);
+        ((LibraryActivity)getActivity()).setCurrentFragment(this);
     }
 
     @Override
@@ -116,32 +120,37 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     }
 
     @Override
+    public void onItemSecondaryActionClicked(View v, int pos) {
+        mDataManager.removeFromPlaylist(pos);
+    }
+
+    @Override
     public void onStateChanged(PodHoarderService.PlayerState newPlayerState) {
         Log.i(LOG_TAG, "New player state: " + newPlayerState);
         switch (newPlayerState) {
             case PLAYING:
                 mSeekBar.setProgress(mPlaybackService.getPosn());
 
-                if (mLoadingCircle.getVisibility() == View.VISIBLE)
+                /*if (mLoadingCircle.getVisibility() == View.VISIBLE)
                     mLoadingCircle.setVisibility(View.GONE);
 
                 if (mPlayPauseButton.getVisibility() == View.GONE)
                     mPlayPauseButton.setVisibility(View.VISIBLE);
 
-                mPlayPauseButton.setToggled(true);
+                mPlayPauseButton.setToggled(true);*/
                 break;
             case PAUSED:
-                if (mLoadingCircle.getVisibility() == View.VISIBLE)
+                /*if (mLoadingCircle.getVisibility() == View.VISIBLE)
                     mLoadingCircle.setVisibility(View.GONE);
 
                 if (mPlayPauseButton.getVisibility() == View.GONE)
                     mPlayPauseButton.setVisibility(View.VISIBLE);
 
-                mPlayPauseButton.setToggled(false);
+                mPlayPauseButton.setToggled(false);*/
                 break;
             case LOADING:
-                mPlayPauseButton.setVisibility(View.GONE);
-                mLoadingCircle.setVisibility(View.VISIBLE);
+                /*mPlayPauseButton.setVisibility(View.GONE);
+                mLoadingCircle.setVisibility(View.VISIBLE);*/
                 break;
         }
     }
@@ -170,10 +179,8 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
         if (mCurrentEpisode != null) {
             TextView title = (TextView) mContentView.findViewById(R.id.nowplaying_title);
-            TextView subtitle = (TextView) mContentView.findViewById(R.id.nowplaying_subtitle);
 
             title.setText(mCurrentEpisode.getTitle());
-            subtitle.setText(mCurrentFeed.getTitle());
         }
 
         mPodcastBanner = (ImageView) mContentView.findViewById(R.id.podcast_banner);
@@ -189,7 +196,9 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
         });
 
         mPlaylist = (ListView) mContentView.findViewById(R.id.playlist);
+        mDataManager.mPlaylistAdapter.setOnItemSecondaryActionClickListener(this);
         mPlaylist.setAdapter(mDataManager.mPlaylistAdapter);
+        mPlaylist.setItemsCanFocus(true);
 
         setupPlayerControls();
     }
@@ -205,7 +214,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
             }
         });
 
-        mPlayPauseButton = (ToggleImageButton) mContentView.findViewById(R.id.player_controls_button_playpause);
+        /*mPlayPauseButton = (ToggleImageButton) mContentView.findViewById(R.id.player_controls_button_playpause);
         mPlayPauseButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -239,7 +248,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
                 if (mPlaybackService != null && mPlaybackService.isPlaying())
                     mPlaybackService.skipBackward();
             }
-        });
+        });*/
 
         mSeekBar = (SeekBar) mContentView.findViewById(R.id.player_controls_seekbar);
 
@@ -273,10 +282,27 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
     private void colorUI(Palette p) {
         Palette.Swatch s = p.getDarkVibrantSwatch();
-        View container = mContentView.findViewById(R.id.player_text_container);
-        container.setBackgroundColor(s.getRgb());
-        ((TextView)container.findViewById(R.id.nowplaying_title)).setTextColor(s.getTitleTextColor());
-        ((TextView)container.findViewById(R.id.nowplaying_subtitle)).setTextColor(s.getBodyTextColor());
+        //View container = mContentView.findViewById(R.id.player_text_container);
+        //container.setBackgroundColor(s.getRgb());
+        //((TextView)container.findViewById(R.id.nowplaying_title)).setTextColor(s.getTitleTextColor());
+        //((TextView)container.findViewById(R.id.nowplaying_subtitle)).setTextColor(s.getBodyTextColor());
         //mToolbarBackground.setBackgroundColor(s.getRgb());
+
+        LayerDrawable ld = (LayerDrawable) mSeekBar.getProgressDrawable();
+        ClipDrawable d1 = (ClipDrawable) ld.findDrawableByLayerId(android.R.id.progress);
+        d1.setColorFilter(s.getRgb(), PorterDuff.Mode.SRC_IN);
+
+        TextView mNowPlayingHeader = (TextView) mContentView.findViewById(R.id.nowplaying_header);
+        TextView mPlaylistHeader = (TextView) mContentView.findViewById(R.id.playlist_header);
+
+        mNowPlayingHeader.setTextColor(s.getBodyTextColor());
+        GradientDrawable backgroundDrawable = (GradientDrawable) mNowPlayingHeader.getBackground();
+        backgroundDrawable.setColor(s.getRgb());
+
+        mPlaylistHeader.setTextColor(s.getBodyTextColor());
+        backgroundDrawable = (GradientDrawable) mPlaylistHeader.getBackground();
+        backgroundDrawable.setColor(s.getRgb());
     }
+
+
 }

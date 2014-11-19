@@ -6,14 +6,15 @@ package com.podhoarder.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.podhoarder.object.NavDrawerItem;
+import com.podhoarder.view.CheckableImageView;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.ArrayList;
@@ -51,13 +52,18 @@ public class NavDrawerListAdapter extends BaseAdapter {
             convertView = mInflater.inflate(R.layout.drawer_navigation_item, null);
         }
 
-        ImageView imgIcon = (ImageView) convertView.findViewById(R.id.icon);
+        CheckableImageView imgIcon = (CheckableImageView) convertView.findViewById(R.id.icon);
         TextView txtTitle = (TextView) convertView.findViewById(R.id.title);
 
         imgIcon.setImageResource(navDrawerItems.get(position).getIcon());
         txtTitle.setText(navDrawerItems.get(position).getTitle());
 
+        imgIcon.setChecked(convertView.isSelected());
+        if (convertView.isSelected())
+            txtTitle.setTextColor(context.getResources().getColor(R.color.colorFavorite));
+        else
+            txtTitle.setTextColor(Color.BLACK);
+
         return convertView;
     }
-
 }

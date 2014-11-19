@@ -7,9 +7,19 @@
     android:clipToPadding="false"
     android:orientation="vertical">
 
-    <include layout="@layout/podcast_banner"
+    <include
+        layout="@layout/podcast_banner"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
+
+    <SeekBar
+        android:id="@+id/player_controls_seekbar"
+        style="@style/Podhoarder.Seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusableInTouchMode="true"
+        android:minHeight="10dp"
+        android:paddingBottom="5dp"/>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -20,18 +30,19 @@
             android:layout_width="@dimen/fab_size"
             android:layout_height="@dimen/fab_size"
             android:layout_gravity="bottom|right"
-            android:layout_marginRight="36dp"
             android:layout_marginBottom="-28dp"
+            android:layout_marginRight="36dp"
             android:background="@drawable/fab_ripple"
             android:elevation="4dp"
             android:src="@drawable/abc_ic_menu_moreoverflow_mtrl_alpha"
-            android:stateListAnimator="@anim/fab_anim" />
+            android:stateListAnimator="@anim/fab_anim"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/player_text_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:paddingBottom="8dp"
             android:paddingEnd="16dp"
             android:paddingLeft="16dp"
@@ -39,26 +50,49 @@
             android:paddingStart="16dp"
             android:paddingTop="8dp">
 
-            <TextView
-                android:id="@+id/nowplaying_title"
-                style="@style/Base.TextAppearance.AppCompat.Headline"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:maxLines="1"
-                android:paddingBottom="8dp" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/nowplaying_subtitle"
-                style="@style/Base.TextAppearance.AppCompat.Subhead"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/nowplaying_header"
+                    style="@style/Base.TextAppearance.AppCompat.Small.Inverse"
+                    android:layout_width="56dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:background="@drawable/player_header_background"
+                    android:padding="4dp"
+                    android:text="@string/now_playing"
+                    android:textAllCaps="true" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:visibility="gone" />
+                android:paddingLeft="16dp"
+                android:paddingStart="16dp"
+                android:orientation="vertical">
 
+                <TextView
+                    android:id="@+id/nowplaying_title"
+                    style="@style/Base.TextAppearance.AppCompat.Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:maxLines="1"/>
+
+            </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/list_divider"/>
 
     <LinearLayout
         android:id="@+id/player_panel_container"
@@ -67,62 +101,44 @@
         android:orientation="horizontal">
 
         <LinearLayout
-            android:id="@+id/player_controls_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="-28dp"
-            android:orientation="vertical"
-            android:visibility="visible">
-
-            <SeekBar
-                android:id="@+id/player_controls_seekbar"
-                style="@style/Podhoarder.Seekbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="3dp" />
-
-
-            <include
-                android:id="@+id/player_controls"
-                layout="@layout/player_controls"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/player_controls_seekbar"
-                android:visibility="gone" />
-
-
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/player_queue_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="-28dp"
             android:background="@android:color/transparent"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:orientation="horizontal">
 
-
-            <TextView
-                android:id="@+id/playlist_header"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:text="Queue"
-                android:textAllCaps="true" />
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/playlist_header"
+                    style="@style/Base.TextAppearance.AppCompat.Small.Inverse"
+                    android:layout_width="56dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_marginLeft="16dp"
+                    android:background="@drawable/player_header_background"
+                    android:padding="4dp"
+                    android:text="Queue"
+                    android:textAllCaps="true" />
+                </LinearLayout>
+
 
             <ListView
                 android:id="@+id/playlist"
-                listSelector="@drawable/list_selector"
+                android:listSelector="@android:color/transparent"
+                listSelector="@android:color/transparent"
+                android:descendantFocusability="afterDescendants"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
+                android:layout_gravity="top"
                 android:clipToPadding="false"
                 android:divider="@null"
-                android:dividerHeight="0px"
-                android:listSelector="@drawable/list_selector"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp" />
+                android:dividerHeight="0px"/>
         </LinearLayout>
 
     </LinearLayout>

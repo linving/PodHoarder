@@ -27,7 +27,6 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:fitsSystemWindows">false</item>
         <item name="android:toolbarStyle">@style/Theme.Podhoarder.Toolbar</item>
-        <item name="android:windowContentTransitions">true</item>
 
     </style>
 

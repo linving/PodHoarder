@@ -30,7 +30,7 @@
     <string name="sleep_minutes">minutes</string>
     
     <!-- Player Title -->
-    <string name="now_playing">Now Playing</string>
+    <string name="now_playing">Now</string>
     
     <!-- Add Feeds Activity -->
     <string name="add_search_hint">Find Podcasts</string>

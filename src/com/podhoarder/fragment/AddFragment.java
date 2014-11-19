@@ -49,8 +49,13 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
 
         mSearchManager = new SearchManager(getActivity(), mListAdapter, mProgressBar);
 
-        ((LibraryActivity)getActivity()).setCurrentFragment(this);
         return mContentView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((LibraryActivity)getActivity()).setCurrentFragment(this);
     }
 
     @Override
