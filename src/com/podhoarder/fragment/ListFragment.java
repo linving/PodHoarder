@@ -112,7 +112,6 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
 
         setToolbarTransparent(true);
         trySetScrimPadding();
-        ((LibraryActivity) getActivity()).setCurrentFragment(this);
     }
 
     @Override

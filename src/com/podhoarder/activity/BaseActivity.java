@@ -1,9 +1,11 @@
 package com.podhoarder.activity;
 
+import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -292,6 +294,36 @@ public abstract class BaseActivity extends ActionBarActivity {
         return mCurrentPrimaryColorDark;
     }
 
+    public void colorUI(int color) {
+        ValueAnimator primaryColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), mCurrentPrimaryColor, color);
+        primaryColorAnimation.setDuration(200);
+        primaryColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                int value = (Integer) animator.getAnimatedValue();
+                getWindow().setNavigationBarColor(value);
+            }
+
+        });
+        primaryColorAnimation.start();
+    }
+
+    public void resetUI() {
+        ValueAnimator primaryColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), getWindow().getNavigationBarColor(), Color.BLACK);
+        primaryColorAnimation.setDuration(200);
+        primaryColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                int value = (Integer) animator.getAnimatedValue();
+                getWindow().setNavigationBarColor(value);
+            }
+
+        });
+        primaryColorAnimation.start();
+    }
+
     private int getStatusBarHeight() {
         int result = 0;
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
@@ -313,8 +345,8 @@ public abstract class BaseActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //mNavDrawerClickListener.onQuicklistItemClicked(view, position);
-                view.setSelected(true);
-                adapter.notifyDataSetChanged();
+                //view.setSelected(true);
+                //adapter.notifyDataSetChanged();
                 mDrawerLayout.closeDrawer(Gravity.START);   //Close the drawer
                 final int pos = position;
                 new Handler().postDelayed(new Runnable() {  //Post a delayed runnable that will start the new activity once the drawer has been closed. This is to prevent animation lag.

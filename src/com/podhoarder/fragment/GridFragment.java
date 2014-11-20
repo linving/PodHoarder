@@ -16,6 +16,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.GridLayoutAnimationController;
 import android.view.animation.ScaleAnimation;
@@ -78,6 +79,11 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
                 if (mSelectedGridItemTop != Integer.MAX_VALUE && mSelectedGridItemLeft != Integer.MAX_VALUE && mSelectedGridItemIndex != -1) {   //A Check to see if the selected item variables were set.
                     onFragmentRedrawn();
                 }
+                else {
+                    Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.grid_fade_in);
+                    GridLayoutAnimationController animationController = new GridLayoutAnimationController(animation, 0.15f, 0.45f);
+                    mGridView.setLayoutAnimation(animationController);
+                }
             }
         });
 
@@ -108,7 +114,6 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
             onServiceConnected();
         }
         mToolbarContainer.setTranslationY(0f);
-        ((LibraryActivity)getActivity()).setCurrentFragment(this);
     }
 
     @Override
@@ -128,8 +133,9 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
 
     @Override
     public void onGridItemClicked(final int pos, final int feedId) {
-        mToolbarBackground.animate().alpha(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
-        mToolbarContainer.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
+        //mToolbarBackground.animate().alpha(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
+        //mToolbarContainer.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
+        setToolbarTransparent(true);
         Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.grid_fade_out);
         animation.setFillAfter(true);
         int fixedPos = getGridChildPositionWithIndex(pos);
@@ -185,13 +191,8 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
             mGridView.setPadding((int)ImageUtils.pixelsToDip(getActivity(),4),(mToolbarSize + mStatusBarHeight + (int)ImageUtils.pixelsToDip(getActivity(),4)),(int)ImageUtils.pixelsToDip(getActivity(),4),0);
 
 
-            Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.grid_fade_in);
-            GridLayoutAnimationController animationController = new GridLayoutAnimationController(animation, 0.15f, 0.45f);
-
             mDataManager.mFeedsGridAdapter.setLoadingViews(setupLoadingViews());
             mGridView.setAdapter(mDataManager.mFeedsGridAdapter);
-
-            //mGridView.setLayoutAnimation(animationController);
 
             mGridView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
             mActionModeCallback = new GridActionModeCallback(getActivity(), mGridView);
@@ -311,6 +312,9 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
                 }
             });
             FABVisible = true;
+            mFAB.setScaleX(0f);
+            mFAB.setScaleY(0f);
+            mFAB.animate().scaleX(1f).scaleY(1f).setInterpolator(new AnticipateOvershootInterpolator()).setDuration(200).start();
         }
         FABVisible = false;
     }

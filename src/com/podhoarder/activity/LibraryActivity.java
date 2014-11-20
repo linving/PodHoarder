@@ -76,7 +76,6 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
             registerReceiver(hardwareIntentReceiver, callStateFilter);
             registerReceiver(hardwareIntentReceiver, connectivityFilter);
             mPlaybackService.setManager((LibraryActivityManager) mDataManager);
-            updateDrawer();
             mQuicklistItemClickListener = LibraryActivity.this;
             mCurrentFragment.onServiceConnected();
         }
@@ -274,9 +273,10 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     @Override
     public void startPlayerActivity() {
 
-        if (!((Object) mCurrentFragment).getClass().getName().equals(PlayerFragment.class.getName())) { //We check to see if the current fragment is a PlayerFragment. In that case we don't need to create a new one.
+        if (!((Object) mCurrentFragment).getClass().getName().equals(PlayerFragment.class.getName()) && mPlaybackService.mCurrentEpisode != null) { //We check to see if the current fragment is a PlayerFragment. In that case we don't need to create a new one.
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+            //ft.setCustomAnimations(0, 0, R.anim.slide_in_top, 0);
+            ft.setCustomAnimations(R.anim.activity_stay_transition, 0, R.anim.activity_stay_transition, R.anim.activity_stay_transition);
             ft.replace(R.id.root_container, new PlayerFragment());
             ft.addToBackStack(null);
             ft.commitAllowingStateLoss();
@@ -309,15 +309,7 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     public void firstFeedAdded() {
         mOnFirstFeedAddedListener.onFirstFeedAdded();
     }
-    private void updateDrawer() {
-        if (mPlaybackService.mCurrentEpisode != null) {
-            mNavDrawerBanner.setImageBitmap(
-                    mDataManager.getFeed(mPlaybackService.mCurrentEpisode.getFeedId()).getFeedImage().imageObject()
-            );
 
-        }
-
-    }
     public void deletingEpisode(int episodeId) {
         this.mPlaybackService.deletingEpisode(episodeId);
     }

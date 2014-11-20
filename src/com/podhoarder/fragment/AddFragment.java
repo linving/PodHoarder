@@ -12,7 +12,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.SearchResultsAdapter;
 import com.podhoarder.listener.SearchResultMultiChoiceModeListener;
 import com.podhoarder.object.SearchResultRow;
@@ -40,6 +39,7 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LOG_TAG = "com.podhoarder.fragment.AddFragment";
+        super.onCreateView(inflater, container, savedInstanceState);
         mContentView = inflater.inflate(R.layout.activity_add, container, false);
         setHasOptionsMenu(true);
         if (isDrawerIconEnabled())
@@ -55,7 +55,6 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
     @Override
     public void onResume() {
         super.onResume();
-        ((LibraryActivity)getActivity()).setCurrentFragment(this);
     }
 
     @Override

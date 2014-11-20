@@ -85,7 +85,6 @@ public class EpisodeFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        ((LibraryActivity)getActivity()).setCurrentFragment(this);
     }
 
     @Override

@@ -1,6 +1,9 @@
 package com.podhoarder.fragment;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -58,6 +61,12 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
         return mContentView;
     }
 
+    @Override
+    public void onResume() {
+        ((LibraryActivity)getActivity()).setCurrentFragment(this);
+        super.onResume();
+    }
+
     public boolean onBackPressed() {
         return false;
     }
@@ -77,12 +86,46 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
     }
 
     protected void setToolbarTransparent(boolean transparent) {
+        boolean shouldAnimate = false;
         mToolbarBackground.setAlpha(1f);
         mToolbarContainer.setTranslationY(0f);
-        if (transparent)
-            mToolbarBackground.setBackgroundColor(Color.parseColor("#00000000"));
-        else
-            mToolbarBackground.setBackgroundColor(((BaseActivity)getActivity()).getCurrentPrimaryColor());
+
+        if (transparent) {
+            if (((ColorDrawable)mToolbarBackground.getBackground()).getColor() == Color.TRANSPARENT) {
+
+            }
+            else {
+                shouldAnimate = true;
+            }
+        }
+        else {
+            if (((ColorDrawable)mToolbarBackground.getBackground()).getColor() == ((BaseActivity)getActivity()).getCurrentPrimaryColor()) {
+
+            }
+            else {
+                shouldAnimate = true;
+            }
+        }
+
+        if (shouldAnimate) {
+            ValueAnimator primaryColorAnimation;
+            if (transparent)
+                primaryColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), ((ColorDrawable)mToolbarBackground.getBackground()).getColor(), Color.TRANSPARENT);
+            else
+                primaryColorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), ((ColorDrawable)mToolbarBackground.getBackground()).getColor(), ((BaseActivity)getActivity()).getCurrentPrimaryColor());
+
+            primaryColorAnimation.setDuration(200);
+            primaryColorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                @Override
+                public void onAnimationUpdate(ValueAnimator animator) {
+                    int value = (Integer) animator.getAnimatedValue();
+                    mToolbarBackground.setBackgroundColor(value);
+                }
+
+            });
+            primaryColorAnimation.start();
+        }
     }
 
     protected void setDrawerIconEnabled(final boolean enabled, int animationDuration) {

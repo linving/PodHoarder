@@ -1,9 +1,9 @@
 package com.podhoarder.fragment;
 
-import android.graphics.PorterDuff;
-import android.graphics.drawable.ClipDrawable;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.graphics.Palette;
@@ -12,19 +12,23 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.QueueAdapter;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.service.PodHoarderService;
+import com.podhoarder.view.CircularSeekBar;
 import com.podhoarder.view.ToggleImageButton;
 import com.podhoarderproject.podhoarder.R;
 
@@ -46,7 +50,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     private boolean mUpdateBlocked = false;
 
     //UI Controls
-    private SeekBar mSeekBar;
+    private CircularSeekBar mSeekBar;
     private ToggleImageButton mPlayPauseButton;
     private ImageButton mRewindButton, mForwardButton;
     private ProgressBar mLoadingCircle;
@@ -54,7 +58,8 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     private ImageButton mFAB;
     private ListView mPlaylist;
 
-    //Toolbar
+
+    private boolean mExitAnimationsFinished = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -89,17 +94,26 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
             onServiceConnected();
         }
         mToolbarContainer.setTranslationY(0f);
-        ((LibraryActivity)getActivity()).setCurrentFragment(this);
     }
 
     @Override
     public void onDestroy() {
+
         super.onDestroy();
     }
 
     @Override
+    public void onPause() {
+        ((BaseActivity) getActivity()).resetUI();
+        super.onPause();
+    }
+
+    @Override
     public boolean onBackPressed() {
-        //getActivity().getSupportFragmentManager().popBackStack();
+        if (!mExitAnimationsFinished) {
+            endFragmentAnimation();
+            return true;
+        }
         return false;
     }
 
@@ -116,7 +130,9 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
     @Override
     public void onFragmentResumed() {
-
+        mSeekBar.setScaleX(0f);
+        mSeekBar.setScaleY(0f);
+        mSeekBar.animate().scaleY(1f).scaleX(1f).setInterpolator(new AnticipateOvershootInterpolator()).setDuration(300).start();
     }
 
     @Override
@@ -183,18 +199,6 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
             title.setText(mCurrentEpisode.getTitle());
         }
 
-        mPodcastBanner = (ImageView) mContentView.findViewById(R.id.podcast_banner);
-        mPodcastBanner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
-        mPodcastBanner.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mPlaybackService.isPlaying())
-                    mPlaybackService.pause();
-                else
-                    mPlaybackService.play();
-            }
-        });
-
         mPlaylist = (ListView) mContentView.findViewById(R.id.playlist);
         mDataManager.mPlaylistAdapter.setOnItemSecondaryActionClickListener(this);
         mPlaylist.setAdapter(mDataManager.mPlaylistAdapter);
@@ -250,13 +254,23 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
             }
         });*/
 
-        mSeekBar = (SeekBar) mContentView.findViewById(R.id.player_controls_seekbar);
-
+        mSeekBar = (CircularSeekBar) mContentView.findViewById(R.id.player_controls_seekbar);
+        mSeekBar.setBackground(mCurrentFeed.getFeedImage().largeImage());
         mSeekBar.setMax(mCurrentEpisode.getTotalTime());
         mSeekBar.setProgress(mCurrentEpisode.getElapsedTime());
+        mSeekBar.setProgressColor(getResources().getColor(R.color.windowBackground));
 
+        mSeekBar.setBarWidth(50);
 
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mSeekBar.setSeekBarChangeListener(new CircularSeekBar.OnSeekChangeListener() {
+            @Override
+            public void onProgressChange(CircularSeekBar view, int newProgress, boolean fromTouch) {
+                if (fromTouch)
+                    mPlaybackService.seek(newProgress);
+            }
+        });
+
+        /*(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 mUpdateBlocked = true;
@@ -273,7 +287,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
                 if (fromUser)
                     mPlaybackService.seek(progress);
             }
-        });
+        });*/
 
 
         if (mPlaybackService.isPlaying())
@@ -287,10 +301,33 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
         //((TextView)container.findViewById(R.id.nowplaying_title)).setTextColor(s.getTitleTextColor());
         //((TextView)container.findViewById(R.id.nowplaying_subtitle)).setTextColor(s.getBodyTextColor());
         //mToolbarBackground.setBackgroundColor(s.getRgb());
+        int vibrantColor = p.getVibrantColor(Color.WHITE);
 
-        LayerDrawable ld = (LayerDrawable) mSeekBar.getProgressDrawable();
-        ClipDrawable d1 = (ClipDrawable) ld.findDrawableByLayerId(android.R.id.progress);
-        d1.setColorFilter(s.getRgb(), PorterDuff.Mode.SRC_IN);
+        mContentView.setBackgroundColor(vibrantColor);
+
+        mSeekBar.setRingBackgroundColor(vibrantColor);
+
+        ((BaseActivity) getActivity()).colorUI(vibrantColor);
+
+        mToolbarBackground.animate().alpha(0f).setDuration(200).setInterpolator(new AnticipateInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        }).start();
 
         TextView mNowPlayingHeader = (TextView) mContentView.findViewById(R.id.nowplaying_header);
         TextView mPlaylistHeader = (TextView) mContentView.findViewById(R.id.playlist_header);
@@ -304,5 +341,32 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
         backgroundDrawable.setColor(s.getRgb());
     }
 
+    private void endFragmentAnimation() {
+        final int ANIMATION_DURATION = 300;
+        mSeekBar.animate().scaleY(0f).scaleX(0f).setInterpolator(new AnticipateOvershootInterpolator()).setDuration(ANIMATION_DURATION).start();
+        ((BaseActivity) getActivity()).resetUI();
+        // get the center for the clipping circle
+        int cx = (mContentView.getLeft() + mContentView.getRight()) / 2;
+        int cy = (mContentView.getTop() + mContentView.getBottom()) / 2;
+
+        // get the initial radius for the clipping circle
+        int initialRadius = mContentView.getWidth();
+
+        // create the animation (the final radius is zero)
+        Animator anim = ViewAnimationUtils.createCircularReveal(mContentView, cx, cy, initialRadius, 0);
+
+        // make the view invisible when the animation is done
+        anim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                mContentView.setVisibility(View.INVISIBLE);
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
+        anim.setDuration(ANIMATION_DURATION);
+        // start the animation
+        anim.start();
+    }
 
 }
