@@ -1,7 +1,9 @@
 package com.podhoarder.util;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
+import android.support.v7.graphics.Palette;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,10 +13,11 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
 import com.podhoarder.activity.LibraryActivity;
+import com.podhoarder.adapter.EpisodesListAdapter;
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.fragment.ListFragment;
 import com.podhoarder.object.Episode;
-import com.podhoarder.util.ViewHolders.EpisodeRowViewHolder;
+import com.podhoarder.view.PieProgressDrawable;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.ArrayList;
@@ -104,7 +107,7 @@ public class EpisodeRowUtils
 		recursiveLoopChildren(row,listened);
 	}
 	
-	public static void setRowListened(EpisodeRowViewHolder row, boolean listened)
+	public static void setRowListened(EpisodesListAdapter.EpisodeRowViewHolder row, boolean listened)
 	{
 /*		if (listened)
 		{
@@ -119,12 +122,15 @@ public class EpisodeRowUtils
 	}
 
 
-	public static void setRowIndicator(Context ctx, EpisodeRowViewHolder row, Episode ep)
+	public static void setRowIndicator(Context ctx, EpisodesListAdapter.EpisodeRowViewHolder row, Episode ep)
 	{
+        Palette p = ((LibraryActivity)ctx).mDataManager.getFeed(ep.getFeedId()).getFeedImage().palette();
+        row.progressDrawable = new PieProgressDrawable(ctx.getResources().getColor(R.color.indicator_default),p.getVibrantColor(Color.BLACK));
+        row.icon.setBackground(row.progressDrawable);
 		if (ep.isNew())
 		{
-            row.icon.setAlpha(1f);
-            row.icon.setBackgroundResource(R.drawable.list_icon_outline_new);
+            row.progressDrawable.setBackgroundColor(ctx.getResources().getColor(R.color.textColorNotification));
+            row.progressDrawable.setLevel(0);
 			if (NetworkUtils.isOnline(ctx))
 			{
 				row.icon.setImageResource(R.drawable.ic_cloud_white_24dp);
@@ -142,12 +148,10 @@ public class EpisodeRowUtils
 		} 
 		else
 		{
+            row.progressDrawable.setLevel(ep.getProgress());
 			if (ep.isDownloaded())
 			{
-                row.icon.setAlpha(1f);
-                row.icon.setBackgroundResource(R.drawable.list_icon_outline_local);
 				row.icon.setImageResource(R.drawable.ic_folder_white_24dp);
-
 //				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
 //				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
 			}
@@ -155,23 +159,19 @@ public class EpisodeRowUtils
 			{
 				if (NetworkUtils.isOnline(ctx))	//Phone has internet access, streaming is possible.
 				{
-                    row.icon.setAlpha(1f);
-                    row.icon.setBackgroundResource(R.drawable.list_icon_outline_stream);
 					row.icon.setImageResource(R.drawable.ic_cloud_white_24dp);
 //					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
 //					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
 				}
 				else	//Device does not have internet access, so all streaming episodes should be set to unavailable.
 				{
-                    row.icon.setAlpha(.26f);
-                    row.icon.setBackgroundResource(R.drawable.list_icon_outline_default);
 					row.icon.setImageResource(R.drawable.ic_cloud_off_white_24dp);
 //					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
 //					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
 				}
 			}
 		}
-		
+		row.icon.invalidate();
 	}
 
 	private static void recursiveLoopChildren(ViewGroup parent, boolean listened) {

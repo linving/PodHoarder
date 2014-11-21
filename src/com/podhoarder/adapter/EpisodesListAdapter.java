@@ -20,7 +20,7 @@ import android.widget.TextView;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.DataParser;
 import com.podhoarder.util.EpisodeRowUtils;
-import com.podhoarder.util.ViewHolders.EpisodeRowViewHolder;
+import com.podhoarder.view.PieProgressDrawable;
 import com.podhoarderproject.podhoarder.R;
 
 import java.text.ParseException;
@@ -165,5 +165,15 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 	{
 		this.mSelectionEnabled = mSelectionEnabled;
 	}
+
+    public static class EpisodeRowViewHolder
+    {
+        public TextView title;
+        public TextView subtitle;
+        public ImageView secondaryAction;
+        public ImageView icon;
+        public PieProgressDrawable progressDrawable;
+        public CheckBox checkbox;
+    }
 
 }

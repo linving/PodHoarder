@@ -106,7 +106,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         super.onResume();
         if (!mSearchEnabled && mCurrentFilter.getSearchString().isEmpty()) {
             FeedImage img = mDataManager.getFeed(mCurrentFilter.getFeedId()).getFeedImage();
-            mColorSwatch = img.palette().getDarkVibrantSwatch();
+            mColorSwatch = img.palette().getVibrantSwatch();
             mPodcastBanner.setImageBitmap(img.largeImage());
         }
 

@@ -34,8 +34,6 @@
     <color name="textColorNotification">#e91e63</color>
     
     <!-- Episode Row Indicators -->
-    <color name="indicator_stream">#03A9F4</color>
-    <color name="indicator_local">#009688</color>
-    <color name="indicator_default">#000000</color>
+    <color name="indicator_default">#40000000</color>
     
 </resources>

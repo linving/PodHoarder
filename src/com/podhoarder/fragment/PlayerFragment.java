@@ -218,48 +218,12 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
             }
         });
 
-        /*mPlayPauseButton = (ToggleImageButton) mContentView.findViewById(R.id.player_controls_button_playpause);
-        mPlayPauseButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                if (mPlaybackService.isPlaying())
-                    mPlaybackService.pause();
-                else {
-                    mHandler.post(UpdateRunnable);
-                    mPlaybackService.play();
-                }
-            }
-        });
-        mPlayPauseButton.setToggled(mPlaybackService.isPlaying()); //Set the initial button status depending on the Service.
-
-        mLoadingCircle = (ProgressBar) mContentView.findViewById(R.id.player_controls_loading_circle);
-
-        mForwardButton = (ImageButton) mContentView.findViewById(R.id.player_controls_button_skip_forward);
-        mForwardButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-                if (mPlaybackService != null && mPlaybackService.isPlaying())
-                    mPlaybackService.skipForward();
-            }
-        });
-        mRewindButton = (ImageButton) mContentView.findViewById(R.id.player_controls_button_skip_backwards);
-        mRewindButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-                if (mPlaybackService != null && mPlaybackService.isPlaying())
-                    mPlaybackService.skipBackward();
-            }
-        });*/
 
         mSeekBar = (CircularSeekBar) mContentView.findViewById(R.id.player_controls_seekbar);
         mSeekBar.setBackground(mCurrentFeed.getFeedImage().largeImage());
         mSeekBar.setMax(mCurrentEpisode.getTotalTime());
         mSeekBar.setProgress(mCurrentEpisode.getElapsedTime());
         mSeekBar.setProgressColor(getResources().getColor(R.color.windowBackground));
-
         mSeekBar.setBarWidth(50);
 
         mSeekBar.setSeekBarChangeListener(new CircularSeekBar.OnSeekChangeListener() {
@@ -270,25 +234,17 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
             }
         });
 
-        /*(new SeekBar.OnSeekBarChangeListener() {
+        mSeekBar.setOnImageClickListener(new CircularSeekBar.OnImageClickListener() {
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                mUpdateBlocked = true;
+            public void onImageClicked(CircularSeekBar view) {
+                if (mPlaybackService.isPlaying())
+                    mPlaybackService.pause();
+                else {
+                    mHandler.post(UpdateRunnable);
+                    mPlaybackService.play();
+                }
             }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                mUpdateBlocked = false;
-            }
-
-            @Override
-            public void onProgressChanged(SeekBar circularSeekBar,
-                                          int progress, boolean fromUser) {
-                if (fromUser)
-                    mPlaybackService.seek(progress);
-            }
-        });*/
-
+        });
 
         if (mPlaybackService.isPlaying())
             mHandler.post(UpdateRunnable);

@@ -11,11 +11,11 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.EpisodesListAdapter;
+import com.podhoarder.adapter.EpisodesListAdapter.EpisodeRowViewHolder;
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Episode;
 import com.podhoarder.util.EpisodeRowUtils;
 import com.podhoarder.util.ToastMessages;
-import com.podhoarder.util.ViewHolders;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
                 i = getViewPosition(i);
                 if (i != -1)
                 {
-                    ((ViewHolders.EpisodeRowViewHolder) parentListView.getChildAt(i).getTag()).checkbox.setChecked(true);
+                    ((EpisodeRowViewHolder) parentListView.getChildAt(i).getTag()).checkbox.setChecked(true);
                 }
             }
         }
@@ -107,7 +107,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
 	{
 		int i = getViewPosition(position);
 		if (i != -1) {
-            ViewHolders.EpisodeRowViewHolder viewHolder = ((ViewHolders.EpisodeRowViewHolder) mParentListView.getChildAt(i).getTag());
+            EpisodeRowViewHolder viewHolder = ((EpisodeRowViewHolder) mParentListView.getChildAt(i).getTag());
             viewHolder.checkbox.setChecked(checked);
             //mParentListView.getChildAt(i).invalidate();
             if (checked)
@@ -126,7 +126,7 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
     	{
     		i = getViewPosition(i);
     		if (i != -1)
-    			((ViewHolders.EpisodeRowViewHolder)mParentListView.getChildAt(i).getTag()).checkbox.setChecked(false);	//Deselect the view if it's not recycled.
+    			((EpisodeRowViewHolder)mParentListView.getChildAt(i).getTag()).checkbox.setChecked(false);	//Deselect the view if it's not recycled.
     	}
     	this.mSelectedItems.clear();
     	this.mSelectedItems = null;

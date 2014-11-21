@@ -158,7 +158,7 @@ public class EpisodeFragment extends BaseFragment {
         mPodcastBanner = (ImageView) mContentView.findViewById(R.id.podcast_banner);
         mPodcastBanner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
 
-        Palette.Swatch colorSwatch = mCurrentFeed.getFeedImage().palette().getDarkVibrantSwatch();
+        Palette.Swatch colorSwatch = mCurrentFeed.getFeedImage().palette().getVibrantSwatch();
 
 
         //mToolbar.setElevation(0f);

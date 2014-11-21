@@ -9,8 +9,8 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.podhoarder.adapter.EpisodesListAdapter.EpisodeRowViewHolder;
 import com.podhoarder.object.Episode;
-import com.podhoarder.util.ViewHolders;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.LinkedList;
@@ -48,7 +48,7 @@ public class QueueAdapter extends BaseAdapter implements ListAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolders.EpisodeRowViewHolder holder;
+        EpisodeRowViewHolder holder;
 
         if (convertView == null) {
             //Inflate
@@ -57,14 +57,14 @@ public class QueueAdapter extends BaseAdapter implements ListAdapter {
 
             // Creates a ViewHolder and store references to the two children views
             // we want to bind data to.
-            holder = new ViewHolders.EpisodeRowViewHolder();
+            holder = new EpisodeRowViewHolder();
             holder.title = (TextView) convertView.findViewById(R.id.list_episode_row_title);
             holder.subtitle = (TextView) convertView.findViewById(R.id.list_episode_row_subtitle);
             holder.secondaryAction = (ImageView) convertView.findViewById(R.id.list_episode_row_secondary_action);
 
             convertView.setTag(holder);
         } else {
-            holder = (ViewHolders.EpisodeRowViewHolder) convertView.getTag();
+            holder = (EpisodeRowViewHolder) convertView.getTag();
         }
 
         Episode currentEpisode = data.get(position);

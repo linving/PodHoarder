@@ -24,6 +24,9 @@ public class CircularSeekBar extends View {
     /** The listener to listen for changes */
     private OnSeekChangeListener mListener;
 
+    /** THe listener to listen for image clicks. */
+    private OnImageClickListener mClickListener;
+
     /** The color of the progress ring */
     private Paint circleColor;
 
@@ -102,6 +105,9 @@ public class CircularSeekBar extends View {
     /** The Y coordinate for 12 O'Clock */
     private float startPointY;
 
+    /** A variable to store whether a touch event started on the center bitmap.**/
+    private boolean touchStartedOnBitmap = false;
+
 
     /**
      * The adjustment factor. This adds an adjustment of the specified size to
@@ -128,6 +134,13 @@ public class CircularSeekBar extends View {
 
             @Override
             public void onProgressChange(CircularSeekBar view, int newProgress, boolean fromTouch) {
+
+            }
+        };
+
+        mClickListener = new OnImageClickListener() {
+            @Override
+            public void onImageClicked(CircularSeekBar view) {
 
             }
         };
@@ -203,6 +216,7 @@ public class CircularSeekBar extends View {
 //		progressMark = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.scrubber_control_normal_holo);
 //		progressMarkPressed = BitmapFactory.decodeResource(mContext.getResources(),
 //				R.drawable.scrubber_control_pressed_holo);
+
     }
 
     /*
@@ -297,6 +311,25 @@ public class CircularSeekBar extends View {
      *
      * @return the seek bar change listener
      */
+    public OnImageClickListener getImageClickListener() {
+        return mClickListener;
+    }
+
+    /**
+     * Sets the seek bar change listener.
+     *
+     * @param listener
+     *            the new seek bar change listener
+     */
+    public void setOnImageClickListener(OnImageClickListener listener) {
+        mClickListener = listener;
+    }
+
+    /**
+     * Gets the seek bar change listener.
+     *
+     * @return the seek bar change listener
+     */
     public OnSeekChangeListener getSeekBarChangeListener() {
         return mListener;
     }
@@ -341,6 +374,17 @@ public class CircularSeekBar extends View {
          *            the new progress
          */
         public void onProgressChange(CircularSeekBar view, int newProgress, boolean fromTouch);
+    }
+
+    /**
+     * A listener interface for receiving callbacks when the user clicked on the middle image.
+     */
+    public interface OnImageClickListener {
+        /**
+         * User has clicked the center image.
+         * @param view View that was clicked.
+         */
+        public void onImageClicked(CircularSeekBar view);
     }
 
     /**
@@ -443,6 +487,7 @@ public class CircularSeekBar extends View {
         backgroundPaint = new Paint();
         backgroundPaint.setAntiAlias(true);
         backgroundPaint.setDither(true);
+
     }
 
     /**
@@ -467,14 +512,22 @@ public class CircularSeekBar extends View {
         boolean up = false;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                moved(x, y, up);
+                if (bitmapRect.contains((int)x,(int)y))
+                    touchStartedOnBitmap = true;
+                else
+                    moved(x, y, up);
                 break;
             case MotionEvent.ACTION_MOVE:
                 moved(x, y, up);
                 break;
             case MotionEvent.ACTION_UP:
                 up = true;
-                moved(x, y, up);
+                if (touchStartedOnBitmap && bitmapRect.contains((int)x,(int)y)) {
+                    touchStartedOnBitmap = false;
+                    mClickListener.onImageClicked(this);
+                }
+                else
+                    moved(x, y, up);
                 break;
         }
         return true;

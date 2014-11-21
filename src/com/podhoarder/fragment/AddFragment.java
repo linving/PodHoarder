@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -48,6 +49,8 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
         mProgressBar = (ButteryProgressBar) mContentView.findViewById(R.id.search_progressBar);
 
         mSearchManager = new SearchManager(getActivity(), mListAdapter, mProgressBar);
+
+        mToolbarContainer.animate().translationY(0f).setDuration(200).setInterpolator(new AccelerateDecelerateInterpolator()).start();
 
         return mContentView;
     }

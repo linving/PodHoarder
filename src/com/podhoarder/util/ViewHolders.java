@@ -23,14 +23,7 @@ public class ViewHolders
 		public boolean checked;
 	}
 	
-	public static class EpisodeRowViewHolder
-	{
-		public TextView title;
-		public TextView subtitle;
-		public ImageView secondaryAction;
-		public ImageView icon;
-		public CheckBox checkbox;
-	}
+
 
     public static class QuickListRowViewHolder
     {

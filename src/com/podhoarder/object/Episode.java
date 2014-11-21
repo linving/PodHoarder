@@ -150,6 +150,23 @@ public class Episode
 		else return true;
 	}
 
+    /**
+     * @return A percentage of the amount listened.
+     */
+    public int getProgress() {
+        if (isListened())
+            return 100;
+        else if (isNew() || elapsedTime == 0)
+            return 0;
+        else {
+            int p = (int) Math.floor(((double)elapsedTime/totalTime) * 100);    //Calculate percentage and round down (That means that if there's even a second less in elapsed time it'll show 99%, isntead of rounding to 100%
+            if (p == 0) //If it has been rounded down to 0 we say it's 1 instead. If an episode is compeltely unlistened the functioned as returned 0 already. So we show that the Episode has been listened to, even if only slightly.
+                return 1;
+            else
+                return p;
+        }
+    }
+
 	public boolean isFavorite()
 	{
 		return this.favorite;

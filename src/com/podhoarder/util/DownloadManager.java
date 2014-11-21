@@ -17,6 +17,7 @@ import com.podhoarderproject.podhoarder.R;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DownloadManager {
@@ -34,12 +35,15 @@ public class DownloadManager {
 
     private DataManager mDataManager;
 
+    private HashMap<Integer,Integer> mCurrentDownloads;
+
 
     public DownloadManager (Context mContext, DataManager mParentManager, EpisodeDBHelper mEPH)
     {
         this.mContext = mContext;
         mDownloadManager = (android.app.DownloadManager) this.mContext.getSystemService(Context.DOWNLOAD_SERVICE);
         mBroadcastReceivers = new ArrayList<BroadcastReceiver>();
+        mCurrentDownloads = new HashMap<Integer, Integer>();
 
         mEpisodesDBHelper = mEPH;
 
@@ -138,6 +142,11 @@ public class DownloadManager {
         }
     }
 
+    private void checkDownloadProgress(long dwnId, Episode ep, BroadcastReceiver source) {
+        //TODO: Continue download logic here.
+    }
+
+
     /**
      * Downloads a Podcast using the a stored URL in the db.
      * Podcasts are placed in the public Podcasts-directory.
@@ -195,5 +204,18 @@ public class DownloadManager {
         mBroadcastReceivers.remove(receiver);
 
         mDataManager.forceReloadListData(true);
+    }
+
+    /**
+     * Allows the polling of a download process from anywhere in the app.
+     * @param episodeID ID of the Episode being downloaded.
+     * @return Integer between 0-100, or -1 if the Episode is not currently downloading.
+     */
+    public int getDownloadProgress(int episodeID) {
+        //TODO: Add Podcasts to the hashmap when they start to download.
+        if (mCurrentDownloads.containsKey(episodeID)) {
+            return mCurrentDownloads.get(episodeID);
+        }
+        return -1;
     }
 }
