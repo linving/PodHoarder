@@ -14,13 +14,13 @@
     <color name="grid_item_selected">#55DDDDDD</color>
     
     <!-- App Action bar -->
-    <color name="colorPrimary">#363636</color>
+    <color name="colorPrimary">#F5634A</color>
     
     <!-- Used for components such as scroll bars. -->
-    <color name="colorPrimaryDark">#2b2b2b</color>
+    <color name="colorPrimaryDark">#ED303C</color>
     
     <!--  This is used for details that should be the focus of attention, such as circular seek bar track, selected item backgrounds etc -->
-    <color name="colorAccent">#e91e63</color>
+    <color name="colorAccent">#E83A5D</color>
 
     <color name="colorFavorite">#e91e63</color>
     <color name="colorNotFavorite">#BDBDBD</color>
@@ -30,8 +30,7 @@
     <!-- Text -->
     <color name="textColorPrimary">#000000</color>
     <color name="textColorSecondary">#000000</color>
-    <color name="textColorPrimaryInverse">#FFFFFF</color>
-    <color name="textColorNotification">#e91e63</color>
+    <color name="notificationBackground">#e91e63</color>
     
     <!-- Episode Row Indicators -->
     <color name="indicator_default">#40000000</color>

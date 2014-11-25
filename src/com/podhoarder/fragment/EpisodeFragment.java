@@ -3,6 +3,7 @@ package com.podhoarder.fragment;
 import android.animation.Animator;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.graphics.Palette;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -96,9 +98,32 @@ public class EpisodeFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.contextual_menu_episode, menu);
-        EpisodeRowUtils.configureMenu(getActivity(),menu,mCurrentEpisode);
-        //super.onCreateOptionsMenu(secondaryAction, inflater);
+        EpisodeRowUtils.configureMenu(getActivity(), menu, mCurrentEpisode);
+        //mToolbar.setLayoutAnimation(AnimationUtils.loadLayoutAnimation(getActivity(),R.anim.appbar_layout));
+        //mToolbar.startLayoutAnimation();
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                List<View> icons = new ArrayList<View>();
+                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_add_playlist));
+                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_playnow));
+                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_available_offline));
+                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_delete_file));
+                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_markAsListened));
+
+                for (View icon : icons) {
+                    if (icon != null) {
+                        icon.setAlpha(0f);
+                        icon.setScaleX(0f);
+                        icon.setScaleY(0f);
+                        icon.animate().scaleX(1f).scaleY(1f).alpha(1f).setInterpolator(new OvershootInterpolator()).setDuration(350).start();
+                    }
+                }
+            }
+        });
     }
 
     @Override

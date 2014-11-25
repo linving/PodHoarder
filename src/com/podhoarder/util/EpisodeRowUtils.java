@@ -2,6 +2,7 @@ package com.podhoarder.util;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.preference.PreferenceManager;
 import android.support.v7.graphics.Palette;
 import android.view.ActionMode;
@@ -9,9 +10,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
+import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.EpisodesListAdapter;
 import com.podhoarder.datamanager.LibraryActivityManager;
@@ -102,91 +103,60 @@ public class EpisodeRowUtils
 
     }
 
-	public static void setRowListened(ViewGroup row, boolean listened)
-	{
-		recursiveLoopChildren(row,listened);
-	}
-	
-	public static void setRowListened(EpisodesListAdapter.EpisodeRowViewHolder row, boolean listened)
-	{
-/*		if (listened)
-		{
-			row.title.setAlpha(ALPHA_LISTENED);
-			row.subtitle.setAlpha(ALPHA_LISTENED);
-		}
-		else
-		{
-			row.title.setAlpha(ALPHA_NORMAL);
-			row.subtitle.setAlpha(ALPHA_NORMAL);
-		}*/
-	}
-
-
-	public static void setRowIndicator(Context ctx, EpisodesListAdapter.EpisodeRowViewHolder row, Episode ep)
+	public static void setRowIndicator(Context ctx, final EpisodesListAdapter.EpisodeRowViewHolder row, Episode ep)
 	{
         Palette p = ((LibraryActivity)ctx).mDataManager.getFeed(ep.getFeedId()).getFeedImage().palette();
         row.progressDrawable = new PieProgressDrawable(ctx.getResources().getColor(R.color.indicator_default),p.getVibrantColor(Color.BLACK));
         row.icon.setBackground(row.progressDrawable);
-		if (ep.isNew())
-		{
-            row.progressDrawable.setBackgroundColor(ctx.getResources().getColor(R.color.textColorNotification));
-            row.progressDrawable.setLevel(0);
-			if (NetworkUtils.isOnline(ctx))
-			{
-				row.icon.setImageResource(R.drawable.ic_cloud_white_24dp);
-				//row.episodeTitle.setTypeface(row.episodeTitle.getTypeface(), Typeface.BOLD);
-//				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
-//				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_new));
-			}
-			else
-			{
-				row.icon.setImageResource(R.drawable.ic_cloud_off_white_24dp);
-				//row.indicator.setStatus(Status.UNAVAILABLE);
-//				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
-//				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
-			}
-		} 
-		else
-		{
-            row.progressDrawable.setLevel(ep.getProgress());
-			if (ep.isDownloaded())
-			{
-				row.icon.setImageResource(R.drawable.ic_folder_white_24dp);
-//				row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
-//				if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_downloaded));
-			}
-			else
-			{
-				if (NetworkUtils.isOnline(ctx))	//Phone has internet access, streaming is possible.
-				{
-					row.icon.setImageResource(R.drawable.ic_cloud_white_24dp);
-//					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
-//					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_stream));
-				}
-				else	//Device does not have internet access, so all streaming episodes should be set to unavailable.
-				{
-					row.icon.setImageResource(R.drawable.ic_cloud_off_white_24dp);
-//					row.indicator.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
-//					if (row.indicatorExtension != null) row.indicatorExtension.setBackgroundColor(ctx.getResources().getColor(R.color.indicator_unavailable));
-				}
-			}
-		}
-		row.icon.invalidate();
-	}
 
-	private static void recursiveLoopChildren(ViewGroup parent, boolean listened) {
-        for (int i = parent.getChildCount() - 1; i >= 0; i--) {
-            final View child = parent.getChildAt(i);
-            if (child instanceof ViewGroup) {
-                recursiveLoopChildren((ViewGroup) child, listened);
-                // DO SOMETHING WITH VIEWGROUP, AFTER CHILDREN HAS BEEN LOOPED
-            } else {
-                if (child != null) {
-                    // DO SOMETHING WITH VIEW
-                	if (listened) child.setAlpha(ALPHA_LISTENED);
-                	else	child.setAlpha(ALPHA_NORMAL);
+        if (((BaseActivity)ctx).mDataManager.DownloadManager().getDownloadProgress(ep.getEpisodeId()) != -1) {  //This means that the Episode is currently downloading. We should show an animated download arrow as indicator.
+
+            row.progressDrawable.setLevel(0);
+            row.icon.setImageResource(android.R.drawable.stat_sys_download);
+            row.icon.post(new Runnable() {
+                @Override
+                public void run() {
+                    AnimationDrawable frameAnimation =
+                            (AnimationDrawable) row.icon.getDrawable();
+                    frameAnimation.start();
+                }
+            });
+        }
+
+        else {  //Episode isn't downloading. We should show current file status.
+            if (ep.isNew())
+            {
+                row.progressDrawable.setBackgroundColor(ctx.getResources().getColor(R.color.notificationBackground));
+                row.progressDrawable.setLevel(0);
+                if (NetworkUtils.isOnline(ctx))
+                {
+                    row.icon.setImageResource(R.drawable.ic_cloud_white_24dp);
+                }
+                else
+                {
+                    row.icon.setImageResource(R.drawable.ic_cloud_off_white_24dp);
+                }
+            }
+            else
+            {
+                row.progressDrawable.setLevel(ep.getProgress());
+                if (ep.isDownloaded())
+                {
+                    row.icon.setImageResource(R.drawable.ic_folder_white_24dp);
+                }
+                else
+                {
+                    if (NetworkUtils.isOnline(ctx))	//Phone has internet access, streaming is possible.
+                    {
+                        row.icon.setImageResource(R.drawable.ic_cloud_white_24dp);
+                    }
+                    else	//Device does not have internet access, so all streaming episodes should be set to unavailable.
+                    {
+                        row.icon.setImageResource(R.drawable.ic_cloud_off_white_24dp);
+                    }
                 }
             }
         }
-    }
+        row.icon.invalidate();
+	}
 }

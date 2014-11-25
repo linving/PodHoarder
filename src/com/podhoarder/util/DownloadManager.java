@@ -8,9 +8,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 
 import com.podhoarder.datamanager.DataManager;
+import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.db.EpisodeDBHelper;
 import com.podhoarder.object.Episode;
 import com.podhoarderproject.podhoarder.R;
@@ -26,6 +28,7 @@ public class DownloadManager {
 
     private                 Context     mContext;
     private                 android.app.DownloadManager mDownloadManager;
+    private                 Handler     mHandler;
 
     private                 List<BroadcastReceiver> mBroadcastReceivers;
     private                 EpisodeDBHelper         mEpisodesDBHelper;
@@ -42,6 +45,7 @@ public class DownloadManager {
     {
         this.mContext = mContext;
         mDownloadManager = (android.app.DownloadManager) this.mContext.getSystemService(Context.DOWNLOAD_SERVICE);
+        mHandler = new Handler();
         mBroadcastReceivers = new ArrayList<BroadcastReceiver>();
         mCurrentDownloads = new HashMap<Integer, Integer>();
 
@@ -55,12 +59,13 @@ public class DownloadManager {
     }
 
     /**
-     * Checks the status of the latest download.
+     * Checks the status of the latest download. Logs and returns the status code given by android.app.DownloadManager
      * @param dwnId Id of the download request.
      * @param ep Episode to check status for.
      * @param source BroadCast receiver that is listening to the download.
+     * @return android.app.DownloadManager.STATUS_XXXX constants indicating download status or -1 if there's nothing to return.
      */
-    private void checkDownloadStatus(long dwnId, Episode ep, BroadcastReceiver source)
+    private int checkDownloadStatus(long dwnId, Episode ep, BroadcastReceiver source)
     {
         android.app.DownloadManager.Query query = new android.app.DownloadManager.Query();
         query.setFilterById(dwnId);
@@ -107,7 +112,7 @@ public class DownloadManager {
                     }
                     ToastMessages.DownloadFailed(this.mContext).show();
                     Log.i(LOG_TAG, "FAILED: " + failedReason);
-                    break;
+                    return android.app.DownloadManager.STATUS_FAILED;
 
                 case android.app.DownloadManager.STATUS_PAUSED:
                     String pausedReason = "";
@@ -127,25 +132,20 @@ public class DownloadManager {
                             break;
                     }
                     Log.i(LOG_TAG, "DOWNLOAD PAUSED: " + pausedReason);
-                    break;
+                    return android.app.DownloadManager.STATUS_PAUSED;
                 case android.app.DownloadManager.STATUS_PENDING:
                     Log.i(LOG_TAG, "DOWNLOAD PENDING");
-                    break;
+                    return android.app.DownloadManager.STATUS_PENDING;
                 case android.app.DownloadManager.STATUS_RUNNING:
                     Log.i(LOG_TAG, "DOWNLOAD RUNNING");
-                    break;
+                    return android.app.DownloadManager.STATUS_RUNNING;
                 case android.app.DownloadManager.STATUS_SUCCESSFUL:
                     //Download was successful. We should update db etc.
-                    downloadCompleted(ep, source);
-                    break;
+                    return android.app.DownloadManager.STATUS_SUCCESSFUL;
             }
         }
+        return -1;
     }
-
-    private void checkDownloadProgress(long dwnId, Episode ep, BroadcastReceiver source) {
-        //TODO: Continue download logic here.
-    }
-
 
     /**
      * Downloads a Podcast using the a stored URL in the db.
@@ -174,17 +174,50 @@ public class DownloadManager {
                 public void onReceive(Context ctxt, Intent intent) {
                     // .mp3 files was successfully downloaded. We should update db and list objects to reflect this.
                     Long dwnId = intent.getLongExtra(android.app.DownloadManager.EXTRA_DOWNLOAD_ID, 0);
-                    checkDownloadStatus(dwnId, epTemp, this);
+                    if (checkDownloadStatus(dwnId, epTemp, this) == android.app.DownloadManager.STATUS_SUCCESSFUL) {
+                        mCurrentDownloads.remove(epTemp.getEpisodeId());
+                        downloadCompleted(epTemp, this);
+                    }
                 }
             });
-            mContext.registerReceiver(mBroadcastReceivers.get(mBroadcastReceivers.size()-1), new IntentFilter(android.app.DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-            mDownloadManager.enqueue(request);
-            ToastMessages.DownloadingPodcast(this.mContext).show();
+            mContext.registerReceiver(mBroadcastReceivers.get(mBroadcastReceivers.size() - 1), new IntentFilter(android.app.DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+            final long downloadId = mDownloadManager.enqueue(request);
+            if (checkDownloadStatus(downloadId, ep, mBroadcastReceivers.get(mBroadcastReceivers.size() - 1)) != android.app.DownloadManager.STATUS_FAILED) {
+                mCurrentDownloads.put(ep.getEpisodeId(),0);
+                watchDownload(downloadId, ep);
+                ((LibraryActivityManager)mDataManager).mEpisodesListAdapter.notifyDataSetChanged();
+                ToastMessages.DownloadingPodcast(this.mContext).show();
+            }
         }
         else
         {
             Log.w(LOG_TAG, "Podcast already exists locally. No need to download.");
         }
+    }
+
+    private void watchDownload(final long dwnId, final Episode ep) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                android.app.DownloadManager.Query q = new android.app.DownloadManager.Query();
+                q.setFilterById(dwnId);
+                Cursor cursor = mDownloadManager.query(q);
+                if (cursor.moveToFirst()) {
+                    int bytes_downloaded = cursor.getInt(cursor.getColumnIndex(android.app.DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                    int bytes_total = cursor.getInt(cursor.getColumnIndex(android.app.DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                    cursor.close();
+                    int percent = (int) ((double) bytes_downloaded / bytes_total) * 100;
+                    if (percent == 100)
+                        mCurrentDownloads.remove(ep.getEpisodeId());
+                    else {
+                        if (mCurrentDownloads.containsKey(ep.getEpisodeId()))
+                            mCurrentDownloads.put(ep.getEpisodeId(), percent);
+                        mHandler.postDelayed(this, 500);
+                    }
+                }
+            }
+        };
+        mHandler.post(r);
     }
 
     /**
@@ -196,12 +229,12 @@ public class DownloadManager {
     {
         //update list adapter object
         ep.setLocalLink(this.podcastDir + "/" + FileUtils.sanitizeFileName(ep.getTitle()) + ".mp3");
-
         //update db entry
         mEpisodesDBHelper.updateEpisode(ep);
         Log.i(LOG_TAG, "download completed: " + ep.getTitle());
         mContext.unregisterReceiver(receiver);
         mBroadcastReceivers.remove(receiver);
+        mCurrentDownloads.remove(ep.getEpisodeId());
 
         mDataManager.forceReloadListData(true);
     }
@@ -212,7 +245,6 @@ public class DownloadManager {
      * @return Integer between 0-100, or -1 if the Episode is not currently downloading.
      */
     public int getDownloadProgress(int episodeID) {
-        //TODO: Add Podcasts to the hashmap when they start to download.
         if (mCurrentDownloads.containsKey(episodeID)) {
             return mCurrentDownloads.get(episodeID);
         }

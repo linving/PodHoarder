@@ -87,8 +87,12 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
 
     protected void setToolbarTransparent(boolean transparent) {
         boolean shouldAnimate = false;
-        mToolbarBackground.setAlpha(1f);
-        mToolbarContainer.setTranslationY(0f);
+
+        if (mToolbarContainer.getTranslationY() != 0) {
+            mToolbarBackground.setAlpha(1f);
+            mToolbarBackground.setBackgroundColor(Color.TRANSPARENT);
+            mToolbarContainer.setTranslationY(0f);
+        }
 
         if (transparent) {
             if (((ColorDrawable)mToolbarBackground.getBackground()).getColor() == Color.TRANSPARENT) {

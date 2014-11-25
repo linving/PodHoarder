@@ -149,7 +149,6 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
             viewHolder.checkbox.setChecked(false);
 			
 			EpisodeRowUtils.setRowIndicator(this.mContext, viewHolder, currentEpisode);
-			EpisodeRowUtils.setRowListened(viewHolder, currentEpisode.isListened());
 
 		}
 		

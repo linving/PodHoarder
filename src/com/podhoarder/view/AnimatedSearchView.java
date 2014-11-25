@@ -1,13 +1,15 @@
 package com.podhoarder.view;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.support.v7.internal.widget.TintImageView;
 import android.support.v7.widget.SearchView;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -48,16 +50,26 @@ public class AnimatedSearchView extends SearchView {
 
     @Override
     public void onActionViewExpanded() {
-        //Log.i(LOG_TAG, "ActionView expanded!");
-        mSearchFrame.setVisibility(VISIBLE);
+        Log.i(LOG_TAG, "ActionView expanded!");
+
+        //mSearchFrame.setVisibility(VISIBLE);
         int widthMeasureSpec = MeasureSpec.makeMeasureSpec(ViewGroup.LayoutParams.MATCH_PARENT, MeasureSpec.EXACTLY);
         int heightMeasureSpec = MeasureSpec.makeMeasureSpec(ViewGroup.LayoutParams.MATCH_PARENT, MeasureSpec.EXACTLY);
         mSearchFrame.measure(widthMeasureSpec, heightMeasureSpec);
         //viewWidthAnimation(mSearchPlate,1000,0,(mSearchFrame.getMeasuredWidth() - mSearchMagIcon.getMeasuredWidth())).start();
-        ScaleAnimation anim = new ScaleAnimation(0f,1f,1f,1f, Animation.RELATIVE_TO_SELF,1.0f, Animation.RELATIVE_TO_SELF, 0.5f);
-        anim.setDuration(200);
+        // get the center for the clipping circle
+        int cx =  mSearchField.getRight();
+        int cy = (mSearchField.getTop() + mSearchField.getBottom()) / 2;
+
+        // get the final radius for the clipping circle
+        int finalRadius = Math.max(mSearchField.getWidth(), mSearchField.getHeight());
+
+        // create the animator for this view (the start radius is zero)
+        Animator anim = ViewAnimationUtils.createCircularReveal(mSearchField, cx, cy, 0, finalRadius);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
-        mSearchField.startAnimation(anim);
+        // make the view visible and start the animation
+        mSearchField.setVisibility(View.VISIBLE);
+        anim.start();
         //super.onActionViewExpanded();
     }
 

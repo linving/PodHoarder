@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
+    android:layout_height="wrap_content"
+    android:textAppearance="?android:attr/textAppearanceListItemSmall"
     android:background="@drawable/list_selector"
     android:padding="12dp">
 
@@ -20,9 +21,7 @@
         android:layout_toRightOf="@id/icon"
         android:layout_toEndOf="@id/icon"
         android:layout_centerVertical="true"
-        android:textAppearance="?android:attr/textAppearanceListItemSmall"
         android:maxLines="1"
         android:gravity="center_vertical"
-        android:textColor="@color/textColorPrimary"
         android:alpha=".54"/>
 </RelativeLayout>

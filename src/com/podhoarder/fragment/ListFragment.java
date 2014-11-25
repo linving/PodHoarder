@@ -108,10 +108,13 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
             FeedImage img = mDataManager.getFeed(mCurrentFilter.getFeedId()).getFeedImage();
             mColorSwatch = img.palette().getVibrantSwatch();
             mPodcastBanner.setImageBitmap(img.largeImage());
-        }
 
-        setToolbarTransparent(true);
-        trySetScrimPadding();
+            setToolbarTransparent(true);
+            trySetScrimPadding();
+        }
+        else {
+            setToolbarTransparent(false);
+        }
     }
 
     @Override
@@ -258,6 +261,10 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
 
         mSelectedListItemIndex = clickedViewPos;
         mSelectedListItemTop = clickedView.getTop();
+
+        if (mColorSwatch == null) {
+            mColorSwatch = mDataManager.getFeed(ep.getFeedId()).getFeedImage().palette().getVibrantSwatch();
+        }
 
         //bannerMoveAnimation(mPodcastBanner, ANIMATION_DURATION).start();
         fadeOtherRows(clickedViewPos, ANIMATION_DURATION, true);

@@ -14,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
-import android.view.animation.AnticipateInterpolator;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -265,25 +264,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
         ((BaseActivity) getActivity()).colorUI(vibrantColor);
 
-        mToolbarBackground.animate().alpha(0f).setDuration(200).setInterpolator(new AnticipateInterpolator()).setListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        }).start();
+        setToolbarTransparent(true);
 
         TextView mNowPlayingHeader = (TextView) mContentView.findViewById(R.id.nowplaying_header);
         TextView mPlaylistHeader = (TextView) mContentView.findViewById(R.id.playlist_header);

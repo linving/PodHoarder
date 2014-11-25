@@ -4,8 +4,6 @@ import android.content.Context;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 
@@ -150,11 +148,6 @@ public class EpisodeMultiChoiceModeListener implements MultiChoiceModeListener
 		List<Episode> eps = new ArrayList<Episode>();
     	for (int i : this.mSelectedItems)
     	{
-    		View v = this.mParentListView.getChildAt(i);
-    		if (v != null)
-    		{
-    			EpisodeRowUtils.setRowListened((ViewGroup)v, true);
-    		}
     		Episode ep = (Episode) this.mParentListView.getItemAtPosition(i);
     		if (!ep.isListened())	//We only need to mark unlistened Episodes as listened. So we only add those that aren't already listened.
     			eps.add(ep);

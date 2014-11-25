@@ -26,8 +26,7 @@
         android:layout_alignParentTop="true"
         android:layout_margin="5dp"
         android:gravity="center"
-        android:textColor="@android:color/white"
-        android:background="@drawable/feeds_grid_notification_shape"
+        style="@style/Podhoarder.Text.gridNotification"
         android:maxLines="1" />
     
     <TextView
