@@ -71,7 +71,7 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
         LOG_TAG = "com.podhoarder.fragment.GridFragment";
         super.onCreateView(inflater, container, savedInstanceState);
         // Inflate the layout for this fragment
-        mContentView = inflater.inflate(R.layout.activity_grid, container, false);
+        mContentView = inflater.inflate(R.layout.fragment_grid, container, false);
         ViewTreeObserver vto = mContentView.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -293,7 +293,7 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
         //TODO: Replace these with awesome status indicators in normal grid items.
         List<View> views = new ArrayList<View>();    //This is an ugly solution but in order to use the GridViews LayoutParams the loading views must be inflated here.
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);    //get the inflater service.
-        for (int i = 0; i < Constants.NEW_SEARCH_RESULT_LIMIT; i++)    //Inflate a collection of Loading views, same size as the maximum amount Search Results.
+        for (int i = 0; i < 10; i++)    //Inflate a collection of Loading views, same size as the maximum amount Search Results.
         {
             views.add(inflater.inflate(R.layout.feeds_grid_loading_item, mGridView, false));    //Inflate the "loading" grid item to show while data is downloaded
         }

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * Created by Emil on 2014-10-27.
+ * A class that manages the data for a BaseActivity.
  */
 public class DataManager {
     //Log Tag

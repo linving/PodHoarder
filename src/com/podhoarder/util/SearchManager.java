@@ -43,8 +43,12 @@ public class SearchManager
 {
 	@SuppressWarnings("unused")
 	private static final String LOG_TAG = "com.podhoarder.util.SearchManager";
+
+    private static final int NEW_SEARCH_RESULT_LIMIT = 10;
+    private static final int SEARCH_TIMEOUT = 100;
+    private static final int SEARCH_TIMEOUT_MILLIS = 10000;
 	
-	private String baseURL = "http://itunes.apple.com/search?media=podcast&entity=podcast&limit=" + Constants.NEW_SEARCH_RESULT_LIMIT + "&term=";	//Just append the search term to this string and you will receive the 25 most relevant results.
+	private String baseURL = "http://itunes.apple.com/search?media=podcast&entity=podcast&limit=" + NEW_SEARCH_RESULT_LIMIT + "&term=";	//Just append the search term to this string and you will receive the 25 most relevant results.
 
     private SearchResultsAdapter mListAdapter;
 	private ButteryProgressBar mProgressBar;
@@ -138,7 +142,7 @@ public class SearchManager
 					InputStream input = url.openStream();
 					Reader reader = new InputStreamReader(input, "UTF-8");
 					this.mResults = new Gson().fromJson(reader, SearchResult.class);
-					while (mResults == null && mTimeOutInc < Constants.SEARCH_TIMEOUT && !this.isCancelled())
+					while (mResults == null && mTimeOutInc < SEARCH_TIMEOUT && !this.isCancelled())
 					{
 						Thread.sleep(100);
 						this.mTimeOutInc++;
@@ -234,33 +238,47 @@ public class SearchManager
 				URL url = new URL(param[0]);
 
 				// Setup the connection
-				this.conn = (HttpURLConnection) url.openConnection();
-				
-				this.conn.setConnectTimeout(Constants.SEARCH_TIMEOUT_MILLIS);
+                try {
+                    this.conn = (HttpURLConnection) url.openConnection();
 
-				// Connect
-				if (this.conn.getResponseCode() == HttpURLConnection.HTTP_OK && !this.isCancelled())
-				{
-					// Retreive the XML from the URL
-					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-					DocumentBuilder db = dbf.newDocumentBuilder();
-					Document doc;
-					doc = db.parse(url.openStream());
-					doc.getDocumentElement().normalize();
-					
-					// This is the root node of each section you want to parse
-					NodeList channelNodeList = doc.getElementsByTagName("channel");
-					
-					feed.setTitle(DataParser.parsePodcastTitle(channelNodeList));
-					feed.setAuthor(DataParser.parsePodcastAuthor(channelNodeList));
-					feed.setDescription(DataParser.parsePodcastDescription(channelNodeList));
-					feed.setLink(param[0]);
-					feed.setCategory(DataParser.parsePodcastCategory(channelNodeList));
-					feed.setImageUrl(DataParser.parsePodcastImageLocation(channelNodeList));
-					feed.setXml(doc);
-					feed.setLastUpdated(DataParser.parsePodcastPubDate(channelNodeList));
-					return feed;
-				}
+                    this.conn.setConnectTimeout(SEARCH_TIMEOUT_MILLIS);
+                    this.conn.setReadTimeout(SEARCH_TIMEOUT_MILLIS);
+
+                    // Connect
+                    if (this.conn.getResponseCode() == HttpURLConnection.HTTP_OK && !this.isCancelled())
+                    {
+                        // Retreive the XML from the URL
+                        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                        DocumentBuilder db = dbf.newDocumentBuilder();
+                        Document doc;
+                        doc = db.parse(url.openStream());
+                        doc.getDocumentElement().normalize();
+
+                        // This is the root node of each section you want to parse
+                        NodeList channelNodeList = doc.getElementsByTagName("channel");
+
+                        feed.setTitle(DataParser.parsePodcastTitle(channelNodeList));
+                        feed.setAuthor(DataParser.parsePodcastAuthor(channelNodeList));
+                        feed.setDescription(DataParser.parsePodcastDescription(channelNodeList));
+                        feed.setLink(param[0]);
+                        feed.setCategory(DataParser.parsePodcastCategory(channelNodeList));
+                        feed.setImageUrl(DataParser.parsePodcastImageLocation(channelNodeList));
+                        feed.setXml(doc);
+                        feed.setLastUpdated(DataParser.parsePodcastPubDate(channelNodeList));
+                        return feed;
+                    }
+                }
+                catch (java.net.SocketTimeoutException e) {
+                    Log.e(LOG_TAG,"Timeout when trying to connect to " + feed.getLink());
+                    e.printStackTrace();
+                    this.conn.disconnect();
+                    cancel(true);
+                } catch (java.io.IOException e) {
+                    Log.e(LOG_TAG,"IOException when trying to connect to " + feed.getLink());
+                    e.printStackTrace();
+                    this.conn.disconnect();
+                    cancel(true);
+                }
 			}
 			catch (MalformedURLException e)
 			{

@@ -20,14 +20,15 @@ import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.fragment.AddFragment;
 import com.podhoarder.fragment.BaseFragment;
 import com.podhoarder.fragment.CollectionFragment;
+import com.podhoarder.fragment.DummyPreferenceFragment;
 import com.podhoarder.fragment.EpisodeFragment;
 import com.podhoarder.fragment.GridFragment;
 import com.podhoarder.fragment.ListFragment;
 import com.podhoarder.fragment.PlayerFragment;
+import com.podhoarder.fragment.PreferencesFragment;
 import com.podhoarder.object.Episode;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
-import com.podhoarder.util.Constants;
 import com.podhoarder.util.HardwareIntentReceiver;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ToastMessages;
@@ -39,8 +40,6 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     private static final String LOG_TAG = "com.podhoarder.activity.MainActivity";
     //FRAGMENTS
     public BaseFragment mCurrentFragment;
-
-
 
     //ACTIVITY RESULT
     static final int SETTINGS_REQUEST = 2;
@@ -55,6 +54,8 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
 
     //INTERFACE LISTENER
     private onFirstFeedAddedListener mOnFirstFeedAddedListener;
+
+
 
     private ServiceConnection podConnection = new ServiceConnection()    //connect to the service
     {
@@ -187,22 +188,6 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
-        switch (requestCode) {
-            case SETTINGS_REQUEST:
-                // Make sure the request was successful
-                if (resultCode == RESULT_OK) {
-                    if (data.hasExtra(Constants.SETTINGS_KEY_GRIDSHOWTITLE) && data.getBooleanExtra(Constants.SETTINGS_KEY_GRIDSHOWTITLE,true)) {  //If any of the preferences were changed we'll redraw the Grid. (to reflect the UI changes)
-                        ((LibraryActivityManager) mDataManager).mFeedsGridAdapter.notifyDataSetChanged();
-                    }
-                }
-                break;
-        }
-    }
-
-
-    @Override
     public void onQuicklistItemClicked(View clickedView, int position, QuicklistFilter currentFilter) {
         switch (currentFilter) {
             case FAVORITES:
@@ -276,7 +261,7 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
         if (!((Object) mCurrentFragment).getClass().getName().equals(PlayerFragment.class.getName()) && mPlaybackService.mCurrentEpisode != null) { //We check to see if the current fragment is a PlayerFragment. In that case we don't need to create a new one.
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             //ft.setCustomAnimations(0, 0, R.anim.slide_in_top, 0);
-            ft.setCustomAnimations(R.anim.activity_stay_transition, 0, R.anim.activity_stay_transition, R.anim.activity_stay_transition);
+            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
             ft.replace(R.id.root_container, new PlayerFragment());
             ft.addToBackStack(null);
             ft.commitAllowingStateLoss();
@@ -298,8 +283,13 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     @Override
     public void startSettingsActivity() {
         setSelectedNavigationItem(NAVIGATION_SETTINGS);
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivityForResult(intent, SETTINGS_REQUEST);
+        if (!((Object) mCurrentFragment).getClass().getName().equals(DummyPreferenceFragment.class.getName())) {
+            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+            ft.replace(R.id.root_container, new PreferencesFragment());
+            ft.addToBackStack(null);
+            ft.commit();
+        }
     }
 
     //MISC HELPER METHODS
@@ -337,12 +327,14 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
 
     public void setCurrentFragment(BaseFragment currentFragment)  {
         this.mCurrentFragment = currentFragment;
-
         if (((Object) mCurrentFragment).getClass().getName().equals(AddFragment.class.getName()) ||
              ((Object) mCurrentFragment).getClass().getName().equals(GridFragment.class.getName()) ||
              ((Object) mCurrentFragment).getClass().getName().equals(ListFragment.class.getName()) ||
              ((Object) mCurrentFragment).getClass().getName().equals(EpisodeFragment.class.getName())) {
             setSelectedNavigationItem(NAVIGATION_LIBRARY);
+        }
+        else if (((Object) mCurrentFragment).getClass().getName().equals(DummyPreferenceFragment.class.getName())) {
+            setSelectedNavigationItem(NAVIGATION_SETTINGS);
         }
         else if (((Object) mCurrentFragment).getClass().getName().equals(PlayerFragment.class.getName())) {
             setSelectedNavigationItem(NAVIGATION_PLAYER);

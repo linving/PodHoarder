@@ -1,17 +1,25 @@
 package com.podhoarder.fragment;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.internal.view.menu.MenuItemImpl;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
 import com.podhoarder.activity.BaseActivity;
@@ -19,6 +27,9 @@ import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarderproject.podhoarder.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Emil on 2014-10-28.
@@ -68,6 +79,8 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
     }
 
     public boolean onBackPressed() {
+
+        appbarHideIcons();
         return false;
     }
 
@@ -78,6 +91,27 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
 
     public void onFragmentResumed() {
 
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        if (menu.size() == ((BaseActivity)getActivity()).mPreviousMenuItems.size()) {
+            for (int r=0; r<menu.size(); r++) {
+                if (menu.getItem(r).getItemId() != ((BaseActivity)getActivity()).mPreviousMenuItems.get(r).getItemId()) {
+                    appBarShowIcons();
+                    break;
+                }
+            }
+        }
+        else {
+            appBarShowIcons();
+        }
+        //TODO: If menu contains the same items there's no need to animate.
+        ((BaseActivity)getActivity()).mPreviousMenuItems.clear();
+        for (int i=0; i<menu.size(); i++) {
+            ((BaseActivity)getActivity()).mPreviousMenuItems.add((MenuItemImpl)menu.getItem(i));
+        }
     }
 
     @Override
@@ -152,5 +186,90 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
         }
         else
             return false;
+    }
+
+    public void appBarShowIcons() {
+        // get the center for the clipping circle
+        int cy = (mToolbar.getTop() + mToolbar.getBottom()) / 2;
+
+        // get the final radius for the clipping circle
+        int finalRadius = Math.max(mToolbar.getWidth(), mToolbar.getHeight());
+
+        // create the animator for this view (the start radius is zero)
+        Animator anim =
+                ViewAnimationUtils.createCircularReveal(mToolbar, 0, cy, mToolbar.getHeight(), finalRadius);
+
+        anim.setDuration(100);
+        anim.start();
+        iconFade(true, 200);
+    }
+
+    public void appbarHideIcons() {
+        iconFade(false, 150);
+
+        if (mToolbar != null) {
+            // get the center for the clipping circle
+            int cy = (mToolbar.getTop() + mToolbar.getBottom()) / 2;
+
+            // get the final radius for the clipping circle
+            int finalRadius = Math.max(mToolbar.getWidth(), mToolbar.getHeight());
+
+            // create the animator for this view (the start radius is zero)
+            Animator anim = ViewAnimationUtils.createCircularReveal(mToolbar, 0, cy, mToolbar.getHeight(), finalRadius);
+
+            anim.setDuration(150);
+
+            anim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    mToolbar.setVisibility(View.INVISIBLE);
+                }
+            });
+
+            anim.start();
+        }
+    }
+
+    private void iconFade(final boolean shouldFadeIn, final int duration) {
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                int[] ids = new int[]{R.id.menu_episode_playnow, R.id.menu_episode_show_info, R.id.menu_episode_available_offline, R.id.menu_episode_delete_file, R.id.menu_episode_markAsListened, R.id.menu_episode_add_playlist,R.id.menu_player_sleep, R.id.action_add, R.id.action_search};
+                List<View> icons = new ArrayList<View>();
+                View v;
+                for (int i : ids) {
+                    v = mToolbarContainer.findViewById(i);
+                    if (v != null)
+                        icons.add(v);
+                }
+                //TODO: Find a way to add Overflow menu button at the last position in the list. It should be animated as well.
+                /*icons.add(mToolbarContainer.findViewById(R.id.menu_episode_add_playlist));
+                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_playnow));
+                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_available_offline));
+                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_delete_file));
+                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_markAsListened));
+                icons.add(mToolbarContainer.findViewById(R.id.menu_player_sleep));
+                icons.add(mToolbarContainer.findViewById(R.id.action_add));
+                icons.add(mToolbarContainer.findViewById(R.id.action_search));*/
+                int delay = duration / icons.size();
+                for (View icon : icons) {
+                    if (icon != null) {
+                        if (shouldFadeIn) {
+                            icon.setAlpha(0f);
+                            icon.setScaleX(0.5f);
+                            icon.setScaleY(0.5f);
+                            icon.animate().scaleX(1f).scaleY(1f).alpha(1f).setInterpolator(new DecelerateInterpolator()).setStartDelay(delay).setDuration(duration).start();
+                            delay += (duration/icons.size());
+                        }
+                        else {
+                            icon.animate().scaleX(0.5f).scaleY(0.5f).alpha(0f).setInterpolator(new DecelerateInterpolator()).setStartDelay(delay).setDuration(duration).start();
+                            delay += (duration/icons.size());
+                        }
+                    }
+                }
+            }
+        });
     }
 }

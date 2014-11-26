@@ -80,7 +80,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 		{
 			//Inflate
 			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = inflater.inflate(R.layout.activity_add_list_row, null);
+			convertView = inflater.inflate(R.layout.fragment_add_list_row, null);
 			
 			// Set up the ViewHolder
 	        viewHolder = new SearchResultsAdapterViewHolder();

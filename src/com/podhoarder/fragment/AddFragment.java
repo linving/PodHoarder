@@ -41,7 +41,7 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LOG_TAG = "com.podhoarder.fragment.AddFragment";
         super.onCreateView(inflater, container, savedInstanceState);
-        mContentView = inflater.inflate(R.layout.activity_add, container, false);
+        mContentView = inflater.inflate(R.layout.fragment_add, container, false);
         setHasOptionsMenu(true);
         if (isDrawerIconEnabled())
             setDrawerIconEnabled(false,300);

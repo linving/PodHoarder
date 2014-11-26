@@ -65,7 +65,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         LOG_TAG = "com.podhoarder.fragment.ListFragment";
         super.onCreateView(inflater, container, savedInstanceState);
 
-        mContentView = inflater.inflate(R.layout.activity_list, container, false);
+        mContentView = inflater.inflate(R.layout.fragment_list, container, false);
         ViewTreeObserver vto = mContentView.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override

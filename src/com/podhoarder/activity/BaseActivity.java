@@ -2,7 +2,6 @@ package com.podhoarder.activity;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -13,6 +12,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.internal.view.menu.MenuItemImpl;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -37,6 +37,7 @@ import com.podhoarder.view.CheckableImageButton;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Emil on 2014-10-21.
@@ -63,6 +64,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     public int mToolbarSize;
     public FrameLayout mToolbarContainer;
     public View mToolbarBackground;
+    public List<MenuItemImpl> mPreviousMenuItems;
 
     public int mStatusBarHeight;
 
@@ -88,6 +90,8 @@ public abstract class BaseActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
+
+        mPreviousMenuItems = new ArrayList<MenuItemImpl>();
 
         mStatusBarHeight = getStatusBarHeight();
         mToolbarContainer = (FrameLayout) findViewById(R.id.toolbar_container);
@@ -230,8 +234,8 @@ public abstract class BaseActivity extends ActionBarActivity {
 
     //NAVIGATION
     public void startSettingsActivity() {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
+        //Intent intent = new Intent(this, SettingsActivity.class);
+        //startActivity(intent);
     }
 
     public void startPlayerActivity() {

@@ -1,7 +1,6 @@
 package com.podhoarder.fragment;
 
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageButton;
@@ -66,7 +64,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
         super.onCreateView(inflater, container, savedInstanceState);
 
-        mContentView = inflater.inflate(R.layout.activity_player, container, false);
+        mContentView = inflater.inflate(R.layout.fragment_player, container, false);
         setHasOptionsMenu(true);
 
         mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
@@ -280,30 +278,30 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
     private void endFragmentAnimation() {
         final int ANIMATION_DURATION = 300;
-        mSeekBar.animate().scaleY(0f).scaleX(0f).setInterpolator(new AnticipateOvershootInterpolator()).setDuration(ANIMATION_DURATION).start();
-        ((BaseActivity) getActivity()).resetUI();
-        // get the center for the clipping circle
-        int cx = (mContentView.getLeft() + mContentView.getRight()) / 2;
-        int cy = (mContentView.getTop() + mContentView.getBottom()) / 2;
+        mSeekBar.animate().scaleY(0f).scaleX(0f).setInterpolator(new AnticipateOvershootInterpolator()).setDuration(ANIMATION_DURATION).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
 
-        // get the initial radius for the clipping circle
-        int initialRadius = mContentView.getWidth();
+            }
 
-        // create the animation (the final radius is zero)
-        Animator anim = ViewAnimationUtils.createCircularReveal(mContentView, cx, cy, initialRadius, 0);
-
-        // make the view invisible when the animation is done
-        anim.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                mContentView.setVisibility(View.INVISIBLE);
+
                 getActivity().getSupportFragmentManager().popBackStack();
             }
-        });
-        anim.setDuration(ANIMATION_DURATION);
-        // start the animation
-        anim.start();
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        }).start();
+        ((BaseActivity) getActivity()).resetUI();
+
     }
 
 }

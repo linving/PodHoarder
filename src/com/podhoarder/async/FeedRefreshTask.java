@@ -38,12 +38,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Task used for refreshing Feeds.
- * @author Emil
  *
+ * @author Emil
  */
-public class FeedRefreshTask extends AsyncTask<List<Feed>, Integer, List<Feed>>
-{
-    private static          String      LOG_TAG = "com.podhoarder.async.FeedRefreshTask";
+public class FeedRefreshTask extends AsyncTask<List<Feed>, Integer, List<Feed>> {
+    private static String LOG_TAG = "com.podhoarder.async.FeedRefreshTask";
+    private static final int REFRESH_TIMEOUT_MILLIS = 100000;
 
     private Context mContext;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -56,8 +56,7 @@ public class FeedRefreshTask extends AsyncTask<List<Feed>, Integer, List<Feed>>
     private List<String> titles;
     private boolean shouldDelete = false;
 
-    public FeedRefreshTask(Context mContext, FeedDBHelper fDbH, SwipeRefreshLayout swipeRefreshLayout)
-    {
+    public FeedRefreshTask(Context mContext, FeedDBHelper fDbH, SwipeRefreshLayout swipeRefreshLayout) {
         this.mContext = mContext;
         this.fDbH = fDbH;
         this.swipeRefreshLayout = swipeRefreshLayout;
@@ -69,24 +68,23 @@ public class FeedRefreshTask extends AsyncTask<List<Feed>, Integer, List<Feed>>
         this.titles = new ArrayList<String>();
     }
 
-    protected List<Feed> doInBackground(List<Feed>... param)
-    {
+    protected List<Feed> doInBackground(List<Feed>... param) {
 
-        for (Feed currentFeed:param[0])
-        {
+        for (Feed currentFeed : param[0]) {
             double percentIncrement;
             List<Episode> eps = new ArrayList<Episode>();
-            try
-            {
+            try {
                 // Set the url (you will need to change this to your RSS URL
-                URL url = new URL(currentFeed.getLink());
+                final URL url = new URL(currentFeed.getLink());
 
                 // Setup the connection
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+                conn.setConnectTimeout(REFRESH_TIMEOUT_MILLIS);
+                conn.setReadTimeout(REFRESH_TIMEOUT_MILLIS);
 
                 // Connect
-                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK)
-                {
+                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     // Retreive the XML from the URL
                     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                     DocumentBuilder db = dbf.newDocumentBuilder();
@@ -108,64 +106,60 @@ public class FeedRefreshTask extends AsyncTask<List<Feed>, Integer, List<Feed>>
                     publishProgress((int) percentIncrement);
 
                     // Loop through the XML passing the data to the arrays
-                    percentIncrement = ((100/param[0].size())/itemLst.getLength());
-                    for (int i = 0; i < itemLst.getLength(); i++)							//Parse each Episode.
+                    percentIncrement = ((100 / param[0].size()) / itemLst.getLength());
+                    for (int i = 0; i < itemLst.getLength(); i++)                            //Parse each Episode.
                     {
                         Episode ep = new Episode();
                         Node item = itemLst.item(i);
-                        if (item.getNodeType() == Node.ELEMENT_NODE)
-                        {
+                        if (item.getNodeType() == Node.ELEMENT_NODE) {
 
-                            Element ielem = (Element) item;									//Initialise the base element for an Episode.
+                            Element ielem = (Element) item;                                    //Initialise the base element for an Episode.
 
-                            ep.setTitle(DataParser.parseEpisodeTitle(ielem));				//Parse Title
+                            ep.setTitle(DataParser.parseEpisodeTitle(ielem));                //Parse Title
 
-                            if (currentFeed != null)										//Nullcheck
+                            if (currentFeed != null)                                        //Nullcheck
                             {
                                 titles.add(ep.getTitle());
                                 if (episodeExists(ep.getTitle(), currentFeed.getEpisodes()))//If the current Episode is already in the local list, there's no need to keep processing it.
                                     continue;
                             }
 
-                            ep.setLink(DataParser.parseEpisodeLink(ielem));					//Parse Link
+                            ep.setLink(DataParser.parseEpisodeLink(ielem));                    //Parse Link
 
-                            ep.setPubDate(DataParser.parseEpisodePubDate(ielem));			//Parse Publish date
+                            ep.setPubDate(DataParser.parseEpisodePubDate(ielem));            //Parse Publish date
 
-                            ep.setDescription(DataParser.parseEpisodeDescription(ielem));	//Parse Description
+                            ep.setDescription(DataParser.parseEpisodeDescription(ielem));    //Parse Description
                         }
-                        publishProgress((int) percentIncrement);							//Update AsyncTask progress
+                        publishProgress((int) percentIncrement);                            //Update AsyncTask progress
                         eps.add(ep);
                     }
 
-                    if (itemLst.getLength() < (eps.size() + currentFeed.getEpisodes().size()))	//this means that there are fewer Episodes in the XML than in our db. We should remove those that aren't in the XML.
+                    if (itemLst.getLength() < (eps.size() + currentFeed.getEpisodes().size()))    //this means that there are fewer Episodes in the XML than in our db. We should remove those that aren't in the XML.
                     {
                         shouldDelete = true;
                     }
-                    this.img = DataParser.parsePodcastImageLocation(itemLst2);				//We process the image last, because it can potentially take a lot of time and if we discover that we don't need to update anything, this shouldn't be done at all.
+                    this.img = DataParser.parsePodcastImageLocation(itemLst2);                //We process the image last, because it can potentially take a lot of time and if we discover that we don't need to update anything, this shouldn't be done at all.
                 }
-
-            } catch (MalformedURLException e)
-            {
+            } catch (java.net.SocketTimeoutException e) {
+                Log.e(LOG_TAG, "Timeout when trying to connect to " + currentFeed.getLink());
                 e.printStackTrace();
-            } catch (DOMException e)
-            {
-                e.printStackTrace();
-            } catch (IOException e)
-            {
                 cancel(true);
-                Log.e(LOG_TAG, e.getMessage());
-            } catch (ParserConfigurationException e)
-            {
+            } catch (MalformedURLException e) {
                 e.printStackTrace();
-            } catch (SAXException e)
-            {
+            } catch (DOMException e) {
                 e.printStackTrace();
-            } catch (SQLiteConstraintException e)
-            {
+            } catch (IOException e) {
+                Log.e(LOG_TAG,"IOException when trying to parse: " + currentFeed.getLink());
+                e.printStackTrace();
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            } catch (SQLiteConstraintException e) {
                 cancel(true);
             }
 
-            if (eps.size() > 0 || shouldDelete)	//If we haven't found any new Episodes, there's no need to add the entire Feed object and process it.
+            if (eps.size() > 0 || shouldDelete)    //If we haven't found any new Episodes, there's no need to add the entire Feed object and process it.
             {
                 feeds.add(new Feed(this.title, this.author, this.description,
                         this.link, this.category, this.img, false, eps, mContext));
@@ -176,38 +170,30 @@ public class FeedRefreshTask extends AsyncTask<List<Feed>, Integer, List<Feed>>
     }
 
     @Override
-    protected void onCancelled()
-    {
+    protected void onCancelled() {
         this.swipeRefreshLayout.setRefreshing(false);
         ToastMessages.RefreshFailed(mContext).show();
     }
 
     @Override
-    protected void onProgressUpdate(Integer... progress)
-    {
+    protected void onProgressUpdate(Integer... progress) {
         setProgressPercent(progress[0]);
     }
 
-    protected void onPostExecute(List<Feed> feeds)
-    {
-        try
-        {
-            for (Feed newFeed : feeds)
-            {
+    protected void onPostExecute(List<Feed> feeds) {
+        try {
+            for (Feed newFeed : feeds) {
                 //Get the Feed that's stored locally with the same Id.
                 Feed oldFeed = fDbH.getFeedByURL(newFeed.getLink());
                 //If the new Episode list has more Episodes, we need to add the new Episodes to the db.
-                for (int i = 0; i<newFeed.getEpisodes().size(); i++)
-                {
+                for (int i = 0; i < newFeed.getEpisodes().size(); i++) {
                     oldFeed.getEpisodes().add(0, newFeed.getEpisodes().get(i));
                 }
 
-                if (shouldDelete)	//This is true if we have too many episodes. titles contains all the episode titles from the XML, so we need to remove the Episodes we have that aren't in titles.
+                if (shouldDelete)    //This is true if we have too many episodes. titles contains all the episode titles from the XML, so we need to remove the Episodes we have that aren't in titles.
                 {
-                    if (titles != null)
-                    {
-                        for (int i = 0; i < oldFeed.getEpisodes().size(); i++)
-                        {
+                    if (titles != null) {
+                        for (int i = 0; i < oldFeed.getEpisodes().size(); i++) {
                             if (!titles.contains(oldFeed.getEpisodes().get(i).getTitle()))
                                 oldFeed.getEpisodes().remove(i);
                         }
@@ -218,19 +204,15 @@ public class FeedRefreshTask extends AsyncTask<List<Feed>, Integer, List<Feed>>
                 oldFeed = fDbH.updateFeed(oldFeed);
             }
             this.swipeRefreshLayout.setRefreshing(false);
-            ((LibraryActivity)mContext).mDataManager.forceReloadListData(true);
+            ((LibraryActivity) mContext).mDataManager.forceReloadListData(true);
             ToastMessages.RefreshSuccessful(mContext).show();
-        }
-        catch (CursorIndexOutOfBoundsException e)
-        {
-            Log.e(LOG_TAG,"CursorIndexOutOfBoundsException: Refresh failed.");
+        } catch (CursorIndexOutOfBoundsException e) {
+            Log.e(LOG_TAG, "CursorIndexOutOfBoundsException: Refresh failed.");
             this.swipeRefreshLayout.setRefreshing(false);
             ToastMessages.RefreshFailed(mContext).show();
             cancel(true);
-        }
-        catch (SQLiteConstraintException e)
-        {
-            Log.e(LOG_TAG,"SQLiteConstraintException: Refresh failed.");
+        } catch (SQLiteConstraintException e) {
+            Log.e(LOG_TAG, "SQLiteConstraintException: Refresh failed.");
             this.swipeRefreshLayout.setRefreshing(false);
             ToastMessages.RefreshFailed(mContext).show();
             cancel(true);
@@ -238,24 +220,22 @@ public class FeedRefreshTask extends AsyncTask<List<Feed>, Integer, List<Feed>>
     }
 
     @SuppressWarnings("unused")
-    public int getProgressPercent()
-    {
+    public int getProgressPercent() {
         return progressPercent;
     }
 
-    public void setProgressPercent(int progressPercent)
-    {
+    public void setProgressPercent(int progressPercent) {
         this.progressPercent = progressPercent;
     }
 
     /**
      * Does a check to see if an Episode with the specified title is contained within the specified List of Episodes.
-     * @param episodeTitle  Title of the Episode to look for.
-     * @param episodes List of Episode objects to search through.
+     *
+     * @param episodeTitle Title of the Episode to look for.
+     * @param episodes     List of Episode objects to search through.
      * @return True if the episode exists, False otherwise.
      */
-    private static boolean episodeExists(String episodeTitle, List<Episode> episodes)
-    {
+    private static boolean episodeExists(String episodeTitle, List<Episode> episodes) {
         for (Episode episode : episodes) {
             if (episodeTitle.equals(episode.getTitle())) return true;
         }
