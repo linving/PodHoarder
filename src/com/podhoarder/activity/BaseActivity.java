@@ -97,7 +97,9 @@ public abstract class BaseActivity extends ActionBarActivity {
         mToolbarContainer = (FrameLayout) findViewById(R.id.toolbar_container);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        mToolbar.setPadding(0,mStatusBarHeight,0,0);
+        FrameLayout.LayoutParams mToolbarLayoutParams = (FrameLayout.LayoutParams) mToolbar.getLayoutParams();
+        mToolbarLayoutParams.topMargin = mStatusBarHeight;
+        mToolbar.setLayoutParams(mToolbarLayoutParams);
         mToolbarSize = mToolbar.getMinimumHeight();
 
         mToolbarBackground = findViewById(R.id.toolbar_background);
@@ -105,6 +107,7 @@ public abstract class BaseActivity extends ActionBarActivity {
 
         ViewGroup.LayoutParams params = mToolbarContainer.getLayoutParams();
         params.height = mToolbarSize + mStatusBarHeight;
+        mToolbarContainer.setMinimumHeight(mToolbarSize + mStatusBarHeight);
         mToolbarContainer.setLayoutParams(params);
 
         setSupportActionBar(mToolbar);

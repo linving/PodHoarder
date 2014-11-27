@@ -108,6 +108,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     @Override
     public boolean onBackPressed() {
         if (!mExitAnimationsFinished) {
+            appbarHideIcons();
             endFragmentAnimation();
             return true;
         }

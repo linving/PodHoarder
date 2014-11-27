@@ -61,7 +61,9 @@ public class PreferencesFragment extends PreferenceFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
+        //inflater.inflate(R.menu.player_menu, menu);
+        //menu.findItem(R.id.menu_player_sleep).setVisible(false);
+        //super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override

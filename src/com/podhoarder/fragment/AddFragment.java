@@ -52,6 +52,8 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
 
         mToolbarContainer.animate().translationY(0f).setDuration(200).setInterpolator(new AccelerateDecelerateInterpolator()).start();
 
+        mContentView.setPadding(0,(mToolbarSize + mStatusBarHeight),0,0);
+
         return mContentView;
     }
 
@@ -69,14 +71,18 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
         if (null != searchView) {
             //searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
             searchView.setIconifiedByDefault(false);
+            searchView.setQueryHint(getString(R.string.add_search_hint));
         }
         searchView.setOnQueryTextListener(this);
         searchView.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onBackPressed() {
+        hideKeyboard();
         return false;
     }
 

@@ -139,6 +139,7 @@ public class EpisodeFragment extends BaseFragment {
     @Override
     public boolean onBackPressed() {
         if (!mExitAnimationsFinished) {
+            appbarHideIcons();
             endFragmentAnimation();
             return true;
         }

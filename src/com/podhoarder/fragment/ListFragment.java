@@ -283,6 +283,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         mToolbarContainer.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(ANIMATION_DURATION).start();
         mPodcastBanner.animate().translationY(0f).setDuration(ANIMATION_DURATION).setInterpolator(new AccelerateDecelerateInterpolator()).start();
         setDrawerIconEnabled(false,250);
+        appbarHideIcons();
     }
 
     private void reverseListItemSelectionAnimation(int clickedViewPos, int clickedViewTop) {

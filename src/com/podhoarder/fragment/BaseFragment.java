@@ -1,7 +1,6 @@
 package com.podhoarder.fragment;
 
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.graphics.Color;
@@ -11,6 +10,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.internal.view.menu.MenuItemImpl;
+import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -80,7 +80,6 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
 
     public boolean onBackPressed() {
 
-        appbarHideIcons();
         return false;
     }
 
@@ -207,7 +206,7 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
     public void appbarHideIcons() {
         iconFade(false, 150);
 
-        if (mToolbar != null) {
+        /*if (mToolbar != null) {
             // get the center for the clipping circle
             int cy = (mToolbar.getTop() + mToolbar.getBottom()) / 2;
 
@@ -223,12 +222,12 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
-                    mToolbar.setVisibility(View.INVISIBLE);
+                    //mToolbar.setVisibility(View.INVISIBLE);
                 }
             });
 
             anim.start();
-        }
+        }*/
     }
 
     private void iconFade(final boolean shouldFadeIn, final int duration) {
@@ -244,15 +243,24 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
                     if (v != null)
                         icons.add(v);
                 }
-                //TODO: Find a way to add Overflow menu button at the last position in the list. It should be animated as well.
-                /*icons.add(mToolbarContainer.findViewById(R.id.menu_episode_add_playlist));
-                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_playnow));
-                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_available_offline));
-                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_delete_file));
-                icons.add(mToolbarContainer.findViewById(R.id.menu_episode_markAsListened));
-                icons.add(mToolbarContainer.findViewById(R.id.menu_player_sleep));
-                icons.add(mToolbarContainer.findViewById(R.id.action_add));
-                icons.add(mToolbarContainer.findViewById(R.id.action_search));*/
+                //Find the ActionMenuView inside the Toolbar
+                for (int i = 0; i<mToolbar.getChildCount(); i++ ) {
+                    View toolbarChild = mToolbar.getChildAt(i);
+                    if (toolbarChild instanceof ActionMenuView) {
+                        //We found the ActionMenuView. Now we need to find the Overflow button view.
+                        for (int r=0; r<((ActionMenuView) toolbarChild).getChildCount(); r++) {
+                            v = ((ActionMenuView) toolbarChild).getChildAt(r);
+                            ActionMenuView.LayoutParams params = (ActionMenuView.LayoutParams) v.getLayoutParams();
+                            if (params.isOverflowButton) {
+                                //Found the overflow button view. Add it to the list of icons that should be animated.
+                                icons.add(v);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+
                 int delay = duration / icons.size();
                 for (View icon : icons) {
                     if (icon != null) {
