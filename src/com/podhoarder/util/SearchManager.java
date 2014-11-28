@@ -11,7 +11,7 @@ import com.podhoarder.adapter.SearchResultsAdapter;
 import com.podhoarder.json.SearchResult;
 import com.podhoarder.json.SearchResultItem;
 import com.podhoarder.object.SearchResultRow;
-import com.podhoarder.view.ButteryProgressBar;
+import com.podhoarder.view.AnimatedSearchView;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -51,7 +51,7 @@ public class SearchManager
 	private String baseURL = "http://itunes.apple.com/search?media=podcast&entity=podcast&limit=" + NEW_SEARCH_RESULT_LIMIT + "&term=";	//Just append the search term to this string and you will receive the 25 most relevant results.
 
     private SearchResultsAdapter mListAdapter;
-	private ButteryProgressBar mProgressBar;
+	private AnimatedSearchView mSearchView;
 	private Context mContext;
 	private SearchTask mSearchTask;
     
@@ -59,14 +59,14 @@ public class SearchManager
 	 * Create a new SearchManager object.
 	 * @param context	Application context.
 	 * @param listAdapter	ListAdapter to show search results in.
-	 * @param progressBar	ProgressBar to use when providing UI feedback.
+	 * @param searchView	The AnimatedSearchView that is used to enter the search query.
 	 * @return A new SearchManager object.
 	 */
-    public SearchManager(Context context, SearchResultsAdapter listAdapter, ButteryProgressBar progressBar)
+    public SearchManager(Context context, SearchResultsAdapter listAdapter, AnimatedSearchView searchView)
     {
     	this.mContext = context;
     	this.mListAdapter = listAdapter;
-    	this.mProgressBar = progressBar;
+    	this.mSearchView = searchView;
     }
     
     /**
@@ -119,7 +119,7 @@ public class SearchManager
 		@Override
 		protected void onPreExecute()
 		{
-			AnimUtils.fadeInAnimation(mContext, mProgressBar, 500);
+			mSearchView.setSearching(true);
 			//mProgressBar.setVisibility(View.VISIBLE);		//Show progressbar
 			this.mSubtasks = new ArrayList<AsyncTask<String, Void, SearchResultRow >> ();
 		}
@@ -206,7 +206,7 @@ public class SearchManager
 		{
 			//Clear results and notify list adapter.
 	    	Log.i(LOG_TAG, "Search cancelled!");
-	    	AnimUtils.fadeOutAnimation(mContext, mProgressBar , 500);
+	    	mSearchView.setSearching(false);
 			this.mResults = null;
 			this.mFailedTasks = 0;
 			mListAdapter.clear();
@@ -325,7 +325,7 @@ public class SearchManager
 				mSearchTask.mFailedTasks++;
 			if ((mSearchTask.mSubtasks.size() - mSearchTask.mFailedTasks) == mListAdapter.getCount())	//The last subtask has been completed.
 			{
-				AnimUtils.fadeOutAnimation(mContext, mProgressBar, 500);	//Fade out the progress indicator.
+				mSearchView.setSearching(false);
 			}
 		};
 		

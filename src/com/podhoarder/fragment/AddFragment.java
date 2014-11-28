@@ -17,7 +17,7 @@ import com.podhoarder.adapter.SearchResultsAdapter;
 import com.podhoarder.listener.SearchResultMultiChoiceModeListener;
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.util.SearchManager;
-import com.podhoarder.view.ButteryProgressBar;
+import com.podhoarder.view.AnimatedSearchView;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
 
     private SearchManager mSearchManager;
 
-    private ButteryProgressBar mProgressBar;
+    private AnimatedSearchView mSearchView;
 
     private SearchResultMultiChoiceModeListener mListSelectionListener;
 
@@ -46,14 +46,9 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
         if (isDrawerIconEnabled())
             setDrawerIconEnabled(false,300);
         setupListView();
-        mProgressBar = (ButteryProgressBar) mContentView.findViewById(R.id.search_progressBar);
-
-        mSearchManager = new SearchManager(getActivity(), mListAdapter, mProgressBar);
 
         mToolbarContainer.animate().translationY(0f).setDuration(200).setInterpolator(new AccelerateDecelerateInterpolator()).start();
-
         mContentView.setPadding(0,(mToolbarSize + mStatusBarHeight),0,0);
-
         return mContentView;
     }
 
@@ -67,14 +62,15 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
 
         inflater.inflate(R.menu.search_menu, menu);
         //android.app.SearchManager searchManager = (android.app.SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        if (null != searchView) {
+        mSearchView = (AnimatedSearchView) menu.findItem(R.id.action_search).getActionView();
+        if (null != mSearchView) {
             //searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-            searchView.setIconifiedByDefault(false);
-            searchView.setQueryHint(getString(R.string.add_search_hint));
+            mSearchView.setIconifiedByDefault(false);
+            mSearchView.setQueryHint(getString(R.string.add_search_hint));
         }
-        searchView.setOnQueryTextListener(this);
-        searchView.requestFocus();
+        mSearchView.setOnQueryTextListener(this);
+        mSearchView.requestFocus();
+        mSearchManager = new SearchManager(getActivity(), mListAdapter, mSearchView);
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
         super.onCreateOptionsMenu(menu, inflater);
