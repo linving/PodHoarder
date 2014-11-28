@@ -138,10 +138,9 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
         //mToolbarBackground.animate().alpha(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
         //mToolbarContainer.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(100).start();
         setToolbarTransparent(true);
-        if (FABVisible)
-            mFAB.animate().scaleY(0f).scaleX(0f).setInterpolator(new AnticipateInterpolator()).setDuration(200).start();
         Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.grid_fade_out);
         animation.setFillAfter(true);
+
         int fixedPos = getGridChildPositionWithIndex(pos);
 
         for (int i = mGridView.getFirstVisiblePosition(); i < mGridView.getChildCount(); i++) {
@@ -269,6 +268,7 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
                                 enable = false;
                                 mToolbarContainer.setTranslationY(maxTranslationY);
                                 mFAB.setTranslationY(mFAB.getMeasuredHeight() * 2);
+                                FABVisible = false;
                                 //mToolbar.setAlpha(.0f);
                             }
                         }
@@ -328,7 +328,8 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
             mFAB.setScaleY(0f);
             mFAB.animate().scaleX(1f).scaleY(1f).setInterpolator(new AnticipateOvershootInterpolator()).setDuration(200).start();
         }
-        FABVisible = false;
+        else
+            FABVisible = false;
     }
 
     private void populate() {
@@ -381,6 +382,8 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
         set.setInterpolator(new AccelerateDecelerateInterpolator());
         //set.setFillAfter(true);
         v.startAnimation(set);
+        if (FABVisible)
+            mFAB.animate().scaleY(0f).scaleX(0f).setInterpolator(new AnticipateInterpolator()).setDuration(200).start();
     }
 
     public void reverseGridItemSelectionAnimation(int index, int originalTop, int originalLeft) {
