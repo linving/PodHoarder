@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
@@ -14,7 +15,7 @@ import android.widget.TextView;
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.util.BitmapManager;
 import com.podhoarder.util.DataParser;
-import com.podhoarder.util.ViewHolders.SearchResultsAdapterViewHolder;
+import com.podhoarder.util.ImageUtils;
 import com.podhoarderproject.podhoarder.R;
 
 import java.text.ParseException;
@@ -28,6 +29,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 	private 				List<SearchResultRow> 				results;
 	private 				Context 							context;
 	private					BitmapManager						mBitmapManager;
+    private                 boolean                             mSelectionEnabled;
 
 	/**
 	 * Creates a LatestEpisodesListAdapter (Constructor).
@@ -84,11 +86,12 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 			
 			// Set up the ViewHolder
 	        viewHolder = new SearchResultsAdapterViewHolder();
-	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.search_list_feed_title);
-	        viewHolder.feedAuthor = (TextView) convertView.findViewById(R.id.search_list_feed_author);
-	        viewHolder.lastUpdated = (TextView) convertView.findViewById(R.id.search_list_feed_last_updated);
-	        viewHolder.feedDescription = (TextView) convertView.findViewById(R.id.search_list_feed_description);
-	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.search_list_feed_image);
+	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.search_list_row_title);
+	        viewHolder.feedAuthor = (TextView) convertView.findViewById(R.id.search_list_row_author);
+	        viewHolder.lastUpdated = (TextView) convertView.findViewById(R.id.search_list_row_last_updated);
+	        viewHolder.feedDescription = (TextView) convertView.findViewById(R.id.search_list_row_description);
+	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.search_list_row_image);
+            viewHolder.checkbox = (CheckBox)convertView.findViewById(R.id.search_list_row_checkbox);
 	        
 	        // Store the holder with the view.
 	        convertView.setTag(viewHolder);
@@ -128,11 +131,23 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 				viewHolder.lastUpdated.setText(context.getString(R.string.add_list_feed_last_updated) + " " + context.getString(R.string.add_list_feed_last_updated_unknown));	//Set a time stamp since Episode publication.
 			}
 			//Set Bitmap Image
+            if (mSelectionEnabled) {
+                viewHolder.feedImage.setVisibility(View.GONE);
+                viewHolder.checkbox.setVisibility(View.VISIBLE);
+            }
+            else {
+                viewHolder.feedImage.setVisibility(View.VISIBLE);
+                viewHolder.checkbox.setVisibility(View.GONE);
+
+            }
+
+            viewHolder.checkbox.setChecked(false);
+
 			if (mBitmapManager.isCached(currentResult.getImageUrl()))
-				viewHolder.feedImage.setImageBitmap(mBitmapManager.fetchBitmap(currentResult.getImageUrl(), viewHolder.feedImage.getMaxWidth()));
+				viewHolder.feedImage.setImageBitmap(ImageUtils.getCircularBitmap(mBitmapManager.fetchBitmap(currentResult.getImageUrl(), viewHolder.feedImage.getMaxWidth())));
 			else
 				mBitmapManager.fetchBitmapOnThread(currentResult.getImageUrl(), viewHolder.feedImage);
-			
+
 			viewHolder.feedImage.invalidate();
 		}
 		
@@ -148,4 +163,22 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 	{
 		this.results.clear();
 	}
+
+    public void setSelectionEnabled(boolean enabled) {
+        mSelectionEnabled = enabled;
+    }
+
+    public boolean isSelectionEnabled() {
+        return mSelectionEnabled;
+    }
+
+    public static class SearchResultsAdapterViewHolder
+    {
+        public TextView feedTitle;
+        public TextView feedAuthor;
+        public TextView lastUpdated;
+        public TextView feedDescription;
+        public ImageView feedImage;
+        public CheckBox checkbox;
+    }
 }

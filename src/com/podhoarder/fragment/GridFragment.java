@@ -355,12 +355,9 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
         ScaleAnimation scaleAnim = new
                 ScaleAnimation(1.0f, f, 1.0f, f, 1f, 1f);
         //scaleAnim.setFillAfter(true);
-        scaleAnim.setDuration(250);
         TranslateAnimation moveAnim =  new TranslateAnimation(0, 0,
                 TranslateAnimation.ABSOLUTE, (0 - v.getLeft())/f, 0, 0,
                 TranslateAnimation.ABSOLUTE, (0 - v.getTop())/f);
-        moveAnim.setDuration(250);
-        moveAnim.setInterpolator(new AccelerateDecelerateInterpolator());
         //moveAnim.setFillAfter(true);
         moveAnim.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -380,6 +377,8 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
         AnimationSet set = new AnimationSet(true);
         set.addAnimation(moveAnim);
         set.addAnimation(scaleAnim);
+        set.setDuration(300);
+        set.setInterpolator(new AccelerateDecelerateInterpolator());
         //set.setFillAfter(true);
         v.startAnimation(set);
     }
@@ -406,17 +405,16 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
             float gridItemScaleFactor = displaymetrics.widthPixels / (float)mGridItemSize; //Calculate the percent value of the grid image as opposed to the entire screen width (which will be the final width & height)
 
             ScaleAnimation scaleAnim = new ScaleAnimation(gridItemScaleFactor, 1.0f, gridItemScaleFactor, 1.0f, 1f, 1f);
-            scaleAnim.setFillAfter(true);
-            scaleAnim.setDuration(250);
             TranslateAnimation moveAnim =  new TranslateAnimation(TranslateAnimation.ABSOLUTE, (0 - originalLeft)/gridItemScaleFactor,0, 0,
                     TranslateAnimation.ABSOLUTE, (0 - originalTop)/gridItemScaleFactor, 0, 0);
-            moveAnim.setDuration(250);
-            moveAnim.setInterpolator(new AccelerateDecelerateInterpolator());
-            moveAnim.setFillAfter(true);
+
             AnimationSet set = new AnimationSet(true);
             set.addAnimation(moveAnim);
             set.addAnimation(scaleAnim);
+            set.setInterpolator(new AccelerateDecelerateInterpolator());
+            set.setDuration(300);
             set.setFillAfter(true);
+
             if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
                 set.setAnimationListener(new Animation.AnimationListener() {
                     @Override

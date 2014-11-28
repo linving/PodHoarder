@@ -11,12 +11,14 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AbsListView.OnScrollListener;
 
+import com.podhoarder.adapter.SearchResultsAdapter;
 import com.podhoarder.object.SearchResultRow;
-import com.podhoarder.util.AnimUtils;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.podhoarder.adapter.SearchResultsAdapter.SearchResultsAdapterViewHolder;
 
 public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListener
 {
@@ -51,7 +53,7 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
 						i = getViewPosition(i);
 						if (i != -1)
 						{
-							view.getChildAt(i).setSelected(true);
+                            ((SearchResultsAdapterViewHolder) view.getChildAt(i).getTag()).checkbox.setChecked(true);
 						}
 					}
 				}
@@ -76,6 +78,7 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
         inflater.inflate(R.menu.contextual_menu_search, menu);
         this.mActionMode = mode;
         this.mSelectedItems = new ArrayList<Integer>();
+        ((SearchResultsAdapter)mParentListView.getAdapter()).setSelectionEnabled(true);
         this.mActive = true;
         return true;
     }
@@ -105,13 +108,14 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
 	public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked)
 	{
 		int i = getViewPosition(position);
-		if (i != -1)
-			AnimUtils.listSelectionAnimation(mParentListView.getChildAt(i));
-			mParentListView.getChildAt(i).setSelected(checked);	//Update the selected status of the View object if it is visible and not recycled.
-    	if (checked)
-    		this.mSelectedItems.add(position);	//save the list position of the selected view.
-    	else
-    		this.mSelectedItems.remove((Object)position);	//remove the list position of the unselected view.
+		if (i != -1) {
+            SearchResultsAdapterViewHolder viewHolder = ((SearchResultsAdapterViewHolder) mParentListView.getChildAt(i).getTag());
+            viewHolder.checkbox.setChecked(checked);//Update the selected status of the View object if it is visible and not recycled.
+            if (checked)
+                this.mSelectedItems.add(position);	//save the list position of the selected view.
+            else
+                this.mSelectedItems.remove((Object)position);	//remove the list position of the unselected view.
+        }
 //    	this.updateTitle();
 	}
 	
@@ -125,12 +129,13 @@ public class SearchResultMultiChoiceModeListener implements MultiChoiceModeListe
     	{
     		i = getViewPosition(i);
     		if (i != -1)
-    			this.mParentListView.getChildAt(i).setSelected(false);	//Deselect the view if it's not recycled.
+                ((SearchResultsAdapterViewHolder) mParentListView.getChildAt(i).getTag()).checkbox.setChecked(false);	//Deselect the view if it's not recycled.
     	}
     	this.mSelectedItems.clear();
     	this.mSelectedItems = null;
     	this.mActive = false;
     	this.mActionMode = null;
+        ((SearchResultsAdapter)mParentListView.getAdapter()).setSelectionEnabled(false);
     }
 	
 	private void addSelectedPodcasts()

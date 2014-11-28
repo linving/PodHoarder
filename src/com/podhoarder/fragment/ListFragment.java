@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -73,6 +74,11 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
                 mContentView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 if (mSelectedListItemTop != Integer.MAX_VALUE && mSelectedListItemIndex != -1) {   //A Check to see if the selected item variables were set.
                     onFragmentRedrawn();
+                }
+                else {
+                    mListView.setTranslationY(mToolbarSize);
+                    mListView.setAlpha(0f);
+                    mListView.animate().translationY(0f).alpha(1f).setDuration(150).setInterpolator(new DecelerateInterpolator()).start();
                 }
             }
         });
@@ -236,8 +242,6 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
 
             this.mListView.setOnScrollListener(mScrollListener);
 
-            //this.mListView.setTranslationY(displaymetrics.widthPixels);
-            //this.mListView.animate().translationY(0f).setDuration(150).setInterpolator(new DecelerateInterpolator()).start();
         }
     }
 

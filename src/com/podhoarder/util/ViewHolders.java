@@ -33,12 +33,5 @@ public class ViewHolders
 
 
 
-	public static class SearchResultsAdapterViewHolder
-	{
-		public TextView feedTitle;
-		public TextView feedAuthor;
-		public TextView lastUpdated;
-		public TextView feedDescription;
-		public ImageView feedImage;
-	}
+
 }

@@ -68,8 +68,6 @@ public class EpisodesListAdapter extends BaseAdapter implements ListAdapter
 		return this.mEpisodes.size();
 	}
 
-
-	
 	@Override
 	public Object getItem(int position)
 	{

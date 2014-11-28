@@ -2,60 +2,85 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/search_list_row_container"
     android:layout_width="match_parent"
-    android:layout_height="75dp" 
+    android:layout_height="88dp"
     android:orientation="vertical"
-    android:paddingBottom="5dp"
-    android:paddingTop="5dp"
-    android:paddingLeft="5dp"
-    android:paddingRight="5dp"
-	android:background="?android:attr/activatedBackgroundIndicator">
+    android:descendantFocusability="blocksDescendants"
+    android:background="@drawable/list_item_background">
     <ImageView 
-        android:id="@+id/search_list_feed_image"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:maxWidth="75dp"
-        android:maxHeight="75dp"
-        android:minHeight="75dp"
-        android:minWidth="75dp"
+        android:id="@+id/search_list_row_image"
+        android:layout_width="88dp"
+        android:layout_height="88dp"
+        android:padding="16dp"
+        android:maxWidth="88dp"
+        android:maxHeight="88dp"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-		android:src="@drawable/list_image"
-		android:background="@drawable/list_image"
-        android:alpha=".85"/>
-    <LinearLayout 
-        android:id="@+id/search_list_feed_text_container"
-        android:orientation="vertical"
+        android:src="@drawable/ic_cloud_white_24dp"
+        android:scaleType="centerInside"
+        android:visibility="visible"/>
+
+    <CheckBox
+        android:id="@+id/search_list_row_checkbox"
+        android:background="@android:color/transparent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/search_list_feed_image"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:gravity="center_vertical">
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:paddingLeft="16dp"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:clickable="false"
+        android:visibility="gone"/>
+
+    <LinearLayout 
+        android:id="@+id/search_list_row_text_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="88dp"
+        android:paddingLeft="88dp"
+        android:paddingRight="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
 	    <TextView
-	        android:id="@+id/search_list_feed_title"
+	        android:id="@+id/search_list_row_title"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-		    style="@style/Base.TextAppearance.AppCompat.SearchResult.Title"
+            style="@style/Base.TextAppearance.AppCompat.Body2"
+            android:textSize="16sp"
 	        android:maxLines="1"
    			android:ellipsize="end"/>
 	    <TextView 	
-		    android:id="@+id/search_list_feed_author"
+		    android:id="@+id/search_list_row_author"
 		    android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-		    style="@style/Base.TextAppearance.AppCompat.SearchResult.Subtitle"
+            style="@style/Base.TextAppearance.AppCompat.Body1"
+            android:textSize="14sp"
 	        android:maxLines="1"
    			android:ellipsize="end"/>
 	    <TextView
-	        android:id="@+id/search_list_feed_last_updated"
+	        android:id="@+id/search_list_row_last_updated"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
+            android:textSize="14sp"
 	        android:maxLines="1"
-		    style="@style/Base.TextAppearance.AppCompat.SearchResult.Subtitle"/>
+            style="@style/Base.TextAppearance.AppCompat.Body1"/>
     </LinearLayout>
-    <TextView android:id="@+id/search_list_feed_description"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/search_list_feed_image"
-	        android:maxLines="4"
-   			android:ellipsize="end"
-		    style="@style/Base.TextAppearance.AppCompat.Body1"/>
+    <TextView
+        android:id="@+id/search_list_row_description"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingStart="16dp"
+        android:paddingRight="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="20dp"
+	    android:layout_below="@id/search_list_row_text_container"
+	    android:maxLines="4"
+   		android:ellipsize="end"
+        android:visibility="visible"
+		style="@style/Base.TextAppearance.AppCompat.Body1"/>
 </RelativeLayout>

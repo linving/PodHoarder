@@ -1,17 +1,17 @@
 package com.podhoarder.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.Map;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.widget.ImageView;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BitmapManager {
 	@SuppressWarnings("unused")
@@ -72,14 +72,14 @@ public class BitmapManager {
 
     public void fetchBitmapOnThread(final String urlString, final ImageView imageView) {
         if (BitmapMap.containsKey(urlString)) {
-            imageView.setImageBitmap(BitmapMap.get(urlString));
+            imageView.setImageBitmap(ImageUtils.getCircularBitmap(BitmapMap.get(urlString)));
         }
         else
         {
         	final Handler handler = new Handler() {
                 @Override
                 public void handleMessage(Message message) {
-                    imageView.setImageBitmap((Bitmap) message.obj);
+                    imageView.setImageBitmap(ImageUtils.getCircularBitmap((Bitmap) message.obj));
                 }
             };
 
