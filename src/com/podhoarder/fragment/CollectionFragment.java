@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -118,8 +117,7 @@ public class CollectionFragment extends BaseFragment implements PodHoarderServic
 
     @Override
     public void onStateChanged(PodHoarderService.PlayerState newPlayerState) {
-        Log.i(LOG_TAG, "New player state: " + newPlayerState);
-
+        super.onStateChanged(newPlayerState);
     }
 
     //SearchView onClose event.

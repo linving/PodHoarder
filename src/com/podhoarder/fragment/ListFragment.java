@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.graphics.Palette;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,6 +48,8 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
     private ImageView mPodcastBanner;
     private Palette.Swatch mColorSwatch;
 
+    private boolean mAnimating;
+
     private EpisodeMultiChoiceModeListener mListSelectionListener;
 
     int mSelectedListItemTop = Integer.MAX_VALUE, mSelectedListItemIndex = -1;
@@ -83,7 +86,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
             }
         });
         mPodcastBanner = (ImageView) mContentView.findViewById(R.id.podcast_banner);
-
+        mAnimating = false;
         if (mCurrentFilter == null) {
             mCurrentFilter = ListFilter.values()[getArguments().getInt("filter")];
             if (mCurrentFilter == ListFilter.FEED) {
@@ -110,6 +113,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
     @Override
     public void onResume() {
         super.onResume();
+        mAnimating = false;
         if (!mSearchEnabled && mCurrentFilter.getSearchString().isEmpty()) {
             FeedImage img = mDataManager.getFeed(mCurrentFilter.getFeedId()).getFeedImage();
             mColorSwatch = img.palette().getVibrantSwatch();
@@ -183,7 +187,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
                 @Override
                 public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                     if (mListView != null && mPodcastBanner != null && mToolbar != null) {
-                        if (mListView.getChildCount() > 0) {
+                        if (mListView.getChildCount() > 0 && !mAnimating) {
                             // check if the first item of the list is visible
                             boolean firstItemVisible = mListView.getFirstVisiblePosition() == 0;
 
@@ -259,7 +263,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
 
     private void onListItemClicked(AbsListView listView, final View clickedView, int clickedViewPos, final Episode ep) {
         final int ANIMATION_DURATION = 250;
-
+        mAnimating = true;
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 
@@ -269,7 +273,6 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         if (mColorSwatch == null) {
             mColorSwatch = mDataManager.getFeed(ep.getFeedId()).getFeedImage().palette().getVibrantSwatch();
         }
-
         //bannerMoveAnimation(mPodcastBanner, ANIMATION_DURATION).start();
         fadeOtherRows(clickedViewPos, ANIMATION_DURATION, true);
         fadeComponents(clickedView,ANIMATION_DURATION);
@@ -285,8 +288,9 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         rowRightPaddingAnimation(clickedView,ANIMATION_DURATION).start();
 
         mToolbarContainer.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(ANIMATION_DURATION).start();
-        mPodcastBanner.animate().translationY(0f).setDuration(ANIMATION_DURATION).setInterpolator(new AccelerateDecelerateInterpolator()).start();
-        setDrawerIconEnabled(false,250);
+        bannerMoveAnimation(mPodcastBanner,ANIMATION_DURATION).start();
+        Log.i(LOG_TAG,"Banner translationY:" + mPodcastBanner.getTranslationY());
+        setDrawerIconEnabled(false, 250);
         appbarHideIcons();
     }
 
@@ -364,12 +368,21 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         mPlaybackService.setStateChangedListener(ListFragment.this);
     }
 
-    private Animator bannerMoveAnimation(ImageView banner, int duration) {
-        ValueAnimator bannerTranslationAnimator = ValueAnimator.ofFloat(banner.getTranslationY(), 0f);
-        bannerTranslationAnimator.setDuration(duration);
-        bannerTranslationAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+    private Animator bannerMoveAnimation(final ImageView banner, int duration) {
+        final float translationY = banner.getTranslationY();
+        banner.clearAnimation();
 
-        return bannerTranslationAnimator;
+        ValueAnimator bannerMoveAnimator = ValueAnimator.ofFloat(translationY, 0f);
+        bannerMoveAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                banner.setTranslationY((Float)animator.getAnimatedValue());
+            }
+
+        });
+        bannerMoveAnimator.setDuration(duration);
+        bannerMoveAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        return bannerMoveAnimator;
     }
 
     private void fadeOtherRows(int clickedViewPos, int duration, boolean fadeOut) {
@@ -391,7 +404,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
                 0, 0,
                 TranslateAnimation.ABSOLUTE, (0 - clickedView.getLeft()),
                 0, 0,
-                TranslateAnimation.ABSOLUTE, ((displaymetrics.widthPixels - ImageUtils.pixelsToDip(getActivity(),72)) - clickedView.getTop()));
+                TranslateAnimation.ABSOLUTE, ((displaymetrics.widthPixels - ImageUtils.pixelsToDip(getActivity(), 72)) - clickedView.getTop()));
         moveAnim.setDuration(duration);
         moveAnim.setInterpolator(new AccelerateDecelerateInterpolator());
         moveAnim.setAnimationListener(new Animation.AnimationListener() {

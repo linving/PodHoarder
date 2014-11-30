@@ -10,11 +10,14 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.graphics.Palette;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.fragment.AddFragment;
@@ -27,9 +30,11 @@ import com.podhoarder.fragment.ListFragment;
 import com.podhoarder.fragment.PlayerFragment;
 import com.podhoarder.fragment.PreferencesFragment;
 import com.podhoarder.object.Episode;
+import com.podhoarder.object.Feed;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
 import com.podhoarder.util.HardwareIntentReceiver;
+import com.podhoarder.util.ImageUtils;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ToastMessages;
 import com.podhoarderproject.podhoarder.R;
@@ -37,12 +42,9 @@ import com.podhoarderproject.podhoarder.R;
 
 public class LibraryActivity extends BaseActivity implements BaseActivity.QuicklistItemClickListener {
     @SuppressWarnings("unused")
-    private static final String LOG_TAG = "com.podhoarder.activity.MainActivity";
+    private static final String LOG_TAG = "com.podhoarder.activity.LibraryActivity";
     //FRAGMENTS
     public BaseFragment mCurrentFragment;
-
-    //ACTIVITY RESULT
-    static final int SETTINGS_REQUEST = 2;
 
     //HARDWARE INTENT RECEIVER
     private HardwareIntentReceiver hardwareIntentReceiver;
@@ -52,10 +54,11 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     private Intent mPlayIntent;
     private boolean mIsMusicBound = false;
 
+    private ImageView mDrawerPodcastImage;
+    private TextView mDrawerPodcastTitle, mDrawerPodcastSubtitle;
+
     //INTERFACE LISTENER
     private onFirstFeedAddedListener mOnFirstFeedAddedListener;
-
-
 
     private ServiceConnection podConnection = new ServiceConnection()    //connect to the service
     {
@@ -145,8 +148,6 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
         super.onPause();
     }
 
-
-
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
 
@@ -210,6 +211,17 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
         if (intent.getAction() != null) {
             if (intent.getAction().equals("navigate_player"))
                 startPlayerActivity();
+        }
+    }
+
+    @Override
+    protected void setupNavigationDrawer() {
+        super.setupNavigationDrawer();
+        mDrawerPodcastImage = (ImageView) findViewById(R.id.left_drawer_podcast_image);
+        mDrawerPodcastTitle = (TextView) findViewById(R.id.left_drawer_title);
+        mDrawerPodcastSubtitle = (TextView) findViewById(R.id.left_drawer_subtitle);
+        if (mPlaybackService != null && mPlaybackService.mCurrentEpisode != null) {
+            updateNowPlaying();
         }
     }
 
@@ -305,6 +317,20 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     }
     public void downloadEpisode(Episode ep) {
         this.mDataManager.DownloadManager().downloadEpisode(ep);
+    }
+
+    public void updateNowPlaying() {
+        if (mPlaybackService != null) {
+            final Episode ep = mPlaybackService.mCurrentEpisode;
+            final Feed f = mDataManager.getFeed(ep.getFeedId());
+            final Palette.Swatch s = f.getFeedImage().palette().getMutedSwatch();
+            mNavDrawerBanner.setBackgroundColor(s.getRgb());
+            mDrawerPodcastImage.setImageBitmap(ImageUtils.getCircularBitmap(f.getFeedImage().thumbnail()));
+            mDrawerPodcastTitle.setTextColor(s.getBodyTextColor());
+            mDrawerPodcastTitle.setText(ep.getTitle());
+            mDrawerPodcastSubtitle.setTextColor(s.getTitleTextColor());
+            mDrawerPodcastSubtitle.setText(f.getTitle());
+        }
     }
 
     public interface onFirstFeedAddedListener {

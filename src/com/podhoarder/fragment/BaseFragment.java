@@ -115,6 +115,8 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
 
     @Override
     public void onStateChanged(PodHoarderService.PlayerState newPlayerState) {
+        if (newPlayerState == PodHoarderService.PlayerState.EPISODE_CHANGED)
+            ((LibraryActivity)getActivity()).updateNowPlaying();
         Log.i(LOG_TAG, "New player state: " + newPlayerState);
     }
 
@@ -261,7 +263,7 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
                     }
                 }
 
-                int delay = duration / icons.size();
+                int delay = 40;
                 for (View icon : icons) {
                     if (icon != null) {
                         if (shouldFadeIn) {
@@ -269,11 +271,11 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
                             icon.setScaleX(0.5f);
                             icon.setScaleY(0.5f);
                             icon.animate().scaleX(1f).scaleY(1f).alpha(1f).setInterpolator(new DecelerateInterpolator()).setStartDelay(delay).setDuration(duration).start();
-                            delay += (duration/icons.size());
+                            delay += 40;
                         }
                         else {
                             icon.animate().scaleX(0.5f).scaleY(0.5f).alpha(0f).setInterpolator(new DecelerateInterpolator()).setStartDelay(delay).setDuration(duration).start();
-                            delay += (duration/icons.size());
+                            delay += 40;
                         }
                     }
                 }

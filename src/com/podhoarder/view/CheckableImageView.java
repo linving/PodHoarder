@@ -3,8 +3,7 @@ package com.podhoarder.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrixColorFilter;
+import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.widget.Checkable;
 import android.widget.ImageView;
@@ -50,9 +49,9 @@ public class CheckableImageView extends ImageView implements Checkable {
     @Override
     public void setChecked(boolean checked) {
         if (checked)
-            getDrawable().setColorFilter(checkedColorFilter());
+            getDrawable().setColorFilter(mAccentColor, PorterDuff.Mode.SRC_IN);
         else
-            getDrawable().setColorFilter(defaultColorFilter());
+            getDrawable().setColorFilter(mDefaultColor, PorterDuff.Mode.SRC_IN);
 
         setSelected(checked);
 
@@ -69,33 +68,6 @@ public class CheckableImageView extends ImageView implements Checkable {
     @Override
     public void toggle() {
         setChecked(!isChecked());
-    }
-
-    private ColorFilter checkedColorFilter() {
-
-        int red = (mAccentColor & 0xFF0000) / 0xFFFF;
-        int green = (mAccentColor & 0xFF00) / 0xFF;
-        int blue = mAccentColor & 0xFF;
-
-        float[] matrix = { 0, 0, 0, 0, red
-                , 0, 0, 0, 0, green
-                , 0, 0, 0, 0, blue
-                , 0, 0, 0, 1, 0 };
-
-        return new ColorMatrixColorFilter(matrix);
-    }
-
-    private ColorFilter defaultColorFilter() {
-        int red = (mDefaultColor & 0xFF0000) / 0xFFFF;
-        int green = (mDefaultColor & 0xFF00) / 0xFF;
-        int blue = mDefaultColor & 0xFF;
-
-        float[] matrix = { 0, 0, 0, 0, red
-                , 0, 0, 0, 0, green
-                , 0, 0, 0, 0, blue
-                , 0, 0, 0, 1, 0 };
-
-        return new ColorMatrixColorFilter(matrix);
     }
 
     public void setAccentColor(int color) {

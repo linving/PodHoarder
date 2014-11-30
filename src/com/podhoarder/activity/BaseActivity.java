@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -52,7 +51,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     protected ActionBarDrawerToggle mDrawerToggle;
     private boolean mDrawerToggleEnabled;
     //Drawer ListView Banner
-    protected ImageView mNavDrawerBanner;
+    protected RelativeLayout mNavDrawerBanner;
 
     //Drawer ListView
     private ListView mNavDrawerListView;
@@ -341,9 +340,9 @@ public abstract class BaseActivity extends ActionBarActivity {
     }
 
     //DRAWER SETUP
-    private void setupNavigationDrawer() {
+    protected void setupNavigationDrawer() {
         //Setup the navigation drawer.
-        mNavDrawerBanner = (ImageView) findViewById(R.id.left_drawer_list_banner);
+        mNavDrawerBanner = (RelativeLayout) findViewById(R.id.left_drawer_list_banner);
         mNavDrawerListView = (ListView) findViewById(R.id.left_drawer_list);
         // setting the nav drawer list adapter
         final NavDrawerListAdapter adapter = new NavDrawerListAdapter(getApplicationContext(), generateNavigationMenu());

@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:state_enabled="true"
-        android:state_pressed="true">
-        <app:objectAnimator
-            android:duration="@android:integer/config_shortAnimTime"
-            android:propertyName="translationZ"
-            android:valueFrom="@dimen/button_elevation"
-            android:valueTo="@dimen/button_press_elevation"
-            android:valueType="floatType" />
+    <item android:state_pressed="true">
+        <set>
+            <app:objectAnimator android:propertyName="translationZ"
+                android:duration="100"
+                android:valueTo="2"
+                android:valueType="floatType"/>
+            <!-- you could have other objectAnimator elements
+                 here for "x" and "y", or other properties -->
+        </set>
     </item>
-    <item>
-        <app:objectAnimator
-            android:duration="@android:integer/config_shortAnimTime"
-            android:propertyName="translationZ"
-            android:valueFrom="@dimen/button_press_elevation"
-            android:valueTo="@dimen/button_elevation"
-            android:valueType="floatType" />
+    <item android:state_enabled="true"
+        android:state_pressed="false"
+        android:state_focused="true">
+        <set>
+            <app:objectAnimator android:propertyName="translationZ"
+                android:duration="100"
+                android:valueTo="10"
+                android:valueType="floatType"/>
+        </set>
     </item>
 </selector>

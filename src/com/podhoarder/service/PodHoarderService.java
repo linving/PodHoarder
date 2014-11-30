@@ -192,10 +192,10 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	
 	public void playEpisode(Episode ep)
 	{
-		
 		if (ep.isDownloaded())
 		{
 			this.mCurrentEpisode = ep;
+            notifyEpisodeChanged();
 			this.startEpisode(ep);
 		}
 		else
@@ -203,12 +203,14 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			if (!NetworkUtils.isOnline(getApplicationContext()))
 			{
 				this.mCurrentEpisode = ep;
+                notifyEpisodeChanged();
 				playNext();
 			}
 				
 			else
 			{
 				this.mCurrentEpisode = ep;
+                notifyEpisodeChanged();
 				this.streamEpisode(ep);
 			}
 		}
@@ -256,6 +258,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		if (lastEpisodeId != -1)
 		{
 			this.mCurrentEpisode = this.mDataManager.getEpisode(lastEpisodeId);
+            notifyEpisodeChanged();
 		}
 	}
 	
@@ -332,7 +335,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void setManager(LibraryActivityManager dataManager)
 	{
         mDataManager = dataManager;
-        loadLastPlayedEpisode();
 	}
 
 	public void setList(List<Episode> playList){
@@ -539,6 +541,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void setStateChangedListener(StateChangedListener listener)
     {
     	this.mStateChangedListener = listener;
+        loadLastPlayedEpisode();
     }
 	
 	private void notifyStateChanged()
@@ -556,6 +559,11 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			}
 		}
 	}
+
+    private void notifyEpisodeChanged() {
+        if (mStateChangedListener != null)
+            mStateChangedListener.onStateChanged(PlayerState.EPISODE_CHANGED);
+    }
 	
-	public enum PlayerState {PAUSED, PLAYING, LOADING};
+	public enum PlayerState {PAUSED, PLAYING, LOADING, EPISODE_CHANGED};
 }

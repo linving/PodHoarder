@@ -23,7 +23,7 @@
     <color name="colorAccent">#E83A5D</color>
 
     <color name="colorFavorite">#e91e63</color>
-    <color name="colorNotFavorite">#BDBDBD</color>
+    <color name="colorNotFavorite">#8C000000</color>
     
     <color name="seekbar_background">#FFFFFF</color>
     

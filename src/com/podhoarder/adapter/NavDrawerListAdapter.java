@@ -6,7 +6,6 @@ package com.podhoarder.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,7 +61,7 @@ public class NavDrawerListAdapter extends BaseAdapter {
         if (convertView.isSelected())
             txtTitle.setTextColor(context.getResources().getColor(R.color.colorFavorite));
         else
-            txtTitle.setTextColor(Color.BLACK);
+            txtTitle.setTextColor(context.getResources().getColor(R.color.colorNotFavorite));
 
         return convertView;
     }
