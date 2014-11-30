@@ -91,4 +91,37 @@ public class ToastMessages
     {
         return Toast.makeText(ctx, ctx.getString(R.string.toast_no_network), Toast.LENGTH_SHORT);
     }
+
+    /**
+     * Shows a "Sleep timer set for HH:MM" message.
+     * @param ctx Application Context.
+     * @param hourOfDay HH
+     * @param minute MM
+     * @return A Toast message object. Add .show() to show.
+     */
+    public static Toast TimerSet(Context ctx, int hourOfDay, int minute) {
+        String timeStamp = "";
+        if (hourOfDay < 10)
+            timeStamp += "0" + hourOfDay;
+        else
+            timeStamp += hourOfDay;
+
+        timeStamp += ":";
+
+        if (minute < 10)
+            timeStamp += "0" + minute;
+        else
+            timeStamp += minute;
+
+        return Toast.makeText(ctx, ctx.getString(R.string.toast_timer_set) + " " + timeStamp, Toast.LENGTH_SHORT);
+    }
+
+    /**
+     * Shows a "Sleep timer cancelled." message.
+     * @param ctx Application Context.
+     * @return A Toast message object. Add .show() to show.
+     */
+    public static Toast TimerCancelled(Context ctx) {
+        return Toast.makeText(ctx, ctx.getString(R.string.toast_timer_cancelled), Toast.LENGTH_SHORT);
+    }
 }

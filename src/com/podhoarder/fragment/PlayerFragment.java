@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnticipateOvershootInterpolator;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.activity.LibraryActivity;
@@ -25,6 +27,7 @@ import com.podhoarder.adapter.QueueAdapter;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.service.PodHoarderService;
+import com.podhoarder.util.ToastMessages;
 import com.podhoarder.view.CircularSeekBar;
 import com.podhoarder.view.ToggleImageButton;
 import com.podhoarderproject.podhoarder.R;
@@ -32,7 +35,7 @@ import com.podhoarderproject.podhoarder.R;
 /**
  * Created by Emil on 2014-10-29.
  */
-public class PlayerFragment extends BaseFragment implements PodHoarderService.StateChangedListener, QueueAdapter.OnItemSecondaryActionClickedListener {
+public class PlayerFragment extends BaseFragment implements PodHoarderService.StateChangedListener, QueueAdapter.OnItemSecondaryActionClickedListener, TimePickerFragment.OnTimePickedListener, PodHoarderService.SleepTimerListener {
     //Playback Service
     private PodHoarderService mPlaybackService;
 
@@ -55,6 +58,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     private ImageButton mFAB;
     private ListView mPlaylist;
 
+    private Menu mOptionsMenu;
 
     private boolean mExitAnimationsFinished = false;
 
@@ -118,12 +122,51 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.player_menu, menu);
+        mOptionsMenu = menu;
+        if (mPlaybackService.isTimerSet()) {   //If the timer is set we change the default icon to the "off" button.
+            mOptionsMenu.findItem(R.id.menu_player_sleep).setIcon(R.drawable.ic_timer_off_white_24dp);  //Set
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
-    public void onServiceConnected() {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_player_sleep:
+                if (mPlaybackService.isTimerSet()) {
+                    mPlaybackService.cancelTimer();
+                    mOptionsMenu.findItem(R.id.menu_player_sleep).setIcon(R.drawable.ic_timer_white_24dp);
+                    ToastMessages.TimerCancelled(getActivity()).show();
+                }
+                else {
+                    TimePickerFragment newFragment = new TimePickerFragment();
+                    newFragment.setOnTimePickedListener(this);  //Listen for the result.
+                    newFragment.show(getActivity().getSupportFragmentManager(), "timePicker");
+                }
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
+    @Override
+    public void onTimePicked(TimePicker view, int hourOfDay, int minute) {
+        if (mPlaybackService.setSleepTimer(hourOfDay, minute)) {
+            mOptionsMenu.findItem(R.id.menu_player_sleep).setIcon(R.drawable.ic_timer_off_white_24dp);
+            ToastMessages.TimerSet(getActivity(), hourOfDay, minute).show();
+        }
+    }
+
+    @Override
+    public void onServiceConnected() {
+        mPlaybackService.setSleepTimerListener(this);
+    }
+
+    @Override
+    public void onSleepTimerFired() {
+        if (mOptionsMenu != null)
+            mOptionsMenu.findItem(R.id.menu_player_sleep).setIcon(R.drawable.ic_timer_white_24dp);
     }
 
     @Override
@@ -181,6 +224,8 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
             }
         }
     };
+
+
 
     private void setupUI() {
         setToolbarTransparent(true);
@@ -304,5 +349,4 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
         ((BaseActivity) getActivity()).resetUI();
 
     }
-
 }

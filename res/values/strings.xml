@@ -93,4 +93,6 @@
     <string name="toast_download_failed">Can\'t download</string>
     <string name="toast_add_feed_failed">Can\'t add podcast</string>
     <string name="toast_no_network">No network available</string>
+    <string name="toast_timer_set">Sleep timer set for</string>
+    <string name="toast_timer_cancelled">Sleep timer cancelled.</string>
 </resources>

@@ -9,6 +9,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -18,6 +19,7 @@ import com.podhoarder.util.Constants;
 import com.podhoarder.util.NetworkUtils;
 import com.podhoarder.util.ToastMessages;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class PodHoarderService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener  
@@ -33,9 +35,13 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	private 	boolean 		mStreaming = false;					//Boolean to keep track of whether the player is streaming or playing a local file.
 	private		boolean			mLoading = false;					//Boolean that keeps track of whether the player is loading a track or not.
 	private		boolean			mCurrentTrackLoaded = false;		//Boolean to keep track of whether the current track is loaded and can be resumed, or if it needs to be reloaded.
+    private     boolean         mTimerSet = false;
 	private 	Handler 		mHandler;							//Handler object (for threading)
-	private		ServiceNotification	mNotification;
-	private		StateChangedListener mStateChangedListener;
+
+	private		ServiceNotification	mNotification;                  //Notification object.
+
+	private		StateChangedListener mStateChangedListener;         //Public interface with callbacks that fire when the Player state changes between PAUSED, PLAYING and LOADING.
+    private     SleepTimerListener mSleepTimerListener;             //Public interface with a callback that fires when the Sleep timer does.
 	
 
 	@Override
@@ -410,20 +416,43 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		}
 	}
 	
-	public void setSleepTimer(int millis)
+	public boolean setSleepTimer(int hourOfDay, int minute)
 	{
-		mHandler.postDelayed(PauseRunnable, millis);
+        Calendar c = Calendar.getInstance();  //Get a calendar object.
+        c.set(Calendar.HOUR_OF_DAY, hourOfDay); //Set the calendar to the chosen hour and minute.
+        c.set(Calendar.MINUTE, minute); //
+        long difference = c.getTimeInMillis() - System.currentTimeMillis(); //Get the difference in milliseconds between the chosen time and the current one.
+        if (difference < 0) { //If the set time is less than 0 it means that the user selected a time before the current one. Need to transform that into that time the next day.
+            c.set(Calendar.DAY_OF_YEAR, c.get(Calendar.DAY_OF_YEAR)+1); //Add one day to the calendar date.
+            difference = c.getTimeInMillis() - System.currentTimeMillis();  //Calculate the new difference.
+        }
+        long currentMillis = SystemClock.uptimeMillis();
+        long targetMillis = currentMillis + difference;
+
+        mTimerSet = mHandler.postAtTime(SleepRunnable,targetMillis);
+        return mTimerSet;
 	}
-	
-	private Runnable PauseRunnable = new Runnable()
-	{
-		@Override
-		public void run()
-		{
-			if (isPlaying())
-				pause();
-		}
-	};
+
+    public void cancelTimer() {
+        mTimerSet = false;
+        mHandler.removeCallbacks(SleepRunnable);
+    }
+
+    public boolean isTimerSet() {
+        return mTimerSet;
+    }
+
+    private Runnable SleepRunnable = new Runnable() {
+        @Override
+        public void run() {
+            cancelTimer();
+            Log.i(LOG_TAG,"Sleep timer fired!");
+            if (mSleepTimerListener != null)
+                mSleepTimerListener.onSleepTimerFired();
+            if (isPlaying())
+                stop();
+        }
+    };
 	
 	public class PodHoarderBinder extends Binder 
 	{
@@ -488,7 +517,20 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 			}
 		}
 	}
-	
+
+    public interface SleepTimerListener {
+        public void onSleepTimerFired();
+    }
+
+    public void setSleepTimerListener(SleepTimerListener listener)
+    {
+        mSleepTimerListener = listener;
+    }
+
+    public SleepTimerListener getSleepTimerListener() {
+        return mSleepTimerListener;
+    }
+
 	public interface StateChangedListener 
 	{
 		public void onStateChanged(PlayerState newPlayerState);
