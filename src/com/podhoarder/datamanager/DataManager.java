@@ -42,7 +42,7 @@ public class DataManager {
     //List Objects.
     protected List<Feed> mFeeds;
     protected List<Episode> mFavorites,
-            mNew;
+            mDownloads;
     protected LinkedList<Episode> mPlaylist;
     //Refresh check
     protected boolean mRefreshing;
@@ -58,7 +58,7 @@ public class DataManager {
         mFeeds = loadFeeds();
         checkFileLinks();
         mFavorites = loadFavorites();
-        mNew = loadNew();
+        mDownloads = loadDownloads();
         mPlaylist = new LinkedList<Episode>(loadPlaylist());
 
         if (hasPodcasts()) {
@@ -85,8 +85,8 @@ public class DataManager {
                 mFeeds = mFeedDBHelper.getAllFeeds(true);
             if (mFavorites.isEmpty())
                 mFavorites = mEpisodeDBHelper.getFavoriteEpisodes();
-            if (mNew.isEmpty())
-                mNew = mEpisodeDBHelper.getNewEpisodes();
+            if (mDownloads.isEmpty())
+                mDownloads = mEpisodeDBHelper.getDownloadedEpisodes();
             if (mPlaylist.isEmpty())
                 mPlaylist = new LinkedList<Episode>(mEpisodeDBHelper.getPlaylistEpisodes());
             return null;
@@ -135,21 +135,21 @@ public class DataManager {
         }
     }
 
-    private List<Episode> loadNew() {
-        mNew = mEpisodeDBHelper.getNewEpisodes();
-        return mNew;
+    private List<Episode> loadDownloads() {
+        mDownloads = mEpisodeDBHelper.getDownloadedEpisodes();
+        return mDownloads;
     }
 
-    protected class loadNewDataAsync extends AsyncTask<Void, Void, Void> {
+    protected class loadDownloadsDataAsync extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            mNew = mEpisodeDBHelper.getNewEpisodes();
+            mDownloads = mEpisodeDBHelper.getDownloadedEpisodes();
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            onNewDataReloaded();
+            onDownloadsDataReloaded();
         }
     }
 
@@ -179,8 +179,8 @@ public class DataManager {
         return mFavorites;
     }
 
-    public List<Episode> New() {
-        return mNew;
+    public List<Episode> Downloads() {
+        return mDownloads;
     }
 
     public Queue<Episode> Playlist() {
@@ -348,7 +348,7 @@ public class DataManager {
     protected void loadListData() {
         mFeeds = mFeedDBHelper.getAllFeeds();
         mFavorites = mEpisodeDBHelper.getFavoriteEpisodes();
-        mNew = mEpisodeDBHelper.getNewEpisodes();
+        mDownloads = mEpisodeDBHelper.getDownloadedEpisodes();
         mPlaylist = new LinkedList<Episode>(mEpisodeDBHelper.getPlaylistEpisodes());
     }
 
@@ -374,7 +374,7 @@ public class DataManager {
             if (!cancelled) {
                 mFeeds = mFeedDBHelper.refreshFeedData(mFeeds, false);
                 mFavorites = mEpisodeDBHelper.getFavoriteEpisodes();
-                mNew = mEpisodeDBHelper.getNewEpisodes();
+                mDownloads = mEpisodeDBHelper.getDownloadedEpisodes();
                 mPlaylist = new LinkedList<Episode>(mEpisodeDBHelper.getPlaylistEpisodes());
             }
             return null;
@@ -388,7 +388,7 @@ public class DataManager {
         protected void onPostExecute(Void param) {
             onFeedsDataReloaded();
             onFavoritesDataReloaded();
-            onNewDataReloaded();
+            onDownloadsDataReloaded();
             onPlaylistDataReloaded();
             mRefreshing = false;
         }
@@ -423,11 +423,11 @@ public class DataManager {
     }
 
     /**
-     * Called when the "New" list data gets reloaded. Should notify any adapters.
+     * Called when the "Downloaded" list data gets reloaded. Should notify any adapters.
      */
-    protected void onNewDataReloaded() {
-        if (((BaseActivity)mContext).currentQuicklistFilter() == BaseActivity.QuicklistFilter.NEW) {
-            mQuicklistAdapter.replaceItems(mNew);
+    protected void onDownloadsDataReloaded() {
+        if (((BaseActivity)mContext).currentQuicklistFilter() == BaseActivity.QuicklistFilter.DOWNLOADS) {
+            mQuicklistAdapter.replaceItems(mDownloads);
         }
         mQuicklistAdapter.notifyDataSetChanged();
     }

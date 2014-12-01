@@ -91,9 +91,6 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
     @Override
     public void onResume() {
         super.onResume();
-        if (mPlaybackService != null) {
-            onServiceConnected();
-        }
         mToolbarContainer.setTranslationY(0f);
     }
 
@@ -160,6 +157,7 @@ public class PlayerFragment extends BaseFragment implements PodHoarderService.St
 
     @Override
     public void onServiceConnected() {
+        super.onServiceConnected();
         mPlaybackService.setSleepTimerListener(this);
     }
 

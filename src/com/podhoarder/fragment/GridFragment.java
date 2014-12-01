@@ -111,11 +111,6 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
     @Override
     public void onResume() {
         super.onResume();
-        if (mPlaybackService != null) {
-            onServiceConnected();
-        }
-        //mToolbarContainer.setTranslationY(0f);
-        //mToolbar.invalidate();
     }
 
     @Override

@@ -101,8 +101,6 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
             if (!mCurrentFilter.getSearchString().isEmpty())
                 mSearchEnabled = true;
         }
-        if (mPlaybackService != null)
-            onServiceConnected();
         mDataManager.switchLists(mCurrentFilter);
 
         populate();
@@ -360,12 +358,6 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
             }
         }
         return -1;
-    }
-
-    @Override
-    public void onServiceConnected() {
-        mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
-        mPlaybackService.setStateChangedListener(ListFragment.this);
     }
 
     private Animator bannerMoveAnimation(final ImageView banner, int duration) {

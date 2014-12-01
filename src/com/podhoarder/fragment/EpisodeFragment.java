@@ -147,11 +147,6 @@ public class EpisodeFragment extends BaseFragment {
     }
 
     @Override
-    public void onServiceConnected() {
-
-    }
-
-    @Override
     public void onFragmentResumed() {
 
     }

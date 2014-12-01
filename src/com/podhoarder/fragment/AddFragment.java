@@ -83,11 +83,6 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
     }
 
     @Override
-    public void onServiceConnected() {
-
-    }
-
-    @Override
     public void onFragmentResumed() {
 
     }

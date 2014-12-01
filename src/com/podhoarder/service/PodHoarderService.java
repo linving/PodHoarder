@@ -335,6 +335,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void setManager(LibraryActivityManager dataManager)
 	{
         mDataManager = dataManager;
+        loadLastPlayedEpisode();
 	}
 
 	public void setList(List<Episode> playList){
@@ -541,7 +542,6 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 	public void setStateChangedListener(StateChangedListener listener)
     {
     	this.mStateChangedListener = listener;
-        loadLastPlayedEpisode();
     }
 	
 	private void notifyStateChanged()

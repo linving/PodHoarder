@@ -25,6 +25,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.podhoarder.adapter.NavDrawerListAdapter;
 import com.podhoarder.datamanager.DataManager;
@@ -46,7 +47,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     //Top layout
     private DrawerLayout mDrawerLayout;
     protected LinearLayout mLeftDrawer;
-    protected RelativeLayout mRightDrawer;
+    protected LinearLayout mRightDrawer;
     //Drawer toggle
     protected ActionBarDrawerToggle mDrawerToggle;
     private boolean mDrawerToggleEnabled;
@@ -56,7 +57,8 @@ public abstract class BaseActivity extends ActionBarActivity {
     //Drawer ListView
     private ListView mNavDrawerListView;
     private ListView mQuickDrawerListView;
-    private CheckableImageButton mQuicklistFilterFavorites, mQuicklistFilterNew;
+    private CheckableImageButton mQuicklistFilterFavorites, mQuicklistFilterDownloads;
+    private TextView mRightDrawerHeader;
 
     //Main Toolbar View
     public Toolbar mToolbar;
@@ -137,7 +139,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     public void setContentView(int layoutResID) {
         mDrawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_base, null);
         mLeftDrawer = (LinearLayout) mDrawerLayout.findViewById(R.id.left_drawer);
-        mRightDrawer = (RelativeLayout) mDrawerLayout.findViewById(R.id.right_drawer);
+        mRightDrawer = (LinearLayout) mDrawerLayout.findViewById(R.id.right_drawer);
         mContentRoot = (FrameLayout) mDrawerLayout.findViewById(R.id.root_container);
         // set the drawer layout as main_menu content view of Activity.
         setContentView(mDrawerLayout);
@@ -202,17 +204,21 @@ public abstract class BaseActivity extends ActionBarActivity {
                     mDataManager.mQuicklistAdapter.replaceItems(mDataManager.Favorites());
 
                     mQuicklistFilterFavorites.setChecked(true);
-                    mQuicklistFilterNew.setChecked(false);
+                    mQuicklistFilterDownloads.setChecked(false);
+
+                    mRightDrawerHeader.setText(getString(R.string.filter_favorites));
 
                     mCurrentQuicklistFilter = QuicklistFilter.FAVORITES;
                     break;
-                case R.id.right_drawer_list_filter_new:
-                    mDataManager.mQuicklistAdapter.replaceItems(mDataManager.New());
+                case R.id.right_drawer_list_filter_downloads:
+                    mDataManager.mQuicklistAdapter.replaceItems(mDataManager.Downloads());
 
-                    mQuicklistFilterNew.setChecked(true);
+                    mQuicklistFilterDownloads.setChecked(true);
                     mQuicklistFilterFavorites.setChecked(false);
 
-                    mCurrentQuicklistFilter = QuicklistFilter.NEW;
+                    mRightDrawerHeader.setText(getString(R.string.filter_downloaded));
+
+                    mCurrentQuicklistFilter = QuicklistFilter.DOWNLOADS;
                     break;
             }
         }
@@ -415,7 +421,8 @@ public abstract class BaseActivity extends ActionBarActivity {
 
         mQuickDrawerListView = (ListView) findViewById(R.id.right_drawer_list);
         mQuicklistFilterFavorites = (CheckableImageButton) findViewById(R.id.right_drawer_list_filter_favorites);
-        mQuicklistFilterNew = (CheckableImageButton) findViewById(R.id.right_drawer_list_filter_new);
+        mQuicklistFilterDownloads = (CheckableImageButton) findViewById(R.id.right_drawer_list_filter_downloads);
+        mRightDrawerHeader = (TextView) findViewById(R.id.right_drawer_title);
 
         mQuickDrawerListView.setAdapter(mDataManager.mQuicklistAdapter);
         mQuickDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -425,7 +432,8 @@ public abstract class BaseActivity extends ActionBarActivity {
             }
         });
         mCurrentQuicklistFilter = QuicklistFilter.FAVORITES;
-        mQuicklistFilterFavorites.toggle();
+        mRightDrawerHeader.setText(getString(R.string.filter_favorites));
+        mQuicklistFilterFavorites.setChecked(true);
         mQuicklistFilterFavorites.invalidate();
     }
 
@@ -436,7 +444,7 @@ public abstract class BaseActivity extends ActionBarActivity {
 
     //QUICK LIST FILTER ENUM
     public enum QuicklistFilter {
-        FAVORITES, NEW
+        FAVORITES, DOWNLOADS
     }
 
 

@@ -65,4 +65,8 @@ public class NavDrawerListAdapter extends BaseAdapter {
 
         return convertView;
     }
+
+    public void setSelectedItem(int pos) {
+
+    }
 }

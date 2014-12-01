@@ -97,8 +97,8 @@ public class FeedDBHelper
 
 	public List<Feed> refreshFeedData(List<Feed> feeds, boolean reloadBitmaps)
 	{
-		List<Feed> updatedFeeds = new ArrayList<Feed>();
-		long startTime = System.currentTimeMillis();
+		List<Feed> updatedFeeds;
+		//long startTime = System.currentTimeMillis();
 		if (!reloadBitmaps)
 		{
 			updatedFeeds = getAllFeeds(false);
@@ -130,8 +130,8 @@ public class FeedDBHelper
 		{
 			updatedFeeds = getAllFeeds();
 		}
-		long endTime = System.currentTimeMillis();
-		Log.d(LOG_TAG, "Feeds updated in " + (endTime - startTime) + " ms with reloadBitmaps set to: " + reloadBitmaps);
+		//long endTime = System.currentTimeMillis();
+		//Log.d(LOG_TAG, "Feeds updated in " + (endTime - startTime) + " ms with reloadBitmaps set to: " + reloadBitmaps);
 		return updatedFeeds;
 	}
 	

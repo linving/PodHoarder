@@ -80,6 +80,7 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
             registerReceiver(hardwareIntentReceiver, callStateFilter);
             registerReceiver(hardwareIntentReceiver, connectivityFilter);
             mPlaybackService.setManager((LibraryActivityManager) mDataManager);
+            updateNowPlaying();
             mQuicklistItemClickListener = LibraryActivity.this;
             mCurrentFragment.onServiceConnected();
         }
@@ -194,8 +195,8 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
             case FAVORITES:
                 mPlaybackService.playEpisode(mDataManager.Favorites().get(position));
                 break;
-            case NEW:
-                mPlaybackService.playEpisode(mDataManager.New().get(position));
+            case DOWNLOADS:
+                mPlaybackService.playEpisode(mDataManager.Downloads().get(position));
                 break;
         }
     }
@@ -323,7 +324,7 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
         if (mPlaybackService != null) {
             final Episode ep = mPlaybackService.mCurrentEpisode;
             final Feed f = mDataManager.getFeed(ep.getFeedId());
-            final Palette.Swatch s = f.getFeedImage().palette().getMutedSwatch();
+            final Palette.Swatch s = f.getFeedImage().palette().getLightVibrantSwatch();
             mNavDrawerBanner.setBackgroundColor(s.getRgb());
             mDrawerPodcastImage.setImageBitmap(ImageUtils.getCircularBitmap(f.getFeedImage().thumbnail()));
             mDrawerPodcastTitle.setTextColor(s.getBodyTextColor());

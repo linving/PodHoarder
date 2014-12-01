@@ -16,7 +16,6 @@ import android.widget.AbsListView;
 import android.widget.ImageButton;
 
 import com.podhoarder.activity.BaseActivity;
-import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.view.AnimatedSearchView;
 import com.podhoarderproject.podhoarder.R;
@@ -65,12 +64,6 @@ public class CollectionFragment extends BaseFragment implements PodHoarderServic
             return onClose();
         }
         return false;
-    }
-
-    @Override
-    public void onServiceConnected() {
-        mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
-        mPlaybackService.setStateChangedListener(CollectionFragment.this);
     }
 
     @Override
