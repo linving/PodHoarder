@@ -14,12 +14,13 @@ import com.podhoarder.activity.LibraryActivity;
 import com.podhoarder.adapter.GridAdapter;
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.object.Feed;
-import com.podhoarder.util.ViewHolders;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.podhoarder.adapter.GridAdapter.FeedsAdapterViewHolder;
 
 public class GridActionModeCallback implements ActionMode.Callback
 {
@@ -60,7 +61,7 @@ public class GridActionModeCallback implements ActionMode.Callback
 						i = getViewPosition(i);
 						if (i != -1)
 						{
-                            ViewHolders.FeedsAdapterViewHolder viewHolder = ((ViewHolders.FeedsAdapterViewHolder)parentListView.getChildAt(i).getTag());
+                            FeedsAdapterViewHolder viewHolder = ((FeedsAdapterViewHolder)parentListView.getChildAt(i).getTag());
                             viewHolder.checked = true;
                             viewHolder.checkmark.setChecked(true);
 						}
@@ -113,7 +114,7 @@ public class GridActionModeCallback implements ActionMode.Callback
 		int i = getViewPosition(position);
 		if (i != -1)
 		{
-            ViewHolders.FeedsAdapterViewHolder viewHolder = ((ViewHolders.FeedsAdapterViewHolder)this.mParentListView.getChildAt(i).getTag());
+            FeedsAdapterViewHolder viewHolder = ((FeedsAdapterViewHolder)this.mParentListView.getChildAt(i).getTag());
             viewHolder.checked = checked;
             viewHolder.checkmark.setChecked(checked);
 			//AnimUtils.gridSelectionAnimation(view);
@@ -138,7 +139,7 @@ public class GridActionModeCallback implements ActionMode.Callback
     		i = getViewPosition(i);
     		if (i != -1)
     		{
-    			((ViewHolders.FeedsAdapterViewHolder)this.mParentListView.getChildAt(i).getTag()).checked = false;
+    			((FeedsAdapterViewHolder)this.mParentListView.getChildAt(i).getTag()).checked = false;
     			((CheckBox)this.mParentListView.getChildAt(i).findViewById(R.id.feeds_grid_item_checkmark)).setChecked(false);
     		}
     	}

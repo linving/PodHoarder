@@ -43,7 +43,7 @@ import java.util.List;
  * Created by Emil on 2014-10-21.
  */
 public abstract class BaseActivity extends ActionBarActivity {
-    public static final int NAVIGATION_LIBRARY = 0, NAVIGATION_PLAYER = 1, NAVIGATION_SETTINGS = 2, NAVIGATION_ABOUT = 3;
+    public static final int NAVIGATION_LIBRARY = 0, NAVIGATION_SETTINGS = 1, NAVIGATION_ABOUT = 2;
     //Top layout
     private DrawerLayout mDrawerLayout;
     protected LinearLayout mLeftDrawer;
@@ -55,7 +55,7 @@ public abstract class BaseActivity extends ActionBarActivity {
     protected RelativeLayout mNavDrawerBanner;
 
     //Drawer ListView
-    private ListView mNavDrawerListView;
+    protected ListView mNavDrawerListView;
     private ListView mQuickDrawerListView;
     private CheckableImageButton mQuicklistFilterFavorites, mQuicklistFilterDownloads;
     private TextView mRightDrawerHeader;
@@ -80,6 +80,7 @@ public abstract class BaseActivity extends ActionBarActivity {
 
     //Data Manager
     public DataManager mDataManager;
+
 
     //Quick list filter
     private QuicklistFilter mCurrentQuicklistFilter;
@@ -229,6 +230,8 @@ public abstract class BaseActivity extends ActionBarActivity {
         mDataManager = new DataManager(this);
     }
 
+
+
     //SCREEN VARS SETUP
     private int setupScreenVars() {
         int storedGridItemSize = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(Constants.SETTINGS_KEY_GRIDITEMSIZE, "-1"));
@@ -281,8 +284,6 @@ public abstract class BaseActivity extends ActionBarActivity {
         navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], navMenuIcons.getResourceId(1, -1)));
         // Photos
         navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], navMenuIcons.getResourceId(2, -1)));
-        // Communities, Will add a counter here
-        navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], navMenuIcons.getResourceId(3, -1)));
 
 
         // Recycle the typed array
@@ -367,9 +368,6 @@ public abstract class BaseActivity extends ActionBarActivity {
                         switch (pos) {
                             case NAVIGATION_LIBRARY:
                                 startGridActivity();
-                                break;
-                            case NAVIGATION_PLAYER:
-                                startPlayerActivity();
                                 break;
                             case NAVIGATION_SETTINGS:
                                 startSettingsActivity();

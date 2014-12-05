@@ -3,7 +3,6 @@
     <!-- Nav Drawer Menu Items -->
     <string-array name="nav_drawer_items">
         <item >@string/navigation_library</item>
-        <item >@string/navigation_player</item>
         <item >@string/navigation_settings</item>
         <item >@string/navigation_about</item>
     </string-array>
@@ -12,7 +11,6 @@
     <!-- Keep them in order as the titles are in -->
     <array name="nav_drawer_icons">
         <item>@drawable/ic_new_releases_black_24dp</item>
-        <item>@drawable/ic_play_arrow_black_24dp</item>
         <item>@drawable/ic_settings_black_24dp</item>
         <item>@drawable/ic_info_outline_black_24dp</item>
     </array>

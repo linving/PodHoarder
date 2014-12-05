@@ -17,7 +17,6 @@ import com.podhoarder.activity.BaseActivity;
 import com.podhoarder.object.Episode;
 import com.podhoarder.object.Feed;
 import com.podhoarder.util.ImageUtils;
-import com.podhoarder.util.ViewHolders;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.List;
@@ -77,7 +76,7 @@ public class QuickListAdapter extends BaseAdapter implements ListAdapter
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        ViewHolders.QuickListRowViewHolder viewHolder;
+        QuickListRowViewHolder viewHolder;
 
         if (convertView == null)
         {
@@ -86,7 +85,7 @@ public class QuickListAdapter extends BaseAdapter implements ListAdapter
             convertView = inflater.inflate(R.layout.drawer_quicklist_item, null);
 
             // Set up the ViewHolder
-            viewHolder = new ViewHolders.QuickListRowViewHolder();
+            viewHolder = new QuickListRowViewHolder();
             viewHolder.title = (TextView) convertView.findViewById(R.id.title);
             viewHolder.icon = (ImageView) convertView.findViewById(R.id.icon);
             // Store the holder with the view.
@@ -94,7 +93,7 @@ public class QuickListAdapter extends BaseAdapter implements ListAdapter
         }
         else
         {
-            viewHolder = (ViewHolders.QuickListRowViewHolder) convertView.getTag();
+            viewHolder = (QuickListRowViewHolder) convertView.getTag();
         }
 
 
@@ -109,6 +108,12 @@ public class QuickListAdapter extends BaseAdapter implements ListAdapter
         }
 
         return convertView;
+    }
+
+    public static class QuickListRowViewHolder
+    {
+        public TextView title;
+        public ImageView icon;
     }
 
 }

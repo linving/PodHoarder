@@ -10,14 +10,13 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.graphics.Palette;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import com.podhoarder.datamanager.LibraryActivityManager;
 import com.podhoarder.fragment.AddFragment;
@@ -27,20 +26,18 @@ import com.podhoarder.fragment.DummyPreferenceFragment;
 import com.podhoarder.fragment.EpisodeFragment;
 import com.podhoarder.fragment.GridFragment;
 import com.podhoarder.fragment.ListFragment;
-import com.podhoarder.fragment.PlayerFragment;
 import com.podhoarder.fragment.PreferencesFragment;
 import com.podhoarder.object.Episode;
-import com.podhoarder.object.Feed;
 import com.podhoarder.service.PodHoarderService;
 import com.podhoarder.service.PodHoarderService.PodHoarderBinder;
 import com.podhoarder.util.HardwareIntentReceiver;
-import com.podhoarder.util.ImageUtils;
 import com.podhoarder.util.NetworkUtils;
+import com.podhoarder.util.PlayerControlsManager;
 import com.podhoarder.util.ToastMessages;
 import com.podhoarderproject.podhoarder.R;
 
 
-public class LibraryActivity extends BaseActivity implements BaseActivity.QuicklistItemClickListener {
+public class LibraryActivity extends BaseActivity implements BaseActivity.QuicklistItemClickListener, PodHoarderService.StateChangedListener {
     @SuppressWarnings("unused")
     private static final String LOG_TAG = "com.podhoarder.activity.LibraryActivity";
     //FRAGMENTS
@@ -54,8 +51,10 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     private Intent mPlayIntent;
     private boolean mIsMusicBound = false;
 
-    private ImageView mDrawerPodcastImage;
-    private TextView mDrawerPodcastTitle, mDrawerPodcastSubtitle;
+    //Player Controls Manager
+    private PlayerControlsManager mPlayerControlsManager;
+
+
 
     //INTERFACE LISTENER
     private onFirstFeedAddedListener mOnFirstFeedAddedListener;
@@ -79,8 +78,9 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
             registerReceiver(hardwareIntentReceiver, headsetFilter);
             registerReceiver(hardwareIntentReceiver, callStateFilter);
             registerReceiver(hardwareIntentReceiver, connectivityFilter);
+            setupPlayerControlsManager();
+            mPlaybackService.setStateChangedListener(LibraryActivity.this);
             mPlaybackService.setManager((LibraryActivityManager) mDataManager);
-            updateNowPlaying();
             mQuicklistItemClickListener = LibraryActivity.this;
             mCurrentFragment.onServiceConnected();
         }
@@ -202,6 +202,12 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     }
 
     @Override
+    public void onStateChanged(PodHoarderService.PlayerState newPlayerState) {
+        mPlayerControlsManager.onStateChanged(newPlayerState);  //Notyf the controls manager so the views are uppdated correctly.
+        mCurrentFragment.onStateChanged(newPlayerState);
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         //No call for super(). Bug on API Level > 11.
     }
@@ -218,12 +224,11 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     @Override
     protected void setupNavigationDrawer() {
         super.setupNavigationDrawer();
-        mDrawerPodcastImage = (ImageView) findViewById(R.id.left_drawer_podcast_image);
-        mDrawerPodcastTitle = (TextView) findViewById(R.id.left_drawer_title);
-        mDrawerPodcastSubtitle = (TextView) findViewById(R.id.left_drawer_subtitle);
-        if (mPlaybackService != null && mPlaybackService.mCurrentEpisode != null) {
-            updateNowPlaying();
-        }
+    }
+
+    protected void setupPlayerControlsManager() {
+        mPlayerControlsManager = new PlayerControlsManager((FrameLayout)mLeftDrawer.findViewById(R.id.left_drawer_player_controls), (LinearLayout)mLeftDrawer.findViewById(R.id.left_drawer_player_controls_extended), mNavDrawerListView, mPlaybackService, mDataManager, this);
+        mPlayerControlsManager.showPlayerControls();
     }
 
     //DATA MANAGER SETUP
@@ -271,14 +276,6 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     @Override
     public void startPlayerActivity() {
 
-        if (!((Object) mCurrentFragment).getClass().getName().equals(PlayerFragment.class.getName()) && mPlaybackService.mCurrentEpisode != null) { //We check to see if the current fragment is a PlayerFragment. In that case we don't need to create a new one.
-            final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            //ft.setCustomAnimations(0, 0, R.anim.slide_in_top, 0);
-            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
-            ft.replace(R.id.root_container, new PlayerFragment());
-            ft.addToBackStack(null);
-            ft.commitAllowingStateLoss();
-        }
     }
     @Override
     public void startAddActivity() {
@@ -320,19 +317,14 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
         this.mDataManager.DownloadManager().downloadEpisode(ep);
     }
 
-    public void updateNowPlaying() {
-        if (mPlaybackService != null) {
-            final Episode ep = mPlaybackService.mCurrentEpisode;
-            final Feed f = mDataManager.getFeed(ep.getFeedId());
-            final Palette.Swatch s = f.getFeedImage().palette().getLightVibrantSwatch();
-            mNavDrawerBanner.setBackgroundColor(s.getRgb());
-            mDrawerPodcastImage.setImageBitmap(ImageUtils.getCircularBitmap(f.getFeedImage().thumbnail()));
-            mDrawerPodcastTitle.setTextColor(s.getBodyTextColor());
-            mDrawerPodcastTitle.setText(ep.getTitle());
-            mDrawerPodcastSubtitle.setTextColor(s.getTitleTextColor());
-            mDrawerPodcastSubtitle.setText(f.getTitle());
-        }
+
+    public void showPlayerControls() {
     }
+
+    public void hidePlayerControls() {
+
+    }
+
 
     public interface onFirstFeedAddedListener {
         public void onFirstFeedAdded();
@@ -362,9 +354,6 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
         }
         else if (((Object) mCurrentFragment).getClass().getName().equals(DummyPreferenceFragment.class.getName())) {
             setSelectedNavigationItem(NAVIGATION_SETTINGS);
-        }
-        else if (((Object) mCurrentFragment).getClass().getName().equals(PlayerFragment.class.getName())) {
-            setSelectedNavigationItem(NAVIGATION_PLAYER);
         }
     }
 }

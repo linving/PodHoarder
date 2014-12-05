@@ -4,7 +4,10 @@
     android:layout_height="48dp"
     android:textAppearance="?android:attr/textAppearanceListItemSmall"
     android:background="@drawable/list_selector"
-    android:padding="8dp">
+    android:paddingStart="16dp"
+    android:paddingLeft="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
     <ImageView
         android:id="@+id/icon"

@@ -60,7 +60,6 @@ public class CollectionFragment extends BaseFragment implements PodHoarderServic
     @Override
     public boolean onBackPressed() {
         if (mSearchEnabled) {
-
             return onClose();
         }
         return false;

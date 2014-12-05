@@ -42,6 +42,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 
 	private		StateChangedListener mStateChangedListener;         //Public interface with callbacks that fire when the Player state changes between PAUSED, PLAYING and LOADING.
     private     SleepTimerListener mSleepTimerListener;             //Public interface with a callback that fires when the Sleep timer does.
+    private     OnEpisodeUpdateListener mOnEpisodeUpdateListener;
 	
 
 	@Override
@@ -282,6 +283,8 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
         	{
 	        	mCurrentEpisode.setElapsedTime(getPosn());
 	    		mDataManager.updateEpisode(mCurrentEpisode); //Update the db.
+                if (mOnEpisodeUpdateListener != null)
+                    mOnEpisodeUpdateListener.onEpisodeUpdate(mCurrentEpisode);
 	        	mHandler.postDelayed(UpdateRunnable, 20000);
         	}
         }
@@ -299,9 +302,21 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
         	{
             	mCurrentEpisode.setElapsedTime(getPosn());
         		mDataManager.updateEpisode(mCurrentEpisode); //Update the db.
+                if (mOnEpisodeUpdateListener != null)
+                    mOnEpisodeUpdateListener.onEpisodeUpdate(mCurrentEpisode);
         	}
         }
     };
+
+    public interface OnEpisodeUpdateListener {
+        public void onEpisodeUpdate(Episode ep);
+    }
+    public OnEpisodeUpdateListener getOnEpisodeUpdateListener() {
+        return mOnEpisodeUpdateListener;
+    }
+    public void setOnEpisodeUpdateListener(OnEpisodeUpdateListener listener) {
+        mOnEpisodeUpdateListener = listener;
+    }
 	
 	public void pause()
 	{
@@ -391,6 +406,7 @@ public class PodHoarderService extends Service implements MediaPlayer.OnPrepared
 		if(mDataManager.Playlist().peek() != null)	//Only change Episode when we're not at the end of the playlist or the current Episode isn't the only one in the playlist.
 		{
 			playEpisode(mDataManager.Playlist().poll());
+            mDataManager.updatePlaylist(mDataManager.Playlist());
 			return;
 		}
 		else

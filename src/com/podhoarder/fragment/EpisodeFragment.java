@@ -160,7 +160,6 @@ public class EpisodeFragment extends BaseFragment {
 
         Palette.Swatch colorSwatch = mCurrentFeed.getFeedImage().palette().getVibrantSwatch();
 
-
         //mToolbar.setElevation(0f);
         TextView episodeTitle = (TextView) mContentView.findViewById(R.id.episode_title);
         episodeTitle.setText(mCurrentEpisode.getTitle());

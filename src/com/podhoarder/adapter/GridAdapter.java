@@ -22,7 +22,6 @@ import com.podhoarder.listener.GridActionModeCallback;
 import com.podhoarder.object.Feed;
 import com.podhoarder.object.FeedImage.ImageDownloadListener;
 import com.podhoarder.util.Constants;
-import com.podhoarder.util.ViewHolders.FeedsAdapterViewHolder;
 import com.podhoarderproject.podhoarder.R;
 
 import java.util.ArrayList;
@@ -273,5 +272,12 @@ public class GridAdapter extends BaseAdapter implements ImageDownloadListener {
         this.mGridItemClickListener = listener;
     }
 
-
+    public static class FeedsAdapterViewHolder
+    {
+        public TextView feedTitle;
+        public TextView feedNumberOfEpisodes;
+        public ImageView feedImage;
+        public CheckBox	checkmark;
+        public boolean checked;
+    }
 }

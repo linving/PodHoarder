@@ -85,11 +85,9 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
 
     public void onServiceConnected() {
         mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
-        mPlaybackService.setStateChangedListener(BaseFragment.this);
     }
 
     public void onFragmentResumed() {
-
     }
 
     @Override
@@ -115,8 +113,7 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
 
     @Override
     public void onStateChanged(PodHoarderService.PlayerState newPlayerState) {
-        if (newPlayerState == PodHoarderService.PlayerState.EPISODE_CHANGED)
-            ((LibraryActivity)getActivity()).updateNowPlaying();
+
         Log.i(LOG_TAG, "New player state: " + newPlayerState);
     }
 

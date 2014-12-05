@@ -85,13 +85,20 @@ public class DataParser
 		Element element = (Element) itemLst.item(0);
 		for (String authorTag : podcastAuthorTagNames)									//Loop through all the alternatives
 		{
-			NodeList authorElement = element.getElementsByTagName(authorTag);
-			if (authorElement.equals(null) || authorElement.getLength() < 1)			//If the authorElement has no children or is null there are no elements with the current tag.
-			{
-				continue;																//We didn't find anything by using the current authorTag, so we try the next one.
-			}
-			author = authorElement.item(0).getChildNodes().item(0).getNodeValue();
-			if (!author.isEmpty()) break;												//If we have found a value for title, we can break here. No need to keep looping.
+            try
+            {
+                NodeList authorElement = element.getElementsByTagName(authorTag);
+                if (authorElement.equals(null) || authorElement.getLength() < 1)			//If the authorElement has no children or is null there are no elements with the current tag.
+                {
+                    continue;																//We didn't find anything by using the current authorTag, so we try the next one.
+                }
+                author = authorElement.item(0).getChildNodes().item(0).getNodeValue();
+                if (!author.isEmpty()) break;												//If we have found a value for title, we can break here. No need to keep looping.
+            }
+            catch (NullPointerException e) {
+                e.printStackTrace();
+                break;
+            }
 		}
 		return author;
 	}

@@ -63,7 +63,7 @@ public class DataManager {
 
         if (hasPodcasts()) {
             mQuicklistAdapter = new QuickListAdapter(mFavorites, mContext);
-            mPlaylistAdapter = new QueueAdapter(mPlaylist, R.layout.queue_episode_list_row, mContext);
+            mPlaylistAdapter = new QueueAdapter(mPlaylist, R.layout.episode_list_row_queue_, mContext);
         }
         else {
             mQuicklistAdapter = new QuickListAdapter(new ArrayList<Episode>(), mContext);
@@ -274,6 +274,7 @@ public class DataManager {
 
     public void updatePlaylist(Queue<Episode> playlist) {
         mPlaylistDBHelper.savePlaylist(playlist);
+        onPlaylistDataReloaded();
     }
 
 
