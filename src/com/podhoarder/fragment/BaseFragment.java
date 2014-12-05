@@ -85,6 +85,7 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
 
     public void onServiceConnected() {
         mPlaybackService = ((LibraryActivity) getActivity()).getPlaybackService();
+        ((LibraryActivity)getActivity()).setCurrentFragment(this);
     }
 
     public void onFragmentResumed() {

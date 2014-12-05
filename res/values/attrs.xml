@@ -2,15 +2,18 @@
 <resources>
     <attr name="defaultColor" format="integer" />
     <attr name="accentColor" format="integer" />
+    <attr name="checked" format="boolean" />
 
     <declare-styleable name="CheckableImageView">
         <attr name="defaultColor"/>
         <attr name="accentColor"/>
+        <attr name="checked"/>
     </declare-styleable>
 
     <declare-styleable name="CheckableImageButton">
         <attr name="defaultColor"/>
         <attr name="accentColor"/>
+        <attr name="checked"/>
     </declare-styleable>
 
     <declare-styleable name="ToggleImageButton">

@@ -64,7 +64,7 @@
                         android:gravity="center"
                         android:background="@drawable/player_header_background"
                         android:padding="4dp"
-                        android:text="@string/now_playing"
+                        android:text="@string/playlist_now_playing"
                         android:textAllCaps="true" />
 
                 </LinearLayout>

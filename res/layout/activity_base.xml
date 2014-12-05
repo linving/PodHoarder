@@ -119,6 +119,7 @@
                 android:scaleType="centerInside"
                 app:defaultColor="@color/colorNotFavorite"
                 app:accentColor="@color/colorFavorite"
+                app:checked="true"
                 android:clickable="true"
                 android:onClick="quicklistFilterClicked"/>
 
@@ -133,6 +134,7 @@
                 android:src="@drawable/ic_play_download_black_24dp"
                 app:defaultColor="@color/colorNotFavorite"
                 app:accentColor="@color/colorFavorite"
+                app:checked="false"
                 android:clickable="true"
                 android:onClick="quicklistFilterClicked" />
         </LinearLayout>

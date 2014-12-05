@@ -21,13 +21,13 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/row_number"
+            android:id="@+id/now_playing"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:padding="8dp"
             android:gravity="center"
             android:layout_gravity="center_vertical"
-            android:text="@string/now_playing"/>
+            android:text="@string/playlist_now_playing"/>
 
         <LinearLayout
         android:layout_width="wrap_content"
@@ -72,20 +72,37 @@
             android:layout_marginTop="8dp"
             android:background="@drawable/list_divider_queue"/>
 
-        <ListView
-            android:id="@+id/player_controls_extended_playlist"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:listSelector="@android:color/transparent"
-            listSelector="@android:color/transparent"
-            android:descendantFocusability="afterDescendants"
-            android:clickable="false"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:layout_gravity="top"
-            android:clipToPadding="false"
-            android:divider="@drawable/list_divider_queue"
-            android:dividerHeight="1px"/>
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/row_number"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:padding="8dp"
+                android:gravity="center"
+                android:layout_gravity="top"
+                android:text="@string/playlist_next_playing"/>
+
+            <ListView
+                android:id="@+id/player_controls_extended_playlist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:listSelector="@android:color/transparent"
+                listSelector="@android:color/transparent"
+                android:descendantFocusability="afterDescendants"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:layout_gravity="top"
+                android:clipToPadding="false"
+                android:divider="@drawable/list_divider_queue"
+                android:dividerHeight="1px"/>
+        </LinearLayout>
+
+
 
     </LinearLayout>
 

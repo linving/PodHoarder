@@ -42,8 +42,8 @@ public class CheckableImageButton extends ImageButton implements Checkable {
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.CheckableImageButton);
         mDefaultColor = a.getColor(R.styleable.CheckableImageButton_defaultColor, Color.BLACK);
         mAccentColor = a.getColor(R.styleable.CheckableImageButton_accentColor, Color.BLACK);
+        setChecked(a.getBoolean(R.styleable.CheckableImageButton_checked, false));
         a.recycle();
-        setChecked(isSelected());
     }
 
     @Override

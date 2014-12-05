@@ -59,7 +59,6 @@ public class QueueAdapter extends BaseAdapter implements ListAdapter {
             // Creates a ViewHolder and store references to the two children views
             // we want to bind data to.
             holder = new QueueRowViewHolder();
-            holder.rowNumber = (TextView) convertView.findViewById(R.id.row_number);
             holder.title = (TextView) convertView.findViewById(R.id.title);
             holder.subtitle = (TextView) convertView.findViewById(R.id.subtitle);
             holder.secondaryAction = (ImageView) convertView.findViewById(R.id.secondary_action);
@@ -73,8 +72,6 @@ public class QueueAdapter extends BaseAdapter implements ListAdapter {
         Feed currentFeed = ((BaseActivity)mContext).mDataManager.getFeed(currentEpisode.getFeedId());
 
         if(currentEpisode != null) {
-            //Set Row Number
-            holder.rowNumber.setText(""+ (position + 1));
             //Set Episode Title
             holder.title.setText(currentEpisode.getTitle());
             //Set subtitle
@@ -114,7 +111,7 @@ public class QueueAdapter extends BaseAdapter implements ListAdapter {
 
     public static class QueueRowViewHolder
     {
-        public TextView rowNumber, title, subtitle;
+        public TextView title, subtitle;
         public ImageView secondaryAction;
     }
 }

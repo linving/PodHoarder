@@ -42,8 +42,8 @@ public class CheckableImageView extends ImageView implements Checkable {
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.CheckableImageView);
         mDefaultColor = a.getColor(R.styleable.CheckableImageView_defaultColor, Color.BLACK);
         mAccentColor = a.getColor(R.styleable.CheckableImageView_accentColor, Color.BLACK);
+        setChecked(a.getBoolean(R.styleable.CheckableImageView_checked, false));
         a.recycle();
-        setChecked(isSelected());
     }
 
     @Override
