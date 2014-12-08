@@ -79,7 +79,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="-28dp"
-                android:background="@drawable/fab_outline"
+                android:background="@drawable/fab_ripple_light"
                 android:elevation="2dp"
                 android:src="@drawable/ic_favorite_black_24dp"
                 android:stateListAnimator="@anim/fab_anim"

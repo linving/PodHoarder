@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="72dp"
-    android:background="@color/windowBackground"
+    android:background="@drawable/list_item_background"
     android:descendantFocusability="blocksDescendants"
     android:orientation="vertical" >
 
@@ -55,7 +55,7 @@
 
     <CheckBox
         android:id="@+id/list_episode_row_checkbox"
-        android:background="?android:attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -63,7 +63,7 @@
         android:paddingRight="16dp"
         android:paddingEnd="16dp"
         android:clickable="false"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 
     <ImageView
         android:id="@+id/list_episode_row_secondary_action"
@@ -74,7 +74,6 @@
         android:layout_centerVertical="true"
         android:alpha=".54"
         android:layout_marginRight="16dp"
-        android:layout_marginEnd="16dp"
         android:scaleType="centerInside"
         android:src="@drawable/ic_more_vert_black_24dp"
         android:visibility="visible" />

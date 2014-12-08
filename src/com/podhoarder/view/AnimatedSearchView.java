@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.support.v7.internal.widget.TintImageView;
 import android.support.v7.widget.SearchView;
 import android.util.AttributeSet;
@@ -59,25 +60,25 @@ public class AnimatedSearchView extends SearchView {
     public void onActionViewExpanded() {
         Log.i(LOG_TAG, "ActionView expanded!");
 
-        //mSearchFrame.setVisibility(VISIBLE);
-        int widthMeasureSpec = MeasureSpec.makeMeasureSpec(ViewGroup.LayoutParams.MATCH_PARENT, MeasureSpec.EXACTLY);
-        int heightMeasureSpec = MeasureSpec.makeMeasureSpec(ViewGroup.LayoutParams.MATCH_PARENT, MeasureSpec.EXACTLY);
-        mSearchFrame.measure(widthMeasureSpec, heightMeasureSpec);
-        //viewWidthAnimation(mSearchPlate,1000,0,(mSearchFrame.getMeasuredWidth() - mSearchMagIcon.getMeasuredWidth())).start();
-        // get the center for the clipping circle
-        int cx =  mSearchField.getRight();
-        int cy = (mSearchField.getTop() + mSearchField.getBottom()) / 2;
+        if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
+            int widthMeasureSpec = MeasureSpec.makeMeasureSpec(ViewGroup.LayoutParams.MATCH_PARENT, MeasureSpec.EXACTLY);
+            int heightMeasureSpec = MeasureSpec.makeMeasureSpec(ViewGroup.LayoutParams.MATCH_PARENT, MeasureSpec.EXACTLY);
+            mSearchFrame.measure(widthMeasureSpec, heightMeasureSpec);
+            //viewWidthAnimation(mSearchPlate,1000,0,(mSearchFrame.getMeasuredWidth() - mSearchMagIcon.getMeasuredWidth())).start();
+            // get the center for the clipping circle
+            int cx = mSearchField.getRight();
+            int cy = (mSearchField.getTop() + mSearchField.getBottom()) / 2;
 
-        // get the final radius for the clipping circle
-        int finalRadius = Math.max(mSearchField.getWidth(), mSearchField.getHeight());
+            // get the final radius for the clipping circle
+            int finalRadius = Math.max(mSearchField.getWidth(), mSearchField.getHeight());
 
-        // create the animator for this view (the start radius is zero)
-        Animator anim = ViewAnimationUtils.createCircularReveal(mSearchField, cx, cy, 0, finalRadius);
-        anim.setInterpolator(new AccelerateDecelerateInterpolator());
-        // make the view visible and start the animation
-        mSearchField.setVisibility(View.VISIBLE);
-        anim.start();
-        //super.onActionViewExpanded();
+            // create the animator for this view (the start radius is zero)
+            Animator anim = ViewAnimationUtils.createCircularReveal(mSearchField, cx, cy, 0, finalRadius);
+            anim.setInterpolator(new AccelerateDecelerateInterpolator());
+            // make the view visible and start the animation
+            mSearchField.setVisibility(View.VISIBLE);
+            anim.start();
+        }
     }
 
     @Override

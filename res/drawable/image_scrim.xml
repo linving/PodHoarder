@@ -2,7 +2,7 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
 
-    <size android:height="?attr/actionBarSize"/>
+    <size android:height="@dimen/actionBarSize"/>
 
     <gradient
         android:angle="270"

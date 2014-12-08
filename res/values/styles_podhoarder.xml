@@ -77,7 +77,7 @@
     <style name="Podhoarder.Text.NavigationDrawer.NavigationItem" parent="Base.TextAppearance.AppCompat">
         <item name="android:textColor">#000000</item>
         <item name="android:fontFamily">medium</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:alpha">.87</item>
     </style>
     

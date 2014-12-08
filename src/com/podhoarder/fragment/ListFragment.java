@@ -4,11 +4,11 @@ import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.graphics.Palette;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,7 +52,9 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
 
     private EpisodeMultiChoiceModeListener mListSelectionListener;
 
-    int mSelectedListItemTop = Integer.MAX_VALUE, mSelectedListItemIndex = -1;
+    private int mSelectedListItemTop = Integer.MAX_VALUE, mSelectedListItemIndex = -1;
+
+    private DisplayMetrics mMetrics;
 
     public static ListFragment newInstance(ListFilter filter) {
         ListFragment f = new ListFragment();
@@ -85,6 +87,8 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
                 }
             }
         });
+        mMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
         mPodcastBanner = (ImageView) mContentView.findViewById(R.id.podcast_banner);
         mAnimating = false;
         if (mCurrentFilter == null) {
@@ -92,8 +96,8 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
             if (mCurrentFilter == ListFilter.FEED) {
                 mCurrentFilter.setFeedId(getArguments().getInt("feedId"));
                 Feed f = mDataManager.getFeed(mCurrentFilter.getFeedId());
-                mPodcastBanner.setMinimumHeight(mDataManager.mFeedsGridAdapter.mGridItemSize);
-                mPodcastBanner.setMinimumWidth(mDataManager.mFeedsGridAdapter.mGridItemSize);
+                mPodcastBanner.setMinimumHeight(mMetrics.widthPixels);
+                mPodcastBanner.setMinimumWidth(mMetrics.widthPixels);
                 mPodcastBanner.setImageBitmap(f.getFeedImage().largeImage());
                 mColorSwatch = f.getFeedImage().palette().getDarkVibrantSwatch();
             }
@@ -115,10 +119,13 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
         if (!mSearchEnabled && mCurrentFilter.getSearchString().isEmpty()) {
             FeedImage img = mDataManager.getFeed(mCurrentFilter.getFeedId()).getFeedImage();
             mColorSwatch = img.palette().getVibrantSwatch();
+            if (mColorSwatch == null)
+                mColorSwatch = img.palette().getMutedSwatch();
             mPodcastBanner.setImageBitmap(img.largeImage());
 
             setToolbarTransparent(true);
             trySetScrimPadding();
+            mToolbarContainer.bringToFront();
         }
         else {
             setToolbarTransparent(false);
@@ -229,10 +236,8 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
                 }
 
             };
-            DisplayMetrics displaymetrics = new DisplayMetrics();
-            getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
             if (!mSearchEnabled)
-                this.mListView.setPadding(0, displaymetrics.widthPixels, 0, 0);
+                this.mListView.setPadding(0, mMetrics.widthPixels, 0, 0);
             else
                 this.mListView.setPadding(0, 0, 0, 0);
 
@@ -262,34 +267,38 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
     private void onListItemClicked(AbsListView listView, final View clickedView, int clickedViewPos, final Episode ep) {
         final int ANIMATION_DURATION = 250;
         mAnimating = true;
-        DisplayMetrics displaymetrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 
-        mSelectedListItemIndex = clickedViewPos;
-        mSelectedListItemTop = clickedView.getTop();
+        if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
+            mSelectedListItemIndex = clickedViewPos;
+            mSelectedListItemTop = clickedView.getTop();
 
-        if (mColorSwatch == null) {
             mColorSwatch = mDataManager.getFeed(ep.getFeedId()).getFeedImage().palette().getVibrantSwatch();
+            if (mColorSwatch == null) {
+                mColorSwatch = mDataManager.getFeed(ep.getFeedId()).getFeedImage().palette().getMutedSwatch();
+            }
+
+
+            fadeOtherRows(clickedViewPos, ANIMATION_DURATION, true);
+            fadeComponents(clickedView,ANIMATION_DURATION);
+            clickedView.startAnimation(rowMoveAnimation(clickedView, mMetrics, ANIMATION_DURATION, ep));
+            rowBackgroundColorAnimation(clickedView,ANIMATION_DURATION).start();
+            rowTextColorAnimation(clickedView, ANIMATION_DURATION).start();
+            rowTextSizeAnimation(clickedView, mMetrics, ANIMATION_DURATION).start();
+            rowTextAlphaAnimation(clickedView, ANIMATION_DURATION-100).start();
+            rowScaleHeightAnimation(clickedView, ANIMATION_DURATION).start();
+            rowScaleWidthAnimation(clickedView.findViewById(R.id.list_episode_row_title),mMetrics, ANIMATION_DURATION).start();
+
+            rowLeftPaddingAnimation(clickedView,ANIMATION_DURATION).start();
+            rowRightPaddingAnimation(clickedView,ANIMATION_DURATION).start();
+
+            mToolbarContainer.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(ANIMATION_DURATION).start();
+            bannerMoveAnimation(mPodcastBanner,ANIMATION_DURATION).start();
+            setDrawerIconEnabled(false, 250);
+            appbarHideIcons();
         }
-        //bannerMoveAnimation(mPodcastBanner, ANIMATION_DURATION).start();
-        fadeOtherRows(clickedViewPos, ANIMATION_DURATION, true);
-        fadeComponents(clickedView,ANIMATION_DURATION);
-        clickedView.startAnimation(rowMoveAnimation(clickedView, displaymetrics, ANIMATION_DURATION, ep));
-        rowBackgroundColorAnimation(clickedView,ANIMATION_DURATION).start();
-        rowTextColorAnimation(clickedView, ANIMATION_DURATION).start();
-        rowTextSizeAnimation(clickedView, displaymetrics, ANIMATION_DURATION).start();
-        rowTextAlphaAnimation(clickedView, ANIMATION_DURATION-100).start();
-        rowScaleHeightAnimation(clickedView, ANIMATION_DURATION).start();
-        rowScaleWidthAnimation(clickedView.findViewById(R.id.list_episode_row_title),displaymetrics, ANIMATION_DURATION).start();
-
-        rowLeftPaddingAnimation(clickedView,ANIMATION_DURATION).start();
-        rowRightPaddingAnimation(clickedView,ANIMATION_DURATION).start();
-
-        mToolbarContainer.animate().translationY(0f).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(ANIMATION_DURATION).start();
-        bannerMoveAnimation(mPodcastBanner,ANIMATION_DURATION).start();
-        Log.i(LOG_TAG,"Banner translationY:" + mPodcastBanner.getTranslationY());
-        setDrawerIconEnabled(false, 250);
-        appbarHideIcons();
+        else {
+            ((LibraryActivity) getActivity()).startEpisodeActivity(ep);
+        }
     }
 
     private void reverseListItemSelectionAnimation(int clickedViewPos, int clickedViewTop) {
@@ -303,14 +312,11 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
             layoutParams.height = mToolbarSize*2;
             clickedView.setLayoutParams(layoutParams);
 
-            DisplayMetrics displaymetrics = new DisplayMetrics();
-            getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-
             fadeOtherRows(clickedViewPos, ANIMATION_DURATION, false);
 
             reverseFadeComponents(clickedView, ANIMATION_DURATION);
 
-            clickedView.startAnimation(reverseRowMoveAnimation(clickedView, displaymetrics, ANIMATION_DURATION));
+            clickedView.startAnimation(reverseRowMoveAnimation(clickedView, mMetrics, ANIMATION_DURATION));
 
             Animator rowScaleHeightAnimator = rowScaleHeightAnimation(clickedView, ANIMATION_DURATION);
             rowScaleHeightAnimator.setInterpolator(new ReverseInterpolator());
@@ -322,7 +328,7 @@ public class ListFragment extends CollectionFragment implements PodHoarderServic
 
             reverseRowTextColorAnimation(clickedView,ANIMATION_DURATION).start();
 
-            Animator rowTextSizeAnimator = rowTextSizeAnimation(clickedView, displaymetrics, ANIMATION_DURATION);
+            Animator rowTextSizeAnimator = rowTextSizeAnimation(clickedView, mMetrics, ANIMATION_DURATION);
             rowTextSizeAnimator.setInterpolator(new ReverseInterpolator());
             rowTextSizeAnimator.start();
 

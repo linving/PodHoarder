@@ -105,6 +105,8 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
         ((LibraryActivity)getActivity()).setOnFirstFeedAddedListener(this);
         setupFAB();
 
+        mToolbarContainer.bringToFront();
+
         return mContentView;
     }
 
@@ -250,11 +252,11 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
 
                                 mToolbarContainer.setTranslationY(scrollDelta);  //Move the toolbar vertically.
 
-                                if (mToolbarContainer.getTranslationY() != 0f && mFAB.getTranslationY() == 0f && mFAB != null) {
+                                if (mToolbarContainer.getTranslationY() != 0f && (mFAB != null || mFAB.getTranslationY() == 0f)) {
                                     mFAB.animate().translationY(mFAB.getMeasuredHeight() * 2).setDuration(100).setInterpolator(new AccelerateInterpolator());
                                     FABVisible = false;
                                 }
-                                else if (mToolbarContainer.getTranslationY() == 0f && mFAB.getTranslationY() != 0f && mFAB != null) {
+                                else if (mToolbarContainer.getTranslationY() == 0f && (mFAB != null || mFAB.getTranslationY() != 0f) ) {
                                     mFAB.animate().translationY(0f).setDuration(100).setInterpolator(new DecelerateInterpolator());
                                     FABVisible = true;
                                 }
@@ -308,8 +310,8 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
     }
 
     protected void setupFAB() {
+        mFAB = (ImageButton) mContentView.findViewById(R.id.fab);
         if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
-            mFAB = (ImageButton) mContentView.findViewById(R.id.fab);
             mFAB.setVisibility(View.VISIBLE);
             mFAB.setOnClickListener(new View.OnClickListener() {
 
@@ -323,8 +325,10 @@ public class GridFragment extends CollectionFragment implements SwipeRefreshLayo
             mFAB.setScaleY(0f);
             mFAB.animate().scaleX(1f).scaleY(1f).setInterpolator(new AnticipateOvershootInterpolator()).setDuration(200).start();
         }
-        else
+        else {
+            mFAB.setVisibility(View.GONE);
             FABVisible = false;
+        }
     }
 
     private void populate() {

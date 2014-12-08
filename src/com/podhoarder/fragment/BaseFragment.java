@@ -5,6 +5,7 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -75,6 +76,7 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
     @Override
     public void onResume() {
         ((LibraryActivity)getActivity()).setCurrentFragment(this);
+        mToolbarContainer.bringToFront();
         super.onResume();
     }
 
@@ -188,46 +190,19 @@ public class BaseFragment extends Fragment implements PodHoarderService.StateCha
     }
 
     public void appBarShowIcons() {
-        // get the center for the clipping circle
-        int cy = (mToolbar.getTop() + mToolbar.getBottom()) / 2;
-
-        // get the final radius for the clipping circle
-        int finalRadius = Math.max(mToolbar.getWidth(), mToolbar.getHeight());
-
-        // create the animator for this view (the start radius is zero)
-        Animator anim =
-                ViewAnimationUtils.createCircularReveal(mToolbar, 0, cy, mToolbar.getHeight(), finalRadius);
-
-        anim.setDuration(100);
-        anim.start();
+        if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
+            //Create a circular reveal effect to further emphasize the radial motion of the reveal (Only on >= SDK 21)
+            int cy = (mToolbar.getTop() + mToolbar.getBottom()) / 2;
+            int finalRadius = Math.max(mToolbar.getWidth(), mToolbar.getHeight());
+            Animator anim = ViewAnimationUtils.createCircularReveal(mToolbar, 0, cy, mToolbar.getHeight(), finalRadius);
+            anim.setDuration(100);
+            anim.start();
+        }
         iconFade(true, 200);
     }
 
     public void appbarHideIcons() {
         iconFade(false, 150);
-
-        /*if (mToolbar != null) {
-            // get the center for the clipping circle
-            int cy = (mToolbar.getTop() + mToolbar.getBottom()) / 2;
-
-            // get the final radius for the clipping circle
-            int finalRadius = Math.max(mToolbar.getWidth(), mToolbar.getHeight());
-
-            // create the animator for this view (the start radius is zero)
-            Animator anim = ViewAnimationUtils.createCircularReveal(mToolbar, 0, cy, mToolbar.getHeight(), finalRadius);
-
-            anim.setDuration(150);
-
-            anim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    //mToolbar.setVisibility(View.INVISIBLE);
-                }
-            });
-
-            anim.start();
-        }*/
     }
 
     private void iconFade(final boolean shouldFadeIn, final int duration) {

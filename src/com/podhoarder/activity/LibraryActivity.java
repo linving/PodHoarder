@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
@@ -266,7 +267,12 @@ public class LibraryActivity extends BaseActivity implements BaseActivity.Quickl
     public void startEpisodeActivity(final Episode currentEp) {
         if (!((Object) mCurrentFragment).getClass().getName().equals(EpisodeFragment.class.getName())) {
             final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setCustomAnimations(0, 0, 0, 0);
+            if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
+                ft.setCustomAnimations(0, 0, 0, 0);
+            }
+            else {
+                ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+            }
             ft.replace(R.id.root_container, EpisodeFragment.newInstance(currentEp.getEpisodeId()));
             ft.addToBackStack(null);
             ft.commit();

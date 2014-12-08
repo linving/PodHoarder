@@ -34,7 +34,8 @@ import java.io.InputStream;
 public class FeedImage 
 {
 	private static final String LOG_TAG = "com.podhoarderproject.podhoarder.FeedImage";
-	
+
+    private int mLargeSize;
 	private int mImageSize;
 	private int mThumbnailSize;
 	
@@ -66,7 +67,7 @@ public class FeedImage
 		setupImageDimensions();
 		if (this.mFeedId > 0 && shouldCreateImage)
 		{
-			this.loadImage(onlineURL);
+			this.loadImage();
 		}
 	}
 	
@@ -151,7 +152,7 @@ public class FeedImage
 	    {
 	    	Log.e(LOG_TAG, "Error when saving image " + fName, e);
 	    }
-		this.mLargeImage = decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize);
+		this.mLargeImage = decodeSampledBitmap(this.mFeedId + ".jpg", mLargeSize, mLargeSize);
 	    this.mImageObject = ImageUtils.scaleImage(mContext, this.mLargeImage, mImageSize);
 	    this.mThumbnail = ThumbnailUtils.extractThumbnail(mImageObject, mThumbnailSize, mThumbnailSize);
 	    if (this.mDownloadListener != null) {
@@ -164,14 +165,14 @@ public class FeedImage
 	 * The method tries to load an image from local storage. 
 	 * If that fails (i.e. the file isn't found) it downloads the file in the background.
 	 */
-	private void loadImage(String url)
+	private void loadImage()
 	{
 		try
 		{
-			this.mLargeImage = decodeSampledBitmap(this.mFeedId + ".jpg", mImageSize, mImageSize);
+			this.mLargeImage = decodeSampledBitmap(this.mFeedId + ".jpg", mLargeSize, mLargeSize);
 			this.mImageObject = ImageUtils.scaleImage(mContext, this.mLargeImage, mImageSize);
 			this.mThumbnail = ThumbnailUtils.extractThumbnail(mImageObject, mThumbnailSize, mThumbnailSize);
-            Palette.generateAsync(this.mImageObject, new Palette.PaletteAsyncListener() {   //Generate a Palette object to go with the image.
+            Palette.generateAsync(this.mLargeImage, new Palette.PaletteAsyncListener() {   //Generate a Palette object to go with the image.
                 @Override
                 public void onGenerated(Palette palette) {
                     mPalette = palette;
@@ -312,11 +313,13 @@ public class FeedImage
     {
         int storedValue = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(mContext).getString(Constants.SETTINGS_KEY_GRIDITEMSIZE,"-1"));
         if (storedValue > 0) {
+            mLargeSize = storedValue * 2;
             mImageSize = storedValue;
             mThumbnailSize = mImageSize / 2;
         }
         else {
             DisplayMetrics displayMetrics = mContext.getResources().getDisplayMetrics();
+            mLargeSize = displayMetrics.widthPixels;
             this.mImageSize = displayMetrics.widthPixels / 2;
             this.mThumbnailSize = this.mImageSize / 2;
         }

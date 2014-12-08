@@ -5,6 +5,7 @@ import android.animation.ValueAnimator;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -133,7 +134,6 @@ public abstract class BaseActivity extends ActionBarActivity {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerToggleEnabled = true;
 
-        mToolbarContainer.bringToFront();
     }
 
     @Override
@@ -338,10 +338,13 @@ public abstract class BaseActivity extends ActionBarActivity {
     }
 
     private int getStatusBarHeight() {
+
         int result = 0;
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = getResources().getDimensionPixelSize(resourceId);
+        if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
+            int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                result = getResources().getDimensionPixelSize(resourceId);
+            }
         }
         return result;
     }

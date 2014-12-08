@@ -2,6 +2,7 @@ package com.podhoarder.fragment;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.graphics.Palette;
 import android.text.format.DateUtils;
@@ -47,7 +48,7 @@ public class EpisodeFragment extends BaseFragment {
     private CheckableImageButton mFAB;
     private TextView mEpisodeDescription;
     private LinearLayout mTextContainer, mHeadlineContainer;
-    private float mOriginalToolbarElevation = 2f;
+    private float mOriginalToolbarElevation;
 
     private boolean mExitAnimationsFinished = false;
 
@@ -66,7 +67,9 @@ public class EpisodeFragment extends BaseFragment {
         super.onCreateView(inflater, container, savedInstanceState);
         mContentView = inflater.inflate(R.layout.fragment_episode, container, false);
 
-        mOriginalToolbarElevation = mToolbar.getElevation();
+        if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
+            mOriginalToolbarElevation = mToolbar.getElevation();
+        }
 
         int episodeId = getArguments().getInt("episodeId", 0);
 
@@ -89,8 +92,10 @@ public class EpisodeFragment extends BaseFragment {
 
     @Override
     public void onDestroy() {
-        mToolbar.setElevation(mOriginalToolbarElevation);
-        mOriginalToolbarElevation = 2f;
+        if (android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
+            mToolbar.setElevation(mOriginalToolbarElevation);
+            mOriginalToolbarElevation = 2f;
+        }
         super.onDestroy();
     }
 
@@ -99,10 +104,6 @@ public class EpisodeFragment extends BaseFragment {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.contextual_menu_episode, menu);
         EpisodeRowUtils.configureMenu(getActivity(), menu, mCurrentEpisode);
-        //mToolbar.setLayoutAnimation(AnimationUtils.loadLayoutAnimation(getActivity(),R.anim.appbar_layout));
-        //mToolbar.startLayoutAnimation();
-
-
     }
 
     @Override
@@ -138,7 +139,7 @@ public class EpisodeFragment extends BaseFragment {
 
     @Override
     public boolean onBackPressed() {
-        if (!mExitAnimationsFinished) {
+        if (!mExitAnimationsFinished && android.os.Build.VERSION.SDK_INT >=  Build.VERSION_CODES.LOLLIPOP) {
             appbarHideIcons();
             endFragmentAnimation();
             return true;
@@ -159,12 +160,12 @@ public class EpisodeFragment extends BaseFragment {
         mPodcastBanner.setImageBitmap(mCurrentFeed.getFeedImage().largeImage());
 
         Palette.Swatch colorSwatch = mCurrentFeed.getFeedImage().palette().getVibrantSwatch();
+        if (colorSwatch == null)
+            colorSwatch = mCurrentFeed.getFeedImage().palette().getMutedSwatch();
 
-        //mToolbar.setElevation(0f);
         TextView episodeTitle = (TextView) mContentView.findViewById(R.id.episode_title);
         episodeTitle.setText(mCurrentEpisode.getTitle());
         episodeTitle.setTextColor(colorSwatch.getBodyTextColor());
-        //episodeTitle.setScaleX(0f);
         episodeTitle.setAlpha(0f);
         episodeTitle.animate().alpha(1f).setDuration(200).setInterpolator(new AccelerateInterpolator()).start();
 

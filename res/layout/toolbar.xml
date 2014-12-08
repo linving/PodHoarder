@@ -10,13 +10,13 @@
         android:id="@+id/toolbar_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:minHeight="?attr/actionBarSize"
+        android:minHeight="@dimen/actionBarSize"
         android:background="@color/colorPrimary"/>
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
+        android:layout_height="@dimen/actionBarSize"
+        android:minHeight="@dimen/actionBarSize"
         app:title=" "
         app:theme="?toolbarStyle"/>
 </FrameLayout>
