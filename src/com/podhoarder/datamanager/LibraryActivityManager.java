@@ -72,7 +72,7 @@ public class LibraryActivityManager extends DataManager {
 
 
         } else
-            ToastMessages.AddFeedFailed(this.mContext).show();
+            ToastMessages.SubscribeFailed(this.mContext).show();
     }
 
     /**

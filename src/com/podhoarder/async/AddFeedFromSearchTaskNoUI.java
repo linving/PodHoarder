@@ -103,7 +103,7 @@ public class AddFeedFromSearchTaskNoUI  extends AsyncTask<SearchResultRow, Integ
             Log.i(LOG_TAG, "Added Feed: " + result.getTitle());
         else
         {
-            ToastMessages.AddFeedFailed(mContext).show();
+            ToastMessages.SubscribeFailed(mContext).show();
             Log.e(LOG_TAG, "Couldn't Add Feed!");
         }
     }

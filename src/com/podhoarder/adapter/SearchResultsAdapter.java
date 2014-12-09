@@ -1,35 +1,44 @@
 package com.podhoarder.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.v7.graphics.Palette;
 import android.text.Html;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.CheckBox;
+import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.podhoarder.object.PaletteTransformation;
 import com.podhoarder.object.SearchResultRow;
-import com.podhoarder.util.BitmapManager;
 import com.podhoarder.util.DataParser;
-import com.podhoarder.util.ImageUtils;
+import com.podhoarder.util.LetterTileProvider;
 import com.podhoarderproject.podhoarder.R;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
+import static android.support.v7.widget.RecyclerView.Adapter;
+import static android.support.v7.widget.RecyclerView.ViewHolder;
+
+public class SearchResultsAdapter extends Adapter
 {
 	@SuppressWarnings("unused")
 	private static final 	String 								LOG_TAG = "com.podhoarder.adapter.SearchResultsAdapter";
 	private 				List<SearchResultRow> 				results;
 	private 				Context 							context;
-	private					BitmapManager						mBitmapManager;
-    private                 boolean                             mSelectionEnabled;
+    private final           LetterTileProvider                  mTileProvider;
+
+    private                 OnSubscribeListener                 mOnSubscribeListener;
 
 	/**
 	 * Creates a LatestEpisodesListAdapter (Constructor).
@@ -42,7 +51,7 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 	{
 		this.results = new ArrayList<SearchResultRow>();
 		this.context = context;
-		this.mBitmapManager = new BitmapManager();
+        this.mTileProvider = new LetterTileProvider(context);
 	}
 	
 	/**
@@ -55,130 +64,146 @@ public class SearchResultsAdapter extends BaseAdapter implements ListAdapter
 		this.results.addAll(newItemCollection);
 	}
 
-	@Override
-	public int getCount()
-	{
-		return this.results.size();
-	}
+    @Override
+    public SearchResultsAdapterViewHolder onCreateViewHolder(ViewGroup parent, int i) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cards_layout, parent, false);
+        //TODO: Set OnClickListener
+        SearchResultsAdapterViewHolder holder = new SearchResultsAdapterViewHolder(view);
+        return holder;
+    }
 
-	@Override
-	public Object getItem(int position)
-	{
-		return this.results.get(position);
-	}
+    @Override
+    public void onBindViewHolder(final ViewHolder viewHolder, final int i) {
+        SearchResultsAdapterViewHolder holder = (SearchResultsAdapterViewHolder) viewHolder;
 
-	@Override
+        final SearchResultRow currentResult = this.results.get(i);
+
+        final ImageView feedImage = holder.feedImage;
+
+        final LinearLayout titleContainer = holder.titleContainer;
+        final TextView feedTitle = holder.feedTitle;
+        final TextView feedAuthor = holder.feedAuthor;
+
+        final TextView feedDescription = holder.feedDescription;
+        final TextView lastUpdated = holder.lastUpdated;
+
+        final Button subscribeButton = holder.subscribeButton;
+
+        feedTitle.setText(currentResult.getTitle());
+        feedAuthor.setText(currentResult.getAuthor());
+        lastUpdated.setText(currentResult.getTitle());
+
+        if (currentResult == null || !currentResult.getDescription().isEmpty())
+            feedDescription.setText(Html.fromHtml(currentResult.getDescription()).toString());
+        else
+            feedDescription.setText(this.context.getString(R.string.add_list_feed_no_description));
+
+        try
+        {
+            lastUpdated.setText(context.getString(R.string.add_list_feed_last_updated) + " " +
+                    DateUtils.getRelativeTimeSpanString(
+                            DataParser.correctFormat.parse(currentResult.getLastUpdated()).getTime()));	//Set a time stamp since Episode publication.
+        }
+        catch (ParseException e)
+        {
+            lastUpdated.setText(context.getString(R.string.add_list_feed_last_updated) + " " + context.getString(R.string.add_list_feed_last_updated_unknown));	//Set a time stamp since Episode publication.
+        }
+        catch (NullPointerException ex)
+        {
+            lastUpdated.setText(context.getString(R.string.add_list_feed_last_updated) + " " + context.getString(R.string.add_list_feed_last_updated_unknown));	//Set a time stamp since Episode publication.
+        }
+        Picasso.with(context)
+                .load(currentResult.getImageUrl())
+                .transform(PaletteTransformation.getInstance())
+                .error(new BitmapDrawable(context.getResources(), mTileProvider.getLetterTile(currentResult.getTitle(), currentResult.getLink(), feedImage.getMaxWidth(), feedImage.getMaxHeight())))
+                .into(feedImage, new Callback.EmptyCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Bitmap bitmap = ((BitmapDrawable) feedImage.getDrawable()).getBitmap();
+                        Palette palette = PaletteTransformation.getPalette(bitmap);
+                        try {
+                            Palette.Swatch s = palette.getVibrantSwatch();
+                            titleContainer.setBackgroundColor(s.getRgb());
+                            feedTitle.setTextColor(s.getTitleTextColor());
+                            feedAuthor.setTextColor(s.getBodyTextColor());
+                        } catch (NullPointerException e) {
+                            Log.e(LOG_TAG, "NullPointerException on " + currentResult.getTitle() + " when trying to get Swatch from Palette!");
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+        subscribeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnSubscribeListener != null)
+                    mOnSubscribeListener.onSubscribeConfirmed(viewHolder.itemView, i, currentResult);
+            }
+        });
+    }
+
+    @Override
 	public long getItemId(int position)
 	{
 		return position;
 	}
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent)
-	{
-		SearchResultsAdapterViewHolder viewHolder;
-		
-		if (convertView == null)
-		{
-			//Inflate
-			LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = inflater.inflate(R.layout.fragment_add_list_row, null);
-			
-			// Set up the ViewHolder
-	        viewHolder = new SearchResultsAdapterViewHolder();
-	        viewHolder.feedTitle = (TextView) convertView.findViewById(R.id.search_list_row_title);
-	        viewHolder.feedAuthor = (TextView) convertView.findViewById(R.id.search_list_row_author);
-	        viewHolder.lastUpdated = (TextView) convertView.findViewById(R.id.search_list_row_last_updated);
-	        viewHolder.feedDescription = (TextView) convertView.findViewById(R.id.search_list_row_description);
-	        viewHolder.feedImage = (ImageView) convertView.findViewById(R.id.search_list_row_image);
-            viewHolder.checkbox = (CheckBox)convertView.findViewById(R.id.search_list_row_checkbox);
-	        
-	        // Store the holder with the view.
-	        convertView.setTag(viewHolder);
-		}
-		else
-		{
-			viewHolder = (SearchResultsAdapterViewHolder) convertView.getTag();
-		}
-		
-		
-		SearchResultRow currentResult = this.results.get(position);
-		
-		if(currentResult != null) 
-		{
-			//Set Feed Title
-			viewHolder.feedTitle.setText(currentResult.getTitle());
-			//Set Feed Author
-			viewHolder.feedAuthor.setText(this.context.getString(R.string.notification_by) + " " + currentResult.getAuthor());
-			//Set Feed Description
-			if (currentResult == null || !currentResult.getDescription().isEmpty())
-				viewHolder.feedDescription.setText(Html.fromHtml(currentResult.getDescription()).toString());
-			else
-				viewHolder.feedDescription.setText(this.context.getString(R.string.add_list_feed_no_description));
-			//Set Last Updated string
-			try
-			{
-					viewHolder.lastUpdated.setText(context.getString(R.string.add_list_feed_last_updated) + " " + 
-							DateUtils.getRelativeTimeSpanString(
-									DataParser.correctFormat.parse(currentResult.getLastUpdated()).getTime()));	//Set a time stamp since Episode publication.
-			} 
-			catch (ParseException e)
-			{
-				viewHolder.lastUpdated.setText(context.getString(R.string.add_list_feed_last_updated) + " " + context.getString(R.string.add_list_feed_last_updated_unknown));	//Set a time stamp since Episode publication.
-			}
-			catch (NullPointerException ex)
-			{
-				viewHolder.lastUpdated.setText(context.getString(R.string.add_list_feed_last_updated) + " " + context.getString(R.string.add_list_feed_last_updated_unknown));	//Set a time stamp since Episode publication.
-			}
-			//Set Bitmap Image
-            if (mSelectionEnabled) {
-                viewHolder.feedImage.setVisibility(View.GONE);
-                viewHolder.checkbox.setVisibility(View.VISIBLE);
-            }
-            else {
-                viewHolder.feedImage.setVisibility(View.VISIBLE);
-                viewHolder.checkbox.setVisibility(View.GONE);
-
-            }
-
-            viewHolder.checkbox.setChecked(false);
-
-			if (mBitmapManager.isCached(currentResult.getImageUrl()))
-				viewHolder.feedImage.setImageBitmap(ImageUtils.getCircularBitmap(mBitmapManager.fetchBitmap(currentResult.getImageUrl(), viewHolder.feedImage.getMaxWidth())));
-			else
-				mBitmapManager.fetchBitmapOnThread(currentResult.getImageUrl(), viewHolder.feedImage);
-
-			viewHolder.feedImage.invalidate();
-		}
-		
-		return convertView;
-	}
+    @Override
+    public int getItemCount() {
+        return results.size();
+    }
 	
 	public void add(SearchResultRow row)
 	{
 		this.results.add(row);
+        this.notifyItemInserted(this.results.size()-1);
 	}
+
+    public void remove(int i) {
+        this.results.remove(i);
+        this.notifyItemRemoved(i);
+    }
 	
 	public void clear()
 	{
 		this.results.clear();
 	}
 
-    public void setSelectionEnabled(boolean enabled) {
-        mSelectionEnabled = enabled;
+    public interface OnSubscribeListener {
+        public void onSubscribeConfirmed(View v, int i, SearchResultRow resultData);
     }
 
-    public boolean isSelectionEnabled() {
-        return mSelectionEnabled;
+    public void setOnSubscribeListener(OnSubscribeListener listener) {
+        mOnSubscribeListener = listener;
     }
 
-    public static class SearchResultsAdapterViewHolder
+    public OnSubscribeListener getOnSubscribeListener() {
+        return mOnSubscribeListener;
+    }
+
+    public static class SearchResultsAdapterViewHolder extends ViewHolder
     {
         public TextView feedTitle;
         public TextView feedAuthor;
         public TextView lastUpdated;
         public TextView feedDescription;
+        public LinearLayout titleContainer;
         public ImageView feedImage;
-        public CheckBox checkbox;
+        public Button subscribeButton;
+
+        public SearchResultsAdapterViewHolder(View view) {
+            super(view);
+
+            feedImage = (ImageView) view.findViewById(R.id.search_list_row_image);
+
+            titleContainer = (LinearLayout) view.findViewById(R.id.search_list_row_text_container);
+            feedTitle = (TextView) titleContainer.findViewById(R.id.search_list_row_title);
+            feedAuthor = (TextView) titleContainer.findViewById(R.id.search_list_row_author);
+
+            feedDescription = (TextView) view.findViewById(R.id.search_list_row_description);
+            lastUpdated = (TextView) view.findViewById(R.id.search_list_row_last_updated);
+
+            subscribeButton = (Button) view.findViewById(R.id.search_list_row_button_subscribe);
+        }
     }
 }

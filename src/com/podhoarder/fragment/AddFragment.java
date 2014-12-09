@@ -2,6 +2,8 @@ package com.podhoarder.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -10,13 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
 import com.podhoarder.adapter.SearchResultsAdapter;
-import com.podhoarder.listener.SearchResultMultiChoiceModeListener;
 import com.podhoarder.object.SearchResultRow;
 import com.podhoarder.util.SearchManager;
+import com.podhoarder.util.ToastMessages;
 import com.podhoarder.view.AnimatedSearchView;
 import com.podhoarderproject.podhoarder.R;
 
@@ -26,16 +26,15 @@ import java.util.List;
 /**
  * Created by Emil on 2014-11-01.
  */
-public class AddFragment extends BaseFragment implements SearchView.OnQueryTextListener, SearchResultMultiChoiceModeListener.onDialogResultListener  {
+public class AddFragment extends BaseFragment implements SearchView.OnQueryTextListener, SearchResultsAdapter.OnSubscribeListener {
 
-    private ListView mListView;
+    private RecyclerView mListView;
+    private LinearLayoutManager mLayoutManager;
     private SearchResultsAdapter mListAdapter;
 
     private SearchManager mSearchManager;
 
     private AnimatedSearchView mSearchView;
-
-    private SearchResultMultiChoiceModeListener mListSelectionListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -88,6 +87,15 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
     }
 
     @Override
+    public void onSubscribeConfirmed(View v, int i, SearchResultRow resultData) {
+        this.mListAdapter.remove(i);
+        List<SearchResultRow> result = new ArrayList<SearchResultRow>();
+        result.add(resultData);
+        mDataManager.addSearchResults(result);
+        ToastMessages.Subscribed(getActivity()).show();
+    }
+
+    @Override
     public boolean onQueryTextChange(String arg0) {
         // TODO Auto-generated method stub
         return false;
@@ -111,23 +119,12 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
 
     private void setupListView() {
         this.mListAdapter = new SearchResultsAdapter(getActivity());
+        this.mListAdapter.setOnSubscribeListener(this);
 
-        this.mListView = (ListView) mContentView.findViewById(R.id.mainListView);
+        this.mListView = (RecyclerView) mContentView.findViewById(R.id.mainListView);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mListView.setLayoutManager(mLayoutManager);
         this.mListView.setAdapter(this.mListAdapter);
-        this.mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        this.mListSelectionListener = new SearchResultMultiChoiceModeListener(
-                getActivity(), this.mListView);
-        this.mListSelectionListener.setmOnDialogResultListener(this);
-        this.mListView.setMultiChoiceModeListener(this.mListSelectionListener);
-        this.mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View v,
-                                    int position, long id) {
-                List<SearchResultRow> selectedItem = new ArrayList<SearchResultRow>();
-                selectedItem.add((SearchResultRow) mListView.getItemAtPosition(position));
-                mListSelectionListener.addFeedsDialog(getActivity(), selectedItem);
-            }
-        });
     }
 
     public void hideKeyboard() {
@@ -137,13 +134,6 @@ public class AddFragment extends BaseFragment implements SearchView.OnQueryTextL
         View view = getActivity().getCurrentFocus();
         if (view != null) {
             inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        }
-    }
-
-    @Override
-    public void onDialogResultReceived(int result, List<SearchResultRow> selectedResults) {
-        if (result == 1) {
-            finish(selectedResults);
         }
     }
 }

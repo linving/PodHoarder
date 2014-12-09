@@ -35,9 +35,10 @@
     
     <!-- Add Feeds Activity -->
     <string name="add_search_hint">Find Podcasts</string>
-    <string name="add_list_feed_last_updated">Last update</string>
+    <string name="add_list_feed_last_updated">Updated</string>
     <string name="add_list_feed_last_updated_unknown">unknown</string>
     <string name="add_list_feed_no_description">No description available.</string>
+    <string name="add_list_subscribe_button">Subscribe</string>
     
     <!-- Settings -->    
     <string name="pref_group_ui_title">UI Options</string>
@@ -92,7 +93,8 @@
     <string name="toast_feeds_refreshed_failed">Can\'t refresh</string>
     <string name="toast_player_playback_failed">Can\'t play</string>
     <string name="toast_download_failed">Can\'t download</string>
-    <string name="toast_add_feed_failed">Can\'t add podcast</string>
+    <string name="toast_subscribe_failed">Can\'t subscribe to podcast</string>
+    <string name="toast_subscribed">Subscribed!</string>
     <string name="toast_no_network">No network available</string>
     <string name="toast_timer_set">Sleep timer set for</string>
     <string name="toast_timer_cancelled">Sleep timer cancelled.</string>

@@ -6,15 +6,12 @@
     android:orientation="vertical"
     android:clickable="true">
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/mainListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
     	android:paddingTop="8dp"
         android:paddingBottom="8dp"
     	android:clipToPadding="false"
-        android:dividerHeight="1px"
-        android:clickable="true"
-        android:longClickable="true"
-        android:listSelector="@drawable/list_selector"/>
+        android:scrollbars="vertical"/>
 </LinearLayout>

@@ -7,5 +7,9 @@
     <dimen name="button_press_elevation">4dp</dimen>
 
     <dimen name="actionBarSize">56dp</dimen>
-    
+
+    <!-- The default letter tile text size -->
+    <dimen name="tile_letter_font_size">128sp</dimen>
+    <!-- The deafult tile size -->
+    <dimen name="letter_tile_size">64dp</dimen>
 </resources>

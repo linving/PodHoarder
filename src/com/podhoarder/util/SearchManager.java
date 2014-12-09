@@ -316,14 +316,12 @@ public class SearchManager
 		@Override
 		protected void onPostExecute(SearchResultRow result) 
 		{
+            mSearchTask.mSubtasks.remove(this);
 			if (result != null)
 			{
 				mListAdapter.add(result);
-				publishProgress();
 			}
-			else
-				mSearchTask.mFailedTasks++;
-			if ((mSearchTask.mSubtasks.size() - mSearchTask.mFailedTasks) == mListAdapter.getCount())	//The last subtask has been completed.
+			if (mSearchTask.mSubtasks.isEmpty())	//The last subtask has been completed.
 			{
 				mSearchView.setSearching(false);
 			}
@@ -332,14 +330,17 @@ public class SearchManager
 		@Override
 		protected void onProgressUpdate(Void... nothing)
 		{
-			mListAdapter.notifyDataSetChanged();
 		}
 
 		@Override
 		protected void onCancelled(SearchResultRow result)
 		{
 			Log.i("ParseFeedTask", "Search Result Parse task cancelled");
-			super.onCancelled(result);
+            mSearchTask.mFailedTasks++;
+            if ((mSearchTask.mSubtasks.size() - mSearchTask.mFailedTasks) == mListAdapter.getItemCount())	//The last subtask has been completed.
+            {
+                mSearchView.setSearching(false);
+            }
 		}
 	}
 	

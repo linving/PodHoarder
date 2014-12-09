@@ -52,14 +52,24 @@ public class ToastMessages
 		return Toast.makeText(ctx, ctx.getString(R.string.toast_player_playback_failed), Toast.LENGTH_SHORT);
 	}
 
+    /**
+     * Shows a "Subscribed to..." message.
+     * @param ctx Application context.
+     * @return A Toast message object. Add .show() to show.
+     */
+    public static Toast Subscribed(Context ctx)
+    {
+        return Toast.makeText(ctx, ctx.getString(R.string.toast_subscribed), Toast.LENGTH_SHORT);
+    }
+
 	/**
 	 * Shows a "Failed To Add Podcast" message.
 	 * @param ctx Application Context.
 	 * @return A Toast message object. Add .show() to show.
 	 */
-	public static Toast AddFeedFailed(Context ctx)
+	public static Toast SubscribeFailed(Context ctx)
 	{
-		return Toast.makeText(ctx, ctx.getString(R.string.toast_add_feed_failed), Toast.LENGTH_SHORT);
+		return Toast.makeText(ctx, ctx.getString(R.string.toast_subscribe_failed), Toast.LENGTH_SHORT);
 	}
 
 	/**
